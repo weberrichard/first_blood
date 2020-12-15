@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# project results
+projects/first_test/results/*
+projects/*
