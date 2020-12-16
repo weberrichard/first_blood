@@ -53,7 +53,7 @@ void first_blood::load_system_csv()
 						nodes[j]->is_resistance = 1.;
 					}
 				}
-				nodes[j]->pressure_out = 1.e5;
+				nodes[j]->pressure_out = atmospheric_pressure;
 				nodes[j]->type = "junction";
 				nodes[j]->type_code = 0;
 				j++;
@@ -81,7 +81,7 @@ void first_blood::load_system_csv()
 					}
 				}
 
-				nodes[j]->pressure_out = 1.e5;
+				nodes[j]->pressure_out = atmospheric_pressure;
 				nodes[j]->type = "periferia";
 				nodes[j]->type_code = 1;
 				j++;
@@ -91,7 +91,7 @@ void first_blood::load_system_csv()
 				nodes.push_back(new node(sv[1]));
 				nodes[j]->resistance = 1.;
 				nodes[j]->is_resistance = 0.;
-				nodes[j]->pressure_out = stod(sv[3],0)*mmHg_to_Pa;
+				nodes[j]->pressure_out = stod(sv[3],0)*mmHg_to_Pa + atmospheric_pressure;
 				nodes[j]->type = "periferia";
 				nodes[j]->type_code = 1;
 				j++;

@@ -338,7 +338,7 @@ double edge::boundary_periferia(double dt, double p_out)
 	vp[nx-1] = v_e;
 
 	double p_e;
-	p_e = p0 + Re*rho*A[nx-1]*v_e;
+	p_e = p_out + Re*rho*A[nx-1]*v_e;
 	pp[nx-1] = p_e;
 
 	return v_e*A[nx-1];
