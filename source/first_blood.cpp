@@ -44,6 +44,23 @@ first_blood::first_blood(string file_name, double a_time_end)
 first_blood::~first_blood(){}
 
 //--------------------------------------------------------------
+void first_blood::print_input()
+{  
+   printf("\n EDGES \n ----- \n");
+   printf("\n %8s, %8s, %8s, %8s, %6s, %6s, %6s, %3s, %9s, %9s, %9s, %9s, %9s", "type", "name", "n_start", "n_end", "d", "s", "l", "nx", "E1", "E2", "eta", "Rs", "Re");
+   for(unsigned int i=0; i<number_of_edges; i++)
+   {
+      edges[i]->print_input();
+   }
+   printf("\n NODES \n ----- \n");
+   printf("\n %8s, %8s, %6s, %6s, %6s, %6s", "type", "name", "0.", "p0", "R", "Ri");
+   for(unsigned int i=0; i<number_of_nodes; i++)
+   {
+      nodes[i]->print_input();
+   }
+}
+
+//--------------------------------------------------------------
 void first_blood::build_system()
 {
    // Clearing the in/out going edges from nodes

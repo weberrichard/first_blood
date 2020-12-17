@@ -51,6 +51,9 @@ public:
    vector<double> boundary_coefficients();
    void boundary_variables(double p);
 
+   // printing input parameters to console
+   void print_input();
+
    // setting initial condition to field variables
    void initialization();
 

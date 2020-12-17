@@ -11,6 +11,12 @@ node::node(string a_name)
 node::~node(){}
 
 //--------------------------------------------------------------
+void node::print_input()
+{
+	printf("\n %8s, %8s, %6.4f, %6.4f, %6.4f, %6.4f", type.c_str(), name.c_str(), 0., p0, R, Ri);
+}
+
+//--------------------------------------------------------------
 void node::initialization()
 {
 	// clearing time variables

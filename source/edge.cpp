@@ -12,6 +12,13 @@ edge::edge(string a_name)
 edge::~edge(){}
 
 //--------------------------------------------------------------
+void edge::print_input()
+{
+	printf("\n %8s, %8s, %8s, %8s, %6.3f, %6.3f, %6.3f, %3i, %6.3e, %6.3e, %6.3e, %6.3e, %6.3e", "vis", name.c_str(), node_name_start.c_str(), node_name_end.c_str(), dn, sn, l, nx, E1, E2, eta2, Rs, Re);
+}
+
+
+//--------------------------------------------------------------
 void edge::initialization()
 {
 	// clearing time variables
@@ -72,6 +79,13 @@ void edge::initialization()
 
 	// saving initial conditions
 	save_field_variables();
+}
+
+//--------------------------------------------------------------
+void edge::set_pressure_upstream(double p_in)
+{
+	p[0] = p_in;
+	cout << "pin: " << p_in << endl;
 }
 
 //--------------------------------------------------------------
@@ -269,7 +283,7 @@ vector<double> edge::boundary_start_coefficients(double dt)
 
 	// C- characteristics constants
 	double C1m = 1. / (rho*aR + Rs*rho*A[nx-1]) * A[0];
-	double C2m = aR/(aR+Rs*A[nx-1]) * (-dt*J + vR - pR/(rho*aR)) * A[0];
+	double C2m = aR/(aR + Rs*A[nx-1]) * (-dt*J + vR - pR/(rho*aR)) * A[0];
 
 	vector<double> out{C1m,C2m};
 	return out;
@@ -305,14 +319,14 @@ vector<double> edge::boundary_end_coefficients(double dt)
 void edge::boundary_start_variables(double dt, double p, double q)
 {
 	vp[0] = q/A[0];
-	pp[0] = p + Rs*rho*q;
+	pp[0] = p - Rs*rho*q;
 }
 
 //--------------------------------------------------------------
 void edge::boundary_end_variables(double dt, double p, double q)
 {
 	vp[nx-1] = q/A[nx-1];
-	pp[nx-1] = p - Re*rho*q;
+	pp[nx-1] = p + Re*rho*q;
 }
 
 //--------------------------------------------------------------
@@ -383,6 +397,9 @@ double edge::upstream_boundary(double dt, double p_in)
 
 	double v = (vR+1./(rho*aR)*(p_in-pR)-dt*J) / (1.+Rs*AR/aR);
 	vp[0] = v;
+
+	//cout << "pin: " << p_in << " pr: " << pR << "  xr: " << xR << " JR: " << J << " v:" << v << " RS: " << Rs << endl;
+	//cin.get();
 
 	double p = p_in - Rs*rho*A[0]*v;
 	pp[0] = p;

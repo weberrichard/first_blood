@@ -16,9 +16,17 @@ void moc_solver::initialization()
    {
       edges[i]->initialization();
    }
-
+   
    // setting back the pressure_upstream interpolation index to 0
    index_upstream = 0;
+   for(unsigned int i=0; i<number_of_edges; i++)
+   {
+      if(nodes[edges[i]->node_index_start]->is_upstream_boundary)
+      {
+         edges[i]->set_pressure_upstream(pressure_upstream[0]);
+         cout << "pup: " << pressure_upstream[0] << endl;
+      }
+   }
 }
 
 //--------------------------------------------------------------
@@ -48,7 +56,10 @@ void moc_solver::forward_solver(string node_id)
       }
       time.push_back(time.back() + dt_real);
 
-      printf("i: %3i, time: %8.5f, dt: %8.5f \n", i, time[i], dt_real);
+      //if(i%1000==0)
+      //{
+         printf("\n i: %3i, time: %8.5f, dt: %8.5f", i, time[i], dt_real);
+      //}
 
       // calculating new pressure and velocity field in inner points
       for(unsigned int j=0; j<forward_edges.size(); j++)
@@ -278,14 +289,6 @@ void moc_solver::forward_tree(string node_id)
    {
       cout << forward_edges[i] << endl;
    }
-   cout <<"OK"<<endl;
-
-   cout << "forward_nodes all:" << endl;
-   for(unsigned int i=0; i<forward_nodes.size(); i++)
-   {
-      cout << forward_nodes[i] << endl;
-   }
-   cout << "OKOK" << endl;
 
    forward_nodes = unique(forward_nodes);
 
@@ -294,9 +297,10 @@ void moc_solver::forward_tree(string node_id)
    {
       cout << forward_nodes[i] << endl;
    }
-   cout << "OKOK" << endl;
 
+   cout << "ne: " << forward_edges.size() << "  nn: " << forward_nodes.size() << endl;
    cin.get();
+
 }
 
 //-------------------------------------------------------------- 

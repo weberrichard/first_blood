@@ -49,7 +49,7 @@ public:
    double geodetic_height_end=0.; //m
    int division_points; // pc.
 
-   double gravity = 9.81; // m/s2
+   double gravity = 9.806; // m/s2
    double density = 1050.; // m/s2
    double kinematic_viscosity = 3.e-6; // m2/s
    double atmospheric_pressure = 1.e5; // Pa
@@ -73,8 +73,12 @@ public:
    vector<double> mass_flow_rate_start; // kg/s
    vector<double> mass_flow_rate_end; // kg/s
 
+   // printing input parameters to console
+   void print_input();
    // setting initial condition to field variables and setting short parameters
    void initialization();
+   // setting upstream pressure p[0], only in the case of upstream_boundary
+   void set_pressure_upstream(double p_in);
    // calculating the field variables at the new time step level
    void solve();
    // calculating the new timesteps for each division point
@@ -118,7 +122,8 @@ private:
    vector<double> h; // geodetic height, m
 
    // short notations
-   double l, dn, sn, eta2, E1, E2, Rs, Re, nx, g, rho, nu, dx, hs, he, an, p0;
+   double l, dn, sn, eta2, E1, E2, Rs, Re, g, rho, nu, dx, hs, he, an, p0;
+   int nx;
    void set_short_parameters(); // matching the longer and shorter parameters
 
    // calculating temp variables for characteristics

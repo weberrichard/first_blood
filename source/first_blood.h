@@ -42,7 +42,7 @@ public:
    vector<edge*> edges;
 
    // Constants for hydraulics, note: there are constants in Edge.h
-   double gravity = 9.81; // [m/s2]
+   double gravity = 9.806; // [m/s2]
    double density = 1050.; // [kg/m3]
    double kinematic_viscosity = 3e-6; // [m2/s]
    double mmHg_to_Pa = 133.3616; // [Pa/mmHg] for converting inputs from mmHg to Pa
@@ -56,6 +56,9 @@ public:
 
    /// Saving results to file
    void save_results();
+
+   // printing every input information to console from edges and nodes
+   void print_input();
 
 protected:
    // name of the case without extension or folders
