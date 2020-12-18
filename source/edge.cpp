@@ -85,7 +85,6 @@ void edge::initialization()
 void edge::set_pressure_upstream(double p_in)
 {
 	p[0] = p_in;
-	cout << "pin: " << p_in << endl;
 }
 
 //--------------------------------------------------------------
@@ -401,9 +400,6 @@ double edge::upstream_boundary(double dt, double p_in)
 
 	double v = (vR+1./(rho*aR)*(p_in-pR)-dt*J) / (1.+Rs*AR/aR);
 	vp[0] = v;
-
-	//cout << "pin: " << p_in << " pr: " << pR << "  xr: " << xR << " JR: " << J << " v:" << v << " RS: " << Rs << " AR: " << AR << endl;
-	//cin.get();
 
 	double p = p_in - Rs*rho*A[0]*v;
 	pp[0] = p;

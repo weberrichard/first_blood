@@ -19,14 +19,6 @@ void moc_solver::initialization()
    
    // setting back the pressure_upstream interpolation index to 0
    index_upstream = 0;
-   //for(unsigned int i=0; i<number_of_edges; i++)
-   //{
-   //   if(nodes[edges[i]->node_index_start]->is_upstream_boundary)
-   //   {
-   //      edges[i]->set_pressure_upstream(pressure_upstream[0]);
-   //      cout << "pup: " << pressure_upstream[0] << endl;
-   //   }
-   //}
 }
 
 //--------------------------------------------------------------
@@ -56,10 +48,10 @@ void moc_solver::forward_solver(string node_id)
       }
       time.push_back(time.back() + dt_real);
 
-      //if(i%1000==0)
-      //{
+      if(i%1000==0)
+      {
          printf("\n i: %3i, time: %8.5f, dt: %8.5f", i, time[i], dt_real);
-      //}
+      }
 
       // calculating new pressure and velocity field in inner points
       for(unsigned int j=0; j<forward_edges.size(); j++)
@@ -209,10 +201,6 @@ void moc_solver::boundaries(double dt)
             int edge_index = nodes[forward_nodes[i]]->edge_out[j];
             edges[edge_index]->boundary_start_variables(dt,p_nodal,q);
          }
-
-         //cin.get();
-         //nodes[forward_nodes[i]]->pressure.push_back(p_nodal);
-         //nodes[forward_nodes[i]]->volume_flow_rate.push_back(q_nodal);
       }
    }
 }
@@ -284,24 +272,7 @@ void moc_solver::forward_tree(string node_id)
       }
    }
 
-   // FOR DEBUG
-   cout << "forward_edges:" << endl;
-   for(unsigned int i=0; i<forward_edges.size(); i++)
-   {
-      printf(" %3i, %8s\n",forward_edges[i], edges[forward_edges[i]]->name.c_str());
-   }
-
    forward_nodes = unique(forward_nodes);
-
-   cout << "forward_nodes unique:" << endl;
-   for(unsigned int i=0; i<forward_nodes.size(); i++)
-   {
-      printf(" %3i, %8s\n",forward_nodes[i], nodes[forward_nodes[i]]->name.c_str());
-   }
-
-   cout << "ne: " << forward_edges.size() << "  nn: " << forward_nodes.size() << endl;
-   cin.get();
-
 }
 
 //-------------------------------------------------------------- 

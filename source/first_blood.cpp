@@ -11,6 +11,9 @@ first_blood::first_blood(string file_name, double a_time_end)
    // getting rid of extension
    case_name = case_name.substr(0,case_name.length()-4);
 
+   // some feedback to console
+   cout << " [*] Case name: " << case_name << endl;
+
    // getting the path of the folder
    input_folder_path = input_file_path.substr(0,input_file_path.rfind('/')+1);
 
