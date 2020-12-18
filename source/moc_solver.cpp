@@ -19,14 +19,14 @@ void moc_solver::initialization()
    
    // setting back the pressure_upstream interpolation index to 0
    index_upstream = 0;
-   for(unsigned int i=0; i<number_of_edges; i++)
-   {
-      if(nodes[edges[i]->node_index_start]->is_upstream_boundary)
-      {
-         edges[i]->set_pressure_upstream(pressure_upstream[0]);
-         cout << "pup: " << pressure_upstream[0] << endl;
-      }
-   }
+   //for(unsigned int i=0; i<number_of_edges; i++)
+   //{
+   //   if(nodes[edges[i]->node_index_start]->is_upstream_boundary)
+   //   {
+   //      edges[i]->set_pressure_upstream(pressure_upstream[0]);
+   //      cout << "pup: " << pressure_upstream[0] << endl;
+   //   }
+   //}
 }
 
 //--------------------------------------------------------------
@@ -192,7 +192,7 @@ void moc_solver::boundaries(double dt)
          double p_nodal = num/denum;
          nodes[forward_nodes[i]]->boundary_variables(p_nodal);
 
-         double q_nodal = 0;
+         double q_nodal = 0.0;
          // edge velocity and pressure
          for(unsigned int j=0; j<nodes[forward_nodes[i]]->edge_in.size(); j++)
          {
@@ -210,8 +210,9 @@ void moc_solver::boundaries(double dt)
             edges[edge_index]->boundary_start_variables(dt,p_nodal,q);
          }
 
-         nodes[forward_nodes[i]]->pressure.push_back(p_nodal);
-         nodes[forward_nodes[i]]->volume_flow_rate.push_back(q_nodal);
+         //cin.get();
+         //nodes[forward_nodes[i]]->pressure.push_back(p_nodal);
+         //nodes[forward_nodes[i]]->volume_flow_rate.push_back(q_nodal);
       }
    }
 }
@@ -287,7 +288,7 @@ void moc_solver::forward_tree(string node_id)
    cout << "forward_edges:" << endl;
    for(unsigned int i=0; i<forward_edges.size(); i++)
    {
-      cout << forward_edges[i] << endl;
+      printf(" %3i, %8s\n",forward_edges[i], edges[forward_edges[i]]->name.c_str());
    }
 
    forward_nodes = unique(forward_nodes);
@@ -295,7 +296,7 @@ void moc_solver::forward_tree(string node_id)
    cout << "forward_nodes unique:" << endl;
    for(unsigned int i=0; i<forward_nodes.size(); i++)
    {
-      cout << forward_nodes[i] << endl;
+      printf(" %3i, %8s\n",forward_nodes[i], nodes[forward_nodes[i]]->name.c_str());
    }
 
    cout << "ne: " << forward_edges.size() << "  nn: " << forward_nodes.size() << endl;

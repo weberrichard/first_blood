@@ -69,6 +69,6 @@ vector<double> node::boundary_coefficients()
 void node::boundary_variables(double p)
 {
 	pressure.push_back(p);
-	double Q = (p-p0)/(R*rho);
+	double Q = (p-p0)/(R*rho) * Ri;
 	volume_flow_rate.push_back(Q);
 }

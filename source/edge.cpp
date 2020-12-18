@@ -176,6 +176,10 @@ double edge::JR(double dt, double p, double v, double a, double epsz, double eps
 //--------------------------------------------------------------
 void edge::interpolate(double dt_real)
 {
+	// setting back dt-s at boundaries
+	dt[0]    = dt_real;
+	dt[nx-1] = dt_real;
+
 	// interpolation in space, position: xp, old time level
 	vq[0]    = v[0];
 	pq[0]    = p[0];
@@ -398,7 +402,7 @@ double edge::upstream_boundary(double dt, double p_in)
 	double v = (vR+1./(rho*aR)*(p_in-pR)-dt*J) / (1.+Rs*AR/aR);
 	vp[0] = v;
 
-	//cout << "pin: " << p_in << " pr: " << pR << "  xr: " << xR << " JR: " << J << " v:" << v << " RS: " << Rs << endl;
+	//cout << "pin: " << p_in << " pr: " << pR << "  xr: " << xR << " JR: " << J << " v:" << v << " RS: " << Rs << " AR: " << AR << endl;
 	//cin.get();
 
 	double p = p_in - Rs*rho*A[0]*v;
