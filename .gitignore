@@ -34,6 +34,10 @@
 # project results
 projects/first_test/results/*
 projects/test_single_artery/*
+
+# models
 models/*
+
+# other files
 *.xlsx
-projects/first_test/for_compare.xlsx
+*.png
