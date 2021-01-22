@@ -96,13 +96,12 @@ void first_blood::load_system_csv()
 				nodes[j]->type_code = 1;
 				j++;
 			}
-			else if(sv[0] == "sziv") // nodes
+			else if(sv[0] == "sziv" || sv[0] == "heart") // nodes
 			{
 				// nodes, only heart
 				nodes.push_back(new node(sv[1]));
 				nodes[j]->resistance = 1.; // this will be multiplied with is_resistance i.e. there is no leakage
 				nodes[j]->is_resistance = 0.;
-				nodes[j]->is_upstream_boundary = true;
 				nodes[j]->type = "heart";
 				nodes[j]->type_code = 2;
 
@@ -123,6 +122,11 @@ void first_blood::load_system_csv()
          			p += atmospheric_pressure; // adding the atmospheric pressure
 
 						pressure_upstream.push_back(p);
+					}
+					// eliminating the delay if present
+					for(unsigned int i=0; i<time_upstream.size(); i++)
+					{
+						time_upstream[i] -= time_upstream[0];
 					}
 				}
 				else
@@ -184,7 +188,7 @@ void first_blood::save_results()
    {  
       string file_name = folder_name + nodes[i]->name + ".txt";
       out_file = fopen(file_name.c_str(),"w");
-      for(unsigned int j=0; j<number_of_timesteps; j++)
+      for(unsigned int j=0; j<nodes[i]->pressure.size(); j++)
       {
          fprintf(out_file, "%9.7e, %9.7e, %9.7e\n", time[j], nodes[i]->pressure[j],nodes[i]->volume_flow_rate[j]);
       }
@@ -194,7 +198,7 @@ void first_blood::save_results()
    {
       string file_name = folder_name + edges[i]->name + ".txt";
       out_file = fopen(file_name.c_str(),"w");
-      for(unsigned int j=0; j<number_of_timesteps; j++)
+      for(unsigned int j=0; j<edges[i]->pressure_start.size(); j++)
       {
          double t = time[j];
          double ps = edges[i]->pressure_start[j];

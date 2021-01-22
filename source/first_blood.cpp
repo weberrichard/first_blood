@@ -2,7 +2,7 @@
 
 using namespace Eigen;
 
-first_blood::first_blood(string file_name, double a_time_end)
+first_blood::first_blood(string file_name)
 {
    input_file_path = file_name;
 
@@ -32,9 +32,6 @@ first_blood::first_blood(string file_name, double a_time_end)
    // calculating the number of nodes and edges
    number_of_edges = edges.size();
    number_of_nodes = nodes.size();
-
-   // number of timesteps is an input data
-   time_end = a_time_end;
 
    // Finding the indicies of nodes for the edges and vica versa
    build_system();

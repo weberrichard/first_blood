@@ -19,8 +19,8 @@ void edge::print_input()
 
 
 //--------------------------------------------------------------
-void edge::initialization()
-{
+void edge::initialization(double p_init)
+{	
 	// clearing time variables
 	pressure_start.clear();
    pressure_end.clear();
@@ -55,7 +55,7 @@ void edge::initialization()
 	xp.clear();    xp.resize(nx);
 
 	// giving initial conditions
-	p.assign(nx,p0);
+	p.assign(nx,p_init);
 	v.assign(nx,0.);
 	a.assign(nx,pow(E1*sn/(dn*rho),0.5));
 	d.assign(nx,dn);
@@ -125,51 +125,13 @@ void edge::solve()
 		// new field variables
 		vp[i] = (p[i-1]-p[i+1] + rho*(a[i-1]*v[i-1] + a[i+1]*v[i+1]) - dt[i]*rho*(a[i-1]*JL(i) + a[i+1]*JR(i))) / (rho*(a[i-1]+a[i+1]));
 		pp[i] = p[i+1] + rho*a[i+1]*(vp[i]-v[i+1]) + rho*a[i+1]*dt[i]*JR(i);
+
+		/*if(vp[i]>0.9*a[i])
+		{
+			vp[i] = 0.9*a[i];
+			cout << "i: " << i << " vp: " << vp[i] << " ai: " << a[i] << " an: " << an <<endl;
+		}*/
 	}
-}
-
-//--------------------------------------------------------------
-double edge::JL(int i)
-{
-	double out =	JL(dt[i], p[i-1], v[i-1], a[i-1], epsz[i-1], epsz2[i-1], d[i-1], h[i-1], xp[i], x[i-1]);
-	return out;
-}
-
-//--------------------------------------------------------------
-double edge::JL(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
-{
-	// temp variable
-	double AL = ( (p-p0)*dn*(2.*epsz+1)/(eta2*2.*sn) - E2/eta2*epsz2 )*exp(-E2/eta2*dt);
-
-	// geodetic height difference
-	double hp = hs + xp/l*(he-hs);
-
-	// output
-	double JL = g*(hp-h)/(xp-x) + 32.*nu*v/(d*d) + 2*a/(2.*epsz+1.)*AL;
-
-	return JL;
-}
-
-//--------------------------------------------------------------
-double edge::JR(int i)
-{
-	double out = JR(dt[i], p[i+1], v[i+1], a[i+1], epsz[i+1], epsz2[i+1], d[i+1], h[i+1], xp[i], x[i+1]);
-	return out;
-}
-
-//--------------------------------------------------------------
-double edge::JR(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
-{
-	// temp variables
-	double AR = ( (p-p0)*dn*(2.*epsz+1)/(eta2*2.*sn) - E2/eta2*epsz2 )*exp(-E2/eta2*dt);
-
-	// geodetic height difference
-	double hp = hs + xp/l*(he-hs);
-
-	// output
-	double JR = g*(hp-h)/(xp-x) + 32.*nu*v/(d*d) - 2*a/(2.*epsz+1.)*AR;
-
-	return JR;
 }
 
 //--------------------------------------------------------------
@@ -226,17 +188,376 @@ void edge::interpolate(double dt_real)
 }
 
 //--------------------------------------------------------------
-void edge::update_field_variables(double dt)
+vector<vector<double> > edge::backward_solver(vector<double> t_d, vector<double> p_d, vector<double> vfr_d)
+{	
+	// giving initial condition at the outlet in time
+	initialization_back(t_d, p_d, vfr_d);
+
+	while(x_back.back() < l)
+	{	
+		double dx_real = new_spacestep_back();
+		solve_back();
+		interpolate_back(dx_real);
+
+		//update_variables(dt_back);
+		double ex = exp(-E2/eta2*dt_back);
+		for(unsigned int i=0; i<nt_back; i++)
+		{
+			if(i>0)
+	      {
+      		update_ith_variables(i,ex,p[i],epsz2[i-1],epsz[i-1]);
+	      }
+	      else
+	      {
+	      	update_ith_variables(i,ex,p[0],epsz2[0],epsz[0]);
+	      }
+		}
+		reduce_field_vectors();
+	}
+
+	vector<vector<double> > out;
+	out.push_back(t_back);
+	out.push_back(p);
+
+	return out;
+}
+
+//--------------------------------------------------------------
+void edge::initialization_back(vector<double> t_in, vector<double> p_in, vector<double> vfr_in)
+{
+	// clearing time variables
+	pressure_start.clear();
+   pressure_end.clear();
+   velocity_start.clear();
+   velocity_end.clear();
+   wave_velocity_start.clear();
+   wave_velocity_end.clear();
+   total_deformation_start.clear();
+   total_deformation_end.clear();
+   damper_deformation_start.clear();
+   damper_deformation_end.clear();
+   diameter_start.clear();
+   diameter_end.clear();
+
+   // matching the parameters for the short notations
+	set_short_parameters();
+
+	// backward calculation vars
+	x_back.clear(); x_back.push_back(0.);
+
+	// number of timesteps
+	nt_back = (int) ceil((t_in.back() - t_in[0])/dt_back_max);
+	// time step
+	dt_back = (t_in.back() - t_in[0]) / ((double)nt_back-1.);
+	// interpolating to equidistant time coordinates
+	t_back.clear(); t_back.resize(nt_back);
+	for(unsigned int i=0; i<nt_back; i++)
+	{
+		t_back[i] = t_in[0] + dt_back * i;
+	}
+
+	// interpolating pressure and velocity
+	p.clear();     p.resize(nt_back);
+	v.clear();     v.resize(nt_back);
+	epsz2.clear();	epsz2.resize(nt_back);
+	epsz.clear();	epsz.resize(nt_back);
+	a.clear();		a.resize(nt_back);
+	d.clear();		d.resize(nt_back);
+	A.clear();		A.resize(nt_back);
+
+	// giving initial conditions
+	a[0]		= pow(E1*sn/(dn*rho),0.5);
+	d[0]		= dn;
+	A[0]		= dn*dn*M_PI/4.;
+	epsz[0]	= 0.;
+	epsz2[0]	= 0.;
+
+	int j=0;
+	for(unsigned int i=0; i<nt_back; i++)
+	{
+		double ti= t_back[i];
+
+      // finding the position for linear interpolation
+      bool got_it = false;
+      while(!got_it)
+      {
+         if(ti >= t_in[j] && ti <= t_in[j+1])
+         {
+            got_it=true;
+         }
+         else
+         {
+            j++;
+         }
+      }
+      double p_h = p_in[j+1];
+      double p_l = p_in[j];
+      double vfr_h = vfr_in[j+1];
+      double vfr_l = vfr_in[j];
+      double t_h = t_in[j+1];
+      double t_l = t_in[j];
+
+      p[i] = (p_h-p_l)/(t_h-t_l) * (ti-t_l) + p_l;
+      if(i>0)
+      {
+			double ex = exp(-E2/eta2*dt_back);
+      	update_ith_variables(i,ex,p[i],epsz2[i-1],epsz[i-1]);
+	      v[i] = ((vfr_h-vfr_l)/(t_h-t_l) * (ti-t_l) + vfr_l) / A[i];
+      }
+      else
+      {
+   	   v[i] = ((vfr_h-vfr_l)/(t_h-t_l) * (ti-t_l) + vfr_l) / An;
+      }
+	}
+
+	ofstream wfile;
+	wfile.open("back_p_in.txt");
+	for(unsigned int i=0; i<p_in.size(); i++)
+	{
+		wfile << t_in[i] << ',' << p_in[i] << '\n';
+	}
+	wfile.close();
+
+	wfile.open("back_p_in_ip.txt");
+	for(unsigned int i=0; i<p.size(); i++)
+	{
+		wfile << t_back[i] << ',' << p[i] << '\n';
+	}
+	wfile.close();
+
+	// clearing everything and resizing
+	dt.clear(); 	dt.resize(nt_back);
+	pp.clear();    pp.resize(nt_back);
+	pq.clear();    pq.resize(nt_back);
+	vp.clear();    vp.resize(nt_back);
+	vq.clear();    vq.resize(nt_back);
+	x.clear();		
+	xp.clear();		xp.resize(nt_back);
+	// geodetic differences are cleard as x coordinates are not known
+	h.clear();
+}
+
+//--------------------------------------------------------------
+double edge::new_spacestep_back()
+{	
+	// reducing the size of xp and x with 2
+	nt_back -= 2;
+	dx_back.clear(); dx_back.resize(nt_back);
+
+	// inner points
+	for(unsigned int i=1; i<nt_back+1; i++)
+	{
+		dx_back[i-1] = 0.5*dt_back * (-v[i-1]+a[i-1]+v[i+1]+a[i+1]);
+	}
+
+	// finding the minimum time step
+	double dx_min = dx_back[0];
+	int index=0;;
+	for(unsigned int i=0; i<nt_back; i++)
+	{
+		if(dx_back[i] < dx_min)
+		{
+			dx_min = dx_back[i];
+			index = i;
+		}
+	}
+
+	if(dx_min<0.)
+	{
+      printf("\n !WARNING! space step is negative: %6.3e during BACKWARD calculation at edge %-6s", dx_min, name.c_str());
+      cout << endl;
+	}
+
+	// checking whether the solver overshoots in x
+	double x_new = x_back.back() + dx_min;
+	if(x_new >= l)
+	{
+		dx_min = l-x_back.back();
+		x_new = l;
+	}
+
+	// saving x point
+	x_back.push_back(x_new);
+
+	return dx_min;
+}
+
+//--------------------------------------------------------------
+void edge::solve_back()
+{	
+	// resizing vectors
+	pp.clear(); pp.resize(nt_back);
+	vp.clear(); vp.resize(nt_back);
+	tp_back.clear(); tp_back.resize(nt_back);
+
+	double dt;
+	for(unsigned int i=1; i<nt_back+1; i++)
+	{
+		// timstep
+		dt = dx_back[i-1]/(-v[i-1]+a[i-1]);
+		// new vars
+		tp_back[i-1] = t_back[i-1] + dt;
+
+		double x = x_back[x_back.size()-2];
+		double h = hs + x/l*(he-hs);
+		double xp = x + dx_back[i-1];
+		double ja = JA(dt, p[i-1], v[i-1], a[i-1], epsz[i-1], epsz2[i-1], d[i-1], h, xp, x);
+		double jb = JB(dt, p[i+1], v[i+1], a[i+1], epsz[i+1], epsz2[i+1], d[i+1], h, xp, x);
+
+		pp[i-1] = rho*a[i-1]*a[i+1]/(a[i-1]+a[i+1]) * (dt*(ja+jb) + p[i-1]/(rho*a[i-1]) + p[i+1]/(rho*a[i+1]) - v[i-1] + v[i+1]);
+		vp[i-1] = v[i-1] + (pp[i-1]-p[i-1])/(rho*a[i-1]) - dt*ja;
+	}
+}
+
+//--------------------------------------------------------------
+void edge::interpolate_back(double dx_real)
+{
+	// resize vectors
+	pq.clear(); pq.resize(nt_back);
+	vq.clear(); vq.resize(nt_back);
+
+	// interpolating in time
+	for(unsigned int i=0; i<nt_back; i++)
+	{
+		if(tp_back[i]<t_back[i+1])
+		{
+			pq[i] = p[i] + (tp_back[i]-t_back[i])/(t_back[i+1]-t_back[i])*(p[i+1]-p[i]);
+			vq[i] = v[i] + (tp_back[i]-t_back[i])/(t_back[i+1]-t_back[i])*(v[i+1]-v[i]);
+		}
+		else
+		{
+			pq[i] = p[i+1] + (tp_back[i]-t_back[i+1])/(t_back[i+2]-t_back[i+1])*(p[i+2]-p[i+1]);
+			vq[i] = v[i+1] + (tp_back[i]-t_back[i+1])/(t_back[i+2]-t_back[i+1])*(v[i+2]-v[i+1]);
+		}
+	}	
+
+	// interpolating in space
+	for(unsigned int i=0; i<nt_back; i++)
+	{
+		pq[i] = pq[i] + dx_real/dx_back[i] * (pp[i]-pq[i]);
+		vq[i] = vq[i] + dx_real/dx_back[i] * (vp[i]-vq[i]);
+	}
+
+	// resizing vectors
+	v.clear(); v.resize(nt_back);
+	p.clear(); p.resize(nt_back);
+
+	// giving boundaries
+	v[0] = vq[0]; v[nt_back-1] = vq[nt_back-1];
+	p[0] = pq[0]; p[nt_back-1] = pq[nt_back-1];
+
+	// new time step
+	dt_back = (tp_back[nt_back-1]-tp_back[0]) / (nt_back-1);
+	t_back.clear(); t_back.resize(nt_back);
+	t_back[0] = tp_back[0];
+	for(unsigned int i=1; i<nt_back; i++)
+	{
+		t_back[i] = t_back[i-1] + dt_back;
+	}
+
+	// interpolating back to equidistant time scale
+	for(unsigned int i=1; i<nt_back-1; i++)
+	{
+		if(t_back[i]<tp_back[i])
+		{
+			v[i] = vq[i-1] + (t_back[i]-tp_back[i-1])/(tp_back[i]-tp_back[i-1])*(vq[i]-vq[i-1]);
+			p[i] = pq[i-1] + (t_back[i]-tp_back[i-1])/(tp_back[i]-tp_back[i-1])*(pq[i]-pq[i-1]);
+		}
+		else
+		{
+			v[i] = vq[i] + (t_back[i]-tp_back[i])/(tp_back[i+1]-tp_back[i])*(vq[i+1]-vq[i]);
+			p[i] = pq[i] + (t_back[i]-tp_back[i])/(tp_back[i+1]-tp_back[i])*(pq[i+1]-pq[i]);
+		}
+	}
+}
+
+//--------------------------------------------------------------
+void edge::reduce_field_vectors()
+{
+	epsz2.pop_back();
+	epsz.pop_back();
+	a.pop_back();
+	d.pop_back();
+	A.pop_back();
+}
+
+//--------------------------------------------------------------
+double edge::JL(int i)
+{
+	double out = JL(dt[i], p[i-1], v[i-1], a[i-1], epsz[i-1], epsz2[i-1], d[i-1], h[i-1], xp[i], x[i-1]);
+	return out;
+}
+
+//--------------------------------------------------------------
+double edge::JL(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
+{
+	// temp variable
+	double AL = ( (p-p0)*dn*(2.*epsz+1)/(eta2*2.*sn) - E2/eta2*epsz2 )*exp(-E2/eta2*dt);
+
+	// geodetic height difference
+	double hp = hs + xp/l*(he-hs);
+
+	//cout << "AL: " << AL << endl;
+	//cout << "xp: " << xp << endl;
+
+	// output
+	double JL = g*(hp-h)/(xp-x) + 32.*nu*v/(d*d) + 2*a/(2.*epsz+1.)*AL;
+
+	return JL;
+}
+
+//--------------------------------------------------------------
+double edge::JR(int i)
+{
+	double out = JR(dt[i], p[i+1], v[i+1], a[i+1], epsz[i+1], epsz2[i+1], d[i+1], h[i+1], xp[i], x[i+1]);
+	return out;
+}
+
+//--------------------------------------------------------------
+double edge::JR(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
+{
+	// temp variables
+	double AR = ( (p-p0)*dn*(2.*epsz+1)/(eta2*2.*sn) - E2/eta2*epsz2 )*exp(-E2/eta2*dt);
+
+	// geodetic height difference
+	double hp = hs + xp/l*(he-hs);
+
+	// output
+	double JR = g*(hp-h)/(xp-x) + 32.*nu*v/(d*d) - 2*a/(2.*epsz+1.)*AR;
+
+	return JR;
+}
+
+//--------------------------------------------------------------
+double edge::JA(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
+{
+	return JR(dt, p, v, a, epsz, epsz2, d, h, xp, x);
+}
+
+//--------------------------------------------------------------
+double edge::JB(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
+{
+	return JL(dt, p, v, a, epsz, epsz2, d, h, xp, x);
+}
+
+//--------------------------------------------------------------
+void edge::update_variables(double dt)
 {
 	double ex = exp(-E2/eta2*dt);
-	for(unsigned int i=0; i<nx; i++)
+	for(unsigned int i=0; i<epsz2.size(); i++)
 	{	
-		epsz2[i] = (p[i]-p0)*(2.*epsz[i]+1.)*(1.-ex) * dn / (E2*2.*sn) + epsz2[i]*ex;
-		epsz[i]  = epsz2[i] + (p[i]-p0)*(2.*epsz[i]+1.) *dn / (E1*2.*sn*pow(epsz[i]+1.,beta));
-		a[i]     = an*pow(epsz[i]+1.,beta/2.);
-		d[i]     = dn*(epsz[i]+1.);
-		A[i]     = d[i]*d[i]*M_PI/4.;
+		update_ith_variables(i,ex,p[i],epsz2[i],epsz[i]);
 	}
+}
+
+//--------------------------------------------------------------
+void edge::update_ith_variables(int i, double ex, double p_new, double epsz2_old, double epsz_old)
+{
+	epsz2[i] = (p_new-p0)*(2.*epsz_old+1.)*(1.-ex) * dn / (E2*2.*sn) + epsz2_old*ex;
+	epsz[i]  = epsz2[i] + (p_new-p0)*(2.*epsz_old+1.) *dn / (E1*2.*sn*pow(epsz_old+1.,beta));
+	a[i]     = an*pow(epsz[i]+1.,beta/2.);
+	d[i]     = dn*(epsz[i]+1.);
+	A[i]     = d[i]*d[i]*M_PI/4.;
 }
 
 //--------------------------------------------------------------
@@ -426,6 +747,7 @@ void edge::set_short_parameters()
    he   = geodetic_height_end;
    p0   = atmospheric_pressure;
 
+   An   = dn*dn*M_PI/4.;
    an   = sqrt(E1*sn / (rho*dn));
 }
 

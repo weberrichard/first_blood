@@ -49,6 +49,9 @@ public:
    double geodetic_height_end=0.; //m
    int division_points; // pc.
 
+   // for controlling the forward and backward calculations
+   bool do_solve;
+
    double gravity = 9.806; // m/s2
    double density = 1050.; // m/s2
    double kinematic_viscosity = 3.e-6; // m2/s
@@ -76,9 +79,12 @@ public:
    // printing input parameters to console
    void print_input();
    // setting initial condition to field variables and setting short parameters
-   void initialization();
+   void initialization(double p_init);
    // setting upstream pressure p[0], only in the case of upstream_boundary
    void set_pressure_upstream(double p_in);
+
+   //---------------------
+   // FORWARD CALCULATION
    // calculating the field variables at the new time step level
    void solve();
    // calculating the new timesteps for each division point
@@ -87,8 +93,8 @@ public:
    void interpolate(double dt_real);
    // saving start and end field variables to vectors in time
    void save_field_variables();
-   // updatin every field variable (a,d,epsz, ...) from v and p
-   void update_field_variables(double dt);
+   // updatin every field variable (a,d,epsz, ...) from v and p at every point
+   void update_variables(double dt);
 
    //---------------------
    // BOUNDARIES
@@ -108,6 +114,11 @@ public:
    // for periferia points solving p=p0
    double boundary_periferia(double dt, double p_out);
 
+   //---------------------
+   // BACKWARD CALCULATION
+   // calculating backward in the edge, returning [t,p_up]
+   vector<vector<double> > backward_solver(vector<double> t_d, vector<double> p_d, vector<double> vfr_d);
+
 private:
    // variables for calculations of new field variables
    vector<double> dt; // time step for each point
@@ -121,9 +132,28 @@ private:
    vector<double> A; // cross section area, m2
    vector<double> h; // geodetic height, m
 
+   // for backward calculations
+   double dt_back_max = 1e-3; // maximum timestep for backward calculation
+   double dt_back; // real timestep for backward calculation
+   int nt_back; // sizes of field variables
+   vector<double> t_back; // equidistant time vector
+   vector<double> tp_back; // location of new P points in time
+   vector<double> x_back; // absolute location of x points
+   vector<double> dx_back; // location of new P points in space with respect to previeous x
+
+   void initialization_back(vector<double> time_in, vector<double> pressure_in, vector<double> velocity_in);
+   // calculating x_min as the new space step for backward simulation
+   double new_spacestep_back();
+   // solving the characteristics at the end side from ith node
+   void solve_back();
+   // interpolating the end side of the edge from ith node
+   void interpolate_back(double dx_real);
+   // reducing field var vectors
+   void reduce_field_vectors();
+
    // short notations
-   double l, dn, sn, eta2, E1, E2, Rs, Re, g, rho, nu, dx, hs, he, an, p0;
-   int nx;
+   double l, dn, sn, eta2, E1, E2, Rs, Re, g, rho, nu, dx, hs, he, an, p0, An;
+   int nx; // number of division points
    void set_short_parameters(); // matching the longer and shorter parameters
 
    // calculating temp variables for characteristics
@@ -131,10 +161,16 @@ private:
    double JL(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x);
    double JR(int i);
    double JR(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x);
+   // for backward calculation
+   double JA(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x);
+   double JB(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x);
 
-   // to get L and R positions
+   // to get L and R positions at boundaries
    double boundary_start_position(double dt);
    double boundary_end_position(double dt);
+
+   // updating the ith field variables
+   void update_ith_variables(int i, double ex, double p, double epsz2, double epsz);
 };
 
 #endif // EDGE_H

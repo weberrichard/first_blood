@@ -19,18 +19,18 @@ class moc_solver : public first_blood
 {
 public:
 
-   moc_solver(string filename, double a_time_end);
+   moc_solver(string filename);
    ~moc_solver();
 
    // giving initial conditions
    void initialization();
 
    // evaluating full calculation, several forward and backward calculation
-   void full_solver();
+   void full_solver(string node_id, double time_end);
 
    // perfroming the moc_solver forward
    // from a certain node_id to the perif
-   void forward_solver(string node_id);
+   void forward_solver(string node_id, double time_end);
    // handling the boundaries: upstream and inner BC nodes
    void boundaries(double dt);
 

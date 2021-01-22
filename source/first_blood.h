@@ -34,7 +34,7 @@ using namespace Eigen;
 class first_blood
 {
 public:
-   first_blood(string filename, double a_time_end);
+   first_blood(string filename);
    ~first_blood();
 
    // Basic Node and Edge list
@@ -47,7 +47,8 @@ public:
    double kinematic_viscosity = 3e-6; // [m2/s]
    double mmHg_to_Pa = 133.3616; // [Pa/mmHg] for converting inputs from mmHg to Pa
    double atmospheric_pressure = 1.e5; // Pa
-   
+   double pressure_initial = 100.*mmHg_to_Pa + atmospheric_pressure; // [mmHg]
+
    // level of printing
    int printLevel = 0;
 
@@ -60,6 +61,13 @@ public:
    // printing every input information to console from edges and nodes
    void print_input();
 
+   // recording the timesteps
+   vector<double> time;
+
+   // Converting ID to index
+   int node_id_to_index(string node_id);
+   int edge_id_to_index(string edge_id);
+
 protected:
    // name of the case without extension or folders
    string case_name;
@@ -70,24 +78,14 @@ protected:
 
    int number_of_edges, number_of_nodes, number_of_timesteps;
 
-   // recording the timesteps
-   vector<double> time;
-
    // Creates the indicies for the nodes of edges and edges of nodes i.e. indexing the whole system and also filling up the edge vector
    void build_system();
-
-   // Converting ID to index
-   int node_id_to_index(string node_id);
-   int edge_id_to_index(string edge_id);
 
    // containing the upstream boundary function, e.g. heart
    vector<double> time_upstream;
    vector<double> pressure_upstream;
    int index_upstream=0; // for registring the position of the interpolation
    int period=0; // saving which period the calculation is
-
-   // length of the simulation
-   double time_end;
 
 private:
    // for helping the io_csv, it breaks a string to vector<string> separated by ,

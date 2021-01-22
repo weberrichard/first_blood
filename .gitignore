@@ -41,3 +41,7 @@ models/*
 # other files
 *.xlsx
 *.png
+*.txt
+*.res
+
+

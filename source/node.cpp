@@ -17,7 +17,7 @@ void node::print_input()
 }
 
 //--------------------------------------------------------------
-void node::initialization()
+void node::initialization(double p_init)
 {
 	// clearing time variables
    pressure.clear();
@@ -27,8 +27,17 @@ void node::initialization()
    set_short_parameters();
 
    // saving initial conditions
-   pressure.push_back(pressure_out);
+   if(type_code == 0)
+   {
+   	pressure.push_back(p_init);
+   }
+   else
+   {
+   	pressure.push_back(pressure_out);
+   }
    volume_flow_rate.push_back(0.);
+
+   is_upstream_boundary = false;
 }
 
 //--------------------------------------------------------------

@@ -1,5 +1,5 @@
 CXX=clang++
-CXXFLAGS=-std=c++17 -O3 -c
+CXXFLAGS=-std=c++17 -O2 -c
 
 SOURCE_FOLDER = ../../source/
 BIN_FOLDER = ../../bin/

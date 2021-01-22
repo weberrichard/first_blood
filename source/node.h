@@ -55,7 +55,7 @@ public:
    void print_input();
 
    // setting initial condition to field variables
-   void initialization();
+   void initialization(double p_init);
 
 private:
    double R, Ri, p0, rho;
