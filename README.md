@@ -1,7 +1,7 @@
 # first_blood
 1D hemodynamic simulator for arterial blood system utilizing method of characteristics
 
-### Usage
+### How to use
 The code is built upon the *source* and the *projects* folder. While the former one includes the basic sources of the *first_blood*, the latter one contains the projects which are applying the source code. Each project has an individual make file that can compile the whole code.
 
 ```sh
@@ -21,4 +21,4 @@ Completed projects so far:
  - Add parameter calibration algorithm
  - Additional modelling (periferia, organs, etc.)
 
-### Citation
+### Publications
