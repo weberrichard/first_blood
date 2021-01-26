@@ -34,7 +34,7 @@ xlim([1,5]);
 xlabel('time [s]');
 ylabel('pressure [mmHg]');
 legend('forward','backward');
-saveas(fig1,'pressure.png','png');
+% saveas(fig1,'pressure.png','png');
 
 e = (p-po)./po;
 fig2=figure();
@@ -43,7 +43,7 @@ grid on;
 xlim([1,5]);
 xlabel('time [s]');
 ylabel('error [%]');
-saveas(fig2,'error.png','png');
+% saveas(fig2,'error.png','png');
 
 % figure();
 % plot(t,v);
