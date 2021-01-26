@@ -34,7 +34,7 @@ void moc_solver::full_solver(string node_id, double time_end)
    //srand((unsigned int) time(0));
    clock_t ido = clock();
 
-   printf("\n  [.] %5s -->", node_id.c_str());
+   printf("\n  [.] %5s |-->", node_id.c_str());
    ido = clock();
    forward_solver(node_id, time_end);
    cout << endl << "\n Forward solver:   " << double(clock()-ido)/ CLOCKS_PER_SEC << " s" << endl;
