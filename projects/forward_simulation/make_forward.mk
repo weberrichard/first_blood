@@ -4,7 +4,7 @@ CXXFLAGS=-std=c++17 -O3 -c
 SOURCE_FOLDER = ../../source/
 BIN_FOLDER = ../../bin/
 
-MAIN = first_test
+MAIN = forward
 
 OBJS += \
 edge.o \

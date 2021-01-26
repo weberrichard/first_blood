@@ -38,6 +38,9 @@ projects/test_single_artery/*
 # models
 models/*
 
+# pilot code
+pilot_matlab/*
+
 # other files
 *.xlsx
 *.png
