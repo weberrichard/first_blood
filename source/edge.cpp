@@ -34,6 +34,10 @@ void edge::initialization(double p_init)
    damper_deformation_end.clear();
    diameter_start.clear();
    diameter_end.clear();
+   volume_flow_rate_start.clear();
+   volume_flow_rate_end.clear();
+   mass_flow_rate_start.clear();
+   mass_flow_rate_end.clear();
 
    // matching the parameters for the short notations
 	set_short_parameters();
@@ -238,17 +242,25 @@ void edge::initialization_back(vector<double> t_in, vector<double> p_in, vector<
    damper_deformation_end.clear();
    diameter_start.clear();
    diameter_end.clear();
+   volume_flow_rate_start.clear();
+   volume_flow_rate_end.clear();
+   mass_flow_rate_start.clear();
+   mass_flow_rate_end.clear();
 
    // matching the parameters for the short notations
 	set_short_parameters();
 
 	// backward calculation vars
 	x_back.clear(); x_back.push_back(0.);
+	dx_back.clear();
 
 	// number of timesteps
-	nt_back = (int) ceil((t_in.back() - t_in[0])/dt_back_max);
+	// nt_back = (int) ceil((t_in.back() - t_in[0])/dt_back_max);
+	nt_back = an*nx*(t_in.back() - t_in[0])/l;
+
 	// time step
 	dt_back = (t_in.back() - t_in[0]) / ((double)nt_back-1.);
+
 	// interpolating to equidistant time coordinates
 	t_back.clear(); t_back.resize(nt_back);
 	for(unsigned int i=0; i<nt_back; i++)
@@ -309,21 +321,6 @@ void edge::initialization_back(vector<double> t_in, vector<double> p_in, vector<
    	   v[i] = ((vfr_h-vfr_l)/(t_h-t_l) * (ti-t_l) + vfr_l) / An;
       }
 	}
-
-	ofstream wfile;
-	wfile.open("back_p_in.txt");
-	for(unsigned int i=0; i<p_in.size(); i++)
-	{
-		wfile << t_in[i] << ',' << p_in[i] << '\n';
-	}
-	wfile.close();
-
-	wfile.open("back_p_in_ip.txt");
-	for(unsigned int i=0; i<p.size(); i++)
-	{
-		wfile << t_back[i] << ',' << p[i] << '\n';
-	}
-	wfile.close();
 
 	// clearing everything and resizing
 	dt.clear(); 	dt.resize(nt_back);
@@ -496,9 +493,6 @@ double edge::JL(double dt, double p, double v, double a, double epsz, double eps
 
 	// geodetic height difference
 	double hp = hs + xp/l*(he-hs);
-
-	//cout << "AL: " << AL << endl;
-	//cout << "xp: " << xp << endl;
 
 	// output
 	double JL = g*(hp-h)/(xp-x) + 32.*nu*v/(d*d) + 2*a/(2.*epsz+1.)*AL;

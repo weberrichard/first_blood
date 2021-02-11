@@ -170,53 +170,71 @@ vector<string> first_blood::separate_line(string line)
 	return sv;
 }
 
-
 //--------------------------------------------------------------
 void first_blood::save_results()
 {
+	vector<string> edge_list, node_list;
+	for(int i=0; i<number_of_edges; i++)
+	{
+		edge_list.push_back(edges[i]->name);
+	}
+	for(int i=0; i<number_of_nodes; i++)
+	{
+		node_list.push_back(nodes[i]->name);
+	}
+	save_results(case_name,edge_list,node_list);
+}
+
+//--------------------------------------------------------------
+void first_blood::save_results(string folder_name, vector<string> edge_list, vector<string> node_list)
+{
    // LINUX
    mkdir("results",0777);
-   mkdir(("results/" + case_name).c_str(),0777);
+   mkdir(("results/" + folder_name).c_str(),0777);
 
    // FOR WINDOWS
    //mkdir(case_name.c_str());
 
-   string folder_name = "results/" + case_name + "/";
+   folder_name = "results/" + folder_name + "/";
 
    FILE *out_file;
-   for(unsigned int i=0; i<number_of_nodes; i++)
-   {  
-      string file_name = folder_name + nodes[i]->name + ".txt";
+
+   for(unsigned int i=0; i<node_list.size(); i++)
+   {
+   	int idx = node_id_to_index(node_list[i]);
+      string file_name = folder_name + nodes[idx]->name + ".txt";
       out_file = fopen(file_name.c_str(),"w");
-      for(unsigned int j=0; j<nodes[i]->pressure.size(); j++)
+      for(unsigned int j=0; j<nodes[idx]->pressure.size(); j++)
       {
-         fprintf(out_file, "%9.7e, %9.7e, %9.7e\n", time[j], nodes[i]->pressure[j],nodes[i]->volume_flow_rate[j]);
+         fprintf(out_file, "%9.7e, %9.7e, %9.7e\n", time[j], nodes[idx]->pressure[j],nodes[idx]->volume_flow_rate[j]);
       }
       fclose(out_file);
    }
-   for(unsigned int i=0; i<number_of_edges; i++)
+
+   for(unsigned int i=0; i<edge_list.size(); i++)
    {
-      string file_name = folder_name + edges[i]->name + ".txt";
+   	int idx = edge_id_to_index(edge_list[i]);
+      string file_name = folder_name + edges[idx]->name + ".txt";
       out_file = fopen(file_name.c_str(),"w");
-      for(unsigned int j=0; j<edges[i]->pressure_start.size(); j++)
+      for(unsigned int j=0; j<edges[idx]->pressure_start.size(); j++)
       {
          double t = time[j];
-         double ps = edges[i]->pressure_start[j];
-         double pe = edges[i]->pressure_end[j];
-         double vs = edges[i]->velocity_start[j];
-         double ve = edges[i]->velocity_end[j];
-         double vfrs = edges[i]->volume_flow_rate_start[j];
-         double vfre = edges[i]->volume_flow_rate_end[j];
-         double mfrs = edges[i]->mass_flow_rate_start[j];
-         double mfre = edges[i]->mass_flow_rate_end[j];
-         double ds = edges[i]->diameter_start[j];
-         double de = edges[i]->diameter_end[j];
-         double epszs = edges[i]->total_deformation_start[j];
-         double epsze = edges[i]->total_deformation_end[j];
-         double epsz2s = edges[i]->damper_deformation_start[j];
-         double epsz2e = edges[i]->damper_deformation_end[j];
-         double as = edges[i]->wave_velocity_start[j];
-         double ae = edges[i]->wave_velocity_end[j];
+         double ps = edges[idx]->pressure_start[j];
+         double pe = edges[idx]->pressure_end[j];
+         double vs = edges[idx]->velocity_start[j];
+         double ve = edges[idx]->velocity_end[j];
+         double vfrs = edges[idx]->volume_flow_rate_start[j];
+         double vfre = edges[idx]->volume_flow_rate_end[j];
+         double mfrs = edges[idx]->mass_flow_rate_start[j];
+         double mfre = edges[idx]->mass_flow_rate_end[j];
+         double ds = edges[idx]->diameter_start[j];
+         double de = edges[idx]->diameter_end[j];
+         double epszs = edges[idx]->total_deformation_start[j];
+         double epsze = edges[idx]->total_deformation_end[j];
+         double epsz2s = edges[idx]->damper_deformation_start[j];
+         double epsz2e = edges[idx]->damper_deformation_end[j];
+         double as = edges[idx]->wave_velocity_start[j];
+         double ae = edges[idx]->wave_velocity_end[j];
 
          fprintf(out_file, "%9.7e %9.7e %9.7e %9.7e %9.7e %9.7e %9.7e %9.7e %9.7e %9.7e %9.7e %9.7e %9.7e %9.7e %9.7e %9.7e %9.7e\n",t,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,ds,de,epszs,epsze,epsz2s,epsz2e,as,ae);
       }

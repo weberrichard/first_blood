@@ -43,7 +43,8 @@ pilot_matlab/*
 
 # other files
 *.xlsx
+*.xls
 *.txt
 *.res
-
+*.csv
 

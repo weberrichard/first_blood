@@ -49,14 +49,12 @@ public:
    double atmospheric_pressure = 1.e5; // Pa
    double pressure_initial = 100.*mmHg_to_Pa + atmospheric_pressure; // [mmHg]
 
-   // level of printing
-   int printLevel = 0;
-
    /// Loading the system from CSV
    void load_system_csv();
 
    /// Saving results to file
-   void save_results();
+   void save_results(); // default folder name: case_name
+   void save_results(string folder_name, vector<string> edge_list, vector<string> node_list); // addition string to folder name
 
    // printing every input information to console from edges and nodes
    void print_input();
@@ -68,11 +66,19 @@ public:
    int node_id_to_index(string node_id);
    int edge_id_to_index(string edge_id);
 
+   // path of the input file
+   string input_file_path;
+   
+   // for helping the io_csv, it breaks a string to vector<string> separated by ,
+   vector<string> separate_line(string line);
+
+   // containing the upstream boundary function, e.g. heart
+   vector<double> time_upstream;
+   vector<double> pressure_upstream;
+
 protected:
    // name of the case without extension or folders
    string case_name;
-   // path of the input file
-   string input_file_path;
    // path of the input folder
    string input_folder_path;
 
@@ -81,15 +87,8 @@ protected:
    // Creates the indicies for the nodes of edges and edges of nodes i.e. indexing the whole system and also filling up the edge vector
    void build_system();
 
-   // containing the upstream boundary function, e.g. heart
-   vector<double> time_upstream;
-   vector<double> pressure_upstream;
    int index_upstream=0; // for registring the position of the interpolation
    int period=0; // saving which period the calculation is
-
-private:
-   // for helping the io_csv, it breaks a string to vector<string> separated by ,
-   vector<string> separate_line(string line);
 
 };
 

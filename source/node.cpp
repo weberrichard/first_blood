@@ -27,7 +27,7 @@ void node::initialization(double p_init)
    set_short_parameters();
 
    // saving initial conditions
-   if(type_code == 0)
+   if(type_code == 0 || type_code == 2)
    {
    	pressure.push_back(p_init);
    }

@@ -35,9 +35,9 @@ void moc_solver::full_solver(string node_id, double time_end)
    clock_t ido = clock();
 
    printf("\n  [.] %5s |-->", node_id.c_str());
-   ido = clock();
+   //ido = clock();
    forward_solver(node_id, time_end);
-   cout << endl << "\n Forward solver:   " << double(clock()-ido)/ CLOCKS_PER_SEC << " s" << endl;
+   //cout << endl << "\n Forward solver:   " << double(clock()-ido)/ CLOCKS_PER_SEC << " s" << endl;
 
    int node_idx = node_id_to_index(node_id);
    while(nodes[node_idx]->type_code != 2) // checking if it is heart
@@ -52,15 +52,14 @@ void moc_solver::full_solver(string node_id, double time_end)
       {  
          for(unsigned int j=0; j<nodes[node_idx]->edge_out.size(); j++)
          {
-
             vfr_d[i] += edges[nodes[node_idx]->edge_out[j]]->volume_flow_rate_start[i];
          }
       }
 
       printf("\n  [.] %5s <--|%s|-- %-5s", edges[edge_idx]->node_name_start.c_str(),edges[edge_idx]->name.c_str(),node_id.c_str());
-      ido = clock();
+      //ido = clock();
       vector<vector<double> > A_u = edges[edge_idx]->backward_solver(t_d, p_d, vfr_d);
-      cout << endl << "\n Backward solver:   " << double(clock()-ido)/ CLOCKS_PER_SEC << " s" << endl;
+      //cout << endl << "\n Backward solver:   " << double(clock()-ido)/ CLOCKS_PER_SEC << " s" << endl;
 
       // new boundary conditions
       time_upstream = A_u[0];
@@ -73,9 +72,9 @@ void moc_solver::full_solver(string node_id, double time_end)
 
       // forward calculation
       printf("\n  [.] %5s |-->", node_id.c_str());
-      ido = clock();
+      //ido = clock();
       forward_solver(node_id, time_end);
-      cout << endl << "\n Forward solver:   " << double(clock()-ido)/ CLOCKS_PER_SEC << " s" << endl;
+      //cout << endl << "\n Forward solver:   " << double(clock()-ido)/ CLOCKS_PER_SEC << " s" << endl;
    }
 
 }

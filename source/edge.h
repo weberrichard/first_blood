@@ -133,7 +133,7 @@ private:
    vector<double> h; // geodetic height, m
 
    // for backward calculations
-   double dt_back_max = 1e-3; // maximum timestep for backward calculation
+   double dt_back_max = .5e-3; // maximum timestep for backward calculation
    double dt_back; // real timestep for backward calculation
    int nt_back; // sizes of field variables
    vector<double> t_back; // equidistant time vector
