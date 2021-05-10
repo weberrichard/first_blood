@@ -48,3 +48,5 @@ pilot_matlab/*
 *.res
 *.csv
 
+*.nb
+*.rar

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-case = 'P121'
+case = 'P045'
 
 data = pd.read_csv("results\\" + case + "_cj\\C.txt",header=None) 
 

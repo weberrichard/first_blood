@@ -1,14 +1,14 @@
 /*===================================================================*\
-                              first_blood
-                            ---------------
+										first_blood
+									 ---------------
 
   Main first_blood class. Contains basic variables (e.g. vector for 
   node and edge) and functions (e.g. building the system topology for
   solving the equations).
  
-    staci3
-    Cs. Hos, R. Weber, T. Huzsvar
-    https://github.com/weberrichard/staci3
+	 staci3
+	 Cs. Hos, R. Weber, T. Huzsvar
+	 https://github.com/weberrichard/staci3
 \*==================================================================*/
 
 #ifndef FIRST_BLOOD_H
@@ -34,61 +34,65 @@ using namespace Eigen;
 class first_blood
 {
 public:
-   first_blood(string filename);
-   ~first_blood();
+	first_blood(string filename);
+	~first_blood();
 
-   // Basic Node and Edge list
-   vector<node*> nodes;
-   vector<edge*> edges;
+	// Basic Node and Edge list
+	vector<node*> nodes;
+	vector<edge*> edges;
 
-   // Constants for hydraulics, note: there are constants in Edge.h
-   double gravity = 9.806; // [m/s2]
-   double density = 1050.; // [kg/m3]
-   double kinematic_viscosity = 3e-6; // [m2/s]
-   double mmHg_to_Pa = 133.3616; // [Pa/mmHg] for converting inputs from mmHg to Pa
-   double atmospheric_pressure = 1.e5; // Pa
-   double pressure_initial = 100.*mmHg_to_Pa + atmospheric_pressure; // [mmHg]
+	// Constants for hydraulics, note: there are constants in Edge.h
+	double gravity = 9.806; // [m/s2]
+	double density = 1050.; // [kg/m3]
+	double kinematic_viscosity = 3e-6; // [m2/s]
+	double mmHg_to_Pa = 133.3616; // [Pa/mmHg] for converting inputs from mmHg to Pa
+	double atmospheric_pressure = 1.e5; // Pa
+	double pressure_initial = 90.*mmHg_to_Pa + atmospheric_pressure; // [mmHg]
 
-   /// Loading the system from CSV
-   void load_system_csv();
+	/// Loading the system from CSV
+	void load_system_csv();
 
-   /// Saving results to file
-   void save_results(); // default folder name: case_name
-   void save_results(string folder_name, vector<string> edge_list, vector<string> node_list); // addition string to folder name
+	/// Saving results to file
+	void save_results(); // default folder name: case_name
+	void save_results(string folder_name, vector<string> edge_list, vector<string> node_list); // addition string to folder name
 
-   // printing every input information to console from edges and nodes
-   void print_input();
+	// printing every input information to console from edges and nodes
+	void print_input();
 
-   // recording the timesteps
-   vector<double> time;
+	// recording the timesteps
+	vector<double> time;
 
-   // Converting ID to index
-   int node_id_to_index(string node_id);
-   int edge_id_to_index(string edge_id);
+	// Converting ID to index
+	int node_id_to_index(string node_id);
+	int edge_id_to_index(string edge_id);
 
-   // path of the input file
-   string input_file_path;
-   
-   // for helping the io_csv, it breaks a string to vector<string> separated by ,
-   vector<string> separate_line(string line);
+	// path of the input file
+	string input_file_path;
+	
+	// for helping the io_csv, it breaks a string to vector<string> separated by ,
+	vector<string> separate_line(string line);
 
-   // containing the upstream boundary function, e.g. heart
-   vector<double> time_upstream;
-   vector<double> pressure_upstream;
+	// containing the upstream boundary function, e.g. heart
+	vector<double> time_upstream;
+	vector<double> pressure_upstream;
+
+
+	// make new directory, works for windows and linux
+	void make_directory(string name);
 
 protected:
-   // name of the case without extension or folders
-   string case_name;
-   // path of the input folder
-   string input_folder_path;
+	// name of the case without extension or folders
+	string case_name;
+	// path of the input folder
+	string input_folder_path;
 
-   int number_of_edges, number_of_nodes, number_of_timesteps;
+	int number_of_edges, number_of_nodes, number_of_timesteps;
 
-   // Creates the indicies for the nodes of edges and edges of nodes i.e. indexing the whole system and also filling up the edge vector
-   void build_system();
+	// Creates the indicies for the nodes of edges and edges of nodes i.e. indexing the whole system and also filling up the edge vector
+	void build_system();
 
-   int index_upstream=0; // for registring the position of the interpolation
-   int period=0; // saving which period the calculation is
+	int index_upstream=0; // for registring the position of the interpolation
+	int period=0; // saving which period the calculation is
 
 };
 

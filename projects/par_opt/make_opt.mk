@@ -1,6 +1,10 @@
 CXX=clang++
 CXXFLAGS=-std=c++17 -O3 -c
 
+#CXX=x86_64-w64-mingw32-g++
+#CXX=i686-w64-mingw32-g++
+#CXXFLAGS=-std=c++11 -Ofast -static-libgcc -static-libstdc++ -Wall -pedantic -c
+
 SOURCE_FOLDER = ../../source/
 BIN_FOLDER = ../../bin/
 

@@ -63,7 +63,7 @@ void edge::initialization(double p_init)
 	v.assign(nx,0.);
 	a.assign(nx,pow(E1*sn/(dn*rho),0.5));
 	d.assign(nx,dn);
-	A.assign(nx,dn*dn*M_PI/4.);
+	A.assign(nx,dn*dn*pi/4.);
 	epsz.assign(nx,0.);
 	epsz2.assign(nx,0.);
 
@@ -280,7 +280,7 @@ void edge::initialization_back(vector<double> t_in, vector<double> p_in, vector<
 	// giving initial conditions
 	a[0]		= pow(E1*sn/(dn*rho),0.5);
 	d[0]		= dn;
-	A[0]		= dn*dn*M_PI/4.;
+	A[0]		= dn*dn*pi/4.;
 	epsz[0]	= 0.;
 	epsz2[0]	= 0.;
 
@@ -551,7 +551,7 @@ void edge::update_ith_variables(int i, double ex, double p_new, double epsz2_old
 	epsz[i]  = epsz2[i] + (p_new-p0)*(2.*epsz_old+1.) *dn / (E1*2.*sn*pow(epsz_old+1.,beta));
 	a[i]     = an*pow(epsz[i]+1.,beta/2.);
 	d[i]     = dn*(epsz[i]+1.);
-	A[i]     = d[i]*d[i]*M_PI/4.;
+	A[i]     = d[i]*d[i]*pi/4.;
 }
 
 //--------------------------------------------------------------
@@ -570,8 +570,8 @@ void edge::save_field_variables()
 	diameter_start.push_back(d[0]);
 	diameter_end.push_back(d[nx-1]);
 
-	double vf_s = v[0] * d[0]*d[0]*M_PI/4.;
-	double vf_e = v[nx-1] * d[nx-1]*d[nx-1]*M_PI/4.;
+	double vf_s = v[0] * d[0]*d[0]*pi/4.;
+	double vf_e = v[nx-1] * d[nx-1]*d[nx-1]*pi/4.;
 	volume_flow_rate_start.push_back(vf_s);
 	volume_flow_rate_end.push_back(vf_e);
 
@@ -591,7 +591,7 @@ vector<double> edge::boundary_start_coefficients(double dt)
 	double vR = (v[1]-v[0]) / x[1] * xR + v[0];
 	double pR = (p[1]-p[0]) / x[1] * xR + p[0];
 	double dR = (d[1]-d[0]) / x[1] * xR + d[0];
-	double AR = dR*dR*M_PI/4.;
+	double AR = dR*dR*pi/4.;
 	double hR = (h[1]-h[0]) / x[1] * xR + h[0];
 	double epszR = (epsz[1]-epsz[0]) / x[1] * xR + epsz[0];
 	double epsz2R = (epsz2[1]-epsz2[0]) / x[1] * xR + epsz2[0];
@@ -617,7 +617,7 @@ vector<double> edge::boundary_end_coefficients(double dt)
 	double vL = (v[nx-2]-v[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + v[nx-1];
 	double pL = (p[nx-2]-p[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + p[nx-1];
 	double dL = (d[nx-2]-d[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + d[nx-1];
-	double AL = dL*dL*M_PI/4.;
+	double AL = dL*dL*pi/4.;
 	double hL = (h[nx-2]-h[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + h[nx-1];
 	double epszL = (epsz[nx-2]-epsz[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz[nx-1];
 	double epsz2L = (epsz2[nx-2]-epsz2[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz2[nx-1];
@@ -657,7 +657,7 @@ double edge::boundary_periferia(double dt, double p_out)
 	double vL = (v[nx-2]-v[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + v[nx-1];
 	double pL = (p[nx-2]-p[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + p[nx-1];
 	double dL = (d[nx-2]-d[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + d[nx-1];
-	double AL = dL*dL*M_PI/4.;
+	double AL = dL*dL*pi/4.;
 	double hL = (h[nx-2]-h[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + h[nx-1];
 	double epszL = (epsz[nx-2]-epsz[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz[nx-1];
 	double epsz2L = (epsz2[nx-2]-epsz2[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz2[nx-1];
@@ -708,7 +708,7 @@ double edge::upstream_boundary(double dt, double p_in)
 	double epszR = (epsz[1]-epsz[0]) / x[1] * xR + epsz[0];
 	double epsz2R = (epsz2[1]-epsz2[0]) / x[1] * xR + epsz2[0];
 	double hR = (h[1]-h[0]) / x[1] * xR + h[0];
-	double AR = dR*dR*M_PI/4.;
+	double AR = dR*dR*pi/4.;
 
 	// source term
 	double J = JR(dt, pR, vR, aR, epszR, epsz2R, dR, hR, xR, x[0]);
@@ -741,7 +741,7 @@ void edge::set_short_parameters()
    he   = geodetic_height_end;
    p0   = atmospheric_pressure;
 
-   An   = dn*dn*M_PI/4.;
+   An   = dn*dn*pi/4.;
    an   = sqrt(E1*sn / (rho*dn));
 }
 

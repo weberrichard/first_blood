@@ -29,8 +29,9 @@ int main(int argc, char* argv[])
 	}
 
 	// loading model
-	string case_folder = "../../models/";
-   moc_solver *patient = new moc_solver(case_folder + "P045.csv");
+	//string case_folder = "../../models/";
+   //moc_solver *patient = new moc_solver(case_folder + "P045.csv");
+   moc_solver *patient = new moc_solver("P045.csv");
 
    // loading ll_rel for parameter adjustment from original case file
 	vector<double> ll_rel;

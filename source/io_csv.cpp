@@ -193,7 +193,8 @@ void first_blood::save_results(string folder_name, vector<string> edge_list, vec
    mkdir(("results/" + folder_name).c_str(),0777);
 
    // FOR WINDOWS
-   //mkdir(case_name.c_str());
+   //mkdir("results");
+   //mkdir(("results/" + folder_name).c_str());
 
    folder_name = "results/" + folder_name + "/";
 
