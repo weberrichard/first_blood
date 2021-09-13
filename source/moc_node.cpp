@@ -1,23 +1,23 @@
-#include "node.h"
+#include "moc_node.h"
 
 using namespace std;
 
-node::node(string a_name)
+moc_node::moc_node(string a_name)
 {
    name = a_name;
 }
 
 //--------------------------------------------------------------
-node::~node(){}
+moc_node::~moc_node(){}
 
 //--------------------------------------------------------------
-void node::print_input()
+void moc_node::print_input()
 {
 	printf("\n %8s, %8s, %6.4f, %6.4f, %6.4f, %6.4f", type.c_str(), name.c_str(), 0., p0, R, Ri);
 }
 
 //--------------------------------------------------------------
-void node::initialization(double p_init)
+void moc_node::initialization(double p_init)
 {
 	// clearing time variables
    pressure.clear();
@@ -38,10 +38,11 @@ void node::initialization(double p_init)
    volume_flow_rate.push_back(0.);
 
    is_upstream_boundary = false;
+   is_master_node = false;
 }
 
 //--------------------------------------------------------------
-void node::set_short_parameters()
+void moc_node::set_short_parameters()
 {
 	R = resistance;
 	Ri = is_resistance;
@@ -64,10 +65,10 @@ void node::set_short_parameters()
 }
    
 //--------------------------------------------------------------
-vector<double> node::boundary_coefficients()
+vector<double> moc_node::boundary_coefficients()
 {
-	double num   = -p0/ (R*rho) * Ri;
-	double denum = -1./ (R*rho) * Ri;
+	double num   = -p0/ R * Ri;
+	double denum = -1./ R * Ri;
 	
 	vector<double> out{num,denum};
 
@@ -75,9 +76,9 @@ vector<double> node::boundary_coefficients()
 }
 
 //--------------------------------------------------------------
-void node::boundary_variables(double p)
+void moc_node::boundary_variables(double p)
 {
 	pressure.push_back(p);
-	double Q = (p-p0)/(R*rho) * Ri;
+	double Q = (p-p0)/R * Ri;
 	volume_flow_rate.push_back(Q);
 }

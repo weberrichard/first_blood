@@ -1,5 +1,4 @@
-clear; close all;
-
+clear;
 % main parameters
 HR  = 75;  % heart rate
 per = 5; % number of simulation periods
@@ -48,7 +47,7 @@ R1 = 1.5; % mmHg s / ml   0.5-2.0
 R2 = 0.005; % mmHg s / ml
 R3 = 0.001; % 0.001 mmHg s / ml
 R4 = 0.0398; % mmHg s / ml
-C1 = 1/E(1); % ml / mmHg
+% C1 = 1/E(1); % ml / mmHg
 C2 = 4.4; % ml / mmHg
 C3 = 1.33; % ml / mmHg
 L = 0.0005; % mmHg s2 / ml
@@ -59,7 +58,7 @@ R1 = R1 * mmHg_Pa*1000*1000; % Pa/m3
 R2 = R2 * mmHg_Pa*1000*1000; % Pa/m3
 R3 = R3 * mmHg_Pa*1000*1000; % Pa/m3
 R4 = R4 * mmHg_Pa*1000*1000; % Pa/m3
-C1 = C1; % m3/Pa
+% C1 = C1; % m3/Pa
 C2 = C2 / mmHg_Pa/1000/1000; % m3/Pa
 C3 = C3 / mmHg_Pa/1000/1000; % m3/Pa
 L = L * mmHg_Pa*1000*1000; % Pas2/m3
@@ -67,19 +66,32 @@ V0 = V0 /1000/1000; % m3
 
 % initial conditions
 LVV0 = 61; % ml
-Pla0 = 6.318; % mmHg
-Pa0 = 45.891 ; % mmHg
+Pla0 = 6.318; %6.318; %6.318; % mmHg
+% Pa0 = 46; %45.891 ; % mmHg
 qa0 = 0; % m3/s
-Plv0 = E(1)*(LVV0-V0)/1000/1000/mmHg_Pa; % mmHg
+Plv0 = E(1)*(LVV0/1000/1000-V0)/mmHg_Pa; % mmHg
+Pa0 = 90; %45.891 ; % mmHg
 
 LVV = zeros(1,nt*per+1); LVV(1) = LVV0;
 Pla = zeros(1,nt*per+1); Pla(1) = Pla0;
 Pa = zeros(1,nt*per+1); Pa(1) = Pa0;
 qa = zeros(1,nt*per+1); qa(1) = qa0;
 Plv = zeros(1,nt*per+1); Plv(1) = Plv0;
+EC1 = zeros(1,nt*per+1);
+EC2 = zeros(1,nt*per+1);
+EC3 = zeros(1,nt*per+1);
+EL  = zeros(1,nt*per+1);
+Ener = zeros(1,nt*per+1);
 
 z = zeros(4,nt*per+1);
 z(:,1) = [LVV0/1000/1000-V0; Pla0* mmHg_Pa; Pa0* mmHg_Pa; qa0];
+
+% energy of the system in SI
+EC1(1) = .5*E(1)*z(1,1)^2;
+EC2(1) = .5*C2*z(2,1)^2;
+EC3(1) = .5*C3*z(3,1)^2;
+EL(1)  = .5*L*z(4,1)^2;
+Ener(1) = EC1(1) + EC2(1) + EC3(1) + EL(1);
 
 % ejection
 Ae = [0,0,0,-1;0,-1/R1/C2,1/R1/C2,0;0,1/R1/C3,-1/R1/C3,1/C3;E(1)/L,0,-1/L,-(R3+R4)/L];
@@ -125,6 +137,13 @@ for i=1:nt*per
     qa(i+1) = z(4,i+1)*1000*1000; % ml
     Plv(i+1) = E(i+1)*z(1,i+1)/mmHg_Pa; % mmHg
     
+    % energy of the system in SI
+    EC1(i+1) = .5*E(i+1)*z(1,i+1)^2;
+    EC2(i+1) = .5*C2*z(2,i+1)^2;
+    EC3(i+1) = .5*C3*z(3,i+1)^2;
+    EL(i+1)  = .5*L*z(4,i+1)^2;
+    Ener(i+1) = EC1(i+1) + EC2(i+1) + EC3(i+1) + EL(i+1);
+    
     % PLOT
 %     if(mod(i,100 )==0)
 %         cla;
@@ -147,20 +166,36 @@ legend('Pla','Plv','Pa','LVV','location','southwest');
 xlabel('time [s]');
 ylabel('Pressure [mmHg], LVV [ml]');
 
-fig2=figure;
-plot(LVV(end-nt:end),Plv(end-nt:end),'linewidth',1.5);
-grid on
-xlabel('LVV [ml]');
-ylabel('Plv [mmHg]');
+% fig2=figure;
+% plot(LVV(end-nt:end),Plv(end-nt:end),'linewidth',1.5);
+% grid on
+% xlabel('LVV [ml]');
+% ylabel('Plv [mmHg]');
 
 % saveas(fig1,'time-pressure.png','png');
 % saveas(fig2,'lvv-plv.png','png');
 
-% figure;
-% plot(t,qa);
+% energy of elastance capacitor
+% E = E / mmHg_Pa / 1e6;
+% Ec = .5*1./E.*Plv.^2;
+
+% fig3=figure;
+% plot(t,Ec);
+% % plot(t,1./E);
+% % yyaxis right
+% % plot(t,Plv);
+% grid on;
 
 
-
+fig4 = figure;
+plot(t,Ener,'linewidth',1.5);
+grid on
+hold on
+plot(t,EC1,'linewidth',1.5);
+plot(t,EC2,'linewidth',1.5);
+plot(t,EC3,'linewidth',1.5);
+plot(t,EL,'linewidth',1.5);
+legend('total','C1','C2','C3','L');
 
 
 

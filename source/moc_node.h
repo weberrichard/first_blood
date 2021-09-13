@@ -1,30 +1,31 @@
 /*===================================================================*\
-											 node
+										 moc_node
 									 ---------------
 
-  Node class for organizing every node property and function.
+  moc_node class for organizing every moc_node property and function.
  
 	 first_blood
 	 R. Weber
 	 git: 
 \*==================================================================*/
 
-#ifndef NODE_H
-#define NODE_H
+#ifndef MOC_NODE_H
+#define MOC_NODE_H
 
 #include <string>
 #include <vector>
+#include <iostream>
 #include <cmath>
 
 using namespace std;
 
-class node
+class moc_node
 {
 public:
-	node(string a_name);
-	~node();
+	moc_node(string a_name);
+	~moc_node();
 
-	// name of the node
+	// name of the moc_node
 	string name;
 
 	// boundary type fo nodes
@@ -43,9 +44,10 @@ public:
 	double resistance; // resistance coefficient, 1/ms
 	double is_resistance; // if there is "leakage" this is 1, otherwise 0 and will eliminate this term
 	double pressure_out; // outside pressure 
-	double density = 1050.; // density of the fluid (blood)
+	double density; // density of the fluid (blood)
 
 	bool is_upstream_boundary = false; // for heart or upper boundary it is true
+	bool is_master_node = false; // if it is connected to an other model, e.g lumped model
 
 	// for intersection points;
 	vector<double> boundary_coefficients();
@@ -62,4 +64,4 @@ private:
 	void set_short_parameters(); // matching the longer and shorter parameters
 	
 };
-#endif // NODE_H
+#endif // MOC_NODE_H

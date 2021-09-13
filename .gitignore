@@ -47,6 +47,9 @@ pilot_matlab/*
 *.txt
 *.res
 *.csv
-
 *.nb
 *.rar
+
+# 1.0 version with moc only
+source_old/*.cpp
+source_old/*.h

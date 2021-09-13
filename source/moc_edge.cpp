@@ -1,26 +1,26 @@
-#include "edge.h"
+#include "moc_edge.h"
 
 using namespace std;
 
 //--------------------------------------------------------------
-edge::edge(string a_name)
+moc_edge::moc_edge(string a_name)
 {
 	name = a_name;
 }
 
 //--------------------------------------------------------------
-edge::~edge(){}
+moc_edge::~moc_edge(){}
 
 //--------------------------------------------------------------
-void edge::print_input()
+void moc_edge::print_input()
 {
 	printf("\n %8s, %8s, %8s, %8s, %6.3f, %6.3f, %6.3f, %3i, %6.3e, %6.3e, %6.3e, %6.3e, %6.3e", "vis", name.c_str(), node_name_start.c_str(), node_name_end.c_str(), dn, sn, l, nx, E1, E2, eta2, Rs, Re);
 }
 
 
 //--------------------------------------------------------------
-void edge::initialization(double p_init)
-{	
+void moc_edge::initialization(double pressure_initial)
+{
 	// clearing time variables
 	pressure_start.clear();
    pressure_end.clear();
@@ -59,7 +59,7 @@ void edge::initialization(double p_init)
 	xp.clear();    xp.resize(nx);
 
 	// giving initial conditions
-	p.assign(nx,p_init);
+	p.assign(nx,pressure_initial);
 	v.assign(nx,0.);
 	a.assign(nx,pow(E1*sn/(dn*rho),0.5));
 	d.assign(nx,dn);
@@ -86,13 +86,13 @@ void edge::initialization(double p_init)
 }
 
 //--------------------------------------------------------------
-void edge::set_pressure_upstream(double p_in)
+void moc_edge::set_pressure_upstream(double p_in)
 {
 	p[0] = p_in;
 }
 
 //--------------------------------------------------------------
-double edge::new_timestep()
+double moc_edge::new_timestep()
 {
 	// inner points
 	for(unsigned int i=1; i<nx-1; i++)
@@ -108,11 +108,15 @@ double edge::new_timestep()
 
 	// finding the minimum time step
 	double dt_min = dt[0];
-	for(unsigned int i=1; i<nx-1; i++)
+	for(unsigned int i=0; i<nx; i++) // TODO: i=1 tol eleg
 	{
 		if(dt[i] < dt_min)
 		{
 			dt_min = dt[i];
+		}
+		if(dt[i]<0)
+		{
+			cout << " Negative time step in edge: " << name << " , at i " << i << "-th inner node, dt: " << dt[i] << endl;
 		}
 	}
 
@@ -120,7 +124,7 @@ double edge::new_timestep()
 } 
 
 //--------------------------------------------------------------
-void edge::solve()
+void moc_edge::solve()
 {	
 	for(unsigned int i=1; i<nx-1; i++)
 	{
@@ -139,7 +143,7 @@ void edge::solve()
 }
 
 //--------------------------------------------------------------
-void edge::interpolate(double dt_real)
+void moc_edge::interpolate(double dt_real)
 {
 	// setting back dt-s at boundaries
 	dt[0]    = dt_real;
@@ -192,7 +196,7 @@ void edge::interpolate(double dt_real)
 }
 
 //--------------------------------------------------------------
-vector<vector<double> > edge::backward_solver(vector<double> t_d, vector<double> p_d, vector<double> vfr_d)
+vector<vector<double> > moc_edge::backward_solver(vector<double> t_d, vector<double> p_d, vector<double> vfr_d)
 {	
 	// giving initial condition at the outlet in time
 	initialization_back(t_d, p_d, vfr_d);
@@ -227,7 +231,7 @@ vector<vector<double> > edge::backward_solver(vector<double> t_d, vector<double>
 }
 
 //--------------------------------------------------------------
-void edge::initialization_back(vector<double> t_in, vector<double> p_in, vector<double> vfr_in)
+void moc_edge::initialization_back(vector<double> t_in, vector<double> p_in, vector<double> vfr_in)
 {
 	// clearing time variables
 	pressure_start.clear();
@@ -335,7 +339,7 @@ void edge::initialization_back(vector<double> t_in, vector<double> p_in, vector<
 }
 
 //--------------------------------------------------------------
-double edge::new_spacestep_back()
+double moc_edge::new_spacestep_back()
 {	
 	// reducing the size of xp and x with 2
 	nt_back -= 2;
@@ -361,7 +365,7 @@ double edge::new_spacestep_back()
 
 	if(dx_min<0.)
 	{
-      printf("\n !WARNING! space step is negative: %6.3e during BACKWARD calculation at edge %-6s", dx_min, name.c_str());
+      printf("\n !WARNING! space step is negative: %6.3e during BACKWARD calculation at moc_edge %-6s", dx_min, name.c_str());
       cout << endl;
 	}
 
@@ -380,7 +384,7 @@ double edge::new_spacestep_back()
 }
 
 //--------------------------------------------------------------
-void edge::solve_back()
+void moc_edge::solve_back()
 {	
 	// resizing vectors
 	pp.clear(); pp.resize(nt_back);
@@ -407,7 +411,7 @@ void edge::solve_back()
 }
 
 //--------------------------------------------------------------
-void edge::interpolate_back(double dx_real)
+void moc_edge::interpolate_back(double dx_real)
 {
 	// resize vectors
 	pq.clear(); pq.resize(nt_back);
@@ -469,7 +473,7 @@ void edge::interpolate_back(double dx_real)
 }
 
 //--------------------------------------------------------------
-void edge::reduce_field_vectors()
+void moc_edge::reduce_field_vectors()
 {
 	epsz2.pop_back();
 	epsz.pop_back();
@@ -479,14 +483,14 @@ void edge::reduce_field_vectors()
 }
 
 //--------------------------------------------------------------
-double edge::JL(int i)
+double moc_edge::JL(int i)
 {
 	double out = JL(dt[i], p[i-1], v[i-1], a[i-1], epsz[i-1], epsz2[i-1], d[i-1], h[i-1], xp[i], x[i-1]);
 	return out;
 }
 
 //--------------------------------------------------------------
-double edge::JL(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
+double moc_edge::JL(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
 {
 	// temp variable
 	double AL = ( (p-p0)*dn*(2.*epsz+1)/(eta2*2.*sn) - E2/eta2*epsz2 )*exp(-E2/eta2*dt);
@@ -501,14 +505,14 @@ double edge::JL(double dt, double p, double v, double a, double epsz, double eps
 }
 
 //--------------------------------------------------------------
-double edge::JR(int i)
+double moc_edge::JR(int i)
 {
 	double out = JR(dt[i], p[i+1], v[i+1], a[i+1], epsz[i+1], epsz2[i+1], d[i+1], h[i+1], xp[i], x[i+1]);
 	return out;
 }
 
 //--------------------------------------------------------------
-double edge::JR(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
+double moc_edge::JR(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
 {
 	// temp variables
 	double AR = ( (p-p0)*dn*(2.*epsz+1)/(eta2*2.*sn) - E2/eta2*epsz2 )*exp(-E2/eta2*dt);
@@ -523,19 +527,19 @@ double edge::JR(double dt, double p, double v, double a, double epsz, double eps
 }
 
 //--------------------------------------------------------------
-double edge::JA(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
+double moc_edge::JA(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
 {
 	return JR(dt, p, v, a, epsz, epsz2, d, h, xp, x);
 }
 
 //--------------------------------------------------------------
-double edge::JB(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
+double moc_edge::JB(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
 {
 	return JL(dt, p, v, a, epsz, epsz2, d, h, xp, x);
 }
 
 //--------------------------------------------------------------
-void edge::update_variables(double dt)
+void moc_edge::update_variables(double dt)
 {
 	double ex = exp(-E2/eta2*dt);
 	for(unsigned int i=0; i<epsz2.size(); i++)
@@ -545,7 +549,7 @@ void edge::update_variables(double dt)
 }
 
 //--------------------------------------------------------------
-void edge::update_ith_variables(int i, double ex, double p_new, double epsz2_old, double epsz_old)
+void moc_edge::update_ith_variables(int i, double ex, double p_new, double epsz2_old, double epsz_old)
 {
 	epsz2[i] = (p_new-p0)*(2.*epsz_old+1.)*(1.-ex) * dn / (E2*2.*sn) + epsz2_old*ex;
 	epsz[i]  = epsz2[i] + (p_new-p0)*(2.*epsz_old+1.) *dn / (E1*2.*sn*pow(epsz_old+1.,beta));
@@ -555,7 +559,7 @@ void edge::update_ith_variables(int i, double ex, double p_new, double epsz2_old
 }
 
 //--------------------------------------------------------------
-void edge::save_field_variables()
+void moc_edge::save_field_variables()
 {
 	velocity_start.push_back(v[0]);
 	velocity_end.push_back(v[nx-1]);
@@ -579,10 +583,79 @@ void edge::save_field_variables()
 	double mf_e = vf_e * rho;
 	mass_flow_rate_start.push_back(mf_s);
 	mass_flow_rate_end.push_back(mf_e);
+
+	// debug
+	/*cout << "v: " << endl;
+	for(int i=0; i<v.size(); i++)
+	{
+		cout << v[i] << ", ";
+	}
+	cout << "p: " << endl;
+	for(int i=0; i<p.size(); i++)
+	{
+		cout << p[i] << ", ";
+	}
+	cout << endl;*/
 }
 
 //--------------------------------------------------------------
-vector<double> edge::boundary_start_coefficients(double dt)
+vector<double> moc_edge::boundary_master_start(double dt_master)
+{	
+	// location of R point
+	double xR = boundary_start_position(dt_master);
+
+	// interpolating fied variables to xR
+	double aR = (a[1]-a[0]) / x[1] * xR + a[0];
+	double vR = (v[1]-v[0]) / x[1] * xR + v[0];
+	double pR = (p[1]-p[0]) / x[1] * xR + p[0];
+	double dR = (d[1]-d[0]) / x[1] * xR + d[0];
+	double AR = dR*dR*pi/4.;
+	double hR = (h[1]-h[0]) / x[1] * xR + h[0];
+	double epszR = (epsz[1]-epsz[0]) / x[1] * xR + epsz[0];
+	double epsz2R = (epsz2[1]-epsz2[0]) / x[1] * xR + epsz2[0];
+
+	// source term
+	double J = JR(dt_master, pR, vR, aR, epszR, epsz2R, dR, hR, xR, x[0]);
+
+	// coefficients aq*qp + ap*pp = b
+	double aq = 1./A[0];
+	double ap = -1./(rho*aR);
+	double b  = vR + ap*pR - dt_master*J;
+
+	vector<double> out{aq,ap,b};
+	return out;
+}
+
+//--------------------------------------------------------------
+vector<double> moc_edge::boundary_master_end(double dt_master)
+{	
+	// location of R point
+	double xL = boundary_end_position(dt_master);
+
+	// interpolating fied variables to xR
+	double aL = (a[nx-2]-a[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + a[nx-1];
+	double vL = (v[nx-2]-v[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + v[nx-1];
+	double pL = (p[nx-2]-p[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + p[nx-1];
+	double dL = (d[nx-2]-d[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + d[nx-1];
+	double AL = dL*dL*pi/4.;
+	double hL = (h[nx-2]-h[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + h[nx-1];
+	double epszL = (epsz[nx-2]-epsz[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz[nx-1];
+	double epsz2L = (epsz2[nx-2]-epsz2[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz2[nx-1];
+
+	// source term
+	double J = JL(dt_master, pL, vL, aL, epszL, epsz2L, dL, hL, xL, x[nx-1]);
+
+	// coefficients aq*qp + ap*pp = b
+	double aq = 1./A[nx-1];
+	double ap = 1./(rho*aL);
+	double b  = vL + ap*pL - dt_master*J;
+
+	vector<double> out{aq,ap,b};
+	return out;
+}
+
+//--------------------------------------------------------------
+vector<double> moc_edge::boundary_start_coefficients(double dt)
 {
 	double xR = boundary_start_position(dt);
 
@@ -600,15 +673,15 @@ vector<double> edge::boundary_start_coefficients(double dt)
 	double J = JR(dt, pR, vR, aR, epszR, epsz2R, dR, hR, xR, x[0]);
 
 	// C- characteristics constants
-	double C1m = 1. / (rho*aR + Rs*rho*A[nx-1]) * A[0];
-	double C2m = aR/(aR + Rs*A[nx-1]) * (-dt*J + vR - pR/(rho*aR)) * A[0];
+	double C1m = 1. / (rho*aR + Rs*A[nx-1]) * A[0];
+	double C2m = aR/(aR + Rs/rho*A[nx-1]) * (-dt*J + vR - pR/(rho*aR)) * A[0];
 
 	vector<double> out{C1m,C2m};
 	return out;
 }
 
 //--------------------------------------------------------------
-vector<double> edge::boundary_end_coefficients(double dt)
+vector<double> moc_edge::boundary_end_coefficients(double dt)
 {
 	double xL = boundary_end_position(dt);
 
@@ -626,29 +699,29 @@ vector<double> edge::boundary_end_coefficients(double dt)
 	double J = JL(dt, pL, vL, aL, epszL, epsz2L, dL, hL, xL, x[nx-1]);
 
 	// C+ characteristics
-	double C1p = -1./(rho*aL + Re*rho*A[nx-1]) * A[nx-1];
-	double C2p = aL/(aL + Re*A[nx-1])*(-dt*J + vL + pL/(rho*aL)) * A[nx-1];
+	double C1p = -1./(rho*aL + Re*A[nx-1]) * A[nx-1];
+	double C2p = aL/(aL + Re/rho*A[nx-1])*(-dt*J + vL + pL/(rho*aL)) * A[nx-1];
 
 	vector<double> out{C1p,C2p};
 	return out;
 }
 
 //--------------------------------------------------------------
-void edge::boundary_start_variables(double dt, double p, double q)
+void moc_edge::boundary_start_variables(double dt, double p, double q)
 {
 	vp[0] = q/A[0];
-	pp[0] = p - Rs*rho*q;
+	pp[0] = p - Rs*q;
 }
 
 //--------------------------------------------------------------
-void edge::boundary_end_variables(double dt, double p, double q)
+void moc_edge::boundary_end_variables(double dt, double p, double q)
 {
 	vp[nx-1] = q/A[nx-1];
-	pp[nx-1] = p + Re*rho*q;
+	pp[nx-1] = p + Re*q;
 }
 
 //--------------------------------------------------------------
-double edge::boundary_periferia(double dt, double p_out)
+double moc_edge::boundary_periferia(double dt, double p_out)
 {	
 	double xL = boundary_end_position(dt);
 
@@ -666,11 +739,11 @@ double edge::boundary_periferia(double dt, double p_out)
 	double J = JL(dt, pL, vL, aL, epszL, epsz2L, dL, hL, xL, x[nx-1]);
 
 	double v_e;
-	v_e = (vL - dt*J - (p_out-pL)/(rho*aL)) / (1.+Re*A[nx-1]/aL);
+	v_e = (vL - dt*J - (p_out-pL)/(rho*aL)) / (1.+Re/rho*A[nx-1]/aL);
 	vp[nx-1] = v_e;
 
 	double p_e;
-	p_e = p_out + Re*rho*A[nx-1]*v_e;
+	p_e = p_out + Re*A[nx-1]*v_e;
 	pp[nx-1] = p_e;
 
 	return v_e*A[nx-1];
@@ -678,7 +751,7 @@ double edge::boundary_periferia(double dt, double p_out)
 
 
 //--------------------------------------------------------------
-double edge::boundary_start_position(double dt)
+double moc_edge::boundary_start_position(double dt)
 {
 	double dv = (v[1]-v[0]) / x[1];
 	double da = (a[1]-a[0]) / x[1];
@@ -687,7 +760,7 @@ double edge::boundary_start_position(double dt)
 }
 
 //--------------------------------------------------------------
-double edge::boundary_end_position(double dt)
+double moc_edge::boundary_end_position(double dt)
 {
 	double dv = (v[nx-1]-v[nx-2]) / (x[nx-1]-x[nx-2]);
 	double da = (a[nx-1]-a[nx-2]) / (x[nx-1]-x[nx-2]);
@@ -696,7 +769,7 @@ double edge::boundary_end_position(double dt)
 }
 
 //--------------------------------------------------------------
-double edge::upstream_boundary(double dt, double p_in)
+double moc_edge::upstream_boundary(double dt, double p_in)
 {
 	double xR = boundary_start_position(dt);
 
@@ -713,17 +786,17 @@ double edge::upstream_boundary(double dt, double p_in)
 	// source term
 	double J = JR(dt, pR, vR, aR, epszR, epsz2R, dR, hR, xR, x[0]);
 
-	double v = (vR+1./(rho*aR)*(p_in-pR)-dt*J) / (1.+Rs*AR/aR);
+	double v = (vR+1./(rho*aR)*(p_in-pR)-dt*J) / (1.+Rs/rho*AR/aR);
 	vp[0] = v;
 
-	double p = p_in - Rs*rho*A[0]*v;
+	double p = p_in - Rs*A[0]*v;
 	pp[0] = p;
 
 	return v*A[0];
 }
 
 //--------------------------------------------------------------
-void edge::set_short_parameters()
+void moc_edge::set_short_parameters()
 {
    l    = length;
    dn   = nominal_diameter;

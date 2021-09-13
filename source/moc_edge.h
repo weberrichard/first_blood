@@ -1,5 +1,5 @@
 /*===================================================================*\
-											Edge
+										 moc_edge
 									 ---------------                            
 
   Abstract class, because it contains pure virtual functions i.e.
@@ -14,8 +14,8 @@
 	 git: 
 \*==================================================================*/
 
-#ifndef EDGE_H
-#define EDGE_H
+#ifndef MOC_EDGE_H
+#define MOC_EDGE_H
 
 #include <string>
 #include <vector>
@@ -25,13 +25,13 @@
 
 using namespace std;
 
-class edge
+class moc_edge
 {
 public:
-	edge(string a_name);
-	~edge();
+	moc_edge(string a_name);
+	~moc_edge();
 
-	string name; // name or ID of the edge
+	string name; // name or ID of the moc_edge
 	string node_name_start, node_name_end; // name of the nodes at the beginning and at the end
 	int node_index_start, node_index_end; // index of the nodes at the beginning and at the end
 
@@ -52,11 +52,11 @@ public:
 	// for controlling the forward and backward calculations
 	bool do_solve;
 
-	double gravity = 9.806; // m/s2
-	double density = 1050.; // m/s2
-	double kinematic_viscosity = 3.e-6; // m2/s
-	double atmospheric_pressure = 1.e5; // Pa
-	double beta = 2.0; // exponent for wave velocity, -
+	double gravity; // m/s2
+	double density; // m/s2
+	double kinematic_viscosity; // m2/s
+	double atmospheric_pressure; // Pa
+	double beta; // exponent for wave velocity, -
 
 	// cointaining field variables in time
 	vector<double> pressure_start; // Pa
@@ -98,11 +98,15 @@ public:
 
 	//---------------------
 	// BOUNDARIES
+	// master boundaries
+	vector<double> boundary_master_start(double dt_master);
+	vector<double> boundary_master_end(double dt_master);
+
 	// [*] junctions, inner points
 	// to calculate the nodal pressure
 	vector<double> boundary_start_coefficients(double dt);
 	vector<double> boundary_end_coefficients(double dt);
-	// to determine the velocity and pressure of the edge
+	// to determine the velocity and pressure of the moc_edge
 	void boundary_start_variables(double dt, double p, double v);
 	void boundary_end_variables(double dt, double p, double v);
 
@@ -116,7 +120,7 @@ public:
 
 	//---------------------
 	// BACKWARD CALCULATION
-	// calculating backward in the edge, returning [t,p_up]
+	// calculating backward in the moc_edge, returning [t,p_up]
 	vector<vector<double> > backward_solver(vector<double> t_d, vector<double> p_d, vector<double> vfr_d);
 
 private:
@@ -148,7 +152,7 @@ private:
 	double new_spacestep_back();
 	// solving the characteristics at the end side from ith node
 	void solve_back();
-	// interpolating the end side of the edge from ith node
+	// interpolating the end side of the moc_edge from ith node
 	void interpolate_back(double dx_real);
 	// reducing field var vectors
 	void reduce_field_vectors();
@@ -175,4 +179,4 @@ private:
 	void update_ith_variables(int i, double ex, double p, double epsz2, double epsz);
 };
 
-#endif // EDGE_H
+#endif // MOC_EDGE_H
