@@ -584,18 +584,6 @@ void moc_edge::save_field_variables()
 	mass_flow_rate_start.push_back(mf_s);
 	mass_flow_rate_end.push_back(mf_e);
 
-	// debug
-	/*cout << "v: " << endl;
-	for(int i=0; i<v.size(); i++)
-	{
-		cout << v[i] << ", ";
-	}
-	cout << "p: " << endl;
-	for(int i=0; i<p.size(); i++)
-	{
-		cout << p[i] << ", ";
-	}
-	cout << endl;*/
 }
 
 //--------------------------------------------------------------

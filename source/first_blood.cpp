@@ -10,7 +10,7 @@ first_blood::first_blood(string folder_name)
 	case_name = input_folder_path.substr(input_folder_path.rfind('/')+1);
 
 	// some feedback to console
-	cout << " [*] Case name: " << case_name << endl;
+	//cout << " [*] Case name: " << case_name << endl;
 
 	// loading all the input data from csv files
 	load_model();
