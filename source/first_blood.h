@@ -69,6 +69,7 @@ public:
 
 	/// Saving results to file
 	void save_results(); // default folder name: case_name
+	void save_results(string folder_name, string model_name, string model_type, vector<string> edge_list, vector<string> node_list); // saving specific time results to save time
 
 	// recording the timesteps
 	vector<double> time;

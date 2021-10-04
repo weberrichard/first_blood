@@ -3,9 +3,9 @@
 using namespace std;
 
 //--------------------------------------------------------------
-moc_edge::moc_edge(string a_name)
+moc_edge::moc_edge(string a_ID)
 {
-	name = a_name;
+	ID = a_ID;
 }
 
 //--------------------------------------------------------------
@@ -14,9 +14,8 @@ moc_edge::~moc_edge(){}
 //--------------------------------------------------------------
 void moc_edge::print_input()
 {
-	printf("\n %8s, %8s, %8s, %8s, %6.3f, %6.3f, %6.3f, %3i, %6.3e, %6.3e, %6.3e, %6.3e, %6.3e", "vis", name.c_str(), node_name_start.c_str(), node_name_end.c_str(), dn, sn, l, nx, E1, E2, eta2, Rs, Re);
+	printf("\n %8s, %8s, %12s, %8s, %8s, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %3i, %6.3e, %6.3e, %6.3e, %6.3e, %6.3e", "vis", ID.c_str(), name.c_str(), node_name_start.c_str(), node_name_end.c_str(), dns, dne, sns, sne, l, nx, E1, E2, eta2, Rs, Re);
 }
-
 
 //--------------------------------------------------------------
 void moc_edge::initialization(double pressure_initial)
@@ -61,9 +60,18 @@ void moc_edge::initialization(double pressure_initial)
 	// giving initial conditions
 	p.assign(nx,pressure_initial);
 	v.assign(nx,0.);
-	a.assign(nx,pow(E1*sn/(dn*rho),0.5));
-	d.assign(nx,dn);
-	A.assign(nx,dn*dn*pi/4.);
+	for(int i=0; i<nx; i++)
+	{	
+		// linear interpolation
+		double nx_d = (double)nx;
+		double i_d = (double)i;
+		double dnp = dns*(nx_d-i_d-1.)/(nx_d-1.) + dne*i_d/(nx_d-1.);
+		double snp = sns*(nx_d-i_d-1.)/(nx_d-1.) + sne*i_d/(nx_d-1.);
+
+		a[i] = pow(E1*snp/(dnp*rho),0.5);
+		d[i] = dnp;
+		A[i] = dnp*dnp*pi*0.25;
+	}
 	epsz.assign(nx,0.);
 	epsz2.assign(nx,0.);
 
@@ -133,12 +141,6 @@ void moc_edge::solve()
 		// new field variables
 		vp[i] = (p[i-1]-p[i+1] + rho*(a[i-1]*v[i-1] + a[i+1]*v[i+1]) - dt[i]*rho*(a[i-1]*JL(i) + a[i+1]*JR(i))) / (rho*(a[i-1]+a[i+1]));
 		pp[i] = p[i+1] + rho*a[i+1]*(vp[i]-v[i+1]) + rho*a[i+1]*dt[i]*JR(i);
-
-		/*if(vp[i]>0.9*a[i])
-		{
-			vp[i] = 0.9*a[i];
-			cout << "i: " << i << " vp: " << vp[i] << " ai: " << a[i] << " an: " << an <<endl;
-		}*/
 	}
 }
 
@@ -260,7 +262,7 @@ void moc_edge::initialization_back(vector<double> t_in, vector<double> p_in, vec
 
 	// number of timesteps
 	// nt_back = (int) ceil((t_in.back() - t_in[0])/dt_back_max);
-	nt_back = an*nx*(t_in.back() - t_in[0])/l;
+	nt_back = ane*nx*(t_in.back() - t_in[0])/l;
 
 	// time step
 	dt_back = (t_in.back() - t_in[0]) / ((double)nt_back-1.);
@@ -282,9 +284,9 @@ void moc_edge::initialization_back(vector<double> t_in, vector<double> p_in, vec
 	A.clear();		A.resize(nt_back);
 
 	// giving initial conditions
-	a[0]		= pow(E1*sn/(dn*rho),0.5);
-	d[0]		= dn;
-	A[0]		= dn*dn*pi/4.;
+	a[0]		= pow(E1*sne/(dne*rho),0.5);
+	d[0]		= dne;
+	A[0]		= dne*dne*pi/4.;
 	epsz[0]	= 0.;
 	epsz2[0]	= 0.;
 
@@ -322,7 +324,7 @@ void moc_edge::initialization_back(vector<double> t_in, vector<double> p_in, vec
       }
       else
       {
-   	   v[i] = ((vfr_h-vfr_l)/(t_h-t_l) * (ti-t_l) + vfr_l) / An;
+   	   v[i] = ((vfr_h-vfr_l)/(t_h-t_l) * (ti-t_l) + vfr_l) / Ane;
       }
 	}
 
@@ -493,7 +495,10 @@ double moc_edge::JL(int i)
 double moc_edge::JL(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
 {
 	// temp variable
-	double AL = ( (p-p0)*dn*(2.*epsz+1)/(eta2*2.*sn) - E2/eta2*epsz2 )*exp(-E2/eta2*dt);
+	double dnp = dns + xp/l*(dne-dns);
+	double snp = sns + xp/l*(sne-sns);
+
+	double AL = ( (p-p0)*dnp*(2.*epsz+1)/(eta2*2.*snp) - E2/eta2*epsz2 )*exp(-E2/eta2*dt);
 
 	// geodetic height difference
 	double hp = hs + xp/l*(he-hs);
@@ -515,7 +520,10 @@ double moc_edge::JR(int i)
 double moc_edge::JR(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
 {
 	// temp variables
-	double AR = ( (p-p0)*dn*(2.*epsz+1)/(eta2*2.*sn) - E2/eta2*epsz2 )*exp(-E2/eta2*dt);
+	double dnp = dns + xp/l*(dne-dns);
+	double snp = sns + xp/l*(sne-sns);
+
+	double AR = ( (p-p0)*dnp*(2.*epsz+1)/(eta2*2.*snp) - E2/eta2*epsz2 )*exp(-E2/eta2*dt);
 
 	// geodetic height difference
 	double hp = hs + xp/l*(he-hs);
@@ -551,10 +559,15 @@ void moc_edge::update_variables(double dt)
 //--------------------------------------------------------------
 void moc_edge::update_ith_variables(int i, double ex, double p_new, double epsz2_old, double epsz_old)
 {
-	epsz2[i] = (p_new-p0)*(2.*epsz_old+1.)*(1.-ex) * dn / (E2*2.*sn) + epsz2_old*ex;
-	epsz[i]  = epsz2[i] + (p_new-p0)*(2.*epsz_old+1.) *dn / (E1*2.*sn*pow(epsz_old+1.,beta));
-	a[i]     = an*pow(epsz[i]+1.,beta/2.);
-	d[i]     = dn*(epsz[i]+1.);
+	// linear interpolation of nominal diameter, thickness and sound velocity
+	double dnp = dns + (dne-dns) * ((double)i/((double)nx-1.));
+	double snp = sns + (sne-sns) * ((double)i/((double)nx-1.));
+	double anp = sqrt(E1*snp / (rho*dnp));
+
+	epsz2[i] = (p_new-p0)*(2.*epsz_old+1.)*(1.-ex) * dnp / (E2*2.*snp) + epsz2_old*ex;
+	epsz[i]  = epsz2[i] + (p_new-p0)*(2.*epsz_old+1.) *dnp / (E1*2.*snp*pow(epsz_old+1.,beta));
+	a[i]     = anp*pow(epsz[i]+1.,beta/2.);
+	d[i]     = dnp*(epsz[i]+1.);
 	A[i]     = d[i]*d[i]*pi/4.;
 }
 
@@ -787,8 +800,10 @@ double moc_edge::upstream_boundary(double dt, double p_in)
 void moc_edge::set_short_parameters()
 {
    l    = length;
-   dn   = nominal_diameter;
-   sn   = nominal_thickness;
+   dns   = nominal_diameter_start;
+   dne   = nominal_diameter_end;
+   sns   = nominal_thickness_start;
+   sne   = nominal_thickness_end;
    eta2 = viscosity;
    E1   = elasticity_spring;
    E2   = elasticity_voigt;
@@ -802,7 +817,10 @@ void moc_edge::set_short_parameters()
    he   = geodetic_height_end;
    p0   = atmospheric_pressure;
 
-   An   = dn*dn*pi/4.;
-   an   = sqrt(E1*sn / (rho*dn));
+   Ans   = dns*dns*pi/4.;
+   Ane   = dne*dne*pi/4.;
+
+   ans   = sqrt(E1*sns / (rho*dns));
+   ane   = sqrt(E1*sne / (rho*dne));
 }
 

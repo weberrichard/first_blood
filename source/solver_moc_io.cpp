@@ -23,17 +23,20 @@ void solver_moc::load_model()
 			if(sv[0] == "vis" || sv[0] == "visM") // edges
 			{
 				edges.push_back(new moc_edge(sv[1]));
-				edges[i]->node_name_start = sv[2];
-				edges[i]->node_name_end = sv[3];
-				edges[i]->nominal_diameter = stod(sv[4],0);
-				edges[i]->nominal_thickness = stod(sv[5],0);
-				edges[i]->length = stod(sv[6],0);
-				edges[i]->division_points = stoi(sv[7],0);
-				edges[i]->elasticity_spring = stod(sv[8],0);
-				edges[i]->elasticity_voigt = stod(sv[9],0);
-				edges[i]->viscosity = stod(sv[10],0);
-				edges[i]->resistance_start = stod(sv[11],0);
-				edges[i]->resistance_end = stod(sv[12],0);
+				edges[i]->name = sv[2];
+				edges[i]->node_name_start = sv[3];
+				edges[i]->node_name_end = sv[4];
+				edges[i]->nominal_diameter_start = stod(sv[5],0);
+				edges[i]->nominal_diameter_end = stod(sv[6],0);
+				edges[i]->nominal_thickness_start = stod(sv[7],0);
+				edges[i]->nominal_thickness_end = stod(sv[8],0);
+				edges[i]->length = stod(sv[9],0);
+				edges[i]->division_points = stoi(sv[10],0);
+				edges[i]->elasticity_spring = stod(sv[11],0);
+				edges[i]->elasticity_voigt = stod(sv[12],0);
+				edges[i]->viscosity = stod(sv[13],0);
+				edges[i]->resistance_start = stod(sv[14],0);
+				edges[i]->resistance_end = stod(sv[15],0);
 				i++;
 			}
 			else if(sv[0] == "elag" || sv[0] == "junction" || sv[0] == "node") // nodes

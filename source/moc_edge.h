@@ -28,18 +28,21 @@ using namespace std;
 class moc_edge
 {
 public:
-	moc_edge(string a_name);
+	moc_edge(string a_ID);
 	~moc_edge();
 
-	string name; // name or ID of the moc_edge
+	string name; // name of the moc_edge
+	string ID; // ID of the moc_edge
 	string node_name_start, node_name_end; // name of the nodes at the beginning and at the end
 	int node_index_start, node_index_end; // index of the nodes at the beginning and at the end
 
 	// parameters: name, short name for shorter formulas
 	// set_short_parameters function matches these
 	double length; // m
-	double nominal_diameter; // m
-	double nominal_thickness; // m
+	double nominal_diameter_start; // m
+	double nominal_diameter_end; // m
+	double nominal_thickness_start; // m
+	double nominal_thickness_end; // m
 	double viscosity;  // Ns/m2
 	double elasticity_spring; // Ns/m2
 	double elasticity_voigt; // Ns/m2
@@ -158,7 +161,7 @@ private:
 	void reduce_field_vectors();
 
 	// short notations
-	double l, dn, sn, eta2, E1, E2, Rs, Re, g, rho, nu, dx, hs, he, an, p0, An;
+	double l, dns, dne, sns, sne, eta2, E1, E2, Rs, Re, g, rho, nu, dx, hs, he, ans, ane, p0, Ans, Ane;
 	int nx; // number of division points
 	void set_short_parameters(); // matching the longer and shorter parameters
 

@@ -4,7 +4,7 @@ CXXFLAGS=-std=c++17 -O3 -c
 SOURCE_FOLDER = ../../source/
 BIN_FOLDER = ../../bin/
 
-MAIN = wind_kessel
+MAIN = heart
 
 OBJS += \
 file_io.o \

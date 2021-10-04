@@ -348,4 +348,27 @@ void first_blood::save_results()
 	}
 }
 
-
+//--------------------------------------------------------------
+void first_blood::save_results(string folder_name, string model_name, string model_type, vector<string> edge_list, vector<string> node_list)
+{
+	if(model_type == "moc")
+	{
+		for(int i=0; i<moc.size(); i++)
+		{
+			if(model_name == moc[i]->name)
+			{
+				moc[i]->save_results(folder_name,edge_list,node_list);
+			}
+		}
+	}
+	else if(model_type == "lum")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name)
+			{
+				lum[i]->save_results(folder_name,edge_list,node_list);			
+			}
+		}
+	}
+}

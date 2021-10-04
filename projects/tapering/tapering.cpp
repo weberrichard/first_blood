@@ -8,9 +8,8 @@ int main(int argc, char* argv[])
 	string case_folder = "../../models/";
 
    vector<string> case_names;
-   case_names.push_back("artery_base");
-   case_names.push_back("artery_resistance");
-   case_names.push_back("artery_wind_kessel");
+   case_names.push_back("Halasz_P045_resistance");
+   case_names.push_back("Halasz_P045_resistance_mod");
 
    for(int i=0; i<case_names.size(); i++)
    {
