@@ -59,7 +59,7 @@ public:
 	double kinematic_viscosity = 3e-6; // [m2/s]
 	double mmHg_to_Pa = 133.3616; // [Pa/mmHg] for converting inputs from mmHg to Pa
 	double atmospheric_pressure = 1.e5; // Pa
-	double pressure_initial = 120.*mmHg_to_Pa + atmospheric_pressure; // [Pa]
+	double pressure_initial = 0.*mmHg_to_Pa + atmospheric_pressure; // [Pa]
 	//double pressure_initial = 0.0; // [Pa]
 	double beta = 2.0; // exponent of wave velocity
 
@@ -69,7 +69,9 @@ public:
 
 	/// Saving results to file
 	void save_results(); // default folder name: case_name
+	void save_results(double dt); // default folder name: case_name
 	void save_results(string folder_name, string model_name, string model_type, vector<string> edge_list, vector<string> node_list); // saving specific time results to save time
+	void save_results(double dt, string folder_name, string model_name, string model_type, vector<string> edge_list, vector<string> node_list); // saving specific time results to save time
 
 	// recording the timesteps
 	vector<double> time;

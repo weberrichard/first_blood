@@ -125,6 +125,9 @@ double moc_edge::new_timestep()
 		if(dt[i]<0)
 		{
 			cout << " Negative time step in edge: " << name << " , at i " << i << "-th inner node, dt: " << dt[i] << endl;
+			cout <<  " velocity:      " << v[i] << endl;
+			cout <<  " wave velocity: " << a[i] << endl;
+			cout <<  " pressure:      " << p[i] << endl;
 		}
 	}
 

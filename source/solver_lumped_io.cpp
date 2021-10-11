@@ -121,10 +121,6 @@ void solver_lumped::save_results(string folder_name, vector<string> edge_list, v
    mkdir("results",0777);
    mkdir(("results/" + folder_name).c_str(),0777);
 
-   // FOR WINDOWS
-   //mkdir("results");
-   //mkdir(("results/" + folder_name).c_str());
-
    string fn = "results/" + folder_name + "/";
 
    FILE *out_file;
@@ -154,6 +150,92 @@ void solver_lumped::save_results(string folder_name, vector<string> edge_list, v
          double vfr = edges[idx]->volume_flow_rate[j];
          fprintf(out_file, "%9.7e, %9.7e\n",t,vfr);
       }
+      fclose(out_file);
+   }
+}
+
+//--------------------------------------------------------------
+void solver_lumped::save_results(double dt, string folder_name)
+{
+	vector<string> edge_list, node_list;
+	for(int i=0; i<number_of_edges; i++)
+	{
+		edge_list.push_back(edges[i]->name);
+	}
+	for(int i=0; i<number_of_nodes; i++)
+	{
+		node_list.push_back(nodes[i]->name);
+	}
+	save_results(dt,folder_name,edge_list,node_list);
+}
+
+
+//--------------------------------------------------------------
+void solver_lumped::save_results(double dt, string folder_name, vector<string> edge_list, vector<string> node_list)
+{
+   // LINUX
+   mkdir("results",0777);
+   mkdir(("results/" + folder_name).c_str(),0777);
+
+   string fn = "results/" + folder_name + "/";
+
+   FILE *out_file;
+
+   for(unsigned int i=0; i<node_list.size(); i++)
+   {
+   	int idx = node_id_to_index(node_list[i]);
+      string file_name = fn + nodes[idx]->name + ".txt";
+      out_file = fopen(file_name.c_str(),"w");
+
+      int j=0;
+		double ts=0.;
+		double t_end=time.back();
+		while(ts<t_end && j<time.size()-1)
+		{
+			if(time[j]<=ts && ts<time[j+1])
+			{	
+				double a0 = (time[j+1]-ts)/(time[j+1]-time[j]);
+				double a1 = (ts-time[j])/(time[j+1]-time[j]);
+
+		   	double p = nodes[idx]->pressure[j]*a0 + nodes[idx]->pressure[j+1]*a1;
+		      fprintf(out_file, "%9.7e, %9.7e\n", ts, p);
+         	ts += dt;
+			}
+			else
+			{
+				j++;
+			}
+		}
+
+      fclose(out_file);
+   }
+
+   for(unsigned int i=0; i<edge_list.size(); i++)
+   {
+   	int idx = edge_id_to_index(edge_list[i]);
+      string file_name = fn + edges[idx]->name + ".txt";
+      out_file = fopen(file_name.c_str(),"w");
+
+      int j=0;
+		double ts=0.;
+		double t_end=time.back();
+		while(ts<t_end && j<time.size()-1)
+		{
+			if(time[j]<=ts && ts<time[j+1])
+			{
+	         double a0 = (time[j+1]-ts)/(time[j+1]-time[j]);
+				double a1 = (ts-time[j])/(time[j+1]-time[j]);
+
+	         double vfr = edges[idx]->volume_flow_rate[j]*a0 + edges[idx]->volume_flow_rate[j+1]*a1;
+	         fprintf(out_file, "%9.7e, %9.7e\n",ts,vfr);
+         	ts += dt;
+			}
+			else
+			{
+				j++;
+			}
+		}
+
       fclose(out_file);
    }
 }

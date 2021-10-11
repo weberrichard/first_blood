@@ -89,6 +89,8 @@ public:
 	void save_results();
 	void save_results(string folder_name);
 	void save_results(string folder_name, vector<string> edge_list, vector<string> node_list);
+	void save_results(double dt, string folder_name);
+	void save_results(double dt, string folder_name, vector<string> edge_list, vector<string> node_list);
 
 	// from id to index nodes
 	int node_id_to_index(string node_id);	

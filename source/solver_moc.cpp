@@ -158,7 +158,7 @@ double solver_moc::solve_one_step()
 	}
 	if(dt_real<0.)
 	{
-		printf("\n !WARNING! time step is negative: %6.3e during FORWARD calculation", dt_real);
+		printf("\n !WARNING! time step is negative: %6.3e during FORWARD calculation at time: %6.3f", dt_real, time.back());
 		cout << endl;
 	}
 
@@ -523,7 +523,7 @@ int solver_moc::edge_id_to_index(string edge_id)
 	bool got_it=false;
 	while(i<number_of_edges && !got_it)
 	{
-		if(edge_id.compare(edges[i]->name) == 0)
+		if(edge_id.compare(edges[i]->ID) == 0)
 		{
 			got_it = true;
 			idx = i;
