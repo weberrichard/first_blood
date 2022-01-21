@@ -27,6 +27,9 @@ public:
 	string name;
 	string input_folder_path;
 
+	// type of edge: vis
+	string type;
+
 	// outer nodes, i.e. outer boundaries to other models
 	vector<string> boundary_model_node;
 	vector<string> boundary_main_node;
@@ -42,7 +45,8 @@ public:
 	int index_upstream;
 	// upper boundary p-t
 	vector<double> time_upstream;
-	vector<double> pressure_upstream;
+	vector<double> value_upstream; // SI in code
+	int type_upstream; // 0: pressure mmHg in file, 1: volume flow rate ml/s in file
 
 	// number of which period is the simulation
 	int period;
@@ -56,28 +60,23 @@ public:
 	// filling up nodes edge_in, edge_out
 	void build_system();
 
-	// evaluating full calculation, several forward and backward calculation
-	void full_solver(string node_id, double time_end);
-
-	// perfroming the solver_moc forward
-	// from a certain node_id to the perif
-	void forward_solver(string node_id, double time_end);
 	// handling the boundaries: upstream and inner BC nodes
 	void boundaries(double dt);
-	// interpolate, update fieldvars, save vars
-	void post_process(double dt);
 
 	// solving one time step, giving back actual time step
 	double solve_one_step();
 
+	// interpolate, save field vars
+	void post_process(double dt);
+	
 	// performing the backward calculation on edge_id elemment
 	void backward_solver(string node_id);
 
 	// loading the model from csv file
 	void load_model();
 	// loading the time-pressure curve from CSV
-	void load_pt_series(string file_name);
-	void convert_pt_series();
+	void load_time_series(string file_name);
+	void convert_time_series();
 
 	// setting basic constants
 	void set_constants(double g, double rho, double nu, double mmHg, double p0, double beta);
@@ -85,12 +84,20 @@ public:
 	// setting the full model to solve
 	void full_tree();
 
+	// clear/setting do_save_memory vars
+	void clear_save_memory();
+	void set_save_memory(vector<string> edge_list, vector<string> node_list);
+
 	// saving output vars
 	void save_results();
 	void save_results(string folder_name);
 	void save_results(string folder_name, vector<string> edge_list, vector<string> node_list);
 	void save_results(double dt, string folder_name);
 	void save_results(double dt, string folder_name, vector<string> edge_list, vector<string> node_list);
+
+	// saving the model
+	void save_model(string model_name, string folder_name);
+	void save_pt_series(string model_name, string folder_name);
 
 	// from id to index nodes
 	int node_id_to_index(string node_id);	
@@ -116,6 +123,9 @@ private:
 	double atmospheric_pressure; // Pa
 	double pressure_initial; // Pa
 	double beta; // exponent for wave velocity
+
+	// heart p-t diagram
+	string pt_file_name;
 	
 };
 

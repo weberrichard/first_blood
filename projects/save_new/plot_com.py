@@ -5,7 +5,7 @@ import pandas as pd
 # Reymond_103
 # Reymond_103_Q
 
-cases = ['Halasz_A50','Reymond_103']
+cases = ['Halasz_P045_resistance','Reymond_103']
 models = 'arterial'
 
 elements = ['A01','A1']

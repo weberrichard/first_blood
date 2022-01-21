@@ -68,6 +68,7 @@ void solver_lumped::load_model()
 			else if(sv[0] == "node") // node
 			{
 				nodes.push_back(new node);
+				nodes[nn]->type = sv[0];
 				nodes[nn]->name = sv[1];
 				nodes[nn]->pressure_initial = stod(sv[2],0);
 				nodes[nn]->is_ground = false;
@@ -76,6 +77,7 @@ void solver_lumped::load_model()
 			else if(sv[0] == "ground") // node with ground
 			{
 				nodes.push_back(new node);
+				nodes[nn]->type = sv[0];
 				nodes[nn]->name = sv[1];
 				nodes[nn]->pressure_initial = stod(sv[2],0);
 				nodes[nn]->is_ground = true;
@@ -89,9 +91,12 @@ void solver_lumped::load_model()
 		exit(-1);
 	}
 
+	// setting size of elements
+	number_of_nodes = nodes.size();
+	number_of_edges = edges.size();
+
 	file_in.close();
 }
-
 
 //--------------------------------------------------------------
 void solver_lumped::save_results()
@@ -121,36 +126,44 @@ void solver_lumped::save_results(string folder_name, vector<string> edge_list, v
    mkdir("results",0777);
    mkdir(("results/" + folder_name).c_str(),0777);
 
-   string fn = "results/" + folder_name + "/";
+   string fn = "results/" + folder_name + "/" + name;
 
    FILE *out_file;
 
    for(unsigned int i=0; i<node_list.size(); i++)
    {
    	int idx = node_id_to_index(node_list[i]);
-      string file_name = fn + nodes[idx]->name + ".txt";
-      out_file = fopen(file_name.c_str(),"w");
-      for(unsigned int j=0; j<nodes[idx]->pressure.size(); j++)
-      {
-      	double t = time[j];
-      	double p = nodes[idx]->pressure[j];
-         fprintf(out_file, "%9.7e, %9.7e\n", t, p);
-      }
-      fclose(out_file);
+   	if(nodes[idx]->do_save_memory)
+   	{		
+	   	mkdir(fn.c_str(),0777);
+		   string file_name = fn + "/" + nodes[idx]->name + ".txt";
+	      out_file = fopen(file_name.c_str(),"w");
+	      for(unsigned int j=0; j<nodes[idx]->pressure.size(); j++)
+	      {
+	      	double t = time[j];
+	      	double p = nodes[idx]->pressure[j];
+	         fprintf(out_file, "%9.7e, %9.7e\n", t, p);
+	      }
+	      fclose(out_file);
+   	}
    }
 
    for(unsigned int i=0; i<edge_list.size(); i++)
    {
    	int idx = edge_id_to_index(edge_list[i]);
-      string file_name = fn + edges[idx]->name + ".txt";
-      out_file = fopen(file_name.c_str(),"w");
-      for(unsigned int j=0; j<edges[idx]->volume_flow_rate.size(); j++)
-      {
-         double t = time[j];
-         double vfr = edges[idx]->volume_flow_rate[j];
-         fprintf(out_file, "%9.7e, %9.7e\n",t,vfr);
-      }
-      fclose(out_file);
+   	if(edges[idx]->do_save_memory)
+   	{
+	   	mkdir(fn.c_str(),0777);
+		   string file_name = fn + "/" + edges[idx]->name + ".txt";
+		   out_file = fopen(file_name.c_str(),"w");
+		   for(unsigned int j=0; j<edges[idx]->volume_flow_rate.size(); j++)
+		   {
+		      double t = time[j];
+		      double vfr = edges[idx]->volume_flow_rate[j];
+		      fprintf(out_file, "%9.7e, %9.7e\n",t,vfr);
+		   }
+		   fclose(out_file);
+   	}
    }
 }
 
@@ -169,73 +182,107 @@ void solver_lumped::save_results(double dt, string folder_name)
 	save_results(dt,folder_name,edge_list,node_list);
 }
 
-
 //--------------------------------------------------------------
 void solver_lumped::save_results(double dt, string folder_name, vector<string> edge_list, vector<string> node_list)
 {
    // LINUX
    mkdir("results",0777);
    mkdir(("results/" + folder_name).c_str(),0777);
-
-   string fn = "results/" + folder_name + "/";
+   
+   string fn = "results/" + folder_name + "/" + name;
 
    FILE *out_file;
 
    for(unsigned int i=0; i<node_list.size(); i++)
    {
    	int idx = node_id_to_index(node_list[i]);
-      string file_name = fn + nodes[idx]->name + ".txt";
-      out_file = fopen(file_name.c_str(),"w");
+   	if(nodes[idx]->do_save_memory)
+   	{
+   		mkdir(fn.c_str(),0777);
+	      string file_name = fn + "/" + nodes[idx]->name + ".txt";
+	      out_file = fopen(file_name.c_str(),"w");
 
-      int j=0;
-		double ts=0.;
-		double t_end=time.back();
-		while(ts<t_end && j<time.size()-1)
-		{
-			if(time[j]<=ts && ts<time[j+1])
-			{	
-				double a0 = (time[j+1]-ts)/(time[j+1]-time[j]);
-				double a1 = (ts-time[j])/(time[j+1]-time[j]);
-
-		   	double p = nodes[idx]->pressure[j]*a0 + nodes[idx]->pressure[j+1]*a1;
-		      fprintf(out_file, "%9.7e, %9.7e\n", ts, p);
-         	ts += dt;
-			}
-			else
+	      int j=0;
+			double ts=0.;
+			double t_end=time.back();
+			while(ts<t_end && j<time.size()-1)
 			{
-				j++;
-			}
-		}
+				if(time[j]<=ts && ts<time[j+1])
+				{	
+					double a0 = (time[j+1]-ts)/(time[j+1]-time[j]);
+					double a1 = (ts-time[j])/(time[j+1]-time[j]);
 
-      fclose(out_file);
+			   	double p = nodes[idx]->pressure[j]*a0 + nodes[idx]->pressure[j+1]*a1;
+			      fprintf(out_file, "%9.7e, %9.7e\n", ts, p);
+	         	ts += dt;
+				}
+				else
+				{
+					j++;
+				}
+			}
+	      fclose(out_file);
+   	}
    }
 
    for(unsigned int i=0; i<edge_list.size(); i++)
    {
    	int idx = edge_id_to_index(edge_list[i]);
-      string file_name = fn + edges[idx]->name + ".txt";
-      out_file = fopen(file_name.c_str(),"w");
+   	if(edges[idx]->do_save_memory)
+   	{
+   		mkdir(fn.c_str(),0777);
+	      string file_name = fn + "/" + edges[idx]->name + ".txt";
+	      out_file = fopen(file_name.c_str(),"w");
 
-      int j=0;
-		double ts=0.;
-		double t_end=time.back();
-		while(ts<t_end && j<time.size()-1)
-		{
-			if(time[j]<=ts && ts<time[j+1])
+	      int j=0;
+			double ts=0.;
+			double t_end=time.back();
+			while(ts<t_end && j<time.size()-1)
 			{
-	         double a0 = (time[j+1]-ts)/(time[j+1]-time[j]);
-				double a1 = (ts-time[j])/(time[j+1]-time[j]);
+				if(time[j]<=ts && ts<time[j+1])
+				{
+		         double a0 = (time[j+1]-ts)/(time[j+1]-time[j]);
+					double a1 = (ts-time[j])/(time[j+1]-time[j]);
 
-	         double vfr = edges[idx]->volume_flow_rate[j]*a0 + edges[idx]->volume_flow_rate[j+1]*a1;
-	         fprintf(out_file, "%9.7e, %9.7e\n",ts,vfr);
-         	ts += dt;
+		         double vfr = edges[idx]->volume_flow_rate[j]*a0 + edges[idx]->volume_flow_rate[j+1]*a1;
+		         fprintf(out_file, "%9.7e, %9.7e\n",ts,vfr);
+	         	ts += dt;
+				}
+				else
+				{
+					j++;
+				}
 			}
-			else
-			{
-				j++;
-			}
-		}
 
-      fclose(out_file);
+	      fclose(out_file);
+   	}
    }
 }
+
+//--------------------------------------------------------------
+void solver_lumped::save_model(string model_name, string folder_name)
+{
+   FILE *out_file;
+   string file_name = folder_name + model_name + "/" + name + ".csv";
+	out_file = fopen(file_name.c_str(),"w");
+
+	// writing edges data to file
+	fprintf(out_file,"data of edges\n");
+	fprintf(out_file,"type, name, node start, node end, initial condition [SI], parameter [SI]\n");
+	for(int i=0; i<number_of_edges; i++)
+	{
+		fprintf(out_file, "%s, %s, %s, %s, %6.3e, %6.3e\n",edges[i]->type.c_str(),edges[i]->name.c_str(),edges[i]->node_name_start.c_str(), edges[i]->node_name_end.c_str(), edges[i]->volume_flow_rate_initial, edges[i]->parameter);
+	}
+	fprintf(out_file,"\n");
+
+	// writing nodes data to file
+	fprintf(out_file,"data of nodes\n");
+	fprintf(out_file,"type, name, initial condition [SI]\n");
+	for(int i=0; i<number_of_nodes; i++)
+	{
+		fprintf(out_file, "%s, %s, %6.3e\n",nodes[i]->type.c_str(),nodes[i]->name.c_str(),nodes[i]->pressure_initial);
+	}
+	fprintf(out_file,"\n");
+   fclose(out_file);
+}
+

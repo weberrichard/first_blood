@@ -13,37 +13,47 @@ first_blood::first_blood(string folder_name)
 	//cout << " [*] Case name: " << case_name << endl;
 
 	// loading all the input data from csv files
-	load_model();
+	load_ok = load_model();
 
-	// setting initial time
-	time.push_back(0.);
-
-	// setting constants in every model
-	for(int i=0; i<number_of_moc; i++)
+	if(load_ok == true)
 	{
-		moc[i]->set_constants(gravity, density, kinematic_viscosity, mmHg_to_Pa, atmospheric_pressure, beta);
-	}
+		// setting initial time
+		time.push_back(0.);
 
-	for(int i=0; i<number_of_lum; i++)
-	{
-		lum[i]->set_constants(gravity, density, kinematic_viscosity, mmHg_to_Pa, atmospheric_pressure);
-	}
+		// setting constants in every model
+		for(int i=0; i<number_of_moc; i++)
+		{
+			moc[i]->set_constants(gravity, density, kinematic_viscosity, mmHg_to_Pa, atmospheric_pressure, beta);
+		}
 
-	// converting moc t-p to SI
-	for(int i=0; i<number_of_moc; i++)
-	{
-		moc[i]->convert_pt_series();
+		for(int i=0; i<number_of_lum; i++)
+		{
+			lum[i]->set_constants(gravity, density, kinematic_viscosity, mmHg_to_Pa, atmospheric_pressure);
+		}
+
+		// converting moc t-p to SI
+		for(int i=0; i<number_of_moc; i++)
+		{
+			moc[i]->convert_time_series();
+		}
 	}
 }
 
 //--------------------------------------------------------------
-first_blood::~first_blood(){}
+first_blood::~first_blood()
+{
+	initialization();
+}
 
 //--------------------------------------------------------------
-void first_blood::load_model()
+bool first_blood::load_model()
 {
 	// loading the main csv
-	load_main_csv();
+	bool load_ok = load_main_csv();
+	if(load_ok == false)
+	{
+		return load_ok;
+	}
 
 	// setting the number of models
 	number_of_moc = moc.size();
@@ -56,16 +66,20 @@ void first_blood::load_model()
 		moc[i]->load_model();
 	}
 
+
 	// loading the csv for lumped models
 	for(int i=0; i<number_of_lum; i++)
 	{
 		lum[i]->load_model();
 	}
+
+	return load_ok;
 }
 
 //--------------------------------------------------------------
-void first_blood::load_main_csv()
+bool first_blood::load_main_csv()
 {
+	load_ok = false;
 	ifstream file_in;
 	string file_path = input_folder_path + "/main.csv";
 	file_in.open(file_path);
@@ -131,11 +145,13 @@ void first_blood::load_main_csv()
 				nn++;
 			}
 		}
+		load_ok = true;
 	}
 	else
 	{
-		cout << "! ERROR !" << endl << " File is not open when calling load_main_csv() function!!! file: " << file_path << "\nExiting..." << endl;
-		exit(-1);
+		//cout << "! ERROR !" << endl << " File is not open when calling load_main_csv() function!!! file: " << file_path << "\n" << endl;
+		load_ok = false;
+		return load_ok;
 	}
 
 	// loading p-t if it is given in main.csv
@@ -149,7 +165,7 @@ void first_blood::load_main_csv()
 				{
 					if(nodes[i] == moc[j]->nodes[k]->name)
 					{
-						moc[j]->load_pt_series(upstream_boundary.file_name);
+						moc[j]->load_time_series(upstream_boundary.file_name);
 					}
 				}
 			}
@@ -157,35 +173,30 @@ void first_blood::load_main_csv()
 	}
 
 	file_in.close();
+
+	return load_ok;
 }
 
 //--------------------------------------------------------------
-void first_blood::run()
+bool first_blood::run()
 {
-	// setting initial conditions
-	for(int i=0; i<number_of_moc; i++)
-	{
-		moc[i]->initialization(pressure_initial);
-	}
-	for(int i=0; i<number_of_lum; i++)
-		
-	{
-		lum[i]->initialization();
-	}
+	bool is_run_ok;	
 
-	// setting master nodes
-	build_master();
+	// initialization of the whole model with mocs and lums
+	initialization();
 
 	if(run_type == "forward") // simple forward calculation
 	{
+		is_run_ok = true;
+
 		// add everything to forward_*
 		for(int i=0; i<number_of_moc; i++)
 		{
 			moc[i]->full_tree();
 		}		
 
-		while(time.back() < time_end)
-		{		
+		while(time.back() < time_end && is_run_ok)
+		{
 			// running mocs
 			double dt_master = 1e10;
 			for(int i=0; i<number_of_moc; i++)
@@ -195,6 +206,12 @@ void first_blood::run()
 				{
 					dt_master = dt;
 				}
+			}
+
+			if(dt_master<0.0)
+			{
+				is_run_ok = false;
+				break;
 			}
 
 			// if there is no moc we prescribe the dt
@@ -268,11 +285,37 @@ void first_blood::run()
 				moc[i]->post_process(dt_master);
 			}			
 		}
-		
 	}
 	//else if(run_type == "backward") // backward calculation from inner nodes
 	//{
 	//}
+
+	return is_run_ok;
+}
+
+//--------------------------------------------------------------
+void first_blood::initialization()
+{
+	// fb class
+	time.clear();
+	time.push_back(0.);
+	number_of_moc = moc.size();
+	number_of_lum = lum.size();
+	number_of_nodes = nodes.size();
+
+	// setting initial conditions
+	for(int i=0; i<number_of_moc; i++)
+	{
+		moc[i]->initialization(pressure_initial);
+	}
+	for(int i=0; i<number_of_lum; i++)
+		
+	{
+		lum[i]->initialization();
+	}
+
+	// setting master nodes
+	build_master();
 }
 
 //--------------------------------------------------------------
@@ -325,50 +368,51 @@ void first_blood::build_master()
 //--------------------------------------------------------------
 void first_blood::save_results()
 {
-	// LINUX
    mkdir("results",0777);
    mkdir(("results/" + case_name).c_str(),0777);
 
-   string folder_name = case_name + "/";
+   string folder_name = case_name;
 
 	// saving the results of moc models
 	for(int i=0; i<number_of_moc; i++)
 	{
-		moc[i]->save_results(folder_name + moc[i]->name);
+		moc[i]->save_results(folder_name);
 	}
 
 	// saving the results of lumped models
 	for(int i=0; i<number_of_lum; i++)
 	{
-		lum[i]->save_results(folder_name + lum[i]->name);
+		lum[i]->save_results(folder_name);
 	}
 }
 
 //--------------------------------------------------------------
 void first_blood::save_results(double dt)
 {
-	// LINUX
    mkdir("results",0777);
    mkdir(("results/" + case_name).c_str(),0777);
 
-   string folder_name = case_name + "/";
+   string folder_name = case_name;
 
 	// saving the results of moc models
 	for(int i=0; i<number_of_moc; i++)
 	{
-		moc[i]->save_results(dt, folder_name + moc[i]->name);
+		moc[i]->save_results(dt, folder_name);
 	}
 
 	// saving the results of lumped models
 	for(int i=0; i<number_of_lum; i++)
 	{
-		lum[i]->save_results(dt, folder_name + lum[i]->name);
+		lum[i]->save_results(dt, folder_name);
 	}
 }
 
 //--------------------------------------------------------------
 void first_blood::save_results(string folder_name, string model_name, string model_type, vector<string> edge_list, vector<string> node_list)
 {
+   mkdir("results",0777);
+   mkdir(("results/" + case_name).c_str(),0777);
+
 	if(model_type == "moc")
 	{
 		for(int i=0; i<moc.size(); i++)
@@ -394,6 +438,9 @@ void first_blood::save_results(string folder_name, string model_name, string mod
 //--------------------------------------------------------------
 void first_blood::save_results(double dt, string folder_name, string model_name, string model_type, vector<string> edge_list, vector<string> node_list)
 {
+	mkdir("results",0777);
+   mkdir(("results/" + case_name).c_str(),0777);
+
 	if(model_type == "moc")
 	{
 		for(int i=0; i<moc.size(); i++)
@@ -414,4 +461,129 @@ void first_blood::save_results(double dt, string folder_name, string model_name,
 			}
 		}
 	}
+}
+
+//--------------------------------------------------------------
+void first_blood::save_model(string model_name)
+{
+	string folder_name = "../../models/";
+
+	save_model(model_name, folder_name);
+}
+
+//--------------------------------------------------------------
+void first_blood::save_model(string model_name, string folder_name)
+{
+   mkdir(folder_name.c_str(),0777);
+   mkdir((folder_name+model_name).c_str(),0777);
+
+	// saving moc models
+	for(int i=0; i<number_of_moc; i++)
+	{
+		moc[i]->save_model(model_name, folder_name);
+	}
+
+	// saving lumped models
+	for(int i=0; i<number_of_lum; i++)
+	{
+		lum[i]->save_model(model_name, folder_name);
+	}
+
+	// saving main model TODO
+	FILE *out_file;
+	string file_name = folder_name + model_name + "/main.csv";
+	out_file = fopen(file_name.c_str(),"w");
+
+	fprintf(out_file, "run,forward\n");
+	fprintf(out_file, "time,%6.3f\n",time_end);
+	fprintf(out_file, "\n");
+
+	fprintf(out_file, "type,name,main node,model node,main node,model node,...\n");
+	for(int i=0; i<number_of_moc; i++)
+	{
+		fprintf(out_file, "moc,%s",moc[i]->name.c_str());
+		for(int j=0; j<moc[i]->boundary_main_node.size(); j++)
+		{
+			fprintf(out_file, ",%s,%s",moc[i]->boundary_main_node[j].c_str(),moc[i]->boundary_model_node[j].c_str());
+		}
+		fprintf(out_file, "\n");
+	}
+	fprintf(out_file, "\n");
+
+	for(int i=0; i<number_of_lum; i++)
+	{
+		fprintf(out_file, "lumped,%s",lum[i]->name.c_str());
+		for(int j=0; j<lum[i]->boundary_main_node.size(); j++)
+		{
+			fprintf(out_file, ",%s,%s",lum[i]->boundary_main_node[j].c_str(),lum[i]->boundary_model_node[j].c_str());
+		}
+		fprintf(out_file, "\n");
+	}
+	fprintf(out_file, "\n");
+
+	for(int i=0; i<number_of_nodes; i++)
+	{
+		fprintf(out_file, "node,%s\n",nodes[i].c_str());
+	}
+	fprintf(out_file, "\n");
+   fclose(out_file);
+}
+
+//--------------------------------------------------------------
+void first_blood::clear_save_memory()
+{
+	for(int i=0; i<number_of_moc; i++)
+	{
+		moc[i]->clear_save_memory();
+	}
+	for(int i=0; i<number_of_lum; i++)
+	{
+		lum[i]->clear_save_memory();
+	}
+}
+
+//--------------------------------------------------------------
+void first_blood::set_save_memory(string model_name, string model_type, vector<string> edge_list, vector<string> node_list)
+{
+	if(model_type == "moc")
+	{
+		for(int i=0; i<number_of_moc; i++)
+		{
+			if(moc[i]->name == model_name)
+			{
+				moc[i]->set_save_memory(edge_list, node_list);
+			}
+		}
+	}
+	if(model_type == "lum" || model_type == "lumped")
+	{
+		for(int i=0; i<number_of_lum; i++)
+		{
+			if(lum[i]->name == model_name)
+			{
+				lum[i]->set_save_memory(edge_list, node_list);
+			}
+		}
+	}
+}
+
+//--------------------------------------------------------------
+int first_blood::lum_id_to_index(string lum_id)
+{
+	int i=0, idx=-1;
+	bool got_it=false;
+	while(i<number_of_lum && !got_it)
+	{
+		if(lum_id.compare(lum[i]->name) == 0)
+		{
+			got_it = true;
+			idx = i;
+		}
+		i++;
+	}
+	if(idx == -1)
+	{
+		cout << "\n !!!WARNING!!!\n solver_moc::lum_id_to_index function\nLum model is not existing, lum_id: " << lum_id << "\n Continouing..." << endl;
+	}
+	return idx;
 }

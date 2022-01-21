@@ -23,6 +23,7 @@ void solver_moc::load_model()
 			if(sv[0] == "vis" || sv[0] == "visM") // edges
 			{
 				edges.push_back(new moc_edge(sv[1]));
+				edges[i]->type = sv[0];
 				edges[i]->name = sv[2];
 				edges[i]->node_name_start = sv[3];
 				edges[i]->node_name_end = sv[4];
@@ -61,7 +62,7 @@ void solver_moc::load_model()
 						nodes[j]->is_resistance = 1.;
 					}
 				}
-				nodes[j]->type = "junction";
+				nodes[j]->type = "node";
 				nodes[j]->type_code = 0;
 				j++;
 			}
@@ -89,7 +90,7 @@ void solver_moc::load_model()
 				}
 
 				nodes[j]->pressure_out = atmospheric_pressure;
-				nodes[j]->type = "periferia";
+				nodes[j]->type = "perif";
 				nodes[j]->type_code = 1;
 				j++;
 			}
@@ -112,11 +113,22 @@ void solver_moc::load_model()
 				nodes[j]->type = "heart";
 				nodes[j]->type_code = 2;
 
+				if(sv.size()>3)
+				{
+					if(sv[3] == "P")
+					{
+						type_upstream = 0;
+					}
+					else if(sv[3] == "Q")
+					{
+						type_upstream = 1;
+					}
+				}
 				// loading the pressure-time curve
 				if(sv.size()>4 && sv[4] != "")
 				{
-					string pt_file_name = sv[4];
-					load_pt_series(pt_file_name);
+					pt_file_name = sv[4];
+					load_time_series(pt_file_name);
 				}
 
 				j++;
@@ -129,11 +141,15 @@ void solver_moc::load_model()
 		exit(-1);
 	}
 
+	// setting size of elements
+	number_of_nodes = nodes.size();
+	number_of_edges = edges.size();
+
 	file_in.close();
 }
 
 //--------------------------------------------------------------
-void solver_moc::load_pt_series(string file_name)
+void solver_moc::load_time_series(string file_name)
 {
 	ifstream pt_file_in;
 	file_name = input_folder_path + '/' + file_name + ".csv";
@@ -147,7 +163,7 @@ void solver_moc::load_pt_series(string file_name)
 			time_upstream.push_back(stod(pt_sv[0],0));
 
 			double p = stod(pt_sv[1],0);
-			pressure_upstream.push_back(p);
+			value_upstream.push_back(p);
 		}
 		// eliminating the delay if present
 		for(unsigned int i=0; i<time_upstream.size(); i++)
@@ -157,7 +173,7 @@ void solver_moc::load_pt_series(string file_name)
 	}
 	else
 	{
-		cout << "! ERROR !" << endl << " File is not open when calling load_pt_series() function!!! file: " << file_name << "\nExiting..." << endl;
+		cout << "! ERROR !" << endl << " File is not open when calling load_time_series() function!!! file: " << file_name << "\nExiting..." << endl;
 		exit(-1);
 	}
 }
@@ -185,11 +201,14 @@ void solver_moc::save_results(string folder_name)
 
 //--------------------------------------------------------------
 void solver_moc::save_results(string folder_name, vector<string> edge_list, vector<string> node_list)
-{
+{	
    // LINUX
    mkdir("results",0777);
    mkdir(("results/" + folder_name).c_str(),0777);
-
+   
+	folder_name = folder_name + "/" + name;
+   mkdir(("results/" + folder_name).c_str(),0777);
+   
    folder_name = "results/" + folder_name + "/";
 
    FILE *out_file;
@@ -210,7 +229,7 @@ void solver_moc::save_results(string folder_name, vector<string> edge_list, vect
    {
    	int idx = edge_id_to_index(edge_list[i]);
       string file_name = folder_name + edges[idx]->ID + ".txt";
-      out_file = fopen(file_name.c_str(),"w");
+      out_file = fopen(file_name.c_str(),"w");\
       for(unsigned int j=0; j<edges[idx]->pressure_start.size(); j++)
       {
          double t = time[j];
@@ -258,7 +277,9 @@ void solver_moc::save_results(double dt, string folder_name, vector<string> edge
    // LINUX
    mkdir("results",0777);
    mkdir(("results/" + folder_name).c_str(),0777);
-
+   
+	folder_name = folder_name + "/" + name;
+   mkdir(("results/" + folder_name).c_str(),0777);
    folder_name = "results/" + folder_name + "/";
 
    FILE *out_file;
@@ -266,72 +287,147 @@ void solver_moc::save_results(double dt, string folder_name, vector<string> edge
    for(unsigned int i=0; i<node_list.size(); i++)
    {
    	int idx = node_id_to_index(node_list[i]);
-      string file_name = folder_name + nodes[idx]->name + ".txt";
-      out_file = fopen(file_name.c_str(),"w");
-		
-		int j=0;
-		double ts=0.;
-		double t_end=time.back();
-		while(ts<t_end && j<time.size()-1)
-		{
-			if(time[j]<=ts && ts<time[j+1])
-			{	
-				double a0 = (time[j+1]-ts)/(time[j+1]-time[j]);
-				double a1 = (ts-time[j])/(time[j+1]-time[j]);
-				double pp = nodes[idx]->pressure[j]*a0 + nodes[idx]->pressure[j+1]*a1;
-				double qp = nodes[idx]->volume_flow_rate[j]*a0 + nodes[idx]->volume_flow_rate[j+1]*a1;
-         	fprintf(out_file, "%9.7e, %9.7e, %9.7e\n", ts, pp, qp);
-         	ts += dt;
-			}
-			else
+   	if(nodes[idx]->do_save_memory)
+   	{
+	      string file_name = folder_name + nodes[idx]->name + ".txt";
+	      out_file = fopen(file_name.c_str(),"w");
+			
+			int j=0;
+			double ts=0.;
+			double t_end=time.back();
+			while(ts<t_end && j<time.size()-1)
 			{
-				j++;
+				if(time[j]<=ts && ts<time[j+1])
+				{	
+					double a0 = (time[j+1]-ts)/(time[j+1]-time[j]);
+					double a1 = (ts-time[j])/(time[j+1]-time[j]);
+					double pp = nodes[idx]->pressure[j]*a0 + nodes[idx]->pressure[j+1]*a1;
+					double qp = nodes[idx]->volume_flow_rate[j]*a0 + nodes[idx]->volume_flow_rate[j+1]*a1;
+	         	fprintf(out_file, "%9.7e, %9.7e, %9.7e\n", ts, pp, qp);
+	         	ts += dt;
+				}
+				else
+				{
+					j++;
+				}
 			}
-		}
-      fclose(out_file);
+	      fclose(out_file);
+   	}
    }
 
    for(unsigned int i=0; i<edge_list.size(); i++)
    {
    	int idx = edge_id_to_index(edge_list[i]);
-      string file_name = folder_name + edges[idx]->ID + ".txt";
-      out_file = fopen(file_name.c_str(),"w");
-
-   	int j=0;
-   	double ts=0.;
-   	double t_end=time.back();
-   	while(ts<t_end && j<time.size()-1)
+   	if(edges[idx]->do_save_memory)
    	{
-			if(time[j]<=ts && ts<time[j+1])
-			{
-				double a0 = (time[j+1]-ts)/(time[j+1]-time[j]);
-				double a1 = (ts-time[j])/(time[j+1]-time[j]);
+	      string file_name = folder_name + edges[idx]->ID + ".txt";
+	      out_file = fopen(file_name.c_str(),"w");
 
-	         double ps = edges[idx]->pressure_start[j]*a0 + edges[idx]->pressure_start[j+1]*a1;
-	         double pe = edges[idx]->pressure_end[j]*a0 + edges[idx]->pressure_end[j+1]*a1;
-	         double vs = edges[idx]->velocity_start[j]*a0 + edges[idx]->velocity_start[j+1]*a1;
-	         double ve = edges[idx]->velocity_end[j]*a0 + edges[idx]->velocity_end[j+1]*a1;
-	         double vfrs = edges[idx]->volume_flow_rate_start[j]*a0 + edges[idx]->volume_flow_rate_start[j+1]*a1;
-	         double vfre = edges[idx]->volume_flow_rate_end[j]*a0 + edges[idx]->volume_flow_rate_end[j+1]*a1;
-	         double mfrs = edges[idx]->mass_flow_rate_start[j]*a0 + edges[idx]->mass_flow_rate_start[j+1]*a1;
-	         double mfre = edges[idx]->mass_flow_rate_end[j]*a0 + edges[idx]->mass_flow_rate_end[j+1]*a1;
-	         double ds = edges[idx]->diameter_start[j]*a0 + edges[idx]->diameter_start[j+1]*a1;
-	         double de = edges[idx]->diameter_end[j]*a0 + edges[idx]->diameter_end[j+1]*a1;
-	         double epszs = edges[idx]->total_deformation_start[j]*a0 + edges[idx]->total_deformation_start[j+1]*a1;
-	         double epsze = edges[idx]->total_deformation_end[j]*a0 + edges[idx]->total_deformation_end[j+1]*a1;
-	         double epsz2s = edges[idx]->damper_deformation_start[j]*a0 + edges[idx]->damper_deformation_start[j+1]*a1;
-	         double epsz2e = edges[idx]->damper_deformation_end[j]*a0 + edges[idx]->damper_deformation_end[j+1]*a1;
-	         double as = edges[idx]->wave_velocity_start[j]*a0 + edges[idx]->wave_velocity_start[j+1]*a1;
-	         double ae = edges[idx]->wave_velocity_end[j]*a0 + edges[idx]->wave_velocity_end[j+1]*a1;
+	   	int j=0;
+	   	double ts=0.;
+	   	double t_end=time.back();
+	   	while(ts<t_end && j<time.size()-1)
+	   	{
+				if(time[j]<=ts && ts<time[j+1])
+				{
+					double a0 = (time[j+1]-ts)/(time[j+1]-time[j]);
+					double a1 = (ts-time[j])/(time[j+1]-time[j]);
 
-         	fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",ts,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,ds,de,epszs,epsze,epsz2s,epsz2e,as,ae);
-         	ts += dt;
-			}
-			else
-			{
-				j++;
-			}
+		         double ps = edges[idx]->pressure_start[j]*a0 + edges[idx]->pressure_start[j+1]*a1;
+		         double pe = edges[idx]->pressure_end[j]*a0 + edges[idx]->pressure_end[j+1]*a1;
+		         double vs = edges[idx]->velocity_start[j]*a0 + edges[idx]->velocity_start[j+1]*a1;
+		         double ve = edges[idx]->velocity_end[j]*a0 + edges[idx]->velocity_end[j+1]*a1;
+		         double vfrs = edges[idx]->volume_flow_rate_start[j]*a0 + edges[idx]->volume_flow_rate_start[j+1]*a1;
+		         double vfre = edges[idx]->volume_flow_rate_end[j]*a0 + edges[idx]->volume_flow_rate_end[j+1]*a1;
+		         double mfrs = edges[idx]->mass_flow_rate_start[j]*a0 + edges[idx]->mass_flow_rate_start[j+1]*a1;
+		         double mfre = edges[idx]->mass_flow_rate_end[j]*a0 + edges[idx]->mass_flow_rate_end[j+1]*a1;
+		         double ds = edges[idx]->diameter_start[j]*a0 + edges[idx]->diameter_start[j+1]*a1;
+		         double de = edges[idx]->diameter_end[j]*a0 + edges[idx]->diameter_end[j+1]*a1;
+		         double epszs = edges[idx]->total_deformation_start[j]*a0 + edges[idx]->total_deformation_start[j+1]*a1;
+		         double epsze = edges[idx]->total_deformation_end[j]*a0 + edges[idx]->total_deformation_end[j+1]*a1;
+		         double epsz2s = edges[idx]->damper_deformation_start[j]*a0 + edges[idx]->damper_deformation_start[j+1]*a1;
+		         double epsz2e = edges[idx]->damper_deformation_end[j]*a0 + edges[idx]->damper_deformation_end[j+1]*a1;
+		         double as = edges[idx]->wave_velocity_start[j]*a0 + edges[idx]->wave_velocity_start[j+1]*a1;
+		         double ae = edges[idx]->wave_velocity_end[j]*a0 + edges[idx]->wave_velocity_end[j+1]*a1;
+
+	         	fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",ts,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,ds,de,epszs,epsze,epsz2s,epsz2e,as,ae);
+	         	ts += dt;
+				}
+				else
+				{
+					j++;
+				}
+	   	}
+	      fclose(out_file);
    	}
-      fclose(out_file);
    }
+}
+
+//--------------------------------------------------------------
+void solver_moc::save_model(string model_name, string folder_name)
+{
+	// saving the input pt series first
+	save_pt_series(model_name, folder_name);
+
+	// saving the model
+	FILE* out_file;
+   string file_name = folder_name + model_name + "/" + name + ".csv";
+	out_file = fopen(file_name.c_str(),"w");
+
+	// saving edges
+	fprintf(out_file,"type,ID,name,start_node,end_node,start_diameter[SI],end_diameter[SI],start_thickness[SI],end_thickness[SI],length[SI],division_points,elastance_1[SI],elastance_2[SI],eta[SI],res_start[SI],res_end[SI]\n");
+	for(int i=0; i<number_of_edges; i++)
+	{
+		fprintf(out_file,"%s,%s,%s,%s,%s,%6.3e,%6.3e,%6.3e,%6.3e,%6.3e,%i,%6.3e,%6.3e,%6.3e,%6.3e,%6.3e\n",edges[i]->type.c_str(),edges[i]->ID.c_str(),edges[i]->name.c_str(),edges[i]->node_name_start.c_str(),edges[i]->node_name_end.c_str(),edges[i]->nominal_diameter_start,edges[i]->nominal_diameter_end,edges[i]->nominal_thickness_start,edges[i]->nominal_thickness_end,edges[i]->length,edges[i]->division_points,edges[i]->elasticity_spring,edges[i]->elasticity_voigt,edges[i]->viscosity,edges[i]->resistance_start,edges[i]->resistance_end);
+	}
+	fprintf(out_file,"\n");
+
+	// saving nodes
+	fprintf(out_file, "type,ID,name,valami,parameter,file name\n");
+	for(int i=0; i<number_of_nodes; i++)
+	{
+		if(nodes[i]->type_code == 2) // heart
+		{
+			fprintf(out_file, "%s,%s,0,P,%s\n",nodes[i]->type.c_str(),nodes[i]->name.c_str(),pt_file_name.c_str());
+		}
+		else if(nodes[i]->type_code == 0) // node
+		{
+			fprintf(out_file, "%s,%s,0,%6.3e\n",nodes[i]->type.c_str(),nodes[i]->name.c_str(),nodes[i]->resistance);
+		}
+		else if(nodes[i]->type_code == 1) // perif
+		{
+			fprintf(out_file, "%s,%s,0\n",nodes[i]->type.c_str(),nodes[i]->name.c_str());
+		}
+	}
+	fprintf(out_file,"\n");
+   fclose(out_file);
+}
+
+//--------------------------------------------------------------
+void solver_moc::save_pt_series(string model_name, string folder_name)
+{
+	FILE* out_file;
+   string file_name = folder_name + model_name + "/" + pt_file_name + ".csv";
+	out_file = fopen(file_name.c_str(),"w");
+
+	// TODO conv
+	if(type_upstream == 0)
+	{
+		for(int i=0; i<time_upstream.size(); i++)
+	   {
+			double p_mmHg = (value_upstream[i]-atmospheric_pressure)/mmHg_to_Pa;   	
+			fprintf(out_file,"%6.3e,%8.5e\n",time_upstream[i],p_mmHg);	
+	   }
+	}
+	else if(type_upstream == 1)
+	{
+		for(int i=0; i<time_upstream.size(); i++)
+		{
+			double q_mls = value_upstream[i]*1.e6; // m3/s to ml/s
+			fprintf(out_file,"%6.3e,%8.5e\n",time_upstream[i],q_mls);	
+		}
+	}
+   
+   fclose(out_file);
+
 }

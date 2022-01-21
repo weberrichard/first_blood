@@ -59,7 +59,7 @@ void moc_edge::initialization(double pressure_initial)
 
 	// giving initial conditions
 	p.assign(nx,pressure_initial);
-	v.assign(nx,0.);
+	v.assign(nx,1.);
 	for(int i=0; i<nx; i++)
 	{	
 		// linear interpolation
@@ -90,7 +90,10 @@ void moc_edge::initialization(double pressure_initial)
 	}
 
 	// saving initial conditions
-	save_field_variables();
+	if(do_save_memory)
+	{
+		save_field_variables();
+	}
 }
 
 //--------------------------------------------------------------
@@ -144,6 +147,15 @@ void moc_edge::solve()
 		// new field variables
 		vp[i] = (p[i-1]-p[i+1] + rho*(a[i-1]*v[i-1] + a[i+1]*v[i+1]) - dt[i]*rho*(a[i-1]*JL(i) + a[i+1]*JR(i))) / (rho*(a[i-1]+a[i+1]));
 		pp[i] = p[i+1] + rho*a[i+1]*(vp[i]-v[i+1]) + rho*a[i+1]*dt[i]*JR(i);
+
+		if(vp[i]>.9*a[i])
+		{
+			vp[i] = .9*a[i];
+		}
+		else if(vp[i]<-.9*a[i])
+		{
+			vp[i] = -.9*a[i];
+		}
 	}
 }
 
@@ -532,7 +544,7 @@ double moc_edge::JR(double dt, double p, double v, double a, double epsz, double
 	double hp = hs + xp/l*(he-hs);
 
 	// output
-	double JR = g*(hp-h)/(xp-x) + 32.*nu*v/(d*d) - 2*a/(2.*epsz+1.)*AR;
+	double JR = g*(hp-h)/(xp-x) + 32.*nu*v/(d*d) - 2.*a/(2.*epsz+1.)*AR;
 
 	return JR;
 }
@@ -599,7 +611,6 @@ void moc_edge::save_field_variables()
 	double mf_e = vf_e * rho;
 	mass_flow_rate_start.push_back(mf_s);
 	mass_flow_rate_end.push_back(mf_e);
-
 }
 
 //--------------------------------------------------------------
@@ -714,6 +725,14 @@ vector<double> moc_edge::boundary_end_coefficients(double dt)
 void moc_edge::boundary_start_variables(double dt, double p, double q)
 {
 	vp[0] = q/A[0];
+	if(vp[0]>.9*a[0])
+	{
+		vp[0] = .9*a[0];
+	}
+	else if(vp[0]<-.9*a[0])
+	{
+		vp[0] = -.9*a[0];
+	}
 	pp[0] = p - Rs*q;
 }
 
@@ -721,6 +740,14 @@ void moc_edge::boundary_start_variables(double dt, double p, double q)
 void moc_edge::boundary_end_variables(double dt, double p, double q)
 {
 	vp[nx-1] = q/A[nx-1];
+	if(vp[nx-1]>.9*a[nx-1])
+	{
+		vp[nx-1] = .9*a[nx-1];
+	}
+	else if(vp[nx-1]<-.9*a[nx-1])
+	{
+		vp[nx-1] = -.9*a[nx-1];
+	}
 	pp[nx-1] = p + Re*q;
 }
 
@@ -773,7 +800,7 @@ double moc_edge::boundary_end_position(double dt)
 }
 
 //--------------------------------------------------------------
-double moc_edge::upstream_boundary(double dt, double p_in)
+double moc_edge::upstream_boundary_p(double dt, double p_in)
 {
 	double xR = boundary_start_position(dt);
 
@@ -797,6 +824,34 @@ double moc_edge::upstream_boundary(double dt, double p_in)
 	pp[0] = p;
 
 	return v*A[0];
+}
+
+//--------------------------------------------------------------
+double moc_edge::upstream_boundary_q(double dt, double q_in)
+{
+	double xR = boundary_start_position(dt);
+
+	// interpolating fied variables to xR
+	double aR = (a[1]-a[0]) / x[1] * xR + a[0];
+	double vR = (v[1]-v[0]) / x[1] * xR + v[0];
+	double pR = (p[1]-p[0]) / x[1] * xR + p[0];
+	double dR = (d[1]-d[0]) / x[1] * xR + d[0];
+	double epszR = (epsz[1]-epsz[0]) / x[1] * xR + epsz[0];
+	double epsz2R = (epsz2[1]-epsz2[0]) / x[1] * xR + epsz2[0];
+	double hR = (h[1]-h[0]) / x[1] * xR + h[0];
+	double AR = dR*dR*pi/4.;
+
+	// source term
+	double J = JR(dt, pR, vR, aR, epszR, epsz2R, dR, hR, xR, x[0]);
+
+	// from BC
+	double v = q_in/A[0];
+	vp[0] = v;
+
+	double p = pR + rho*aR*(dt*J + v - vR);
+	pp[0] = p;
+
+	return pp[0];
 }
 
 //--------------------------------------------------------------

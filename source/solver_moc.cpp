@@ -78,71 +78,6 @@ void solver_moc::build_system()
 	}
 }
 
-
-//--------------------------------------------------------------
-void solver_moc::full_solver(string node_id, double time_end)
-{
-	forward_solver(node_id, time_end);
-
-	int node_idx = node_id_to_index(node_id);
-	while(nodes[node_idx]->type_code != 2) // checking if it is upstream boundary
-	{
-		// performing backward calculation
-		int edge_idx = backward_tree(node_id);
-		// boundary conditions from last forward calculation
-		vector<double> t_d = time;
-		vector<double> p_d = nodes[node_idx]->pressure;
-		vector<double> vfr_d(t_d.size(),0.);
-		for(unsigned int i=0; i<vfr_d.size(); i++)
-		{  
-			for(unsigned int j=0; j<nodes[node_idx]->edge_out.size(); j++)
-			{
-				vfr_d[i] += edges[nodes[node_idx]->edge_out[j]]->volume_flow_rate_start[i];
-			}
-		}
-
-		vector<vector<double> > A_u = edges[edge_idx]->backward_solver(t_d, p_d, vfr_d);
-
-		// new boundary conditions
-		time_upstream = A_u[0];
-		pressure_upstream = A_u[1];
-		time_end = time_upstream.back();
-
-		// new upstream node
-		node_id = edges[edge_idx]->node_name_start;
-		node_idx = edges[edge_idx]->node_index_start;
-
-		// forward calculation
-		forward_solver(node_id, time_end);
-	}
-}
-
-//--------------------------------------------------------------
-void solver_moc::forward_solver(string node_id, double time_end)
-{
-	// setting initial conditions
-	initialization(pressure_initial);
-
-	// getting the forward tree edges and nodes
-	forward_tree(node_id);
-
-	// starting the main solver cycle
-	int i=0;
-	while(time.back() < time_end)
-	{
-		// updating on timestep
-		double dt = solve_one_step();
-
-		// interpolation, updating and saving field variables
-		post_process(dt);
-
-		i++;
-	}
-
-	// saving the final number of time steps
-	number_of_timesteps = time.size();
-}
-
 //--------------------------------------------------------------
 double solver_moc::solve_one_step()
 {
@@ -160,6 +95,7 @@ double solver_moc::solve_one_step()
 	{
 		printf("\n !WARNING! time step is negative: %6.3e during FORWARD calculation at time: %6.3f", dt_real, time.back());
 		cout << endl;
+		return -1.;
 	}
 
 	double new_time = time.back() + dt_real;
@@ -192,7 +128,10 @@ void solver_moc::post_process(double dt)
 		// updating every field variables
 		edges[forward_edges[j]]->update_variables(dt);
 		// saveing start and end points vars in time
-		edges[forward_edges[j]]->save_field_variables();
+		if(edges[forward_edges[j]]->do_save_memory)
+		{
+			edges[forward_edges[j]]->save_field_variables();
+		}
 	}
 }
 
@@ -231,25 +170,37 @@ void solver_moc::boundaries(double dt)
 				}
 
 				// interpolating
-				double p_h = pressure_upstream[index_upstream+1]; // pressure at higher index
-				double p_l = pressure_upstream[index_upstream]; // pressure at lower index
+				double v_h = value_upstream[index_upstream+1]; // pressure at higher index
+				double v_l = value_upstream[index_upstream]; // pressure at lower index
 				double t_h = time_upstream[index_upstream+1]; // time at higher index
 				double t_l = time_upstream[index_upstream]; // time at lower index
 
 				double t_in = time.back()-period*time_upstream.back(); // actual time of the simulation
-				double p_in = (p_h-p_l)/(t_h-t_l) * (t_in-t_l) + p_l; // actual pressure of the simulation
+				double v_in = (v_h-v_l)/(t_h-t_l) * (t_in-t_l) + v_l; // actual pressure of the simulation
 
-				double q_in=0.;
+				double q_in=0., p_in;
 				// there might be several outgoing edge from an upstream node
 				for(unsigned int j=0; j<nodes[forward_nodes[i]]->edge_out.size(); j++)
 				{
 					int edge_index = nodes[forward_nodes[i]]->edge_out[j];
 					// calculating vp and pp values of edge
-					q_in += edges[edge_index]->upstream_boundary(dt, p_in);
+					if(type_upstream == 0) // pressure BC
+					{
+						q_in += edges[edge_index]->upstream_boundary_p(dt, v_in);
+						p_in = v_in; // v_in is pressure
+					}
+					else if(type_upstream == 1) // vfr BC
+					{
+						p_in = edges[edge_index]->upstream_boundary_q(dt, v_in);
+						q_in += v_in; // v_in is volume flow rate
+					}
 				}
 
-				nodes[forward_nodes[i]]->pressure.push_back(p_in);
-				nodes[forward_nodes[i]]->volume_flow_rate.push_back(q_in);
+				if(nodes[forward_nodes[i]]->do_save_memory)
+				{
+					nodes[forward_nodes[i]]->pressure.push_back(p_in);
+					nodes[forward_nodes[i]]->volume_flow_rate.push_back(q_in);
+				}
 			}
 			else if(nodes[forward_nodes[i]]->type_code == 1) // perifera
 			{
@@ -258,8 +209,11 @@ void solver_moc::boundaries(double dt)
 				double p_out = nodes[forward_nodes[i]]->pressure_out;
 				double q_out = edges[edge_index]->boundary_periferia(dt,p_out);
 
-				nodes[forward_nodes[i]]->pressure.push_back(p_out);
-				nodes[forward_nodes[i]]->volume_flow_rate.push_back(q_out);
+				if(nodes[forward_nodes[i]]->do_save_memory)
+				{
+					nodes[forward_nodes[i]]->pressure.push_back(p_out);
+					nodes[forward_nodes[i]]->volume_flow_rate.push_back(q_out);
+				}
 			}
 			else if(nodes[forward_nodes[i]]->type_code == 0) // junctions
 			{
@@ -486,12 +440,22 @@ void solver_moc::set_constants(double g, double rho, double nu, double mmHg, dou
 }
 
 //--------------------------------------------------------------
-void solver_moc::convert_pt_series()
+void solver_moc::convert_time_series()
 {
-	for(unsigned int i=0; i<pressure_upstream.size(); i++)
+	if(type_upstream == 0)
 	{
-		pressure_upstream[i] *= mmHg_to_Pa;
-		pressure_upstream[i] += atmospheric_pressure;
+		for(unsigned int i=0; i<value_upstream.size(); i++)
+		{
+			value_upstream[i] *= mmHg_to_Pa;
+			value_upstream[i] += atmospheric_pressure;
+		}
+	}
+	else if(type_upstream == 1)
+	{
+		for(unsigned int i=0; i<value_upstream.size(); i++)
+		{
+			value_upstream[i] *= 1.e-6;
+		}
 	}
 }
 
@@ -536,3 +500,32 @@ int solver_moc::edge_id_to_index(string edge_id)
 	}
 	return idx;
 }
+
+//--------------------------------------------------------------
+void solver_moc::clear_save_memory()
+{
+	for(int i=0; i<number_of_nodes; i++)
+	{
+		nodes[i]->do_save_memory = false;
+	}
+	for(int i=0; i<number_of_edges; i++)
+	{
+		edges[i]->do_save_memory = false;
+	}
+}
+
+//--------------------------------------------------------------
+void solver_moc::set_save_memory(vector<string> edge_list, vector<string> node_list)
+{
+	for(int i=0; i<edge_list.size(); i++)
+	{
+		int idx = edge_id_to_index(edge_list[i]);
+		edges[idx]->do_save_memory = true;
+	}
+	for(int i=0; i<node_list.size(); i++)
+	{
+		int idx = node_id_to_index(node_list[i]);
+		nodes[idx]->do_save_memory = true;
+	}
+}
+

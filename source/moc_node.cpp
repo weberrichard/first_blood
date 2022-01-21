@@ -78,7 +78,11 @@ vector<double> moc_node::boundary_coefficients()
 //--------------------------------------------------------------
 void moc_node::boundary_variables(double p)
 {
-	pressure.push_back(p);
 	double Q = (p-p0)/R * Ri;
-	volume_flow_rate.push_back(Q);
+
+	if(do_save_memory)
+	{
+		pressure.push_back(p);
+		volume_flow_rate.push_back(Q);
+	}
 }

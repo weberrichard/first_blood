@@ -8,8 +8,10 @@ int main(int argc, char* argv[])
 	string case_folder = "../../models/";
 
    vector<string> case_names;
-   case_names.push_back("Halasz_P045_resistance");
+   //case_names.push_back("Halasz_P045_resistance");
+   case_names.push_back("Halasz_A50");
    case_names.push_back("Reymond_103");
+   //case_names.push_back("Reymond_103_Q");
 
    double save_dt = 1e-3;
 
@@ -17,6 +19,7 @@ int main(int argc, char* argv[])
    {
       cout << "[*] " << case_names[i] << ":" << endl;
       first_blood *fb = new first_blood(case_folder + case_names[i]);
+      cout << " load OK" << endl;
       fb->run();
       cout << " run OK" << endl;
       fb->save_results(save_dt);

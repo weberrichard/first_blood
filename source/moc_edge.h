@@ -33,6 +33,7 @@ public:
 
 	string name; // name of the moc_edge
 	string ID; // ID of the moc_edge
+	string type; // type of the moc_edge: vis
 	string node_name_start, node_name_end; // name of the nodes at the beginning and at the end
 	int node_index_start, node_index_end; // index of the nodes at the beginning and at the end
 
@@ -60,6 +61,9 @@ public:
 	double kinematic_viscosity; // m2/s
 	double atmospheric_pressure; // Pa
 	double beta; // exponent for wave velocity, -
+
+	// saving field variables
+	bool do_save_memory = true;
 
 	// cointaining field variables in time
 	vector<double> pressure_start; // Pa
@@ -115,7 +119,9 @@ public:
 
 	// [*] upstream boundary node
 	// if the node is upstream pressure BC, this calculates the velocity
-	double upstream_boundary(double dt, double p_in);
+	double upstream_boundary_p(double dt, double p_in);
+	// if the node is upstream vfr BC, this calculates the pressure
+	double upstream_boundary_q(double dt, double q_in);
 
 	// [*] periferia points 
 	// for periferia points solving p=p0

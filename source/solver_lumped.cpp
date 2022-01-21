@@ -17,6 +17,9 @@ void solver_lumped::initialization()
 	number_of_edges = edges.size();
 	number_of_master = boundary_model_node.size();
 
+	// clearing master boundary indices
+	boundary_indices.clear();
+
 	// setting the par variables, converting from SI to non-SI for favourable conditioning
 	set_non_SI_parameters();
 
@@ -42,6 +45,7 @@ void solver_lumped::initialization()
 	}
 
 	// setting first time stamp
+	time.clear();
 	time.push_back(0.);
 
 	// setting Eigen vars
@@ -167,68 +171,42 @@ vector<vector<double> > solver_lumped::solve_one_step(double dt, vector<vector<d
 	{
 		// setting indecies
 		int idx = boundary_indices[i][3];
-		/*int j;
-		if(nodes[idx]->edge_in.size()!=0)
-		{
-			j = nodes[idx]->edge_in[0];
-		}
-		else
-		{
-			j = nodes[idx]->edge_out[0];
-		}*/
 
 		A(n+m+2*l+i,n+m+2*l+i) = boundary_coefficients[i][0]*1.e-6; // m3/s to ml
 		A(n+m+2*l+i,m+idx) = boundary_coefficients[i][1]*mmHg_to_Pa; // Pa to mmHg
 		b(n+m+2*l+i) = boundary_coefficients[i][2];
 
-		// kinda works...
-		//A(n+m+i,n+m+i) = boundary_coefficients[i][0]*1.e-6; // m3/s to ml
-		//A(n+m+i,m+idx) = boundary_coefficients[i][1]*mmHg_to_Pa; // Pa to mmHg
-		//b(n+m+i) = boundary_coefficients[i][2];
-
-		// this would be in SI units
-		//A(n+m+i,n+m+i) = boundary_coefficients[i][0];
-		//A(n+m+i,m+idx) = boundary_coefficients[i][1];
-		//b(n+m+i) = boundary_coefficients[i][2];
-
 		// adding +1/-1 to node equation
 		if(boundary_coefficients[i][1] > 0.) // ingoing edge
 		{
 			A(m+idx,n+m+2*l+i) = 1.;
-			//A(m+idx,n+m+i) = 1.;
 		}
 		else // outgoing edge
 		{
 			A(m+idx,n+m+2*l+i) = -1.;
-			//A(m+idx,n+m+i) = -1.;
 		}
 	}
 
 	// actually solving the equations
 	VectorXd x = A.colPivHouseholderQr().solve(b);
-	//VectorXd x = A.fullPivLu().solve(b);
-	//VectorXd x = A.completeOrthogonalDecomposition().solve(b);
-	//VectorXd x = A.bdcSvd(ComputeThinU | ComputeThinV).solve(b);
-	//VectorXd x = A.fullPivHouseholderQr().solve(b);
-	//VectorXd x = A.inverse()*b;
-
-	/*cout << A << endl;
-	cout << endl << b << endl;
-	cout << endl << x << endl;
-	cin.get();
-	cout << "rel error: " << (A*x-b).norm() / b.norm() << endl;*/
 
 	// putting back the outputs
 	for(int i=0; i<number_of_edges; i++)
 	{
 		edges[i]->vfr = x(i);
-		edges[i]->volume_flow_rate.push_back(x(i)*1.e-6);
+		if(edges[i]->do_save_memory)
+		{
+			edges[i]->volume_flow_rate.push_back(x(i)*1.e-6);
+		}
 	}
 	for(int i=0; i<number_of_nodes; i++)
 	{
 		nodes[i]->p = x(m+i);
 		nodes[i]->y = x(m+i)/E_act;
-		nodes[i]->pressure.push_back(x(m+i)*mmHg_to_Pa);
+		if(nodes[i]->do_save_memory)
+		{
+			nodes[i]->pressure.push_back(x(m+i)*mmHg_to_Pa);
+		}
 	}
 
 	// outputs for moc model
@@ -237,9 +215,7 @@ vector<vector<double> > solver_lumped::solve_one_step(double dt, vector<vector<d
 	{
 		int idx=boundary_indices[i][3];
 		double q = x(n+m+2*l+i)*1e-6;
-		//double q = x(n+m+i);
 		double p = x(m+idx)*mmHg_to_Pa;
-		//double p = x(m+idx);
 		vector<double> v{q,p};
 		out.push_back(v);
 	}
@@ -403,3 +379,32 @@ double solver_lumped::elastance_derived(double t)
 
 	return Ep;
 }
+
+//--------------------------------------------------------------
+void solver_lumped::clear_save_memory()
+{
+	for(int i=0; i<number_of_nodes; i++)
+	{
+		nodes[i]->do_save_memory = false;
+	}
+	for(int i=0; i<number_of_edges; i++)
+	{
+		edges[i]->do_save_memory = false;
+	}
+}
+
+//--------------------------------------------------------------
+void solver_lumped::set_save_memory(vector<string> edge_list, vector<string> node_list)
+{
+	for(int i=0; i<edge_list.size(); i++)
+	{
+		int idx = edge_id_to_index(edge_list[i]);
+		edges[idx]->do_save_memory = true;
+	}
+	for(int i=0; i<node_list.size(); i++)
+	{
+		int idx = node_id_to_index(node_list[i]);
+		nodes[idx]->do_save_memory = true;
+	}
+}
+

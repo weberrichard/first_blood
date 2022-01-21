@@ -36,6 +36,10 @@ public:
 
 	// solving the equations
 	vector<vector<double> > solve_one_step(double dt, vector<vector<double> > coefs);
+	
+	// clear/setting do_save_memory vars
+	void clear_save_memory();
+	void set_save_memory(vector<string> edge_list, vector<string> node_list);
 
 	// saving output vars to file
 	void save_results();
@@ -44,6 +48,9 @@ public:
 	void save_results(double dt, string folder_name);
 	void save_results(double dt, string folder_name, vector<string> edge_list, vector<string> node_list);
 
+	// save model to file
+	void save_model(string model_name, string folder_name);
+
 	// name of the model
 	string name;
 
@@ -51,8 +58,8 @@ public:
 	string input_folder_path;
 
 	// outer nodes, i.e. outer boundaries to other models
-	vector<string> boundary_model_node;
 	vector<string> boundary_main_node;
+	vector<string> boundary_model_node;
 
 	// index of moc, index of edge in moc, index of node in lumped
 	vector<vector<int> > boundary_indices;
@@ -69,7 +76,7 @@ public:
 	// parameters of elastance function
 	double elastance_max = 2.5;
 	double elastance_min = 0.06;
-	double heart_rate = 75.;
+	double heart_rate = 75.6; // from Charlton2019
 
 private:
 	// general constants
@@ -88,12 +95,16 @@ private:
 	public:
 		// variables and properties of NODEs
 		string name;
+		// type of node: node, ground
+		string type;
 		// in and outgoing edge indicies
 		vector<int> edge_in, edge_out;
 		// actual pressure for calculations
 		double p; // mmHg
 		// for virtual nodes, only used if connected to elastance
 		double y; // mmHg
+		// saving field variables
+		bool do_save_memory = true;
 		// containing pressure at nodes in time for storing
 		vector<double> pressure; //Pa
 		// initial condition for pressure
@@ -123,6 +134,8 @@ private:
 		double par_non_SI; // non-SI
 		// actual volume flow rate for calculations
 		double vfr; // ml/s
+		// saving field variables
+		bool do_save_memory = true;
 		// volume flow rate in time for storing
 		vector<double> volume_flow_rate; // m3/s
 		// initial condition for volume flow rate

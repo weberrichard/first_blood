@@ -37,6 +37,9 @@ public:
 	vector<int> edge_in;
 	vector<int> edge_out;
 
+	// saving field variables
+	bool do_save_memory = true;
+	
 	// pressure and volume_flow_rate in time
 	vector<double> pressure; // in time, Pa
 	vector<double> volume_flow_rate; // "leakage" volume flow rate, m3/s
