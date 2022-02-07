@@ -110,6 +110,10 @@ int main(int argc, char* argv[])
 
    cout << "OK" << endl;
 
+   // writing original parameters to file
+   vector<double> inputs;
+   inputs.push_back(fb->)
+
    // starting sensitivity analysis
    // -----------------------------
 

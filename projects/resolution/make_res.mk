@@ -4,7 +4,7 @@ CXXFLAGS=-std=c++17 -O3 -c
 SOURCE_FOLDER = ../../source/
 BIN_FOLDER = ../../bin/
 
-MAIN = vpd_ref_2
+MAIN = resolution
 
 OBJS += \
 file_io.o \
@@ -15,6 +15,7 @@ solver_lumped.o \
 solver_lumped_io.o \
 solver_moc.o \
 solver_moc_io.o \
+statistics.o \
 
 BIN_OBJS +=\
 $(BIN_FOLDER)file_io.o \
@@ -25,6 +26,7 @@ $(BIN_FOLDER)solver_lumped.o \
 $(BIN_FOLDER)solver_lumped_io.o \
 $(BIN_FOLDER)solver_moc.o \
 $(BIN_FOLDER)solver_moc_io.o \
+$(BIN_FOLDER)statistics.o \
 
 $(MAIN): $(OBJS)
 	$(CXX) $(MAIN).cpp $(BIN_OBJS) -o $(MAIN).out
