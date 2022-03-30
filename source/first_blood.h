@@ -50,6 +50,11 @@ public:
 	// return true if succesful
 	bool run();
 
+	// solving lumped model as boundary condition
+	void solve_lum(int index, double dt);
+	// finding lowest time step level
+	double lowest_new_time(int &moc_idx, int &e_idx);
+
 	// finding and setting the master nodes in every model
 	void build_master();
 
@@ -65,7 +70,7 @@ public:
 	double kinematic_viscosity = 3.e-6; // [m2/s]
 	double mmHg_to_Pa = 133.3616; // [Pa/mmHg] for converting inputs from mmHg to Pa
 	double atmospheric_pressure = 1.e5; // Pa
-	double pressure_initial = 100.*mmHg_to_Pa + atmospheric_pressure; // [Pa]
+	double pressure_initial = 0.*mmHg_to_Pa + atmospheric_pressure; // [Pa]
 	double beta = 2.0; // exponent of wave velocity
 
 	/// Loading the system from CSV
@@ -87,8 +92,8 @@ public:
 	void save_model(string model_name, string folder_name);
 
 	// recording the timesteps
-	vector<double> time;
 	double time_end;
+	int time_counter;
 
 	// lum model id to index
 	int lum_id_to_index(string lum_id);

@@ -17,9 +17,6 @@ first_blood::first_blood(string folder_name)
 
 	if(load_ok == true)
 	{
-		// setting initial time
-		time.push_back(0.);
-
 		// setting constants in every model
 		for(int i=0; i<number_of_moc; i++)
 		{
@@ -193,125 +190,153 @@ bool first_blood::run()
 		for(int i=0; i<number_of_moc; i++)
 		{
 			moc[i]->full_tree();
-		}		
+		}
 
-		while(time.back() < time_end && is_run_ok)
+		// initial timesteps
+		int moc_idx=0, e_idx;
+		for(int i=0; i<number_of_moc; i++)
 		{
-			// running mocs
-			double dt_master = 1e10;
-			for(int i=0; i<number_of_moc; i++)
+			double t = moc[i]->timesteps(e_idx);
+		}
+		double t_act = lowest_new_time(moc_idx, e_idx);
+
+
+		// main cycle
+		while(time_counter > 0)
+		{
+			// solving lowest edge inner points
+			moc[moc_idx]->edges[e_idx]->solve();
+
+			// boundaries (inner + lumped if it is)
+			moc[moc_idx]->boundaries(e_idx, t_act);
+
+			int si = moc[moc_idx]->edges[e_idx]->node_index_start;
+			if(moc[moc_idx]->nodes[si]->is_master_node)
 			{
-				double dt = moc[i]->solve_one_step();
-				if(dt<dt_master)
-				{
-					dt_master = dt;
-				}
+				double dt = moc[moc_idx]->edges[e_idx]->dt_act;
+				int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+				solve_lum(lum_idx, dt);
 			}
 
-			if(dt_master<0.0)
+			int ei = moc[moc_idx]->edges[e_idx]->node_index_end;
+			if(moc[moc_idx]->nodes[ei]->is_master_node)
 			{
-				is_run_ok = false;
-				break;
-			}
-
-			// if there is no moc we prescribe the dt
-			if(number_of_moc == 0)
-			{
-				dt_master = 1.e-3;
-			}
-
-			// basic error handling
-			if(dt_master == 1e10)
-			{
-				cout << " Time step dt is NaN, exiting..." << endl;
-				exit(-1);
-			}
-
-			// saving time
-			time.push_back(time.back()+dt_master);
-
-			// lumped models
-			for(int i=0; i<number_of_lum; i++)
-			{
-				vector<vector<double> > coefs;
-				for(int j=0; j<lum[i]->boundary_indices.size(); j++)
-				{
-					int moc_index = lum[i]->boundary_indices[j][0];
-					int moc_edge_index = lum[i]->boundary_indices[j][1];
-					int edge_end = lum[i]->boundary_indices[j][2];
-					vector<double> c;
-					if(edge_end==1)
-					{
-						c = moc[moc_index]->edges[moc_edge_index]->boundary_master_end(dt_master);
-					}
-					else
-					{
-						c = moc[moc_index]->edges[moc_edge_index]->boundary_master_start(dt_master);
-					}
-					coefs.push_back(c);
-				}
-
-				vector<vector<double> > qps = lum[i]->solve_one_step(dt_master, coefs);
-
-				// updating master boundaries in mocs, n. 2
-				for(int j=0; j<qps.size(); j++)
-				{
-					int moc_index = lum[i]->boundary_indices[j][0]; // index of moc
-					int moc_edge_index = lum[i]->boundary_indices[j][1]; // edge index in moc
-					int edge_end = lum[i]->boundary_indices[j][2];
-					int lum_node_index = lum[i]->boundary_indices[j][3]; // node index in lum
-
-					double q = qps[j][0];
-					double p = qps[j][1];
-
-					if(edge_end == 1)
-					{
-						moc[moc_index]->edges[moc_edge_index]->boundary_end_variables(dt_master,p,q);
-						int node_index = moc[moc_index]->edges[moc_edge_index]->node_index_end;
-						moc[moc_index]->nodes[node_index]->boundary_variables(p);
-					}
-					else
-					{
-						moc[moc_index]->edges[moc_edge_index]->boundary_start_variables(dt_master,p,q);
-						int node_index = moc[moc_index]->edges[moc_edge_index]->node_index_start;
-						moc[moc_index]->nodes[node_index]->boundary_variables(p);
-					}
-				}
+				double dt = moc[moc_idx]->edges[e_idx]->dt_act;
+				int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+				solve_lum(lum_idx, dt);
 			}
 
 			// postproc: interpolate, save
-			for(int i=0; i<number_of_moc; i++)
+			moc[moc_idx]->edges[e_idx]->interpolate();
+			moc[moc_idx]->edges[e_idx]->update_variables();
+			if(moc[moc_idx]->edges[e_idx]->do_save_memory)
 			{
-				moc[i]->post_process(dt_master);
-			}			
+				moc[moc_idx]->edges[e_idx]->save_field_variables();
+			}
+
+			// new timestep
+			moc[moc_idx]->edges[e_idx]->new_timestep();
+
+			// find new lowest timestep
+			t_act = lowest_new_time(moc_idx, e_idx);
+
+			// decreasing time_counter if it passed t_end
+			if(t_act >= time_end)
+			{
+				time_counter--;
+			}
 		}
 	}
-	//else if(run_type == "backward") // backward calculation from inner nodes
-	//{
-	//}
 
 	return is_run_ok;
+}
+
+//--------------------------------------------------------------
+void first_blood::solve_lum(int index, double dt)
+{
+	vector<vector<double> > coefs;
+	for(int j=0; j<lum[index]->boundary_indices.size(); j++)
+	{
+		int moc_index = lum[index]->boundary_indices[j][0];
+		int moc_edge_index = lum[index]->boundary_indices[j][1];
+		int edge_end = lum[index]->boundary_indices[j][2];
+		vector<double> c;
+		if(edge_end==1)
+		{
+			c = moc[moc_index]->edges[moc_edge_index]->boundary_master_end(dt);
+		}
+		else
+		{
+			c = moc[moc_index]->edges[moc_edge_index]->boundary_master_start(dt);
+		}
+		coefs.push_back(c);
+	}
+
+	vector<vector<double> > qps = lum[index]->solve_one_step(dt, coefs);
+
+	// updating master boundaries in mocs, n. 2
+	for(int j=0; j<qps.size(); j++)
+	{
+		int moc_index = lum[index]->boundary_indices[j][0]; // index of moc
+		int moc_edge_index = lum[index]->boundary_indices[j][1]; // edge index in moc
+		int edge_end = lum[index]->boundary_indices[j][2];
+		int lum_node_index = lum[index]->boundary_indices[j][3]; // node index in lum
+
+		double q = qps[j][0];
+		double p = qps[j][1];
+
+		double t_act = moc[moc_index]->edges[moc_edge_index]->time.back() + dt;
+		if(edge_end == 1)
+		{
+			moc[moc_index]->edges[moc_edge_index]->boundary_end_variables(dt,p,q);
+			int node_index = moc[moc_index]->edges[moc_edge_index]->node_index_end;
+			moc[moc_index]->nodes[node_index]->boundary_variables(p,t_act);
+		}
+		else
+		{
+			moc[moc_index]->edges[moc_edge_index]->boundary_start_variables(dt,p,q);
+			int node_index = moc[moc_index]->edges[moc_edge_index]->node_index_start;
+			moc[moc_index]->nodes[node_index]->boundary_variables(p,t_act);
+		}
+	}
+}
+
+//--------------------------------------------------------------
+double first_blood::lowest_new_time(int &moc_idx, int &e_idx)
+{
+	double tact=1.e10;
+	for(int i=0; i<number_of_moc; i++)
+	{
+		double t = moc[i]->min_time(e_idx);
+		if(t<tact)
+		{
+			tact = t;
+			moc_idx = i;
+		}
+	}
+
+	return tact;
 }
 
 //--------------------------------------------------------------
 void first_blood::initialization()
 {
 	// fb class
-	time.clear();
-	time.push_back(0.);
 	number_of_moc = moc.size();
 	number_of_lum = lum.size();
 	number_of_nodes = nodes.size();
+	time_counter = 0;
 
 	// setting initial conditions
 	for(int i=0; i<number_of_moc; i++)
 	{
 		moc[i]->initialization(pressure_initial);
+		time_counter += moc[i]->number_of_edges;
 	}
 	for(int i=0; i<number_of_lum; i++)
-		
 	{
 		lum[i]->initialization();
+		time_counter += 1;
 	}
 
 	// setting master nodes
@@ -340,6 +365,7 @@ void first_blood::build_master()
 							{
 								int mm = moc[l]->node_id_to_index(moc[l]->boundary_model_node[m]);
 								moc[l]->nodes[mm]->is_master_node = true;
+								moc[l]->nodes[mm]->master_node_lum = j;
 
 								int n;
 								int nn;

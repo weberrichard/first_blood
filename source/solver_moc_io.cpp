@@ -123,6 +123,10 @@ void solver_moc::load_model()
 					{
 						type_upstream = 1;
 					}
+					else if(sv[3] == "V")
+					{
+						type_upstream = 2;
+					}
 				}
 				// loading the pressure-time curve
 				if(sv.size()>4 && sv[4] != "")
@@ -218,10 +222,11 @@ void solver_moc::save_results(string folder_name, vector<string> edge_list, vect
    	int idx = node_id_to_index(node_list[i]);
       string file_name = folder_name + nodes[idx]->name + ".txt";
       out_file = fopen(file_name.c_str(),"w");
-      for(unsigned int j=0; j<nodes[idx]->pressure.size(); j++)
+      for(unsigned int j=0; j<nodes[idx]->time.size(); j++)
       {
-         fprintf(out_file, "%9.7e, %9.7e, %9.7e\n", time[j], nodes[idx]->pressure[j],nodes[idx]->volume_flow_rate[j]);
+         fprintf(out_file, "%9.7e, %9.7e, %9.7e\n", nodes[idx]->time[j], nodes[idx]->pressure[j],nodes[idx]->volume_flow_rate[j]);
       }
+
       fclose(out_file);
    }
 
@@ -232,7 +237,7 @@ void solver_moc::save_results(string folder_name, vector<string> edge_list, vect
       out_file = fopen(file_name.c_str(),"w");\
       for(unsigned int j=0; j<edges[idx]->pressure_start.size(); j++)
       {
-         double t = time[j];
+         double t = edges[idx]->time[j];
          double ps = edges[idx]->pressure_start[j];
          double pe = edges[idx]->pressure_end[j];
          double vs = edges[idx]->velocity_start[j];
@@ -294,13 +299,13 @@ void solver_moc::save_results(double dt, string folder_name, vector<string> edge
 			
 			int j=0;
 			double ts=0.;
-			double t_end=time.back();
-			while(ts<t_end && j<time.size()-1)
+			double t_end=nodes[idx]->time.back();
+			while(ts<t_end && j<nodes[idx]->time.size()-1)
 			{
-				if(time[j]<=ts && ts<time[j+1])
+				if(nodes[idx]->time[j]<=ts && ts<nodes[idx]->time[j+1])
 				{	
-					double a0 = (time[j+1]-ts)/(time[j+1]-time[j]);
-					double a1 = (ts-time[j])/(time[j+1]-time[j]);
+					double a0 = (nodes[idx]->time[j+1]-ts)/(nodes[idx]->time[j+1]-nodes[idx]->time[j]);
+					double a1 = (ts-nodes[idx]->time[j])/(nodes[idx]->time[j+1]-nodes[idx]->time[j]);
 					double pp = nodes[idx]->pressure[j]*a0 + nodes[idx]->pressure[j+1]*a1;
 					double qp = nodes[idx]->volume_flow_rate[j]*a0 + nodes[idx]->volume_flow_rate[j+1]*a1;
 	         	fprintf(out_file, "%9.7e, %9.7e, %9.7e\n", ts, pp, qp);
@@ -325,13 +330,13 @@ void solver_moc::save_results(double dt, string folder_name, vector<string> edge
 
 	   	int j=0;
 	   	double ts=0.;
-	   	double t_end=time.back();
-	   	while(ts<t_end && j<time.size()-1)
+	   	double t_end=edges[idx]->time.back();
+	   	while(ts<t_end && j<edges[idx]->time.size()-1)
 	   	{
-				if(time[j]<=ts && ts<time[j+1])
+				if(edges[idx]->time[j]<=ts && ts<edges[idx]->time[j+1])
 				{
-					double a0 = (time[j+1]-ts)/(time[j+1]-time[j]);
-					double a1 = (ts-time[j])/(time[j+1]-time[j]);
+					double a0 = (edges[idx]->time[j+1]-ts)/(edges[idx]->time[j+1]-edges[idx]->time[j]);
+					double a1 = (ts-edges[idx]->time[j])/(edges[idx]->time[j+1]-edges[idx]->time[j]);
 
 		         double ps = edges[idx]->pressure_start[j]*a0 + edges[idx]->pressure_start[j+1]*a1;
 		         double pe = edges[idx]->pressure_end[j]*a0 + edges[idx]->pressure_end[j+1]*a1;

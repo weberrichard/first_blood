@@ -37,6 +37,8 @@ void moc_edge::initialization(double pressure_initial)
    volume_flow_rate_end.clear();
    mass_flow_rate_start.clear();
    mass_flow_rate_end.clear();
+   time.clear();
+   time.push_back(0.);
 
    // matching the parameters for the short notations
 	set_short_parameters();
@@ -59,7 +61,9 @@ void moc_edge::initialization(double pressure_initial)
 
 	// giving initial conditions
 	p.assign(nx,pressure_initial);
-	v.assign(nx,1.);
+	v.assign(nx,0.);
+	q_inner_start = 0.;
+	q_inner_end = 0.;
 	for(int i=0; i<nx; i++)
 	{	
 		// linear interpolation
@@ -103,23 +107,23 @@ void moc_edge::set_pressure_upstream(double p_in)
 }
 
 //--------------------------------------------------------------
-double moc_edge::new_timestep()
+void moc_edge::new_timestep()
 {
+	// left boundary
+	dt[0] = dx / (a[1]-v[1]);
+
 	// inner points
 	for(unsigned int i=1; i<nx-1; i++)
 	{
 		dt[i] = 2.*dx / (v[i-1]+a[i-1]-v[i+1]+a[i+1]);
 	}
 
-	// left boundary
-	dt[0] = dx / (a[1]-v[1]);
-
 	// right boundary
-	dt[nx-1] = dx / (a[nx-1]+v[nx-1]);
+	dt[nx-1] = dx / (a[nx-2]+v[nx-2]);
 
 	// finding the minimum time step
 	double dt_min = dt[0];
-	for(unsigned int i=0; i<nx; i++) // TODO: i=1 tol eleg
+	for(unsigned int i=0; i<nx; i++)
 	{
 		if(dt[i] < dt_min)
 		{
@@ -134,7 +138,7 @@ double moc_edge::new_timestep()
 		}
 	}
 
-	return dt_min;
+	dt_act = dt_min;
 } 
 
 //--------------------------------------------------------------
@@ -147,24 +151,15 @@ void moc_edge::solve()
 		// new field variables
 		vp[i] = (p[i-1]-p[i+1] + rho*(a[i-1]*v[i-1] + a[i+1]*v[i+1]) - dt[i]*rho*(a[i-1]*JL(i) + a[i+1]*JR(i))) / (rho*(a[i-1]+a[i+1]));
 		pp[i] = p[i+1] + rho*a[i+1]*(vp[i]-v[i+1]) + rho*a[i+1]*dt[i]*JR(i);
-
-		if(vp[i]>.9*a[i])
-		{
-			vp[i] = .9*a[i];
-		}
-		else if(vp[i]<-.9*a[i])
-		{
-			vp[i] = -.9*a[i];
-		}
 	}
 }
 
 //--------------------------------------------------------------
-void moc_edge::interpolate(double dt_real)
+void moc_edge::interpolate()
 {
 	// setting back dt-s at boundaries
-	dt[0]    = dt_real;
-	dt[nx-1] = dt_real;
+	dt[0]    = dt_act;
+	dt[nx-1] = dt_act;
 
 	// interpolation in space, position: xp, old time level
 	vq[0]    = v[0];
@@ -188,8 +183,8 @@ void moc_edge::interpolate(double dt_real)
 	// interpolation in time to new time level
 	for(unsigned int i=0; i<nx; i++)
 	{
-		vq[i] = vq[i] + dt_real/dt[i] * (vp[i]-vq[i]);
-		pq[i] = pq[i] + dt_real/dt[i] * (pp[i]-pq[i]);
+		vq[i] = vq[i] + dt_act/dt[i] * (vp[i]-vq[i]);
+		pq[i] = pq[i] + dt_act/dt[i] * (pp[i]-pq[i]);
 	}
 
 	// interpolation in space to equidistance grid
@@ -208,6 +203,48 @@ void moc_edge::interpolate(double dt_real)
 		{
 			v[i] = vq[i] + (x[i]-xp[i])/(xp[i+1]-xp[i])*(vq[i+1]-vq[i]);
 			p[i] = pq[i] + (x[i]-xp[i])/(xp[i+1]-xp[i])*(pq[i+1]-pq[i]);
+		}
+	}
+}
+
+//--------------------------------------------------------------
+void moc_edge::interpolate_hds()
+{
+	// interpolating along characteristic lines to dt_act
+	vector<double> vq2(2*nx-2),pq2(2*nx-2),xq2(2*nx-2);
+	xq2[0] = xp[0];
+	vq2[0] = vp[0];
+	pq2[0] = pp[0];
+	xq2[2*nx-3] = xp[nx-1];
+	vq2[2*nx-3] = vp[nx-1];
+	pq2[2*nx-3] = pp[nx-1];
+	dt[0]    = dt_act;
+	dt[nx-1] = dt_act;
+	for(int i=1; i<nx-1; i++)
+	{
+		double m = dt_act/dt[i];
+		xq2[2*i-1] = m*(xp[i]-x[i-1]) + x[i-1];
+		xq2[2*i]   = m*(xp[i]-x[i+1]) + x[i+1];
+		vq2[2*i-1] = m*(vp[i]-v[i-1]) + v[i-1];
+		vq2[2*i]   = m*(vp[i]-v[i+1]) + v[i+1];
+		pq2[2*i-1] = m*(pp[i]-p[i-1]) + p[i-1];
+		pq2[2*i]   = m*(pp[i]-p[i+1]) + p[i+1];
+	}
+
+	// interpolating back equidistant grid
+	v[0]    = vq2[0];
+	p[0]    = pq2[0];
+	v[nx-1] = vq2[2*nx-3];
+	p[nx-1] = pq2[2*nx-3];
+	for(int i=1; i<nx-1; i++)
+	{
+		for(int j=0; j<2*nx-2; j++)
+		{
+			if(x[i] > xq2[j] && x[i] <= xq2[j+1])
+			{
+				v[i] = vq2[j] + (x[i]-xq2[j])/(xq2[j+1]-xq2[j])*(vq2[j+1]-vq2[j]);
+				p[i] = pq2[j] + (x[i]-xq2[j])/(xq2[j+1]-xq2[j])*(pq2[j+1]-pq2[j]);
+			}
 		}
 	}
 }
@@ -509,17 +546,14 @@ double moc_edge::JL(int i)
 //--------------------------------------------------------------
 double moc_edge::JL(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
 {
-	// temp variable
+	// temp variable 
 	double dnp = dns + xp/l*(dne-dns);
 	double snp = sns + xp/l*(sne-sns);
 
-	double AL = ( (p-p0)*dnp*(2.*epsz+1)/(eta2*2.*snp) - E2/eta2*epsz2 )*exp(-E2/eta2*dt);
-
-	// geodetic height difference
-	double hp = hs + xp/l*(he-hs);
+	double AL = ( (p-p0)*dnp*(2.*epsz+1)/(eta2*snp) - 2.*E2/eta2*epsz2 )*exp(-E2/eta2*dt);
 
 	// output
-	double JL = g*(hp-h)/(xp-x) + 32.*nu*v/(d*d) + 2*a/(2.*epsz+1.)*AL;
+	double JL = g*(hs-he)/l + 32.*nu*v/(d*d) + a/(2.*epsz+1.)*AL;
 
 	return JL;
 }
@@ -538,13 +572,10 @@ double moc_edge::JR(double dt, double p, double v, double a, double epsz, double
 	double dnp = dns + xp/l*(dne-dns);
 	double snp = sns + xp/l*(sne-sns);
 
-	double AR = ( (p-p0)*dnp*(2.*epsz+1)/(eta2*2.*snp) - E2/eta2*epsz2 )*exp(-E2/eta2*dt);
-
-	// geodetic height difference
-	double hp = hs + xp/l*(he-hs);
+	double AR = ( (p-p0)*dnp*(2.*epsz+1)/(eta2*snp) - 2.*E2/eta2*epsz2 )*exp(-E2/eta2*dt);
 
 	// output
-	double JR = g*(hp-h)/(xp-x) + 32.*nu*v/(d*d) - 2.*a/(2.*epsz+1.)*AR;
+	double JR = g*(hs-he)/l + 32.*nu*v/(d*d) - a/(2.*epsz+1.)*AR;
 
 	return JR;
 }
@@ -562,10 +593,11 @@ double moc_edge::JB(double dt, double p, double v, double a, double epsz, double
 }
 
 //--------------------------------------------------------------
-void moc_edge::update_variables(double dt)
+void moc_edge::update_variables()
 {
-	double ex = exp(-E2/eta2*dt);
-	for(unsigned int i=0; i<epsz2.size(); i++)
+	time.push_back(time.back() + dt_act);
+	double ex = exp(-E2/eta2*dt_act);
+	for(unsigned int i=1; i<epsz2.size()-1; i++)
 	{	
 		update_ith_variables(i,ex,p[i],epsz2[i],epsz[i]);
 	}
@@ -675,21 +707,21 @@ vector<double> moc_edge::boundary_start_coefficients(double dt)
 	double xR = boundary_start_position(dt);
 
 	// interpolating fied variables to xR
-	double aR = (a[1]-a[0]) / x[1] * xR + a[0];
-	double vR = (v[1]-v[0]) / x[1] * xR + v[0];
-	double pR = (p[1]-p[0]) / x[1] * xR + p[0];
-	double dR = (d[1]-d[0]) / x[1] * xR + d[0];
+	double aR = (a[1]-a[0]) / (x[1]-x[0]) * xR + a[0];
+	double vR = (v[1]-v[0]) / (x[1]-x[0]) * xR + v[0];
+	double pR = (p[1]-p[0]) / (x[1]-x[0]) * xR + p[0];
+	double dR = (d[1]-d[0]) / (x[1]-x[0]) * xR + d[0];
 	double AR = dR*dR*pi/4.;
-	double hR = (h[1]-h[0]) / x[1] * xR + h[0];
-	double epszR = (epsz[1]-epsz[0]) / x[1] * xR + epsz[0];
-	double epsz2R = (epsz2[1]-epsz2[0]) / x[1] * xR + epsz2[0];
+	double hR = (h[1]-h[0]) / (x[1]-x[0]) * xR + h[0];
+	double epszR = (epsz[1]-epsz[0]) / (x[1]-x[0]) * xR + epsz[0];
+	double epsz2R = (epsz2[1]-epsz2[0]) / (x[1]-x[0]) * xR + epsz2[0];
 
 	// source term
 	double J = JR(dt, pR, vR, aR, epszR, epsz2R, dR, hR, xR, x[0]);
 
 	// C- characteristics constants
-	double C1m = 1. / (rho*aR + Rs*A[nx-1]) * A[0];
-	double C2m = aR/(aR + Rs/rho*A[nx-1]) * (-dt*J + vR - pR/(rho*aR)) * A[0];
+	double C1m = 1. / (rho*aR + Rs*A[0]) * A[0];
+	double C2m = aR/(aR + Rs/rho*A[0]) * (-dt*J + vR - pR/(rho*aR)) * A[0];
 
 	vector<double> out{C1m,C2m};
 	return out;
@@ -724,39 +756,80 @@ vector<double> moc_edge::boundary_end_coefficients(double dt)
 //--------------------------------------------------------------
 void moc_edge::boundary_start_variables(double dt, double p, double q)
 {
+	double dnp = dns;
+	double snp = sns;
+	double anp = sqrt(E1*snp / (rho*dnp));
+
+	//double epsz2_0 = (p-p0)*(2.*epsz[0]+1.)*(1.-ex) * dnp / (E2*2.*snp) + epsz2[0]*ex;
+	//double epsz_0  = epsz2_0 + (p-p0)*(2.*epsz[0]+1.) *dnp / (E1*2.*snp*pow(epsz[0]+1.,beta));
+	//double d_0     = dnp*(epsz_0+1.);
+	//double A_0     = d_0*d_0*pi/4.;
+
+	double ex = exp(-E2/eta2*dt_act);
+	update_ith_variables(0, ex, p, epsz2[0], epsz[0]);
+
 	vp[0] = q/A[0];
-	if(vp[0]>.9*a[0])
-	{
-		vp[0] = .9*a[0];
-	}
-	else if(vp[0]<-.9*a[0])
-	{
-		vp[0] = -.9*a[0];
-	}
 	pp[0] = p - Rs*q;
 }
 
 //--------------------------------------------------------------
 void moc_edge::boundary_end_variables(double dt, double p, double q)
 {
+	double dnp = dne;
+	double snp = sne;
+	double anp = sqrt(E1*snp / (rho*dnp));
+
+	//double epsz2_n = (p-p0)*(2.*epsz[nx-1]+1.)*(1.-ex) * dnp / (E2*2.*snp) + epsz2[nx-1]*ex;
+	//double epsz_n  = epsz2_n + (p-p0)*(2.*epsz[nx-1]+1.) *dnp / (E1*2.*snp*pow(epsz[nx-1]+1.,beta));
+	//double d_n     = dnp*(epsz_n+1.);
+	//double A_n     = d_n*d_n*pi/4.;
+
+	double ex = exp(-E2/eta2*dt_act);
+	update_ith_variables(nx-1, ex, p, epsz2[nx-1], epsz[nx-1]);
+
 	vp[nx-1] = q/A[nx-1];
-	if(vp[nx-1]>.9*a[nx-1])
-	{
-		vp[nx-1] = .9*a[nx-1];
-	}
-	else if(vp[nx-1]<-.9*a[nx-1])
-	{
-		vp[nx-1] = -.9*a[nx-1];
-	}
 	pp[nx-1] = p + Re*q;
 }
 
 //--------------------------------------------------------------
 double moc_edge::boundary_periferia(double dt, double p_out)
 {	
+	int k=0;
+	double p_e = p[nx-1], p_old = 0., v_e = 0., delta = 0.0001;
+	do
+	{	
+		p_old = p_e;
+		double f2 = f_perif(p_e*(1.+delta), p_out, dt, v_e);
+		double f = f_perif(p_e, p_out, dt, v_e);
+		double fd = (f2-f)/(p_e*delta);
+		p_e = p_e - f/fd;
+		k++;
+	}
+	while(abs(p_e-p_old) > 1e-5 && k<100);
+
+	if(k>=100)
+	{
+		cout << "Iteration did NOT converge at upstream_boundary_p, ID: " << ID << "\nExiting..." << endl;
+		exit(-1);
+	}
+
+	// update v_e with final p_e
+	f_perif(p_e, p_out, dt, v_e);
+
+	// update field variables
+	double ex = exp(-E2/eta2*dt_act);
+	update_ith_variables(nx-1, ex, p_e, epsz2[nx-1], epsz[nx-1]);
+
+	pp[nx-1] = p_e;
+	vp[nx-1] = v_e;
+	return v_e*A[nx-1];
+}
+
+//--------------------------------------------------------------
+double moc_edge::f_perif(double pp, double p_out, double dt, double &v_e)
+{
 	double xL = boundary_end_position(dt);
 
-	// interpolating fied variables to xR
 	double aL = (a[nx-2]-a[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + a[nx-1];
 	double vL = (v[nx-2]-v[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + v[nx-1];
 	double pL = (p[nx-2]-p[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + p[nx-1];
@@ -766,27 +839,24 @@ double moc_edge::boundary_periferia(double dt, double p_out)
 	double epszL = (epsz[nx-2]-epsz[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz[nx-1];
 	double epsz2L = (epsz2[nx-2]-epsz2[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz2[nx-1];
 
-	// source term
 	double J = JL(dt, pL, vL, aL, epszL, epsz2L, dL, hL, xL, x[nx-1]);
 
-	double v_e;
-	v_e = (vL - dt*J - (p_out-pL)/(rho*aL)) / (1.+Re/rho*A[nx-1]/aL);
-	vp[nx-1] = v_e;
+	v_e = vL - (pp-pL)/(rho*aL) - dt*J;
 
-	double p_e;
-	p_e = p_out + Re*A[nx-1]*v_e;
-	pp[nx-1] = p_e;
+	double ex = exp(-E2/eta2*dt_act);
+	double C1 = (2.*epsz[nx-1]+1.) *dne / (E1*2.*sne*pow(epsz[nx-1]+1.,beta)) + (2.*epsz[nx-1]+1.)*(1.-ex) * dne / (E2*2.*sne);
+	double C3 = epsz2[nx-1]*ex;
 
-	return v_e*A[nx-1];
+	double f = 4.*(pp-p_out) - Re*v_e*(dne*dne*pi*pow(C1*(pp-p0)+C3+1.,2));
+	return f;
 }
-
 
 //--------------------------------------------------------------
 double moc_edge::boundary_start_position(double dt)
 {
 	double dv = (v[1]-v[0]) / x[1];
 	double da = (a[1]-a[0]) / x[1];
-	double xR = dt*(a[0]-v[0]) / (1+dt*dv-dt*da);
+	double xR = dt*(a[0]-v[0]) / (1.+dt*dv-dt*da);
 	return xR;
 }
 
@@ -795,16 +865,49 @@ double moc_edge::boundary_end_position(double dt)
 {
 	double dv = (v[nx-1]-v[nx-2]) / (x[nx-1]-x[nx-2]);
 	double da = (a[nx-1]-a[nx-2]) / (x[nx-1]-x[nx-2]);
-	double xL = (x[nx-1] + dt*dv*x[nx-2] - dt*v[nx-2] + dt*da*x[nx-2] - dt*a[nx-2]) / (1 + dt*dv + dt*da);
+	double xL = x[nx-1] - dt*(v[nx-1]+a[nx-1]) / (1.+dt*da+dt*dv);
 	return xL;
 }
 
 //--------------------------------------------------------------
 double moc_edge::upstream_boundary_p(double dt, double p_in)
 {
+	int k=0;
+	double p_s = p[nx-1], p_old = 0., v_s = 0., delta = 0.0001;
+	do
+	{	
+		p_old = p_s;
+		double f2 = f_upstream_p(p_s*(1.+delta), p_in, dt, v_s);
+		double f = f_upstream_p(p_s, p_in, dt, v_s);
+		double fd = (f2-f)/(p_s*delta);
+		p_s = p_s - f/fd;
+		k++;
+	}
+	while(abs(p_s-p_old) > 1e-5 && k<100);
+
+	if(k>=100)
+	{
+		cout << "Iteration did NOT converge at upstream_boundary_p, ID: " << ID << "\nExiting..." << endl;
+		exit(-1);
+	}
+
+	// update v_s with final p_s
+	f_upstream_p(p_s, p_in, dt, v_s);
+
+	// update field variables
+	double ex = exp(-E2/eta2*dt_act);
+	update_ith_variables(0, ex, p_s, epsz2[0], epsz[0]);
+
+	vp[0] = v_s;
+	pp[0] = p_s;
+	return v_s*A[0];
+}
+
+//--------------------------------------------------------------
+double moc_edge::f_upstream_p(double pp, double p_in, double dt, double &v_s)
+{
 	double xR = boundary_start_position(dt);
 
-	// interpolating fied variables to xR
 	double aR = (a[1]-a[0]) / x[1] * xR + a[0];
 	double vR = (v[1]-v[0]) / x[1] * xR + v[0];
 	double pR = (p[1]-p[0]) / x[1] * xR + p[0];
@@ -814,24 +917,58 @@ double moc_edge::upstream_boundary_p(double dt, double p_in)
 	double hR = (h[1]-h[0]) / x[1] * xR + h[0];
 	double AR = dR*dR*pi/4.;
 
-	// source term
 	double J = JR(dt, pR, vR, aR, epszR, epsz2R, dR, hR, xR, x[0]);
 
-	double v = (vR+1./(rho*aR)*(p_in-pR)-dt*J) / (1.+Rs/rho*AR/aR);
-	vp[0] = v;
+	v_s = vR + (pp-pR)/(rho*aR) - dt*J;
 
-	double p = p_in - Rs*A[0]*v;
-	pp[0] = p;
+	double ex = exp(-E2/eta2*dt_act);
+	double C1 = (2.*epsz[0]+1.) *dns / (E1*2.*sns*pow(epsz[0]+1.,beta)) + (2.*epsz[0]+1.)*(1.-ex) * dns / (E2*2.*sns);
+	double C3 = epsz2[0]*ex;
 
-	return v*A[0];
+	double f = 4.*(p_in-pp) - Rs*v_s*(dns*dns*pi*pow(C1*(pp-p0)+C3+1.,2));
+	return f;
 }
 
 //--------------------------------------------------------------
 double moc_edge::upstream_boundary_q(double dt, double q_in)
 {
+	int k=0;
+	double p_s = p[nx-1], p_old = -10., v_s = 0., delta = 0.0001;
+	do
+	{	
+		p_old = p_s;
+		double f2 = f_upstream_q(p_s*(1.+delta), q_in, dt, v_s);
+		double f = f_upstream_q(p_s, q_in, dt, v_s);
+		double fd = (f2-f)/(p_s*delta);
+		p_s = p_s - f/fd;
+		k++;
+	}
+	while(abs(p_s-p_old) > 1e-5 && k<100);
+
+	if(k>=100)
+	{
+		cout << "Iteration did NOT converge at upstream_boundary_p, ID: " << ID << "\nExiting..." << endl;
+		exit(-1);
+	}
+
+	// update v_s with final p_s
+	f_upstream_q(p_s, q_in, dt, v_s);
+
+	// update field variables
+	double ex = exp(-E2/eta2*dt_act);
+	update_ith_variables(0, ex, p_s, epsz2[0], epsz[0]);
+
+	vp[0] = v_s;
+	pp[0] = p_s;
+
+	return pp[0];
+}
+
+//--------------------------------------------------------------
+double moc_edge::f_upstream_q(double pp, double q_in, double dt, double &v_s)
+{
 	double xR = boundary_start_position(dt);
 
-	// interpolating fied variables to xR
 	double aR = (a[1]-a[0]) / x[1] * xR + a[0];
 	double vR = (v[1]-v[0]) / x[1] * xR + v[0];
 	double pR = (p[1]-p[0]) / x[1] * xR + p[0];
@@ -841,17 +978,44 @@ double moc_edge::upstream_boundary_q(double dt, double q_in)
 	double hR = (h[1]-h[0]) / x[1] * xR + h[0];
 	double AR = dR*dR*pi/4.;
 
-	// source term
 	double J = JR(dt, pR, vR, aR, epszR, epsz2R, dR, hR, xR, x[0]);
 
-	// from BC
-	double v = q_in/A[0];
-	vp[0] = v;
+	v_s = vR + (pp-pR)/(rho*aR) - dt*J;
 
-	double p = pR + rho*aR*(dt*J + v - vR);
-	pp[0] = p;
+	double ex = exp(-E2/eta2*dt_act);
+	double C1 = (2.*epsz[0]+1.) *dns / (E1*2.*sns*pow(epsz[0]+1.,beta)) + (2.*epsz[0]+1.)*(1.-ex) * dns / (E2*2.*sns);
+	double C3 = epsz2[0]*ex;
 
-	return pp[0];
+	double f = q_in - v_s*dns*dns*0.25*pi*pow(C1*(pp-p0)+C3+1.,2);
+	return f;
+}
+
+//--------------------------------------------------------------
+double moc_edge::upstream_boundary_v(double dt, double v_in, double &q_in)
+{
+	double xR = boundary_start_position(dt);
+
+	double aR = (a[1]-a[0]) / x[1] * xR + a[0];
+	double vR = (v[1]-v[0]) / x[1] * xR + v[0];
+	double pR = (p[1]-p[0]) / x[1] * xR + p[0];
+	double dR = (d[1]-d[0]) / x[1] * xR + d[0];
+	double epszR = (epsz[1]-epsz[0]) / x[1] * xR + epsz[0];
+	double epsz2R = (epsz2[1]-epsz2[0]) / x[1] * xR + epsz2[0];
+	double hR = (h[1]-h[0]) / x[1] * xR + h[0];
+	double AR = dR*dR*pi/4.;
+
+	double J = JR(dt, pR, vR, aR, epszR, epsz2R, dR, hR, xR, x[0]);
+
+	vp[0] = v_in;
+	pp[0] = pR + rho*aR*(v_in-vR + dt*J);
+	double ex = exp(-E2/eta2*dt_act);
+	double C1 = (2.*epsz[0]+1.) *dns / (E1*2.*sns*pow(epsz[0]+1.,beta)) + (2.*epsz[0]+1.)*(1.-ex) * dns / (E2*2.*sns);
+	double C3 = epsz2[0]*ex;
+	double Ap = dns*dns*0.25*pi*pow(C1*(pp[0]-p0)+C3+1.,2);
+	q_in = Ap*v_in;
+	double p_in = Rs*q_in + pp[0];
+
+	return p_in;
 }
 
 //--------------------------------------------------------------
@@ -862,18 +1026,18 @@ void moc_edge::set_short_parameters()
    dne   = nominal_diameter_end;
    sns   = nominal_thickness_start;
    sne   = nominal_thickness_end;
-   eta2 = viscosity;
-   E1   = elasticity_spring;
-   E2   = elasticity_voigt;
-   Rs   = resistance_start;
-   Re   = resistance_end;
-   nx   = division_points;
-   g    = gravity;
-   rho  = density;
-   nu   = kinematic_viscosity;
-   hs   = geodetic_height_start;
-   he   = geodetic_height_end;
-   p0   = atmospheric_pressure;
+   eta2  = viscosity;
+   E1    = elasticity_spring;
+   E2    = elasticity_voigt;
+   Rs    = resistance_start;
+   Re    = resistance_end;
+   nx    = division_points;
+   g     = gravity;
+   rho   = density;
+   nu    = kinematic_viscosity;
+   hs    = geodetic_height_start;
+   he    = geodetic_height_end;
+   p0    = atmospheric_pressure;
 
    Ans   = dns*dns*pi/4.;
    Ane   = dne*dne*pi/4.;
@@ -882,3 +1046,14 @@ void moc_edge::set_short_parameters()
    ane   = sqrt(E1*sne / (rho*dne));
 }
 
+//--------------------------------------------------------------
+void moc_edge::print_vars()
+{
+	printf(" time: %8.5f\n",time.back());
+	printf(" pressure , velocity ,     a    \n");
+	for(int i=0; i<nx; i++)
+	{
+		printf(" %8.3f, %8.3f , %8.3f \n",p[i],v[i],a[i]);
+	}
+	printf("\n");
+}

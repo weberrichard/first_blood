@@ -22,6 +22,8 @@ void moc_node::initialization(double p_init)
 	// clearing time variables
    pressure.clear();
    volume_flow_rate.clear();
+   time.clear();
+   time.push_back(0.);
 
    // setting short versions of parameters
    set_short_parameters();
@@ -76,13 +78,22 @@ vector<double> moc_node::boundary_coefficients()
 }
 
 //--------------------------------------------------------------
-void moc_node::boundary_variables(double p)
+void moc_node::boundary_variables(double p, double tact)
 {
-	double Q = (p-p0)/R * Ri;
+	double q = (p-p0)/R * Ri;
 
 	if(do_save_memory)
 	{
+		time.push_back(tact);
 		pressure.push_back(p);
-		volume_flow_rate.push_back(Q);
+		volume_flow_rate.push_back(q);
 	}
+}
+
+//--------------------------------------------------------------
+void moc_node::save_field_variables(double t, double p, double q)
+{
+	time.push_back(t);
+	pressure.push_back(p);
+	volume_flow_rate.push_back(q);
 }

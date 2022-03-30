@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
 {
    // basic stuff
 	string case_folder = "../../models/";
-   vector<string> case_name{"Reymond_99_heart_2"};
+   vector<string> case_name{"Reymond_99_heart"};
 
    double save_dt = 1e-3;
    double heart_rate = 72.;  // if there is a heart model
@@ -18,14 +18,16 @@ int main(int argc, char* argv[])
    srand((unsigned int) time(0));
    clock_t ido = clock();
 
-   for(int i=0; i<case_name.size(); i++)
+   for(int I=0; I<case_name.size(); I++)
    {  
-      cout << "[*] case: " << case_name[i] << endl;
+      cout << "[*] case: " << case_name[I] << endl;
       // loading original case
-      first_blood *fb = new first_blood(case_folder + case_name[i]);
+      first_blood *fb = new first_blood(case_folder + case_name[I]);
       fb->time_end = sim_time;
       int heart_index = fb->lum_id_to_index("heart_kim");
       fb->lum[heart_index]->heart_rate = heart_rate;
+      fb->lum[heart_index]->edges[0]->parameter *= 1.1;
+      fb->lum[heart_index]->edges[2]->parameter *= 1.1;
 
       // lum model parameters
       vector<string> perif_id_brain{"p25","p26","p27","p28","p29","p30","p31","p32","p33","p34","p35","p36","p37","p38","p39","p40","p41","p42","p43","p44","p45","p46"};
@@ -34,8 +36,9 @@ int main(int argc, char* argv[])
       vector<string> perif_id_spine{"p18","p19","p20","p21","p22","p23","p24"};
       // organizing some stuff for loops
       vector<vector<string> > perif_id_lum{perif_id_hands,perif_id_legs,perif_id_spine,perif_id_brain};
-      vector<double> perif_res_orig{12.23,21.69,5.33,16.42};
+      vector<double> perif_res_orig{28.,30.,17.,27.};
       vector<double> perif_cap_orig{26.35,12.48,16.95,10.00};
+
       // setting perif
       for(int i=0; i<perif_id_lum.size(); i++)
       {
@@ -47,6 +50,11 @@ int main(int argc, char* argv[])
             fb->lum[idx]->edges[1]->parameter *= perif_res_orig[i];
             fb->lum[idx]->edges[2]->parameter *= perif_cap_orig[i];
          }
+      }
+
+      for(int i=0; i<fb->moc[0]->nodes.size(); i++)
+      {
+         fb->moc[0]->nodes[i]->resistance *= 35.;
       }
 
       // fielad variable for saving to memory / files

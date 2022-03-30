@@ -13,6 +13,7 @@
 #include "file_io.h"
 #include "moc_edge.h"
 #include "moc_node.h"
+#include "statistics.h"
 
 #include <sys/stat.h> // mkdir
 #include <algorithm>
@@ -30,6 +31,9 @@ public:
 	// type of edge: vis
 	string type;
 
+	// division points in overall in the moc model
+	int sum_division_points;
+
 	// outer nodes, i.e. outer boundaries to other models
 	vector<string> boundary_model_node;
 	vector<string> boundary_main_node;
@@ -39,7 +43,7 @@ public:
 	vector<moc_node*> nodes;
 
 	// number of elements
-	int number_of_nodes, number_of_edges, number_of_timesteps;
+	int number_of_nodes, number_of_edges;
 
 	// index of upstream boundary for interpolation
 	int index_upstream;
@@ -51,23 +55,25 @@ public:
 	// number of which period is the simulation
 	int period;
 
-	// simulation time
-	vector<double> time;
-
 	// giving initial conditions
 	void initialization(double pressure_initial);
 
 	// filling up nodes edge_in, edge_out
 	void build_system();
 
-	// handling the boundaries: upstream and inner BC nodes
-	void boundaries(double dt);
+	// handling the boundaries: upstream and inner BC nodes, edge_inner is -1 if not inner iteration
+	void boundaries(int edge_idx, double t_act);
+
+	// calculate initial timesteps
+	double timesteps(int &idx);
+	// searching the min timestep with idx
+	double min_time(int &idx);
 
 	// solving one time step, giving back actual time step
 	double solve_one_step();
 
 	// interpolate, save field vars
-	void post_process(double dt);
+	void post_process();
 	
 	// performing the backward calculation on edge_id elemment
 	void backward_solver(string node_id);
@@ -103,6 +109,8 @@ public:
 	int node_id_to_index(string node_id);	
 	// from id to index edges
 	int edge_id_to_index(string edge_id);
+	// finding all correspondning nodes to edges
+	vector<int> edge_to_node(vector<int> edge_idx);
 
 private:
 	// determining the downward tree from a node for the forward_solver, returning the indicies of edges

@@ -39,6 +39,9 @@ public:
 
 	// saving field variables
 	bool do_save_memory = true;
+
+	// time vector
+	vector<double> time;
 	
 	// pressure and volume_flow_rate in time
 	vector<double> pressure; // in time, Pa
@@ -51,10 +54,14 @@ public:
 
 	bool is_upstream_boundary = false; // for heart or upper boundary it is true
 	bool is_master_node = false; // if it is connected to an other model, e.g lumped model
+	int master_node_lum = -1; // index of lumped model if 
 
 	// for intersection points;
 	vector<double> boundary_coefficients();
-	void boundary_variables(double p);
+	void boundary_variables(double p, double tact);
+
+	// saving stuff to memory
+	void save_field_variables(double t, double p, double q);
 
 	// printing input parameters to console
 	void print_input();

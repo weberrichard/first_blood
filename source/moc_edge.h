@@ -65,6 +65,13 @@ public:
 	// saving field variables
 	bool do_save_memory = true;
 
+	// time step for inner iterations mainly
+	double dt_act; // s
+	vector<double> time; // s
+
+	// for inner time step iterations
+	double q_inner_start, q_inner_end;
+
 	// cointaining field variables in time
 	vector<double> pressure_start; // Pa
 	vector<double> pressure_end; // Pa
@@ -85,6 +92,8 @@ public:
 
 	// printing input parameters to console
 	void print_input();
+	void print_vars();
+
 	// setting initial condition to field variables and setting short parameters
 	void initialization(double p_init);
 	// setting upstream pressure p[0], only in the case of upstream_boundary
@@ -95,13 +104,14 @@ public:
 	// calculating the field variables at the new time step level
 	void solve();
 	// calculating the new timesteps for each division point
-	double new_timestep();
+	void new_timestep();
 	// interpolating in time and space to new timestep level to equidistant mesh
-	void interpolate(double dt_real);
+	void interpolate();
+	void interpolate_hds();
 	// saving start and end field variables to vectors in time
 	void save_field_variables();
 	// updatin every field variable (a,d,epsz, ...) from v and p at every point
-	void update_variables(double dt);
+	void update_variables();
 
 	//---------------------
 	// BOUNDARIES
@@ -122,6 +132,7 @@ public:
 	double upstream_boundary_p(double dt, double p_in);
 	// if the node is upstream vfr BC, this calculates the pressure
 	double upstream_boundary_q(double dt, double q_in);
+	double upstream_boundary_v(double dt, double v_in, double &q);
 
 	// [*] periferia points 
 	// for periferia points solving p=p0
@@ -132,7 +143,7 @@ public:
 	// calculating backward in the moc_edge, returning [t,p_up]
 	vector<vector<double> > backward_solver(vector<double> t_d, vector<double> p_d, vector<double> vfr_d);
 
-private:
+//private:
 	// variables for calculations of new field variables
 	vector<double> dt; // time step for each point
 	vector<double> x, xp, xq; // coordinates for field variables
@@ -168,7 +179,7 @@ private:
 
 	// short notations
 	double l, dns, dne, sns, sne, eta2, E1, E2, Rs, Re, g, rho, nu, dx, hs, he, ans, ane, p0, Ans, Ane;
-	int nx; // number of division points
+	unsigned int nx; // number of division points
 	void set_short_parameters(); // matching the longer and shorter parameters
 
 	// calculating temp variables for characteristics
@@ -186,6 +197,11 @@ private:
 
 	// updating the ith field variables
 	void update_ith_variables(int i, double ex, double p, double epsz2, double epsz);
+
+	// for inner iteration for pp of periferia boundary
+	double f_perif(double pp, double p_out, double dt, double &v_e);
+	double f_upstream_p(double pp, double p_in, double dt, double &v_s);
+	double f_upstream_q(double pp, double q_in, double dt, double &v_s);
 };
 
 #endif // MOC_EDGE_H

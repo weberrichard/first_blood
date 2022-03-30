@@ -34,16 +34,11 @@ void solver_moc::initialization(double p_init)
 	// also storing the initial pressure
 	pressure_initial = p_init;
 
-	// setting back time
-	time.clear();
-
-	if(time_upstream.size()>0)
+	// counting the number of division points
+	sum_division_points = 0;
+	for(unsigned int i=0; i<number_of_edges; i++)
 	{
-		time.push_back(time_upstream[0]);
-	}
-	else
-	{
-		time.push_back(0.);
+		sum_division_points += edges[i]->division_points;
 	}
 
 	// building up the topology
@@ -79,70 +74,31 @@ void solver_moc::build_system()
 }
 
 //--------------------------------------------------------------
-double solver_moc::solve_one_step()
+double solver_moc::timesteps(int &idx)
 {
 	// getting the real time step i.e. the minimum timestep from every edge
-	double dt_real=1.e10;
 	for(unsigned int j=0; j<forward_edges.size(); j++)
 	{
-		double dt=edges[forward_edges[j]]->new_timestep();
-		if(dt<dt_real)
-		{
-			dt_real = dt;
-		}
-	}
-	if(dt_real<0.)
-	{
-		printf("\n !WARNING! time step is negative: %6.3e during FORWARD calculation at time: %6.3f", dt_real, time.back());
-		cout << endl;
-		return -1.;
+		edges[forward_edges[j]]->new_timestep();
 	}
 
-	double new_time = time.back() + dt_real;
-	//if(new_time > time_end)
-	//{
-	//	dt_real = time_end - time.back();
-	//	new_time = time_end;
-	//}
-	time.push_back(new_time);
+	// getting the min timestep
+	double t_min = min_time(idx);
 
-	// calculating new pressure and velocity field in inner points
-	for(unsigned int j=0; j<forward_edges.size(); j++)
-	{
-		edges[forward_edges[j]]->solve();
-	}
-
-	// handling nodes i.e. boundaries conditions of edges
-	boundaries(dt_real);
-
-	return dt_real;
+	return t_min;
 }
 
 //--------------------------------------------------------------
-void solver_moc::post_process(double dt)
+void solver_moc::boundaries(int e_idx, double t_act)
 {
-	for(unsigned int j=0; j<forward_edges.size(); j++)
-	{
-		// interpolating to equidistant mesh
-		edges[forward_edges[j]]->interpolate(dt);
-		// updating every field variables
-		edges[forward_edges[j]]->update_variables(dt);
-		// saveing start and end points vars in time
-		if(edges[forward_edges[j]]->do_save_memory)
-		{
-			edges[forward_edges[j]]->save_field_variables();
-		}
-	}
-}
+	// find all neigbouring nodes
+	vector<int> node_idx{edges[e_idx]->node_index_start,edges[e_idx]->node_index_end};
 
-//--------------------------------------------------------------
-void solver_moc::boundaries(double dt)
-{
-	for(unsigned int i=0; i<forward_nodes.size(); i++)
+	for(unsigned int i=0; i<node_idx.size(); i++)
 	{
-		if(nodes[forward_nodes[i]]->is_master_node == false)
+		if(nodes[node_idx[i]]->is_master_node == false)
 		{
-			if(nodes[forward_nodes[i]]->is_upstream_boundary) // handling the upstream boundary
+			if(nodes[node_idx[i]]->is_upstream_boundary) // handling the upstream boundary
 			{
 				// finding the position for linear interpolation
 				int j=index_upstream;
@@ -156,7 +112,7 @@ void solver_moc::boundaries(double dt)
 						period += 1;
 					}
 
-					double t = time.back()-period*(time_upstream.back()-time_upstream[0]);
+					double t = t_act-period*(time_upstream.back()-time_upstream[0]);
 
 					if(t >= time_upstream[j] && t <= time_upstream[j+1])
 					{
@@ -175,47 +131,55 @@ void solver_moc::boundaries(double dt)
 				double t_h = time_upstream[index_upstream+1]; // time at higher index
 				double t_l = time_upstream[index_upstream]; // time at lower index
 
-				double t_in = time.back()-period*time_upstream.back(); // actual time of the simulation
+				double t_in = t_act-period*time_upstream.back(); // actual time of the simulation
 				double v_in = (v_h-v_l)/(t_h-t_l) * (t_in-t_l) + v_l; // actual pressure of the simulation
 
 				double q_in=0., p_in;
 				// there might be several outgoing edge from an upstream node
-				for(unsigned int j=0; j<nodes[forward_nodes[i]]->edge_out.size(); j++)
+				for(unsigned int j=0; j<nodes[node_idx[i]]->edge_out.size(); j++)
 				{
-					int edge_index = nodes[forward_nodes[i]]->edge_out[j];
+					int ei = nodes[node_idx[i]]->edge_out[j];
 					// calculating vp and pp values of edge
 					if(type_upstream == 0) // pressure BC
 					{
-						q_in += edges[edge_index]->upstream_boundary_p(dt, v_in);
+						double dt = edges[ei]->dt_act;
 						p_in = v_in; // v_in is pressure
+						q_in += edges[ei]->upstream_boundary_p(dt, p_in);
 					}
 					else if(type_upstream == 1) // vfr BC
 					{
-						p_in = edges[edge_index]->upstream_boundary_q(dt, v_in);
+						double dt = edges[ei]->dt_act;
+						p_in = edges[ei]->upstream_boundary_q(dt, v_in);
 						q_in += v_in; // v_in is volume flow rate
+					}
+					else if(type_upstream == 2) // v BC
+					{
+						double dt = edges[ei]->dt_act;
+						double q=0.;
+						p_in = edges[ei]->upstream_boundary_v(dt, v_in, q);
+						q_in += q; // v_in is volume flow rate
 					}
 				}
 
-				if(nodes[forward_nodes[i]]->do_save_memory)
+				if(nodes[node_idx[i]]->do_save_memory)
 				{
-					nodes[forward_nodes[i]]->pressure.push_back(p_in);
-					nodes[forward_nodes[i]]->volume_flow_rate.push_back(q_in);
+					nodes[node_idx[i]]->save_field_variables(t_act,p_in,q_in);
 				}
 			}
-			else if(nodes[forward_nodes[i]]->type_code == 1) // perifera
+			else if(nodes[node_idx[i]]->type_code == 1) // perifera
 			{
 				// there can be only one incoming edge
-				int edge_index = nodes[forward_nodes[i]]->edge_in[0];
-				double p_out = nodes[forward_nodes[i]]->pressure_out;
+				int edge_index = nodes[node_idx[i]]->edge_in[0];
+				double dt = edges[edge_index]->dt_act;
+				double p_out = nodes[node_idx[i]]->pressure_out;
 				double q_out = edges[edge_index]->boundary_periferia(dt,p_out);
 
-				if(nodes[forward_nodes[i]]->do_save_memory)
+				if(nodes[node_idx[i]]->do_save_memory)
 				{
-					nodes[forward_nodes[i]]->pressure.push_back(p_out);
-					nodes[forward_nodes[i]]->volume_flow_rate.push_back(q_out);
+					nodes[node_idx[i]]->save_field_variables(t_act,p_out,q_out);
 				}
 			}
-			else if(nodes[forward_nodes[i]]->type_code == 0) // junctions
+			else if(nodes[node_idx[i]]->type_code == 0) // junctions
 			{
 				// first the node pressure is calculated
 
@@ -223,57 +187,95 @@ void solver_moc::boundaries(double dt)
 				double num=0., denum=0.;
 
 				// leakage part if there is, otherwise nb=[0,0]
-				vector<double> nb = nodes[forward_nodes[i]]->boundary_coefficients();
+				vector<double> nb = nodes[node_idx[i]]->boundary_coefficients();
 				num += nb[0];
 				denum += nb[1];
 
-				// handling edges
-
 				// for saving edge coefs
-				vector<vector<double> > edge_coefs_in, edge_coefs_out;
-
+				vector<double> edge_coefs_in(2,0.), edge_coefs_out(2,0.);
 				// ingoing edges
-				for(unsigned int j=0; j<nodes[forward_nodes[i]]->edge_in.size(); j++)
+				for(unsigned int j=0; j<nodes[node_idx[i]]->edge_in.size(); j++)
 				{
-					int edge_index = nodes[forward_nodes[i]]->edge_in[j];
+					int edge_index = nodes[node_idx[i]]->edge_in[j];
+					double dt = t_act - edges[edge_index]->time.back();
 					vector<double> eb = edges[edge_index]->boundary_end_coefficients(dt);
 					num   -= eb[1];
 					denum += eb[0];
-					edge_coefs_in.push_back(eb);
+					if(edge_index == e_idx)
+					{
+						edge_coefs_in = eb;
+					}
 				}
 
 				// outgoing edges
-				for(unsigned int j=0; j<nodes[forward_nodes[i]]->edge_out.size(); j++)
+				for(unsigned int j=0; j<nodes[node_idx[i]]->edge_out.size(); j++)
 				{
-					int edge_index = nodes[forward_nodes[i]]->edge_out[j];
+					int edge_index = nodes[node_idx[i]]->edge_out[j];
+					double dt = t_act - edges[edge_index]->time.back();
 					vector<double> eb = edges[edge_index]->boundary_start_coefficients(dt);
 					num   += eb[1];
 					denum -= eb[0];
-					edge_coefs_out.push_back(eb);
+					if(edge_index == e_idx)
+					{
+						edge_coefs_out = eb;
+					}
 				}
 
 				// nodal pressure
 				double p_nodal = num/denum;
-				nodes[forward_nodes[i]]->boundary_variables(p_nodal);
 
-				double q_nodal = 0.0;
+				nodes[node_idx[i]]->boundary_variables(p_nodal,t_act);
+
 				// edge velocity and pressure
-				for(unsigned int j=0; j<nodes[forward_nodes[i]]->edge_in.size(); j++)
+				if(i==1) // end node
 				{
-					double q = edge_coefs_in[j][0]*p_nodal + edge_coefs_in[j][1];
-					q_nodal += q; 
-					int edge_index = nodes[forward_nodes[i]]->edge_in[j];
-					edges[edge_index]->boundary_end_variables(dt,p_nodal,q);
+					double q = edge_coefs_in[0]*p_nodal + edge_coefs_in[1];
+					//double dt = t_act - edges[e_idx]->time.back();
+					double dt = edges[e_idx]->dt_act;
+					edges[e_idx]->boundary_end_variables(dt,p_nodal,q);
 				}
-
-				for(unsigned int j=0; j<nodes[forward_nodes[i]]->edge_out.size(); j++)
+				else // start node
 				{
-					double q = edge_coefs_out[j][0]*p_nodal + edge_coefs_out[j][1];
-					q_nodal -= q;
-					int edge_index = nodes[forward_nodes[i]]->edge_out[j];
-					edges[edge_index]->boundary_start_variables(dt,p_nodal,q);
+					double q = edge_coefs_out[0]*p_nodal + edge_coefs_out[1];
+					//double dt = t_act - edges[e_idx]->time.back();
+					double dt = edges[e_idx]->dt_act;
+					edges[e_idx]->boundary_start_variables(dt,p_nodal,q);
 				}
 			}
+		}
+	}
+}
+
+//--------------------------------------------------------------
+double solver_moc::min_time(int &idx)
+{
+	double t_min = 1.e10;
+	idx = -1;
+	for(unsigned int j=0; j<forward_edges.size(); j++)
+	{
+		if(t_min > edges[forward_edges[j]]->time.back()+edges[forward_edges[j]]->dt_act)
+		{
+			t_min = edges[forward_edges[j]]->time.back()+edges[forward_edges[j]]->dt_act;
+			idx = forward_edges[j];
+		}
+	}
+
+	return t_min;
+}
+
+//--------------------------------------------------------------
+void solver_moc::post_process()
+{
+	for(unsigned int j=0; j<forward_edges.size(); j++)
+	{
+		// interpolating to equidistant mesh
+		edges[forward_edges[j]]->interpolate();
+		// updating every field variables
+		edges[forward_edges[j]]->update_variables();
+		// saveing start and end points vars in time
+		if(edges[forward_edges[j]]->do_save_memory)
+		{
+			edges[forward_edges[j]]->save_field_variables();
 		}
 	}
 }
@@ -499,6 +501,27 @@ int solver_moc::edge_id_to_index(string edge_id)
 		cout << "\n!!!WARNING!!!\n solver_moc::edge_id_to_index function\n Node is not existing, edge_id: " << edge_id << "\n Continouing..." << endl;
 	}
 	return idx;
+}
+
+//--------------------------------------------------------------
+vector<int> solver_moc::edge_to_node(vector<int> edge_idx)
+{
+	vector<bool> node_bool(number_of_nodes,false);
+	for(unsigned int i=0; i<edge_idx.size(); i++)
+	{
+		node_bool[edges[i]->node_index_start] = true;
+		node_bool[edges[i]->node_index_end] = true;
+	}
+
+	vector<int> node_idx;
+	for(unsigned int i=0; i<number_of_nodes; i++)
+	{
+		if(node_bool[i])
+		{
+			node_idx.push_back(i);
+		}
+	}
+	return node_idx;
 }
 
 //--------------------------------------------------------------
