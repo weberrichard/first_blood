@@ -50,6 +50,8 @@ public:
 
 	// save model to file
 	void save_model(string model_name, string folder_name);
+	void save_initials(string model_name, string folder_name);
+	void load_initials();
 
 	// name of the model
 	string name;

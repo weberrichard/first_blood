@@ -372,11 +372,14 @@ void solver_moc::save_results(double dt, string folder_name, vector<string> edge
 void solver_moc::save_model(string model_name, string folder_name)
 {
 	// saving the input pt series first
-	save_pt_series(model_name, folder_name);
+	if(time_upstream.size()>0)
+	{
+		save_pt_series(model_name, folder_name);
+	}
 
 	// saving the model
 	FILE* out_file;
-   string file_name = folder_name + model_name + "/" + name + ".csv";
+   string file_name = folder_name + "/" + model_name + "/" + name + ".csv";
 	out_file = fopen(file_name.c_str(),"w");
 
 	// saving edges
@@ -412,10 +415,9 @@ void solver_moc::save_model(string model_name, string folder_name)
 void solver_moc::save_pt_series(string model_name, string folder_name)
 {
 	FILE* out_file;
-   string file_name = folder_name + model_name + "/" + pt_file_name + ".csv";
+   string file_name = folder_name + "/" + model_name + "/" + pt_file_name + ".csv";
 	out_file = fopen(file_name.c_str(),"w");
 
-	// TODO conv
 	if(type_upstream == 0)
 	{
 		for(int i=0; i<time_upstream.size(); i++)
@@ -435,4 +437,60 @@ void solver_moc::save_pt_series(string model_name, string folder_name)
    
    fclose(out_file);
 
+}
+
+//--------------------------------------------------------------
+void solver_moc::save_initials(string model_name, string folder_name)
+{
+   string file_name = folder_name + "/" + model_name + "/init/" + name + ".csv";
+
+	FILE* out_file;
+	out_file = fopen(file_name.c_str(),"w");
+
+	for(int i=0; i<number_of_edges; i++)
+	{
+		edges[i]->save_initials(out_file);
+	}
+
+   fclose(out_file);
+}
+
+//--------------------------------------------------------------
+void solver_moc::load_initials()
+{
+	ifstream file_in;
+	string file_name = input_folder_path + "/init/" + name + ".csv";
+	file_in.open(file_name);
+	string line;
+	if(file_in.is_open())
+	{
+		while(getline(file_in,line))
+		{
+			// clearing spaces and \n
+			line.erase(remove(line.begin(), line.end(), ' '), line.end());
+			line.erase(remove(line.begin(), line.end(), '\n'), line.end());
+			line.erase(remove(line.begin(), line.end(), '\r'), line.end());
+
+			// seperating the strings by comma
+			vector<string> sv = separate_line(line);
+
+			if(sv.size()>0)
+			{
+				string id = sv[0];
+				int idx = edge_id_to_index(id);
+				vector<double> ic(sv.size()-1);
+				for(int i=0; i<ic.size(); i++)
+				{
+					ic[i] = stod(sv[i+1],0);
+				}
+				edges[idx]->set_initials(ic);
+			}
+		}
+	}
+	else
+	{
+		cout << "! ERROR !" << endl << " File is not open when calling load_initials() function!!! file: " << file_name << "\nExiting..." << endl;
+		exit(-1);
+	}
+	file_in.close();
 }

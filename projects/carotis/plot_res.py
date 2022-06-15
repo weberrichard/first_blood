@@ -8,11 +8,11 @@ import numpy as np
 
 case = 'Carotis_1'
 model = 'carotis'
-element = ['A5','A13','A12']
+element = ['A5','A13','A12','A12x']
 
 mmHg_to_Pa = 133.3616
 
-start = [0,1,1]
+start = [1,0,0,0]
 
 plt.figure()
 for i in range(0,len(element)):
@@ -22,14 +22,15 @@ for i in range(0,len(element)):
 	p = (data[2-start[i]]-1e5)/mmHg_to_Pa;
 	q = data[6-start[i]]*1e6;
 	v = data[4-start[i]];
+	d = data[10-start[i]];
 	a = data[16-start[i]];
 	#p = (data[1]-1e5)/mmHg_to_Pa;
 	#q = data[2]*1e6
-	plt.plot(t,v, linewidth=2)
+	plt.plot(t,d,linewidth=2)
 
 
 plt.xlabel('time [s]', fontsize=14)
 plt.ylabel('velocity [m/s]', fontsize=14)
 plt.grid()
-plt.legend(element, fontsize=14)
+plt.legend(['CCA','ECA','ICA','ICAsten'], fontsize=14)
 plt.show()

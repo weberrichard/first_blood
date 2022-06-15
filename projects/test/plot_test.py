@@ -9,8 +9,8 @@ from scipy.interpolate import interp1d
 
 case = 'Reymond_99_heart'
 model = 'arterial'
-edge = ['A1','A2']
-node = []
+edge = []
+node = ['H','N32','N6']
 
 mmHg_to_Pa = 133.3616
 
@@ -30,7 +30,7 @@ for i in range(0,len(edge)):
 	d = data[10-start[i]];
 	#p = (data[1]-1e5)/mmHg_to_Pa;
 	#q = data[2]*1e6
-	plt.plot(t,q,marker[i],markersize=5, linewidth=1.5)
+	plt.plot(t,p,marker[i],markersize=4, linewidth=1.2)
 
 for i in range(0,len(node)):
 	# cardiac output
@@ -38,7 +38,7 @@ for i in range(0,len(node)):
 	t = data[0]
 	p = (data[1]-1e5)/mmHg_to_Pa;
 	q = data[2];
-	plt.plot(t,p,'p',markersize=5, linewidth=1.5)
+	plt.plot(t,p,'p',markersize=4, linewidth=1.2)
 
 plt.xlabel('time [s]', fontsize=14)
 plt.ylabel('pressure [mmHg]', fontsize=14)

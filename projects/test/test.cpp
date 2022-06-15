@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
 {
    // basic stuff
 	string case_folder = "../../models/";
-   vector<string> case_name{"Reymond_99_heart"};
+   vector<string> case_name{"Reymond_99_heart_2"};
 
    double save_dt = 1e-3;
    double heart_rate = 72.;  // if there is a heart model

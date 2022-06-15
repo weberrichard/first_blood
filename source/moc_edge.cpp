@@ -62,8 +62,6 @@ void moc_edge::initialization(double pressure_initial)
 	// giving initial conditions
 	p.assign(nx,pressure_initial);
 	v.assign(nx,0.);
-	q_inner_start = 0.;
-	q_inner_end = 0.;
 	for(int i=0; i<nx; i++)
 	{	
 		// linear interpolation
@@ -107,7 +105,7 @@ void moc_edge::set_pressure_upstream(double p_in)
 }
 
 //--------------------------------------------------------------
-void moc_edge::new_timestep()
+bool moc_edge::new_timestep()
 {
 	// left boundary
 	dt[0] = dx / (a[1]-v[1]);
@@ -129,16 +127,18 @@ void moc_edge::new_timestep()
 		{
 			dt_min = dt[i];
 		}
-		if(dt[i]<0)
+		if(dt[i]<0.)
 		{
 			cout << " Negative time step in edge: " << name << " , at i " << i << "-th inner node, dt: " << dt[i] << endl;
 			cout <<  " velocity:      " << v[i] << endl;
 			cout <<  " wave velocity: " << a[i] << endl;
 			cout <<  " pressure:      " << p[i] << endl;
+			return false;
 		}
 	}
 
 	dt_act = dt_min;
+	return true;
 } 
 
 //--------------------------------------------------------------
@@ -1057,3 +1057,72 @@ void moc_edge::print_vars()
 	}
 	printf("\n");
 }
+
+//--------------------------------------------------------------
+void moc_edge::save_initials(FILE* out_file)
+{
+   double ps = p[0];
+   double pe = p[nx-1];
+   double vs = v[0];
+   double ve = v[nx-1];
+   double ds = d[0];
+   double de = d[nx-1];
+   double epszs = epsz[0];
+   double epsze = epsz[nx-1];
+   double epsz2s = epsz2[0];
+   double epsz2e = epsz2[nx-1];
+   double as = a[0];
+   double ae = a[nx-1];
+
+   fprintf(out_file, "%8s, %9.7e, %9.7e, %9.7e, %9.7e,  %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",ID.c_str(),ps,pe,vs,ve,ds,de,epszs,epsze,epsz2s,epsz2e,as,ae);
+}
+
+//--------------------------------------------------------------
+void moc_edge::set_initials(vector<double> ic)
+{
+	pressure_start.clear();
+   pressure_end.clear();
+   velocity_start.clear();
+   velocity_end.clear();
+   wave_velocity_start.clear();
+   wave_velocity_end.clear();
+   total_deformation_start.clear();
+   total_deformation_end.clear();
+   damper_deformation_start.clear();
+   damper_deformation_end.clear();
+   diameter_start.clear();
+   diameter_end.clear();
+   volume_flow_rate_start.clear();
+   volume_flow_rate_end.clear();
+   mass_flow_rate_start.clear();
+   mass_flow_rate_end.clear();
+
+	p.clear();      p.resize(nx);
+	v.clear();      v.resize(nx);
+	a.clear();      a.resize(nx);
+	d.clear();      d.resize(nx);
+	A.clear();      A.resize(nx);
+	epsz.clear();   epsz.resize(nx);
+	epsz2.clear();  epsz2.resize(nx);
+
+	for(int i=0; i<nx; i++)
+	{	
+		double a0 = 1. - (double)i/((double)nx-1.);
+		double a1 = (double)i / ((double)nx - 1.);
+
+		p[i] = a0*ic[0] + a1*ic[1];
+		v[i] = a0*ic[2] + a1*ic[3];
+		d[i] = a0*ic[4] + a1*ic[5];
+		epsz[i] = a0*ic[6] + a1*ic[7];
+		epsz2[i] = a0*ic[8] + a1*ic[9];
+		a[i] = a0*ic[10] + a1*ic[11];
+		A[i] = d[i]*d[i]*pi*.25;
+	}
+
+	// saving initial conditions
+	if(do_save_memory)
+	{
+		save_field_variables();
+	}
+}
+

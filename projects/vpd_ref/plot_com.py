@@ -7,8 +7,10 @@ import pandas as pd
 
 cases = ['Reymond_99_heart','Reymond_99_heart']
 models = 'arterial'
+elements = ['H','n8']
 
-elements = ['A1','A8']
+#models = 'heart_kim'
+#elements = ['aorta','left-ventricular']
 
 mmHg_to_Pa = 133.3616
 
@@ -17,22 +19,22 @@ start = 1
 plt.figure()
 data = pd.read_csv("results\\" + cases[0] + "\\" + models + "\\" + elements[0] + ".txt",header=None)
 t = data[0]
-p = (data[2-start]-1e5)/mmHg_to_Pa;
-q = data[6-start]*1e6*60;
-v = data[4-start];
-a = data[16-start];
-#p = (data[1]-1e5)/mmHg_to_Pa;
+#p = (data[2-start]-1e5)/mmHg_to_Pa;
+#q = data[6-start]*1e6*60;
+#v = data[4-start];
+#a = data[16-start];
+p = (data[1]-1e5)/mmHg_to_Pa;
 plt.plot(t,p)
 
-start = 0
+start = 1
 
 data = pd.read_csv("results\\" + cases[1] + "\\" + models + "\\" + elements[1] + ".txt",header=None)
 t = data[0]
-p = (data[2-start]-1e5)/mmHg_to_Pa;
-q = data[6-start]*1e6*60;
-v = data[4-start];
-a = data[16-start];
-#p = (data[1]-1e5)/mmHg_to_Pa;
+#p = (data[2-start]-1e5)/mmHg_to_Pa;
+#q = data[6-start]*1e6*60;
+#v = data[4-start];
+#a = data[16-start];
+p = (data[1]-1e5)/mmHg_to_Pa;
 #q = data[2]*1e6
 plt.plot(t,p)
 

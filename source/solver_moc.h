@@ -105,6 +105,10 @@ public:
 	void save_model(string model_name, string folder_name);
 	void save_pt_series(string model_name, string folder_name);
 
+	// saving last values for further initial conditions
+	void save_initials(string model_name, string folder_name);
+	void load_initials();
+
 	// from id to index nodes
 	int node_id_to_index(string node_id);	
 	// from id to index edges

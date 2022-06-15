@@ -263,7 +263,7 @@ void solver_lumped::save_results(double dt, string folder_name, vector<string> e
 void solver_lumped::save_model(string model_name, string folder_name)
 {
    FILE *out_file;
-   string file_name = folder_name + model_name + "/" + name + ".csv";
+   string file_name = folder_name + "/" + model_name + "/" + name + ".csv";
 	out_file = fopen(file_name.c_str(),"w");
 
 	// writing edges data to file
@@ -286,3 +286,75 @@ void solver_lumped::save_model(string model_name, string folder_name)
    fclose(out_file);
 }
 
+//--------------------------------------------------------------
+void solver_lumped::save_initials(string model_name, string folder_name)
+{
+   string file_name = folder_name + "/" + model_name + "/init/" + name + ".csv";
+
+	FILE* out_file;
+	out_file = fopen(file_name.c_str(),"w");
+
+	for(int i=0; i<number_of_edges; i++)
+	{	
+		double vfr = edges[i]->vfr/1.e6; // convert ml/s to m3/s
+		fprintf(out_file, "edge, %s, %9.7e\n",edges[i]->name.c_str(),vfr);
+	}
+
+	for(int i=0; i<number_of_nodes; i++)
+	{
+		double p = nodes[i]->p*mmHg_to_Pa; // convert mmHg to Pa
+		fprintf(out_file, "node, %s, %9.7e\n",nodes[i]->name.c_str(),p);
+	}
+
+   fclose(out_file);
+}
+
+//--------------------------------------------------------------
+void solver_lumped::load_initials()
+{
+	ifstream file_in;
+	string file_name = input_folder_path + "/init/" + name + ".csv";
+	file_in.open(file_name);
+	string line;
+	if(file_in.is_open())
+	{
+		double p_conv = 1./(mmHg_to_Pa*elastance(0.));
+		while(getline(file_in,line))
+		{
+			// clearing spaces and \n
+			line.erase(remove(line.begin(), line.end(), ' '), line.end());
+			line.erase(remove(line.begin(), line.end(), '\n'), line.end());
+			line.erase(remove(line.begin(), line.end(), '\r'), line.end());
+			
+			// seperating the strings by comma
+			vector<string> sv = separate_line(line);
+
+			if(sv.size()>0)
+			{
+				if(sv[0] == "edge")
+				{
+					int idx = edge_id_to_index(sv[1]);
+					double vfr = stod(sv[2],0); // m3/s
+					edges[idx]->volume_flow_rate.clear();
+					edges[idx]->volume_flow_rate.push_back(vfr);
+					edges[idx]->vfr = vfr*1.e6; // to ml/s
+				}
+				else if(sv[0] == "node")
+				{
+					int idx = node_id_to_index(sv[1]);
+					double p = stod(sv[2],0); // Pa
+					nodes[idx]->pressure.clear();
+					nodes[idx]->pressure.push_back(p);
+					nodes[idx]->p = p/mmHg_to_Pa; // to mmHg
+					nodes[idx]->y = p*p_conv;
+				}
+			}
+		}
+	}
+	else
+	{
+		cout << "! ERROR !" << endl << " File is not open when calling load_initials() function!!! file: " << file_name << "\nExiting..." << endl;
+		exit(-1);
+	}
+	file_in.close();
+}

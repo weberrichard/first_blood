@@ -177,10 +177,15 @@ bool first_blood::load_main_csv()
 //--------------------------------------------------------------
 bool first_blood::run()
 {
-	bool is_run_ok;	
+	bool is_run_ok;
 
 	// initialization of the whole model with mocs and lums
 	initialization();
+
+	if(init_from_file)
+	{
+		load_initials();
+	}
 
 	if(run_type == "forward") // simple forward calculation
 	{
@@ -199,17 +204,18 @@ bool first_blood::run()
 			double t = moc[i]->timesteps(e_idx);
 		}
 		double t_act = lowest_new_time(moc_idx, e_idx);
-
+		double t_old = -1.e10;
 
 		// main cycle
-		while(time_counter > 0)
+		while(!is_run_end(t_act,t_old) && is_run_ok)
 		{
 			// solving lowest edge inner points
 			moc[moc_idx]->edges[e_idx]->solve();
 
-			// boundaries (inner + lumped if it is)
+			// boundaries (inner)
 			moc[moc_idx]->boundaries(e_idx, t_act);
 
+			// boundaries with 0D if exist
 			int si = moc[moc_idx]->edges[e_idx]->node_index_start;
 			if(moc[moc_idx]->nodes[si]->is_master_node)
 			{
@@ -235,9 +241,10 @@ bool first_blood::run()
 			}
 
 			// new timestep
-			moc[moc_idx]->edges[e_idx]->new_timestep();
+			is_run_ok = moc[moc_idx]->edges[e_idx]->new_timestep();
 
 			// find new lowest timestep
+			t_old = t_act;
 			t_act = lowest_new_time(moc_idx, e_idx);
 
 			// decreasing time_counter if it passed t_end
@@ -304,18 +311,86 @@ void first_blood::solve_lum(int index, double dt)
 //--------------------------------------------------------------
 double first_blood::lowest_new_time(int &moc_idx, int &e_idx)
 {
-	double tact=1.e10;
+	double t_act=1.e10;
 	for(int i=0; i<number_of_moc; i++)
 	{
 		double t = moc[i]->min_time(e_idx);
-		if(t<tact)
+		if(t<t_act)
 		{
-			tact = t;
+			t_act = t;
 			moc_idx = i;
 		}
 	}
 
-	return tact;
+	return t_act;
+}
+
+//--------------------------------------------------------------
+bool first_blood::is_run_end(double t_act, double t_old)
+{
+	if(is_periodic_run)
+	{
+		if(t_act<time_end_min)
+		{
+			return false;
+		}
+		else if(t_act>time_end_max)
+		{
+			time_end = time_end_max;
+			return true;
+		}
+		else
+		{
+			int n=0;
+			double t = t_act;
+			while(t >= time_period)
+			{
+				t -= time_period;
+				n++;
+			}
+
+ 			// checking the end of a cycle
+ 			if((double)n*time_period>=t_old && (double)n*time_period<t_act)
+ 			{
+				int idx = moc[0]->node_id_to_index(time_node);
+				if(time_var == "P")
+				{
+					double val = (systole(moc[0]->nodes[idx]->pressure, moc[0]->nodes[idx]->time, (n-1.)*time_period)-atmospheric_pressure)/mmHg_to_Pa;
+					if(abs((val-time_val_old)/time_val_old)<.0001)
+					{
+						time_end = t_act;
+						return true;
+					}
+					else
+					{
+						time_val_old = val;
+						return false;
+					}
+				}
+				else
+				{
+					cout << "\n time_var: " << time_var << " is not valid, avaialble: P" << endl;
+					time_end = t_act;
+					return true;
+				}
+ 			}
+ 			else
+ 			{
+ 				return false;
+ 			}
+		}
+	}
+	else
+	{
+		if(time_counter>0)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -341,6 +416,13 @@ void first_blood::initialization()
 
 	// setting master nodes
 	build_master();
+
+	// making sure time_node is saved
+	if(moc.size()>0)
+	{
+		vector<string> el, nl{"H"};
+	   set_save_memory(moc[0]->name,"moc",el,nl);
+	}
 }
 
 //--------------------------------------------------------------
@@ -501,7 +583,7 @@ void first_blood::save_model(string model_name)
 void first_blood::save_model(string model_name, string folder_name)
 {
    mkdir(folder_name.c_str(),0777);
-   mkdir((folder_name+model_name).c_str(),0777);
+   mkdir((folder_name+"/"+model_name).c_str(),0777);
 
 	// saving moc models
 	for(int i=0; i<number_of_moc; i++)
@@ -517,7 +599,7 @@ void first_blood::save_model(string model_name, string folder_name)
 
 	// saving main model TODO
 	FILE *out_file;
-	string file_name = folder_name + model_name + "/main.csv";
+	string file_name = folder_name + "/" + model_name + "/main.csv";
 	out_file = fopen(file_name.c_str(),"w");
 
 	fprintf(out_file, "run,forward\n");
@@ -612,4 +694,36 @@ int first_blood::lum_id_to_index(string lum_id)
 		cout << "\n !!!WARNING!!!\n solver_moc::lum_id_to_index function\nLum model is not existing, lum_id: " << lum_id << "\n Continouing..." << endl;
 	}
 	return idx;
+}
+
+//--------------------------------------------------------------
+void first_blood::save_initials(string model_name, string folder_name)
+{
+   mkdir(folder_name.c_str(),0777);
+   mkdir((folder_name+"/"+model_name).c_str(),0777);
+   mkdir((folder_name+"/"+model_name+"/init").c_str(),0777);
+
+   for(int i=0; i<number_of_moc; i++)
+   {
+   	moc[i]->save_initials(model_name, folder_name);
+   }
+
+   for(int i=0; i<number_of_lum; i++)
+   {
+   	lum[i]->save_initials(model_name, folder_name);
+   }
+}
+
+//--------------------------------------------------------------
+void first_blood::load_initials()
+{
+	for(int i=0; i<number_of_moc; i++)
+	{
+		moc[i]->load_initials();
+	}
+
+	for(int i=0; i<number_of_lum; i++)
+	{
+		lum[i]->load_initials();
+	}
 }

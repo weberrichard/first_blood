@@ -69,9 +69,6 @@ public:
 	double dt_act; // s
 	vector<double> time; // s
 
-	// for inner time step iterations
-	double q_inner_start, q_inner_end;
-
 	// cointaining field variables in time
 	vector<double> pressure_start; // Pa
 	vector<double> pressure_end; // Pa
@@ -104,7 +101,7 @@ public:
 	// calculating the field variables at the new time step level
 	void solve();
 	// calculating the new timesteps for each division point
-	void new_timestep();
+	bool new_timestep();
 	// interpolating in time and space to new timestep level to equidistant mesh
 	void interpolate();
 	void interpolate_hds();
@@ -112,6 +109,8 @@ public:
 	void save_field_variables();
 	// updatin every field variable (a,d,epsz, ...) from v and p at every point
 	void update_variables();
+	void save_initials(FILE* out_file);
+	void set_initials(vector<double> ic);
 
 	//---------------------
 	// BOUNDARIES

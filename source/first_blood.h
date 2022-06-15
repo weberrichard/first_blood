@@ -64,6 +64,9 @@ public:
 	// number of models
 	int number_of_moc, number_of_lum, number_of_nodes;
 
+	// file initialization from init folder
+	bool init_from_file=false;
+
 	// Constants for hydraulics, note: there are constants in Edge.h
 	double gravity = 9.806; // [m/s2]
 	double density = 1055.; // [kg/m3]
@@ -91,9 +94,23 @@ public:
 	void save_model(string folder_name);
 	void save_model(string model_name, string folder_name);
 
+	// Saving last values for initial conditions for further simulations
+	void save_initials(string model_name, string folder_name);
+	void load_initials();
+
 	// recording the timesteps
 	double time_end;
 	int time_counter;
+
+	// for peridoic checking
+	double time_end_min = 5.;
+	double time_end_max = 500.;
+	double time_period;
+	string time_node = "H";
+	string time_var = "P";
+	bool is_periodic_run = false;
+	double time_val_old = -1.e10;
+	bool is_run_end(double t_act, double t_old);
 
 	// lum model id to index
 	int lum_id_to_index(string lum_id);
