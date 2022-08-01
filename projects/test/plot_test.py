@@ -7,16 +7,16 @@ from scipy.interpolate import interp1d
 # Reymond_103
 # Reymond_103_Q
 
-case = 'Reymond_99_heart'
-model = 'arterial'
-edge = []
-node = ['H','N32','N6']
+case = 'moc_test'
+model = '2cso'
+edge = ['A01']
+node = []
 
 mmHg_to_Pa = 133.3616
 
 marker = ['x','o','x','o']
 
-start = [1,1,0,0]
+start = [0]
 
 plt.figure()
 for i in range(0,len(edge)):
@@ -30,7 +30,7 @@ for i in range(0,len(edge)):
 	d = data[10-start[i]];
 	#p = (data[1]-1e5)/mmHg_to_Pa;
 	#q = data[2]*1e6
-	plt.plot(t,p,marker[i],markersize=4, linewidth=1.2)
+	plt.plot(t,p,'-'+marker[i],markersize=4, linewidth=1.2)
 
 for i in range(0,len(node)):
 	# cardiac output

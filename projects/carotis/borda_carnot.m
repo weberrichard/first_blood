@@ -15,6 +15,7 @@ v2 = Q/A2;
 dpv = 8*rho*Q.^2/pi^2*(1/d1^2 - 1/d2^2)^2;
 
 R = 16*rho/pi^2*(1./d1.^2 - 1./d2.^2)^2*Q0;
+R2 = 8*rho/pi^2*(1./d1.^2 - 1./d2.^2)^2;
 
 dp0 = 8*rho*Q0^2/pi^2*(1/d1^2 - 1/d2^2)^2;
 Q_lin = (5:.1:15)*1e-6;
@@ -24,3 +25,5 @@ figure;
 plot(Q,dpv);
 hold on; grid on;
 plot(Q_lin,dp_lin);
+plot(Q,R2*Q.^2,'x');
+

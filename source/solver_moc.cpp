@@ -43,6 +43,48 @@ void solver_moc::initialization(double p_init)
 
 	// building up the topology
 	build_system();
+
+	// setting newton iteration variables
+	for(unsigned int i=0; i<number_of_edges; i++)
+	{
+		int n1 = nodes[edges[i]->node_index_start]->edge_in.size() + nodes[edges[i]->node_index_start]->edge_out.size();
+		int n2 = nodes[edges[i]->node_index_end]->edge_in.size() + nodes[edges[i]->node_index_end]->edge_out.size();
+		edges[i]->set_newton_size(n1,n2);
+	}
+}
+
+//--------------------------------------------------------------
+void solver_moc::initialization_newton(VectorXd &x, int N, int moc_edge_index, int edge_end)
+{
+	if(edge_end==1)
+	{
+		vector<double> v = edges[moc_edge_index]->initialization_newton_end();
+		x(N) = v[0];
+		x(N+1) = v[1];
+	}
+	else
+	{
+		vector<double> v = edges[moc_edge_index]->initialization_newton_start();
+		x(N) = v[0];
+		x(N+1) = v[1];
+	}
+}
+
+//--------------------------------------------------------------
+void solver_moc::substitute_newton(int moc_edge_index, int edge_end, double t_act, double p, double q)
+{
+	if(edge_end==1)
+	{
+		edges[moc_edge_index]->boundary_end_variables(t_act, p, q);
+		int node_index = edges[moc_edge_index]->node_index_end;
+		nodes[node_index]->boundary_variables(p,t_act);
+	}
+	else
+	{
+		edges[moc_edge_index]->boundary_start_variables(t_act, p, q);
+		int node_index = edges[moc_edge_index]->node_index_start;
+		nodes[node_index]->boundary_variables(p,t_act);
+	}
 }
 
 //--------------------------------------------------------------
@@ -74,16 +116,28 @@ void solver_moc::build_system()
 }
 
 //--------------------------------------------------------------
-double solver_moc::timesteps(int &idx)
+void solver_moc::timesteps()
 {
 	// getting the real time step i.e. the minimum timestep from every edge
 	for(unsigned int j=0; j<forward_edges.size(); j++)
 	{
 		edges[forward_edges[j]]->new_timestep();
 	}
+}
 
-	// getting the min timestep
-	double t_min = min_time(idx);
+//--------------------------------------------------------------
+double solver_moc::min_time(int &idx)
+{
+	double t_min = 1.e10;
+	idx = -1;
+	for(unsigned int j=0; j<forward_edges.size(); j++)
+	{
+		if(t_min > edges[forward_edges[j]]->time.back()+edges[forward_edges[j]]->dt_act)
+		{
+			t_min = edges[forward_edges[j]]->time.back()+edges[forward_edges[j]]->dt_act;
+			idx = forward_edges[j];
+		}
+	}
 
 	return t_min;
 }
@@ -106,7 +160,7 @@ void solver_moc::boundaries(int e_idx, double t_act)
 				while(!got_it)
 				{
 					// making the inlet function periodic
-					if(j > time_upstream.size()-1)
+					if(j >= time_upstream.size()-1)
 					{
 						j -= time_upstream.size();
 						period += 1;
@@ -157,7 +211,7 @@ void solver_moc::boundaries(int e_idx, double t_act)
 						double dt = edges[ei]->dt_act;
 						double q=0.;
 						p_in = edges[ei]->upstream_boundary_v(dt, v_in, q);
-						q_in += q; // v_in is volume flow rate
+						q_in += q;
 					}
 				}
 
@@ -181,6 +235,227 @@ void solver_moc::boundaries(int e_idx, double t_act)
 			}
 			else if(nodes[node_idx[i]]->type_code == 0) // junctions
 			{
+				// testing if there are concentrated resistances
+				bool is_res = false;
+				int n1=nodes[node_idx[i]]->edge_in.size();
+				int n2=nodes[node_idx[i]]->edge_out.size();
+
+				for(int j=0; j<n1; j++)
+				{
+					if(edges[nodes[node_idx[i]]->edge_in[j]]->resistance_end != 0.)
+					{
+						is_res = true;
+					}
+				}
+				for(int j=0; j<n2; j++)
+				{
+					if(edges[nodes[node_idx[i]]->edge_out[j]]->resistance_start != 0.)
+					{
+						is_res = true;
+					}
+				}
+
+				if(!is_res) // NEWEST VERSION with one equation NEWTON (Re=0, Rs=0)
+				{
+					// initial condition for pressure
+					double pp = nodes[node_idx[i]]->pressure.back();
+
+					int k=0;
+					double dp=1e10,f;
+					do
+					{
+						// conti equation and derivative
+						f = (atmospheric_pressure-pp)/nodes[node_idx[i]]->resistance*nodes[node_idx[i]]->is_resistance;
+						double df = -1./nodes[node_idx[i]]->resistance*nodes[node_idx[i]]->is_resistance;
+
+						// edges
+						for(int j=0; j<n1; j++)
+						{
+							int ei = nodes[node_idx[i]]->edge_in[j];
+							vector<double> v = edges[ei]->junction_newton_end(pp, t_act); // [q,dq]
+							f  += v[0];
+							df += v[1];
+						}
+						for(int j=0; j<n2; j++)
+						{
+							int ei = nodes[node_idx[i]]->edge_out[j];
+							vector<double> v = edges[ei]->junction_newton_start(pp, t_act); // [q,dq]
+							f  -= v[0];
+							df -= v[1];
+						}
+
+						dp = -f/df;
+						pp += dp;
+
+						k++;
+					}
+					while(abs(dp) >1e-6 && k<100);
+
+					if(k>=100)
+					{
+						cout << "\n Newton's technique did NOT converge at node " << nodes[node_idx[i]]->name << " and edge " << edges[e_idx]->name << " for special case (Rs,Re=0)" << endl;
+						cout << " k: " << k << " f.norm: " << f << endl;
+						//cin.get();
+					}
+
+					// substituting back
+					nodes[node_idx[i]]->boundary_variables(pp,t_act);
+
+					if(i==1)
+					{
+						vector<double> v = edges[e_idx]->junction_newton_end(pp, t_act); // [q,dq]
+						double q = v[0];
+						edges[e_idx]->boundary_end_variables(t_act,pp,q);
+					}
+					else
+					{
+						vector<double> v = edges[e_idx]->junction_newton_start(pp, t_act); // [q,dq]
+						double q = v[0];
+						edges[e_idx]->boundary_start_variables(t_act,pp,q);
+					}
+				}
+				else// NEW VERSION with NEWTON for GENERAL case
+				{
+					// initalization
+					//edges[e_idx]->y[i](0) = nodes[node_idx[i]]->volume_flow_rate.back()*1.e6; // q [ml/s]
+					edges[e_idx]->y[i](0) = nodes[node_idx[i]]->volume_flow_rate.back(); // q [m3/s]
+					edges[e_idx]->y[i](1) = nodes[node_idx[i]]->pressure.back(); // p
+					for(int j=0; j<n1; j++)
+					{
+						int ei = nodes[node_idx[i]]->edge_in[j];
+						edges[e_idx]->y[i](2+2*j) = edges[ei]->volume_flow_rate_end.back();
+						double d = edges[ei]->diameter_end.back();
+						edges[e_idx]->y[i](2+2*j+1) = d*d*pi*.25;
+					}
+
+					for(int j=0; j<n2; j++)
+					{
+						int ei = nodes[node_idx[i]]->edge_out[j];
+						edges[e_idx]->y[i](2+2*n1+2*j) = edges[ei]->volume_flow_rate_start.back();
+						double d = edges[ei]->diameter_start.back();
+						edges[e_idx]->y[i](2+2*n1+2*j+1) = d*d*pi*.25;
+					}
+
+					int n_e_idx;
+					int k=0;
+					do
+					{
+						// conti
+						edges[e_idx]->f[i](0) = -edges[e_idx]->y[i](0);
+						edges[e_idx]->Jac[i](0,0) = -1.;
+
+						// leakage
+						edges[e_idx]->f[i](1) = (edges[e_idx]->y[i](1) - atmospheric_pressure)/nodes[node_idx[i]]->resistance - edges[e_idx]->y[i](0); // (p-p0)/R-q
+						edges[e_idx]->Jac[i](1,0) = -1.;
+						edges[e_idx]->Jac[i](1,1) =  1./nodes[node_idx[i]]->resistance;
+
+						for(int j=0; j<n1; j++) // edges in
+						{
+							int ei = nodes[node_idx[i]]->edge_in[j];
+							// saving edge in index
+							if(i==1)
+							{
+								if(nodes[node_idx[i]]->edge_in[j] == e_idx)
+								{
+									n_e_idx = j;
+								}
+							}
+							// continouity
+							edges[e_idx]->f[i](0) += edges[e_idx]->y[i](2+2*j);
+							edges[e_idx]->Jac[i](0,2+2*j) = 1.; 
+
+							// char + A
+							double qp = edges[e_idx]->y[i](2+2*j);
+							double Ap = edges[e_idx]->y[i](2+2*j+1);
+							double pp = edges[e_idx]->y[i](1);
+							vector<double> v = edges[ei]->boundary_newton_end(qp, Ap, pp, t_act); // f_char,f_A,dchar_dp,dA_dp,dchard_dq,dA_dq
+
+							// characteristic equation
+							edges[e_idx]->f[i](2+2*j) = v[0];
+							edges[e_idx]->Jac[i](2+2*j,1) = v[2]; // 1/(rho*aR)
+							edges[e_idx]->Jac[i](2+2*j,2+2*j) = v[4]; // 1/A + Re*q
+							edges[e_idx]->Jac[i](2+2*j,2+2*j+1) = -edges[e_idx]->y[i](2+2*j)/(edges[e_idx]->y[i](2+2*j+1)*edges[e_idx]->y[i](2+2*j+1)); // -q/A^2
+
+							// cross-section
+							edges[e_idx]->f[i](2+2*j+1) = v[1];
+							edges[e_idx]->Jac[i](2+2*j+1,1) = v[3]; 
+							edges[e_idx]->Jac[i](2+2*j+1,2+2*j) = v[5]; 
+							edges[e_idx]->Jac[i](2+2*j+1,2+2*j+1) = 1.; 
+						}
+
+						for(int j=0; j<n2; j++)
+						{
+							int ei = nodes[node_idx[i]]->edge_out[j];
+							// saving edge out index
+							if(i==0)
+							{
+								if(nodes[node_idx[i]]->edge_out[j] == e_idx)
+								{
+									n_e_idx = j;
+								}
+							}
+
+							// continouity
+							edges[e_idx]->f[i](0) -= edges[e_idx]->y[i](2+2*n1+2*j);
+							edges[e_idx]->Jac[i](0,2+2*n1+2*j) = -1.; 
+
+							// char + A
+							double qp = edges[e_idx]->y[i](2+2*n1+2*j);
+							double Ap = edges[e_idx]->y[i](2+2*n1+2*j+1);
+							double pp = edges[e_idx]->y[i](1);
+							vector<double> v = edges[ei]->boundary_newton_start(qp, Ap, pp, t_act); // f_char,f_A,dchar_dp,dA_dp,dchard_dq,dA_dq
+
+							// characteristic equation
+							edges[e_idx]->f[i](2+2*n1+2*j) = v[0];
+							edges[e_idx]->Jac[i](2+2*n1+2*j,1) = v[2]; // 1/(rho*aR)
+							edges[e_idx]->Jac[i](2+2*n1+2*j,2+2*n1+2*j) = v[4]; // 1/A + Rs*q
+							edges[e_idx]->Jac[i](2+2*n1+2*j,2+2*n1+2*j+1) = -edges[e_idx]->y[i](2+2*n1+2*j)/(edges[e_idx]->y[i](2+2*n1+2*j+1)*edges[e_idx]->y[i](2+2*n1+2*j+1)); // -q/A^2
+
+							// cross-section
+							edges[e_idx]->f[i](2+2*n1+2*j+1) = v[1];
+							edges[e_idx]->Jac[i](2+2*n1+2*j+1,1) = v[3]; 
+							edges[e_idx]->Jac[i](2+2*n1+2*j+1,2+2*n1+2*j) = v[5];
+							edges[e_idx]->Jac[i](2+2*n1+2*j+1,2+2*n1+2*j+1) = 1.; 
+						}
+
+						//cout << "k" << k << endl;
+						//cout << "jac " << endl << edges[e_idx]->Jac[i] << endl << endl;
+						//cout << "y " << endl << edges[e_idx]->y[i] << endl << endl;
+						//cout << "f " << endl << edges[e_idx]->f[i] << endl << endl;
+						//cin.get();
+
+						// actually solving Jac*dx = -f
+						edges[e_idx]->y[i] += edges[e_idx]->Jac[i].colPivHouseholderQr().solve(-edges[e_idx]->f[i]);
+
+						k++;
+					}
+					while(edges[e_idx]->f[i].norm() > 1.e-6 && k<100);
+
+					if(k>=100)
+					{
+						cout << "\n Newton's technique did NOT converge at node " << nodes[node_idx[i]]->name << " and edge " << edges[e_idx]->name << " for general case (Rs,Re!=0)" << endl;
+						cout << " k: " << k << " f.norm: " << edges[e_idx]->f[i].norm() << endl;
+						//cin.get();
+					}
+
+					// saving output vars
+					double pp = edges[e_idx]->y[i](1);
+					nodes[node_idx[i]]->boundary_variables(pp,t_act);
+
+					if(i==1)
+					{
+						double q = edges[e_idx]->y[i](2+2*n_e_idx);
+						edges[e_idx]->boundary_end_variables(t_act,pp,q);
+					}
+					else
+					{
+						double q = edges[e_idx]->y[i](2+2*n1+2*n_e_idx);
+						edges[e_idx]->boundary_start_variables(t_act,pp,q);
+					}
+				}
+
+
+				/* OLD VERSION,
 				// first the node pressure is calculated
 
 				// temp variables
@@ -231,36 +506,17 @@ void solver_moc::boundaries(int e_idx, double t_act)
 				{
 					double q = edge_coefs_in[0]*p_nodal + edge_coefs_in[1];
 					//double dt = t_act - edges[e_idx]->time.back();
-					double dt = edges[e_idx]->dt_act;
-					edges[e_idx]->boundary_end_variables(dt,p_nodal,q);
+					edges[e_idx]->boundary_end_variables(t_act,p_nodal,q);
 				}
 				else // start node
 				{
 					double q = edge_coefs_out[0]*p_nodal + edge_coefs_out[1];
 					//double dt = t_act - edges[e_idx]->time.back();
-					double dt = edges[e_idx]->dt_act;
-					edges[e_idx]->boundary_start_variables(dt,p_nodal,q);
-				}
+					edges[e_idx]->boundary_start_variables(t_act,p_nodal,q);
+				}*/
 			}
 		}
 	}
-}
-
-//--------------------------------------------------------------
-double solver_moc::min_time(int &idx)
-{
-	double t_min = 1.e10;
-	idx = -1;
-	for(unsigned int j=0; j<forward_edges.size(); j++)
-	{
-		if(t_min > edges[forward_edges[j]]->time.back()+edges[forward_edges[j]]->dt_act)
-		{
-			t_min = edges[forward_edges[j]]->time.back()+edges[forward_edges[j]]->dt_act;
-			idx = forward_edges[j];
-		}
-	}
-
-	return t_min;
 }
 
 //--------------------------------------------------------------

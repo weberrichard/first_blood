@@ -63,7 +63,6 @@ bool first_blood::load_model()
 		moc[i]->load_model();
 	}
 
-
 	// loading the csv for lumped models
 	for(int i=0; i<number_of_lum; i++)
 	{
@@ -124,7 +123,7 @@ bool first_blood::load_main_csv()
 				}
 				nm++;
 			}
-			else if(sv[0] == "lumped") // 0D lumed models
+			else if(sv[0] == "lumped" || sv[0] == "lum") // 0D lumed models
 			{
 				lum.push_back(new solver_lumped(sv[1],input_folder_path));
 				int k=2;
@@ -201,8 +200,9 @@ bool first_blood::run()
 		int moc_idx=0, e_idx;
 		for(int i=0; i<number_of_moc; i++)
 		{
-			double t = moc[i]->timesteps(e_idx);
+			moc[i]->timesteps();
 		}
+		// finding lowest new timestep
 		double t_act = lowest_new_time(moc_idx, e_idx);
 		double t_old = -1.e10;
 
@@ -219,17 +219,15 @@ bool first_blood::run()
 			int si = moc[moc_idx]->edges[e_idx]->node_index_start;
 			if(moc[moc_idx]->nodes[si]->is_master_node)
 			{
-				double dt = moc[moc_idx]->edges[e_idx]->dt_act;
 				int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
-				solve_lum(lum_idx, dt);
+				solve_lum_newton(lum_idx, t_act);
 			}
 
 			int ei = moc[moc_idx]->edges[e_idx]->node_index_end;
 			if(moc[moc_idx]->nodes[ei]->is_master_node)
 			{
-				double dt = moc[moc_idx]->edges[e_idx]->dt_act;
 				int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-				solve_lum(lum_idx, dt);
+				solve_lum_newton(lum_idx, t_act);
 			}
 
 			// postproc: interpolate, save
@@ -259,7 +257,126 @@ bool first_blood::run()
 }
 
 //--------------------------------------------------------------
-void first_blood::solve_lum(int index, double dt)
+double first_blood::lowest_new_time(int &moc_idx, int &e_idx)
+{
+	double t_act=1.e10;
+	int idx;
+	for(int i=0; i<number_of_moc; i++)
+	{
+		double t = moc[i]->min_time(idx);
+		if(t<t_act)
+		{
+			t_act = t;
+			moc_idx = i;
+			e_idx = idx;
+		}
+	}
+
+	return t_act;
+}
+
+//--------------------------------------------------------------
+void first_blood::solve_lum_newton(int index, double t_act)
+{
+	int m = lum[index]->number_of_edges;
+	int n = lum[index]->number_of_nodes;
+	int l = lum[index]->number_of_elastance;
+	int k = lum[index]->boundary_indices.size();
+
+	// setting initial conditions for lumped part
+	lum[index]->initialization_newton();
+	// setting initial conditions for moc part
+	for(int j=0; j<lum[index]->boundary_indices.size(); j++)
+	{
+		int moc_index = lum[index]->boundary_indices[j][0];
+		int moc_edge_index = lum[index]->boundary_indices[j][1];
+		int edge_end = lum[index]->boundary_indices[j][2];
+		int N = m+n+2*l+2*j;
+		moc[moc_index]->initialization_newton(lum[index]->x,N,moc_edge_index,edge_end);
+	}
+
+	// start of newton iteration
+	int i=0;
+	do
+	{
+		lum[index]->coefficients_newton(t_act);
+
+		for(int j=0; j<lum[index]->boundary_indices.size(); j++)
+		{
+			int moc_index = lum[index]->boundary_indices[j][0];
+			int moc_edge_index = lum[index]->boundary_indices[j][1];
+			int edge_end = lum[index]->boundary_indices[j][2];
+			int lum_node_index = lum[index]->boundary_indices[j][3];
+			double q = lum[index]->x(n+m+2*l+2*j);
+			double A = lum[index]->x(n+m+2*l+2*j+1);
+			double p = lum[index]->x(m+lum_node_index)*mmHg_to_Pa;
+			vector<double> v; // f_char,f_A,dchar_dp,dA_dp,dchard_dq,dA_dq
+			if(edge_end==1)
+			{
+				v = moc[moc_index]->edges[moc_edge_index]->boundary_newton_end(q,A,p,t_act);
+			}
+			else
+			{
+				v = moc[moc_index]->edges[moc_edge_index]->boundary_newton_start(q,A,p,t_act);
+			}
+
+			// node continouity equation and jacobian
+			lum[index]->f(m+lum_node_index) += edge_end*lum[index]->x(m+n+2*l+2*j)*1.e6;
+			lum[index]->Jac(m+lum_node_index,m+n+2*l+2*j) = edge_end*1.e6; // for node continouity
+
+			// characteristic equation
+			// also converting to non_SI for numerical stability
+			lum[index]->f(m+n+2*l+2*j) = v[0];
+			lum[index]->Jac(m+n+2*l+2*j,m+lum_node_index) = v[2]*mmHg_to_Pa; // dp
+			lum[index]->Jac(m+n+2*l+2*j,m+n+2*l+2*j) = v[4]; // dQ
+			lum[index]->Jac(m+n+2*l+2*j,m+n+2*l+2*j+1) = -q/A/A; // dA
+
+			// cross section - pressure equation
+			lum[index]->f(m+n+2*l+2*j+1) = v[1];
+			lum[index]->Jac(m+n+2*l+2*j+1,m+lum_node_index) = v[3]*mmHg_to_Pa; // dp
+			lum[index]->Jac(m+n+2*l+2*j+1,m+n+2*l+2*j) = v[5]; // dQ
+			lum[index]->Jac(m+n+2*l+2*j+1,m+n+2*l+2*j+1) = 1.; // dA
+		}
+
+		//cout << " ITERATION " << i << endl;
+		//cout << lum[index]->Jac << endl;
+		//cout << "x" << endl << lum[index]->x << endl;
+		//cout << "f" << endl << lum[index]->f << endl;
+
+		// actually solving the Newton's technique
+		lum[index]->x += lum[index]->Jac.colPivHouseholderQr().solve(-lum[index]->f);
+
+		//cout << " ITERATION END " << endl;
+		//cout << endl;
+		//cin.get();
+		
+		i++;
+	}
+	while(lum[index]->f.norm() > 1e-10 && i<100);
+
+	if(k>=100)
+	{
+		cout << "\n Newton's technique did NOT converge at Lum model " << lum[index]->name << endl;
+	}
+
+	// substitute the results back to 0D
+	lum[index]->substitute_newton(t_act);
+
+	// substitute the results back to 1D
+	for(int j=0; j<lum[index]->boundary_indices.size(); j++)
+	{
+		int moc_index = lum[index]->boundary_indices[j][0];
+		int moc_edge_index = lum[index]->boundary_indices[j][1];
+		int edge_end = lum[index]->boundary_indices[j][2];
+		int lum_node_index = lum[index]->boundary_indices[j][3];
+		double p = lum[index]->x(m+lum_node_index)*mmHg_to_Pa;
+		double q = lum[index]->x(m+n+2*l+2*j);
+		moc[moc_index]->substitute_newton(moc_edge_index,edge_end,t_act,p,q);
+	}
+}
+
+//--------------------------------------------------------------
+/*void first_blood::solve_lum(int index, double dt)
 {
 	vector<vector<double> > coefs;
 	for(int j=0; j<lum[index]->boundary_indices.size(); j++)
@@ -306,24 +423,7 @@ void first_blood::solve_lum(int index, double dt)
 			moc[moc_index]->nodes[node_index]->boundary_variables(p,t_act);
 		}
 	}
-}
-
-//--------------------------------------------------------------
-double first_blood::lowest_new_time(int &moc_idx, int &e_idx)
-{
-	double t_act=1.e10;
-	for(int i=0; i<number_of_moc; i++)
-	{
-		double t = moc[i]->min_time(e_idx);
-		if(t<t_act)
-		{
-			t_act = t;
-			moc_idx = i;
-		}
-	}
-
-	return t_act;
-}
+}*/
 
 //--------------------------------------------------------------
 bool first_blood::is_run_end(double t_act, double t_old)
@@ -417,11 +517,20 @@ void first_blood::initialization()
 	// setting master nodes
 	build_master();
 
-	// making sure time_node is saved
-	if(moc.size()>0)
+	// setting number of moc in lum
+	for(int i=0; i<number_of_lum; i++)
 	{
-		vector<string> el, nl{"H"};
-	   set_save_memory(moc[0]->name,"moc",el,nl);
+		lum[i]->set_newton_size();
+	}
+
+	// making sure time_node is saved
+	if(is_periodic_run)
+	{
+		if(moc.size()>0)
+		{
+			vector<string> el, nl{"H"};
+		   set_save_memory(moc[0]->name,"moc",el,nl);
+		}
 	}
 }
 
@@ -449,21 +558,18 @@ void first_blood::build_master()
 								moc[l]->nodes[mm]->is_master_node = true;
 								moc[l]->nodes[mm]->master_node_lum = j;
 
-								int n;
-								int nn;
-								if(moc[l]->nodes[mm]->edge_in.size() != 0)
+								for(int n=0; n<moc[l]->nodes[mm]->edge_in.size(); n++)
 								{
-									n = moc[l]->nodes[mm]->edge_in[0];
-									nn = 1;
+									vector<int> v{l,moc[l]->nodes[mm]->edge_in[n],1,kk};
+									// index of moc, index of edge in moc, start(-1)/end(+1), index of node in lumped
+									lum[j]->boundary_indices.push_back(v);
 								}
-								else
+								for(int n=0; n<moc[l]->nodes[mm]->edge_out.size(); n++)
 								{
-									n = moc[l]->nodes[mm]->edge_out[0];
-									nn = -1;
+									vector<int> v{l,moc[l]->nodes[mm]->edge_out[n],-1,kk};
+									// index of moc, index of edge in moc, start(-1)/end(+1), index of node in lumped
+									lum[j]->boundary_indices.push_back(v);
 								}
-								// index of moc, index of edge in moc, start(-1)/end(+1), index of node in lumped
-								vector<int> v{l,n,nn,kk};
-								lum[j]->boundary_indices.push_back(v);
 							}
 						}
 					}

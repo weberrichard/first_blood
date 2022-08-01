@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
 {
    // basic stuff
 	string case_folder = "models/";
-   string case_name = "Carotis_1";
+   string case_name = "Carotis_2";
    if(argc == 2)
    {
       case_name = argv[1];
@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
    // loading original case
    first_blood *fb = new first_blood(case_folder + case_name);
    fb->run();
-   fb->save_results(save_dt);
+   fb->save_results();
 
    return 0;
 }

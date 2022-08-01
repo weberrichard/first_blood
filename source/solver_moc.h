@@ -15,8 +15,12 @@
 #include "moc_node.h"
 #include "statistics.h"
 
+#include "/usr/include/eigen3/Eigen/Eigen"
+
 #include <sys/stat.h> // mkdir
 #include <algorithm>
+
+using namespace Eigen;
 
 class solver_moc
 {
@@ -57,6 +61,10 @@ public:
 
 	// giving initial conditions
 	void initialization(double pressure_initial);
+	// initialazing Newton's method for 1D/0D boundaries
+	void initialization_newton(VectorXd &x, int N, int moc_edge_index, int edge_end);
+	// substituting the results back to field variables
+	void substitute_newton(int moc_edge_index, int edge_end, double t_act, double p, double q);
 
 	// filling up nodes edge_in, edge_out
 	void build_system();
@@ -65,7 +73,7 @@ public:
 	void boundaries(int edge_idx, double t_act);
 
 	// calculate initial timesteps
-	double timesteps(int &idx);
+	void timesteps();
 	// searching the min timestep with idx
 	double min_time(int &idx);
 
@@ -127,6 +135,8 @@ private:
 
 	// founding the upward edge from a node, returning the edge index
 	int backward_tree(string node_id);
+	
+	const double pi=3.14159265359;
 
 	double gravity; // [m/s2]
 	double density; // [kg/m3]

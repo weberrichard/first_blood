@@ -6,8 +6,8 @@ using namespace std;
 int main(int argc, char* argv[])
 {
    // basic stuff
-	string case_folder = "../../models/";
-   string case_name = "Reymond_99_heart";
+	string case_folder = "models/";
+   string case_name = "Reymond_99_heart_ref3";
    double save_dt = 1e-3;
    double heart_rate = 75.6;  // if there is a heart model   
    double period_time = 60./heart_rate;
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
       // saving stuff to file
       //fb->save_results(save_dt);
       fb->save_results(save_dt,case_name,model_name,model_type,el,nl);
-      //fb->save_model("Reymond_99_heart_ref2","models");
+      //fb->save_model("Reymond_99_heart_ref3","models");
       //fb->save_initials("Reymond_99_heart_ref","models");
 
       // calculating fitness function

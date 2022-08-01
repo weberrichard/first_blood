@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-file_name = "log_de2_1.txt"
+file_name = "log_de2_6.txt"
 column = 0
 # 0:      ff
 # 1-6:    p(radial,aorta,carotis)

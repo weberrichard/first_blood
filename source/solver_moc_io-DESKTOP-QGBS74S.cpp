@@ -53,7 +53,7 @@ void solver_moc::load_model()
 					double R = stod(sv[3],0);
 					if(R == 0)
 					{
-						nodes[j]->resistance = 1.; // this will be multiplied with is_resistance i.e. there is no leakage
+						nodes[j]->resistance = 1.e100; // this will be multiplied with is_resistance i.e. there is no leakage
 						nodes[j]->is_resistance = 0.;
 					}
 					else

@@ -58,6 +58,186 @@ void solver_lumped::initialization()
 }
 
 //--------------------------------------------------------------
+void solver_lumped::set_newton_size()
+{
+	number_of_moc = boundary_indices.size();
+
+	// setting Eigen vars for nonlinear solvr
+	int N = number_of_edges + number_of_nodes + 2*number_of_elastance + 2*number_of_moc;
+	Jac = MatrixXd::Zero(N,N);
+	x = VectorXd::Zero(N);
+	f = VectorXd::Zero(N);
+}
+
+//--------------------------------------------------------------
+void solver_lumped::coefficients_newton(double t_act)
+{
+	// increasing time
+	double dt = t_act - time.back();
+
+	// sizes of nodes and edges
+	int n=number_of_nodes, m=number_of_edges, l=number_of_elastance;
+
+	// tracing the virtual nodes of elastance
+	int i_elas=0;
+
+	// actual elastance
+	double E_act = elastance(t_act);
+
+	// edges
+	for(int i=0; i<number_of_edges; i++)
+	{
+		int i1 = edges[i]->node_index_start;
+		int i2 = edges[i]->node_index_end;
+
+		if(edges[i]->type_code == 0) // resistor
+		{
+			Jac(i,m+i2) = 1.;
+			Jac(i,m+i1) = -1.;
+			Jac(i,i) = edges[i]->par_non_SI; // R
+
+			f(i) = x(m+i2) - x(m+i1) + edges[i]->par_non_SI*x(i);
+		}
+		else if(edges[i]->type_code == 1) // capacitor
+		{
+			Jac(i,m+i2) = 1.;
+			Jac(i,m+i1) = -1.;
+			Jac(i,i) = dt/edges[i]->par_non_SI; // dt/C
+
+			f(i) = x(m+i2) - x(m+i1) + dt/edges[i]->par_non_SI*x(i) - nodes[i2]->p + nodes[i1]->p;
+		}
+		else if(edges[i]->type_code == 2) // elastance
+		{
+			// basic equation for the edge
+			Jac(i,m+n+i_elas+1) = 1.;
+			Jac(i,m+n+i_elas) = -1.;
+			Jac(i,i) = dt;
+			f(i) = x(m+n+i_elas+1) - x(m+n+i_elas) + dt*x(i) - nodes[i2]->y + nodes[i1]->y;
+
+			// equations for the virtual nodes
+			Jac(n+m+i_elas,m+i1) = -1.;
+			Jac(n+m+i_elas+1,m+i2) = -1.;
+			Jac(n+m+i_elas,n+m+i_elas) = E_act;
+			Jac(n+m+i_elas+1,n+m+i_elas+1) = E_act;
+			f(n+m+i_elas) = E_act*x(n+m+i_elas) - x(m+i1);
+			f(n+m+i_elas+1) = E_act*x(n+m+i_elas+1) - x(m+i2);
+			i_elas+=2;
+		}
+		else if(edges[i]->type_code == 3) // inductor
+		{
+			Jac(i,m+i2) = 1.;
+			Jac(i,m+i1) = -1.;
+			Jac(i,i) = edges[i]->par_non_SI/dt; // L/dt
+			f(i) = x(m+i2) - x(m+i1) + edges[i]->par_non_SI/dt * (x(i)-edges[i]->vfr);
+		}
+		else if(edges[i]->type_code == 4) // voltage source
+		{
+			Jac(i,m+i2) = 1.;
+			Jac(i,m+i1) = -1.;
+			f(i) = x(m+i2) - x(m+i1) - edges[i]->par_non_SI;
+		}
+		else if(edges[i]->type_code == 5) // diode
+		{
+			Jac(i,m+i2) = 1.;
+			Jac(i,m+i1) = -1.;
+
+			if(x(m+i1)>x(m+i2)) // diode is open
+			{
+				Jac(i,i) = edges[i]->par_non_SI; // R
+				f(i) = x(m+i2) - x(m+i1) + edges[i]->par_non_SI*x(i);
+			}
+			else // diode is closed
+			{
+				Jac(i,i) = 1.e10*edges[i]->par_non_SI; // R*1.e10
+				f(i) = x(m+i2) - x(m+i1) + 1.e10*edges[i]->par_non_SI*x(i);
+			}
+		}
+		else if(edges[i]->type_code == 6) // square resistor
+		{
+			Jac(i,m+i2) = 1.;
+			Jac(i,m+i1) = -1.;
+			Jac(i,i) = 2.*edges[i]->par_non_SI*x(i); // 2*R
+
+			f(i) = x(m+i2) - x(m+i1) + edges[i]->par_non_SI*x(i)*x(i); // dp = R*Q^2
+		}
+	}
+
+	// nodes
+	for(int i=0; i<number_of_nodes; i++)
+	{
+		if(nodes[i]->is_ground == false) // intersections
+		{
+			f(m+i) = 0.;
+			for(int j=0; j<nodes[i]->edge_in.size(); j++)
+			{
+				Jac(m+i,nodes[i]->edge_in[j]) = 1;
+				f(m+i) += x(nodes[i]->edge_in[j]);
+			}
+			for(int j=0; j<nodes[i]->edge_out.size(); j++)
+			{
+				Jac(m+i,nodes[i]->edge_out[j]) = -1;
+				f(m+i) -= x(nodes[i]->edge_out[j]);
+			}
+		}
+		else // ground nodes, pi = p0[mmHg]
+		{
+			Jac(m+i,m+i) = 1;
+			f(m+i) = x(m+i)-1.e5/mmHg_to_Pa;
+		}
+	}
+}
+
+//--------------------------------------------------------------
+void solver_lumped::initialization_newton()
+{
+	int i_elas=0;
+	for(int i=0; i<number_of_edges; i++)
+	{
+		x(i) = edges[i]->vfr;
+		if(edges[i]->type_code == 2) // elastance
+		{
+			int i1 = edges[i]->node_index_start;
+			int i2 = edges[i]->node_index_end;
+			x(number_of_edges+number_of_nodes+i_elas) = nodes[i1]->y;
+			x(number_of_edges+number_of_nodes+i_elas+1) = nodes[i2]->y;
+			i_elas+=2;
+		}
+	}
+	for(int i=0; i<number_of_nodes; i++)
+	{
+		x(number_of_edges+i) = nodes[i]->p;
+	}
+}
+
+//--------------------------------------------------------------
+void solver_lumped::substitute_newton(double t_act)
+{
+	// saving time step
+	time.push_back(t_act);
+
+	// putting back the outputs
+	for(int i=0; i<number_of_edges; i++)
+	{
+		edges[i]->vfr = x(i);
+		if(edges[i]->do_save_memory)
+		{
+			edges[i]->volume_flow_rate.push_back(x(i)*1.e-6);
+		}
+	}
+
+	double E_act = elastance(time.back());
+	for(int i=0; i<number_of_nodes; i++)
+	{
+		nodes[i]->p = x(number_of_edges+i);
+		nodes[i]->y = x(number_of_edges+i)/E_act;
+		if(nodes[i]->do_save_memory)
+		{
+			nodes[i]->pressure.push_back(x(number_of_edges+i)*mmHg_to_Pa);
+		}
+	}
+}
+
+//--------------------------------------------------------------
 vector<vector<double> > solver_lumped::solve_one_step(double dt, vector<vector<double> > boundary_coefficients)
 {
 	// increasing time
@@ -242,10 +422,10 @@ void solver_lumped::set_non_SI_parameters()
 	}
 	for(int i=0; i<number_of_edges; i++)
 	{
-		edges[i]->vfr_ini_non_SI = edges[i]->volume_flow_rate_initial/1.e6;
+		edges[i]->vfr_ini_non_SI = edges[i]->volume_flow_rate_initial*1.e-6;
 		if(edges[i]->type_code == 0) // resistance
 		{
-			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa/1.e6;
+			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa*1.e-6;
 		}
 		else if(edges[i]->type_code == 1) // capacitor
 		{
@@ -253,7 +433,7 @@ void solver_lumped::set_non_SI_parameters()
 		}
 		else if(edges[i]->type_code == 3) // inductor
 		{
-			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa/1.e6;
+			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa*1.e-6;
 		}
 		else if(edges[i]->type_code == 4) // voltage
 		{
@@ -261,7 +441,11 @@ void solver_lumped::set_non_SI_parameters()
 		}
 		else if(edges[i]->type_code == 5) // diode
 		{
-			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa/1.e6;
+			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa*1.e-6;
+		}
+		else if(edges[i]->type_code == 6) // squared resistance
+		{
+			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa*1.e-6*1.e-6;
 		}
 	}
 }

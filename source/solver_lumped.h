@@ -34,7 +34,16 @@ public:
 	// loading the CSV file
 	void load_model();
 
-	// solving the equations
+	// new nonlinear solver in fb, function fills regarding coefs in Jac and in f
+	void set_newton_size();
+	void coefficients_newton(double t_act);
+	void initialization_newton();
+	void substitute_newton(double t_act);
+	// variables
+	MatrixXd Jac;
+	VectorXd x, f;
+
+	// OLD solving the linear equations
 	vector<vector<double> > solve_one_step(double dt, vector<vector<double> > coefs);
 	
 	// clear/setting do_save_memory vars
@@ -63,7 +72,7 @@ public:
 	vector<string> boundary_main_node;
 	vector<string> boundary_model_node;
 
-	// index of moc, index of edge in moc, index of node in lumped
+	// index of moc, index of edge in moc, direction of edge, index of node in lumped
 	vector<vector<int> > boundary_indices;
 
 	// time of the simulation
@@ -161,7 +170,7 @@ public:
 	int node_id_to_index(string node_id);
 
 	// size of vectors
-	int number_of_nodes, number_of_edges, number_of_master, number_of_elastance;
+	int number_of_nodes, number_of_edges, number_of_master, number_of_elastance, number_of_moc;
 };
 
 #endif // SOLVER_LUMPED_H

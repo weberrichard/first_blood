@@ -23,7 +23,10 @@
 #include <iostream>
 #include <fstream>
 
+#include "/usr/include/eigen3/Eigen/Eigen"
+
 using namespace std;
+using namespace Eigen;
 
 class moc_edge
 {
@@ -118,10 +121,26 @@ public:
 	vector<double> boundary_master_start(double dt_master);
 	vector<double> boundary_master_end(double dt_master);
 
+	// new functions for Newton-Raphson
+	vector<double> initialization_newton_start();
+	vector<double> initialization_newton_end();
+	vector<double> boundary_newton_start(double qp, double Ap, double pp, double t_act);
+	vector<double> boundary_newton_end(double qp, double Ap, double pp, double t_act);
+
 	// [*] junctions, inner points
+	// newton iteration, start and end bc if necessary
+	vector<MatrixXd> Jac;
+	vector<VectorXd> y, f;
+	void set_newton_size(int n1, int n2);
+
+	// NEWEST junction handling with one equation NEWTON
+	vector<double> junction_newton_start(double pp, double t_act);
+	vector<double> junction_newton_end(double pp, double t_act);
+
+	// OLD
 	// to calculate the nodal pressure
-	vector<double> boundary_start_coefficients(double dt);
-	vector<double> boundary_end_coefficients(double dt);
+	vector<double> boundary_start_coefficients(double t_act);
+	vector<double> boundary_end_coefficients(double t_act);
 	// to determine the velocity and pressure of the moc_edge
 	void boundary_start_variables(double dt, double p, double v);
 	void boundary_end_variables(double dt, double p, double v);

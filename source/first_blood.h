@@ -20,6 +20,8 @@
 #include "solver_lumped.h"
 #include "statistics.h"
 
+#include "/usr/include/eigen3/Eigen/Eigen"
+
 #include <string>
 #include <iomanip>
 #include <vector>
@@ -52,6 +54,7 @@ public:
 
 	// solving lumped model as boundary condition
 	void solve_lum(int index, double dt);
+	void solve_lum_newton(int index, double dt);
 	// finding lowest time step level
 	double lowest_new_time(int &moc_idx, int &e_idx);
 

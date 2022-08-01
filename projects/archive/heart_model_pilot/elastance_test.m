@@ -21,20 +21,21 @@ Ep_anal = (Emax-Emin)*Ep_anal;
 
 figure;
 plot(t,En,'linewidth',3);
+ylabel('E(t) [mmHg/ml]','fontsize',14);
 grid on; hold on;
-% yyaxis right
-plot(t(1:end-1),Ep,'linewidth',3);
+yyaxis right
+% plot(t(1:end-1),Ep,'linewidth',3);
 % plot(tn(1:end-1),EpE,'linewidth',3);
 % plot(tn(1:end-1),EpE,'linewidth',3);
-plot(t(1:end-1),EpE,'linewidth',3);
+% plot(t(1:end-1),EpE,'linewidth',3);
 dEpE = diff(EpE)/(tn(2)-tn(1));
 plot(t(2:end-1),dEpE,'linewidth',3);
 % plot(tn,Ep_anal,'x');
 % legend('E','Ep','Ep/E');
-legend('E','Ep','Ep/E','(Ep/E)p');
+legend('E','(Ep/E)p');
 % legend('Ep/E','(Ep/E)p');
 xlim([0,1]);
 xlabel('time [s]','fontsize',14);
-ylabel('elastance [mmHg/ml]','fontsize',14);
+ylabel('dE(t)/dt / E(t) [1/s]','fontsize',14);
 
 % set(gca,'XScale','log','YScale','log');
