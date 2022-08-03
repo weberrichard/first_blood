@@ -1,5 +1,5 @@
 # first_blood
-1D and 0D combined hemodynamic simulator for arterial blood system utilizing method of characteristics
+1D and 0D combined hemodynamic simulator for arterial blood system utilizing method of characteristics. The main purpose of the project is research and education at the Budapest University of Technology and Economics, Faculty of Mechanical Engineering, Department of Hydrodyanmic Systems.
 
 ### Current projects
 - *carotis* analysing only the carotis stenosis with only 4 branches and nonlinear resistance
@@ -10,6 +10,9 @@
 - *virtual_patient_database* creating virtual patient database (VPD) that mimics the whole population physiologically properly
 - *vpd_ref* finding a reference (average) patient for the VPD with differential evolution
 
+### Model
+The arterial model is based on the research paper (Reymond 2009 Validation of a one-dimensional model of the systemic arterial tree). The 0D model mimicking the heart is added, moreover the wall material is described with viscoelastic properties.
+
 ### How to use
 The code is built upon the *source* and the *projects* folder. While the former one includes the basic sources of the *first_blood*, the latter one contains the projects which are applying the source code. Each project has an individual make file that can compile the whole code.
 
@@ -17,6 +20,6 @@ The code is built upon the *source* and the *projects* folder. While the former 
 $ make -f make_*.mk
 ```
 
-Then the running *.out* file will run the simulation. The *models* folder must contain the *.csv* file of the model with all input data.
+Then the running *.out* file will run the simulation. The *models* folder must contain the *.csv* files of the model with all input data.
 
 ### Publications
