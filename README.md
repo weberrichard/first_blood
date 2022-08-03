@@ -29,6 +29,7 @@ Then the running *.out* file will run the simulation. The *models* folder must c
 
 ### Developement team
 Dr. Richárd Wéber, assistant professor
+
 Dániel Gyürki, research assistant fellow
 
 ### Publications
