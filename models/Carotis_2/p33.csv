@@ -1,0 +1,11 @@
+0data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI] 
+resistor, R1, n1, n2, 0.0, 1.00e+9
+resistor, R2, n2, g, 0.0, 1.00E+10
+capacitor, C, n2, g, 0.0, 1.00E-11
+
+data of nodes
+type, name, initial condition [SI]
+node, n1, 1e5
+node, n2, 1e5
+ground, g, 1e5

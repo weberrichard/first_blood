@@ -1,0 +1,19 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI] 
+diode, D-mitral, left-atrium, left-ventricular, 0.0, 666.61e+03
+diode, D-aorta, left-ventricular, N3, 0.0, 133.322e+03
+resistor, R-char, N3, N4, 0.0, 5.3062e+06
+inductor, L-system, N4, aorta, 0.0, 66.661e+03
+resistor, R-system, aorta, left-atrium, 0.0, 199.983e+06
+capacitor, C-artial, G, left-atrium, 0.0, 3.3003e-08
+capacitor, C-system, G, aorta, 0.0, 9.9758e-09
+elastance, C-elastance, G, left-ventricular, 0.0
+
+data of nodes
+type, name
+node, left-atrium, 100842.3284
+node, left-ventricular, 100407.96
+node, N3, 11.2e4
+node, N4, 11.2e4
+node, aorta, 11.2e4
+ground, G, 1e5

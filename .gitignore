@@ -34,9 +34,10 @@
 # project results
 projects/first_test/results/*
 projects/test_single_artery/*
+projects/archive
 
 # models
-models/*
+models/archive
 
 # pilot code
 pilot_matlab/*
@@ -46,10 +47,9 @@ pilot_matlab/*
 *.xls
 *.txt
 *.res
-*.csv
 *.nb
 *.rar
+*.pdf
+*.svg
+*.docx
 
-# 1.0 version with moc only
-source_old/*.cpp
-source_old/*.h

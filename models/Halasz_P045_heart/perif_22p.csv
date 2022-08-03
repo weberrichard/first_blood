@@ -1,0 +1,8 @@
+data of edges
+type, name, node start, node end, initial cond, parameter [SI]
+resistor, R1, n1, g, 0.0, 1.38E+10
+
+data of nodes
+type, name, initial cond [SI],
+node, n1, 1e5
+ground, g, 1e5

@@ -1,0 +1,11 @@
+run,forward
+time,5
+
+type,name,main node,model node,main node,model node,...
+moc,carotis,N33p,p33,N46p,p46
+
+lumped,p33,N33p,n1
+lumped,p46,N46p,n1
+
+node,N33p
+node,N46p
