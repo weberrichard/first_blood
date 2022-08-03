@@ -22,4 +22,9 @@ $ make -f make_*.mk
 
 Then the running *.out* file will run the simulation. The *models* folder must contain the *.csv* files of the model with all input data.
 
+### Dependencies
+- *C++ compiler:* first_blood uses clang++, but any general C++ compiler should work
+- *Eigen:* Eigen solves linear sets of equation ensuring computational efficiency
+- *make:* for compyling multiple cpp files at once
+
 ### Publications

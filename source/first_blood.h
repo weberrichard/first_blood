@@ -16,7 +16,6 @@
 
 #include "file_io.h"
 #include "solver_moc.h"
-#include "solver_moc.h"
 #include "solver_lumped.h"
 #include "statistics.h"
 
