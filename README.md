@@ -2,13 +2,13 @@
 1D and 0D combined hemodynamic simulator for arterial blood system utilizing method of characteristics. The main purpose of the project is research and education at the Budapest University of Technology and Economics, Faculty of Mechanical Engineering, Department of Hydrodyanmic Systems.
 
 ### Current projects
-- *carotis* analysing only the carotis stenosis with only 4 branches and nonlinear resistance
-- *cerebral* the effect of the incomplete Willis-circle to the cerebral arteries during surgery of internal carotis
-- *heart_modelling* how different 0D heart models influance the arterial pressure
-- *reymond_modell* early project for building complete arterial system models
-- *sensitivity* sensitivity analysis of physiologically relevant outputs to input parameters
-- *virtual_patient_database* creating virtual patient database (VPD) that mimics the whole population physiologically properly
-- *vpd_ref* finding a reference (average) patient for the VPD with differential evolution
+- *carotis:* analysing only the carotis stenosis with only 4 branches and nonlinear resistance
+- *cerebral:* the effect of the incomplete Willis-circle to the cerebral arteries during surgery of internal carotis
+- *heart_modelling:* how different 0D heart models influance the arterial pressure
+- *reymond_modell:* early project for building complete arterial system models
+- *sensitivity:* sensitivity analysis of physiologically relevant outputs to input parameters
+- *virtual_patient_database:* creating virtual patient database (VPD) that mimics the whole population physiologically properly
+- *vpd_ref:* finding a reference (average) patient for the VPD with differential evolution
 
 ### Model
 The arterial model is based on the research paper (Reymond 2009 Validation of a one-dimensional model of the systemic arterial tree). The 0D model mimicking the heart is added, moreover the wall material is described with viscoelastic properties.
