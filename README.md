@@ -27,4 +27,8 @@ Then the running *.out* file will run the simulation. The *models* folder must c
 - *Eigen:* Eigen solves linear sets of equation ensuring computational efficiency
 - *make:* for compyling multiple cpp files at once
 
+### Developement team
+Dr. Richárd Wéber, assistant professor
+Dániel Gyürki, research assistant fellow
+
 ### Publications
