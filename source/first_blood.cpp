@@ -190,7 +190,7 @@ bool first_blood::run()
 	{
 		is_run_ok = true;
 
-		// add everything to forward_*
+		// add everything to forward
 		for(int i=0; i<number_of_moc; i++)
 		{
 			moc[i]->full_tree();

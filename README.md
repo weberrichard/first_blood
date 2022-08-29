@@ -1,6 +1,8 @@
 # first_blood
 1D and 0D combined hemodynamic simulator for arterial blood system utilizing method of characteristics. The main purpose of the project is research and education at the Budapest University of Technology and Economics, Faculty of Mechanical Engineering, Department of Hydrodyanmic Systems.
 
+![Alt text](arterial_results.png?raw=true "Title")
+
 ### Current projects
 - *carotis:* analysing only the carotis stenosis with only 4 branches and nonlinear resistance
 - *cerebral:* the effect of the incomplete Willis-circle to the cerebral arteries during surgery of internal carotis

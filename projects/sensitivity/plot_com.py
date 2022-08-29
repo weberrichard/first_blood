@@ -7,7 +7,7 @@ import pandas as pd
 
 cases = ['Reymond_99_heart_ref3','Reymond_99_heart_ref3']
 models = 'arterial'
-elements = ['A1','A48']
+elements = ['H','A48']
 
 #models = 'heart_kim'
 #elements = ['aorta','left-ventricular']
@@ -20,7 +20,7 @@ plt.figure()
 data = pd.read_csv("results\\" + cases[0] + "\\" + models + "\\" + elements[0] + ".txt",header=None)
 t = data[0]
 p = (data[2-start]-1e5)/mmHg_to_Pa;
-q = data[6-start]*1e6*60;
+#q = data[6-start]*1e6*60;
 #v = data[4-start];
 #a = data[16-start];
 #p = (data[1]-1e5)/mmHg_to_Pa;
