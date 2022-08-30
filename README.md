@@ -35,3 +35,5 @@ Dr. Richárd Wéber, assistant professor
 Dániel Gyürki, research assistant fellow
 
 ### Publications
+
+Dániel Gyürki, Tamás Horváth, Sára Till, Attila Egri, Csilla Celeng, György Paál, Béla Merkely, Pál Maurovich-Horvat & Gábor Halász (2022) Central arterial pressure and patient-specific model parameter estimation based on radial pressure measurements, Computer Methods in Biomechanics and Biomedical Engineering, DOI: 10.1080/10255842.2022.2115292
