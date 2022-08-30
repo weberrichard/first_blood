@@ -12,7 +12,7 @@ cm = 1/2.54
 models = 'heart_kim'
 nodes = ['left-atrium','left-ventricular','aorta']
 edges = ['D-mitral','D-aorta']
-c_nodes = ['r','k','b']
+c_nodes = ['tab:orange','tab:green','tab:red']
 c_edges = ['r','b']
 
 fig = plt.figure(figsize=(8*cm, 12*cm))
