@@ -799,12 +799,18 @@ void solver_moc::set_save_memory(vector<string> edge_list, vector<string> node_l
 	for(int i=0; i<edge_list.size(); i++)
 	{
 		int idx = edge_id_to_index(edge_list[i]);
-		edges[idx]->do_save_memory = true;
+		if(idx>-1)
+		{
+			edges[idx]->do_save_memory = true;
+		}
 	}
 	for(int i=0; i<node_list.size(); i++)
 	{
 		int idx = node_id_to_index(node_list[i]);
-		nodes[idx]->do_save_memory = true;
+		if(idx>-1)
+		{
+			nodes[idx]->do_save_memory = true;
+		}
 	}
 }
 

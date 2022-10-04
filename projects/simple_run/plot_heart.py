@@ -12,7 +12,7 @@ cm = 1/2.54
 models = 'heart_kim'
 nodes = ['left-atrium','left-ventricular','aorta']
 edges = ['D-mitral','D-aorta']
-c_nodes = ['tab:orange','tab:green','tab:red']
+c_nodes = ['r','k','b']
 c_edges = ['r','b']
 
 fig = plt.figure(figsize=(8*cm, 12*cm))
@@ -27,13 +27,24 @@ for i in range(0,len(nodes)):
 	t12 = p.size-t02
 	axs[0].plot(t[:t02-t01],p[t12:t11],c_nodes[i])
 
+data = pd.read_csv("literature_results\\aortic_pressure_lit.txt",header=None)
+t = data[0]+0.148
+p = data[1]
+axs[0].plot(t,p,'--b')
+axs[0].plot(t-0.81915,p,'--b')
+
 for i in range(0,len(edges)):
 	data = pd.read_csv("results\\" + cases + "\\" + models + "\\" + edges[i] + ".txt",header=None)
 	t = data[0]
 	q = data[1]*1e3*60
-	t11 = p.size-t01
-	t12 = p.size-t02
+	t11 = q.size-t01
+	t12 = q.size-t02
 	axs[1].plot(t[:t02-t01],q[t12:t11],c_edges[i])
+
+data = pd.read_csv("literature_results\\cardiac_output_lit.txt",header=None)
+t = data[0]+0.148
+q = data[1]*60/1000
+axs[1].plot(t,q,'--b')
 
 # dashed lines
 x1=[0.145,0.145]
@@ -62,8 +73,10 @@ axs[1].text(0.807,20,'mitral v. closes',rotation='vertical',fontsize=8)
 
 axs[0].tick_params(axis='both', which='major', labelsize=7)
 axs[1].tick_params(axis='both', which='major', labelsize=7)
+axs[0].set_xlim([-0.04495,0.9439])
+axs[1].set_xlim([-0.04495,0.9439])
 axs[0].set_ylim([0,140])
-axs[1].set_ylim([0,45])
+axs[1].set_ylim([-5,45])
 axs[1].set_xlabel('t [s]', fontsize = 8)
 axs[0].set_ylabel('p [mmHg]', fontsize = 8) 
 axs[1].set_ylabel('q [l/min]', fontsize = 8)

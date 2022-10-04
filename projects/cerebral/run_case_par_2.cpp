@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
    double heart_rate = 75.6;  // if there is a heart model   
    double period_time = 60./heart_rate;
    double sim_time = 10.*period_time;
-   bool init_from_file = true;
+   bool init_from_file = false;
 
    // handling inputs
    double res_mitral, res_aorta, pres_atrium;
@@ -87,7 +87,10 @@ int main(int argc, char* argv[])
       {
          string id = id_node[i][j];
          int idx = fb->moc[0]->node_id_to_index(id);
-         fb->moc[0]->nodes[idx]->resistance *= res_node[i];
+         if(idx>-1)
+         {
+            fb->moc[0]->nodes[idx]->resistance *= res_node[i];
+         }
       }
    }
 
@@ -105,9 +108,12 @@ int main(int argc, char* argv[])
       {
          string id = id_lum[i][j];
          int idx = fb->lum_id_to_index(id);
-         fb->lum[idx]->edges[0]->parameter *= res_perif_1[i];
-         fb->lum[idx]->edges[1]->parameter *= res_perif_2[i];
-         fb->lum[idx]->edges[2]->parameter *= cap_perif[i];
+         if(idx>-1)
+         {
+            fb->lum[idx]->edges[0]->parameter *= res_perif_1[i];
+            fb->lum[idx]->edges[1]->parameter *= res_perif_2[i];
+            fb->lum[idx]->edges[2]->parameter *= cap_perif[i];
+         }
       }
    }
 
@@ -124,13 +130,16 @@ int main(int argc, char* argv[])
       {
          string id = id_edge[i][j];
          int idx = fb->moc[0]->edge_id_to_index(id);
-         fb->moc[0]->edges[idx]->length *= length[i];
-         fb->moc[0]->edges[idx]->nominal_diameter_start *= diameter[i];
-         fb->moc[0]->edges[idx]->nominal_diameter_end *= diameter[i];
-         fb->moc[0]->edges[idx]->nominal_thickness_start *= thickness[i];
-         fb->moc[0]->edges[idx]->nominal_thickness_end *= thickness[i];
-         fb->moc[0]->edges[idx]->elasticity_spring *= elas_spring[i];
-         fb->moc[0]->edges[idx]->elasticity_voigt *= elas_voigt[i];
+         if(idx>-1)
+         {
+            fb->moc[0]->edges[idx]->length *= length[i];
+            fb->moc[0]->edges[idx]->nominal_diameter_start *= diameter[i];
+            fb->moc[0]->edges[idx]->nominal_diameter_end *= diameter[i];
+            fb->moc[0]->edges[idx]->nominal_thickness_start *= thickness[i];
+            fb->moc[0]->edges[idx]->nominal_thickness_end *= thickness[i];
+            fb->moc[0]->edges[idx]->elasticity_spring *= elas_spring[i];
+            fb->moc[0]->edges[idx]->elasticity_voigt *= elas_voigt[i];
+         }
       }
    }
 
@@ -157,26 +166,49 @@ int main(int argc, char* argv[])
 
       // calculating fitness function
       int n8idx = fb->moc[0]->node_id_to_index("n8");
+      if(n8idx>-1)
+      {
+         fitness_function[0] = (diastole(fb->moc[0]->nodes[n8idx]->pressure,fb->moc[0]->nodes[n8idx]->time,fb->time_end-period_time) - fb->atmospheric_pressure)/fb->mmHg_to_Pa;
+         fitness_function[1] = (systole(fb->moc[0]->nodes[n8idx]->pressure,fb->moc[0]->nodes[n8idx]->time,fb->time_end-period_time) - fb->atmospheric_pressure)/fb->mmHg_to_Pa;
+      }
+
       int n1idx = fb->moc[0]->node_id_to_index("n1");
+      if(n1idx>-1)
+      {
+         fitness_function[2] = (diastole(fb->moc[0]->nodes[n1idx]->pressure,fb->moc[0]->nodes[n1idx]->time,fb->time_end-period_time) - fb->atmospheric_pressure)/fb->mmHg_to_Pa;
+         fitness_function[3] = (systole(fb->moc[0]->nodes[n1idx]->pressure,fb->moc[0]->nodes[n1idx]->time,fb->time_end-period_time) - fb->atmospheric_pressure)/fb->mmHg_to_Pa;
+      }
+
       int n32idx = fb->moc[0]->node_id_to_index("n32");
-      fitness_function[0] = (diastole(fb->moc[0]->nodes[n8idx]->pressure,fb->moc[0]->nodes[n8idx]->time,fb->time_end-period_time) - fb->atmospheric_pressure)/fb->mmHg_to_Pa;
-      fitness_function[1] = (systole(fb->moc[0]->nodes[n8idx]->pressure,fb->moc[0]->nodes[n8idx]->time,fb->time_end-period_time) - fb->atmospheric_pressure)/fb->mmHg_to_Pa;
-      fitness_function[2] = (diastole(fb->moc[0]->nodes[n1idx]->pressure,fb->moc[0]->nodes[n1idx]->time,fb->time_end-period_time) - fb->atmospheric_pressure)/fb->mmHg_to_Pa;
-      fitness_function[3] = (systole(fb->moc[0]->nodes[n1idx]->pressure,fb->moc[0]->nodes[n1idx]->time,fb->time_end-period_time) - fb->atmospheric_pressure)/fb->mmHg_to_Pa;
-      fitness_function[4] = (diastole(fb->moc[0]->nodes[n32idx]->pressure,fb->moc[0]->nodes[n32idx]->time,fb->time_end-period_time) - fb->atmospheric_pressure)/fb->mmHg_to_Pa;
-      fitness_function[5] = (systole(fb->moc[0]->nodes[n32idx]->pressure,fb->moc[0]->nodes[n32idx]->time,fb->time_end-period_time) - fb->atmospheric_pressure)/fb->mmHg_to_Pa;
+      if(n32idx>-1)
+      {
+         fitness_function[4] = (diastole(fb->moc[0]->nodes[n32idx]->pressure,fb->moc[0]->nodes[n32idx]->time,fb->time_end-period_time) - fb->atmospheric_pressure)/fb->mmHg_to_Pa;
+         fitness_function[5] = (systole(fb->moc[0]->nodes[n32idx]->pressure,fb->moc[0]->nodes[n32idx]->time,fb->time_end-period_time) - fb->atmospheric_pressure)/fb->mmHg_to_Pa;
+      }
 
       // volume flow rates
       int A44idx = fb->moc[0]->edge_id_to_index("A44");
+      if(A44idx>-1)
+      {
+         fitness_function[6] = average(fb->moc[0]->edges[A44idx]->volume_flow_rate_end,fb->moc[0]->edges[A44idx]->time)*1.e6*60.;
+      }
       int A1idx = fb->moc[0]->edge_id_to_index("A1");
+      if(A1idx>-1)
+      {
+         fitness_function[7] = average(fb->moc[0]->edges[A1idx]->volume_flow_rate_start,fb->moc[0]->edges[A1idx]->time)*1.e6*60.;
+      }
       int A12idx = fb->moc[0]->edge_id_to_index("A12");
+      if(A12idx>-1)
+      {
+         fitness_function[8] = average(fb->moc[0]->edges[A12idx]->volume_flow_rate_start,fb->moc[0]->edges[A12idx]->time)*1.e6*60.;
+         fitness_function[9] = systole(fb->moc[0]->edges[A12idx]->volume_flow_rate_start,fb->moc[0]->edges[A12idx]->time,fb->time_end-period_time)*1.e6*60.;
+      }
       int A20idx = fb->moc[0]->edge_id_to_index("A20");
-      fitness_function[6] = average(fb->moc[0]->edges[A44idx]->volume_flow_rate_end,fb->moc[0]->edges[A44idx]->time)*1.e6*60.;
-      fitness_function[7] = average(fb->moc[0]->edges[A1idx]->volume_flow_rate_start,fb->moc[0]->edges[A1idx]->time)*1.e6*60.;
-      fitness_function[8] = average(fb->moc[0]->edges[A12idx]->volume_flow_rate_start,fb->moc[0]->edges[A12idx]->time)*1.e6*60.;
-      fitness_function[9] = systole(fb->moc[0]->edges[A12idx]->volume_flow_rate_start,fb->moc[0]->edges[A12idx]->time,fb->time_end-period_time)*1.e6*60.;
-      fitness_function[10] = average(fb->moc[0]->edges[A20idx]->volume_flow_rate_start,fb->moc[0]->edges[A20idx]->time)*1.e6*60.;
-      fitness_function[11] = systole(fb->moc[0]->edges[A20idx]->volume_flow_rate_start,fb->moc[0]->edges[A20idx]->time,fb->time_end-period_time)*1.e6*60.;
+      if(A20idx>-1)
+      {
+         fitness_function[10] = average(fb->moc[0]->edges[A20idx]->volume_flow_rate_start,fb->moc[0]->edges[A20idx]->time)*1.e6*60.;
+         fitness_function[11] = systole(fb->moc[0]->edges[A20idx]->volume_flow_rate_start,fb->moc[0]->edges[A20idx]->time,fb->time_end-period_time)*1.e6*60.;
+      }
 
       // pulse wave velocity
       vector<string> pwv_aortic{"A1","A95","A2","A14","A18","A27","A28","A35","A37","A39","A41","A43","A44"};
@@ -191,13 +223,16 @@ int main(int argc, char* argv[])
          {
             string id = id_pwv[i][j];
             int idx = fb->moc[0]->edge_id_to_index(id);
-            double vs = average(fb->moc[0]->edges[idx]->velocity_start,fb->moc[0]->edges[idx]->time);
-            double ve = average(fb->moc[0]->edges[idx]->velocity_end,fb->moc[0]->edges[idx]->time);
-            double as = average(fb->moc[0]->edges[idx]->wave_velocity_start,fb->moc[0]->edges[idx]->time);
-            double ae = average(fb->moc[0]->edges[idx]->wave_velocity_end,fb->moc[0]->edges[idx]->time);
-            double l = fb->moc[0]->edges[idx]->length;
-            lsum += l;
-            fitness_function[12+i] += (vs+as + ve+ae)*.5 * l;
+            if(idx>-1)
+            {
+               double vs = average(fb->moc[0]->edges[idx]->velocity_start,fb->moc[0]->edges[idx]->time);
+               double ve = average(fb->moc[0]->edges[idx]->velocity_end,fb->moc[0]->edges[idx]->time);
+               double as = average(fb->moc[0]->edges[idx]->wave_velocity_start,fb->moc[0]->edges[idx]->time);
+               double ae = average(fb->moc[0]->edges[idx]->wave_velocity_end,fb->moc[0]->edges[idx]->time);
+               double l = fb->moc[0]->edges[idx]->length;
+               lsum += l;
+               fitness_function[12+i] += (vs+as + ve+ae)*.5 * l;
+            }
          }
          fitness_function[12+i] /= lsum;
       }

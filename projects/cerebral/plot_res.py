@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # name of case, model, element
-case_name = 'Reymond_99_heart_ref3'
+case_name = 'Reymond_99_heart_ref3_mutet'
 model = 'arterial'
 element = 'A1'
 # start node (1) or end node (0) of artery
