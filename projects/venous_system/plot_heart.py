@@ -27,23 +27,11 @@ for i in range(0,len(nodes)):
 	t12 = p.size-t02
 	axs[0].plot(t[:t02-t01],p[t12:t11],c_nodes[i])
 
-data = pd.read_csv("literature_results\\bucelli_data\\aortic_pres.txt",header=None)
-t = data[0]
+data = pd.read_csv("literature_results\\aortic_pressure_lit.txt",header=None)
+t = data[0]+0.148
 p = data[1]
 axs[0].plot(t,p,'--b')
-axs[0].plot(t+0.8,p,'--b')
-
-data = pd.read_csv("literature_results\\bucelli_data\\ventricle_pres.txt",header=None)
-t = data[0]
-p = data[1]
-axs[0].plot(t,p,'--k')
-axs[0].plot(t+0.8,p,'--k')
-
-data = pd.read_csv("literature_results\\bucelli_data\\atrium_pres.txt",header=None)
-t = data[0]
-p = data[1]
-axs[0].plot(t,p,'--r')
-axs[0].plot(t+0.8,p,'--r')
+axs[0].plot(t-0.81915,p,'--b')
 
 for i in range(0,len(edges)):
 	data = pd.read_csv("results\\" + cases + "\\" + models + "\\" + edges[i] + ".txt",header=None)
@@ -93,7 +81,7 @@ axs[1].set_xlabel('t [s]', fontsize = 8)
 axs[0].set_ylabel('p [mmHg]', fontsize = 8) 
 axs[1].set_ylabel('q [l/min]', fontsize = 8)
 
-axs[0].legend(['atrium','ventricle','aorta'], loc='upper right', fontsize=7, ncol=1)
+axs[0].legend(['atrium','ventricule','aorta'], loc='upper right', fontsize=7, ncol=1)
 axs[1].legend(['mitral','aortic'], bbox_to_anchor=(0.55,0.95), fontsize=7, ncol=1)
 
 plt.savefig('plots/heart_results.png',format='png')

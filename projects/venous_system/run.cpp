@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
    }
    else
    {
-      cout << "Incorrect number of inputs (" << argc << "). Right one: 40 or 1" << endl;
+      cout << "Incorrect number of inputs (" << argc << "). Right one: 41 or 2" << endl;
       exit(-1);
    }
 

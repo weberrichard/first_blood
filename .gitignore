@@ -37,7 +37,8 @@ projects/test_single_artery/*
 projects/archive
 
 projects/cerebral/3D_model_resutls/*
-projects/cerebral/plots/*
+projects/*/plots/*
+projects/simple_run/literature_results/*
 
 # models
 models/archive

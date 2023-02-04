@@ -1,0 +1,28 @@
+#include "../../source/first_blood.h"
+#include <string>
+
+using namespace std;
+
+vector<double> vfr_bc(vector<double> t, double q_input_f);
+
+int main(int argc, char* argv[])
+{
+   // basic stuff
+	string case_folder = "../../models/";
+   string case_name = "moc_test";
+   if(argc == 2)
+   {
+      case_name = argv[1];
+   }
+
+   double save_dt = 1e-3;
+
+   cout << "[*] case: " << case_name << endl;
+
+   // loading original case
+   first_blood *fb = new first_blood(case_folder + case_name);
+   fb->run();
+   fb->save_results();
+
+   return 0;
+}
