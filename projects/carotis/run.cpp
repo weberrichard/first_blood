@@ -18,6 +18,7 @@ int main(int argc, char* argv[])
    double save_dt = 1e-3;
 
    cout << "[*] case: " << case_name << endl;
+
    // loading original case
    first_blood *fb = new first_blood(case_folder + case_name);
    fb->run();
