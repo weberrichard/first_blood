@@ -1,8 +1,0 @@
-edge, D-mitral, 6.9163307e-05
-edge, D-aorta, -1.7749815e-12
-edge, PLA, 6.9163307e-05
-edge, C-elastance, -6.9163309e-05
-node, left-atrium, 1.0100500e+05
-node, left-ventricular, 1.0090907e+05
-node, aorta, 1.0970765e+05
-node, G, 1.0000000e+05
