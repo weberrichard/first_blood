@@ -1,0 +1,12 @@
+type,ID,name,start_node,end_node,start_diameter[SI],end_diameter[SI],start_thickness[SI],end_thickness[SI],length[SI],division_points,elastance_1[SI],elastance_2[SI],eta[SI],res_start[SI],res_end[SI]
+
+vis,A5,Common carotid,n6,n32,0.0071,0.0071,0.00071,0.00071,0.0519,20,9.578e+05,1.283e+06,1.30E+04,0,0
+vis,A12x,Internal carotid Stenosis,n32,n32x,0.00204,0.00204,0.000204,0.000204,0.0094,5,1.392e+06,1.866e+06,1.30E+04,0,0
+vis,A13,External carotid 1,n32,p33,0.00494,0.00494,0.000494,0.000494,0.0432,10,1.425e+06,1.906e+06,1.30E+04,0,0
+
+type,ID,name,valami,parameter,file name
+heart,n6,0,Q,qCCA
+node,n32,0,0,
+perif,n32x,0,,
+heart,p33,0,Q,qECA
+
