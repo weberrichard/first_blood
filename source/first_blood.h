@@ -69,7 +69,7 @@ public:
 	// file initialization from init folder
 	bool init_from_file=false;
 
-	// Constants for hydraulics, note: there are constants in Edge.h
+	// Constants for hydraulics
 	double gravity = 9.806; // [m/s2]
 	double density = 1055.; // [kg/m3]
 	double kinematic_viscosity = 3.e-6; // [m2/s]
@@ -77,6 +77,9 @@ public:
 	double atmospheric_pressure = 1.e5; // Pa
 	double pressure_initial = 0.*mmHg_to_Pa + atmospheric_pressure; // [Pa]
 	double beta = 2.0; // exponent of wave velocity
+
+	// lumped time step if only lumped model exists
+	double dt_lumped = 1.e-3;
 
 	/// Loading the system from CSV
 	bool load_ok;
@@ -89,6 +92,7 @@ public:
 	double save_file_dt = 0.0; // time step of saving data in files, if 0, every data is saved
 	void save_results(); // default folder name: case_name
 	void save_results(double dt); // default folder name: case_name
+	void save_results(double dt, string folder_name);
 	void save_results(string folder_name, string model_name, string model_type, vector<string> edge_list, vector<string> node_list); // saving specific time results to save time
 	void save_results(double dt, string folder_name, string model_name, string model_type, vector<string> edge_list, vector<string> node_list); // saving specific time results to save time
 
@@ -107,7 +111,6 @@ public:
 	// for peridoic checking
 	double time_end_min = 5.;
 	double time_end_max = 500.;
-	double time_period;
 	string time_node = "H";
 	string time_var = "P";
 	bool is_periodic_run = false;
@@ -123,6 +126,19 @@ public:
 	string case_name;
 
 	int period=0; // saving which period the calculation is
+	double heart_rate = 75.6; // from Charlton2019
+	double time_period = 60./heart_rate;
+
+	// autoregulation stuff
+	bool do_autoregulation = false;
+	void autoregulation();
+	
+	// time averaged series
+	time_average *map, *cfr;
+
+	void calculate_time_average();
+	void save_time_average(string folder_name);
+	void save_time_average(double dt, string folder_name);
 
 private:
 	// data of boundary for forward, and backward simulation

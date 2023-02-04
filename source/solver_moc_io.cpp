@@ -2,7 +2,10 @@
 
 //--------------------------------------------------------------
 void solver_moc::load_model()
-{
+{		
+	// to counting prescribed boundaries
+	int up_counter=0;
+
 	ifstream file_in;
 	string file_name = input_folder_path + '/' + name + ".csv";
 	file_in.open(file_name);
@@ -20,7 +23,7 @@ void solver_moc::load_model()
 			// seperating the strings by comma
 			vector<string> sv = separate_line(line);
 
-			if(sv[0] == "vis" || sv[0] == "visM") // edges
+			if(sv[0] == "vis" || sv[0] == "visM" || sv[0] == "vis_f") // edges
 			{
 				edges.push_back(new moc_edge(sv[1]));
 				edges[i]->type = sv[0];
@@ -38,6 +41,10 @@ void solver_moc::load_model()
 				edges[i]->viscosity = stod(sv[13],0);
 				edges[i]->resistance_start = stod(sv[14],0);
 				edges[i]->resistance_end = stod(sv[15],0);
+				if(sv[0] == "vis_f")
+				{
+					edges[i]->kinematic_viscosity_factor = stod(sv[16],0);
+				}
 				i++;
 			}
 			else if(sv[0] == "elag" || sv[0] == "junction" || sv[0] == "node") // nodes
@@ -115,24 +122,26 @@ void solver_moc::load_model()
 
 				if(sv.size()>3)
 				{
+					nodes[j]->upstream_boundary = up_counter;
+					up_counter++;
 					if(sv[3] == "P")
 					{
-						type_upstream = 0;
+						type_upstream.push_back(0);
 					}
 					else if(sv[3] == "Q")
 					{
-						type_upstream = 1;
+						type_upstream.push_back(1);
 					}
 					else if(sv[3] == "V")
 					{
-						type_upstream = 2;
+						type_upstream.push_back(2);
 					}
 				}
 				// loading the pressure-time curve
 				if(sv.size()>4 && sv[4] != "")
 				{
-					pt_file_name = sv[4];
-					load_time_series(pt_file_name);
+					pt_file_name.push_back(sv[4]);
+					load_time_series(sv[4]);
 				}
 
 				j++;
@@ -155,8 +164,7 @@ void solver_moc::load_model()
 //--------------------------------------------------------------
 void solver_moc::load_time_series(string file_name)
 {
-	time_upstream.clear();
-	value_upstream.clear();
+	vector<double> tu,vu;
 	ifstream pt_file_in;
 	file_name = input_folder_path + '/' + file_name + ".csv";
 	pt_file_in.open(file_name);
@@ -166,22 +174,24 @@ void solver_moc::load_time_series(string file_name)
 		while(getline(pt_file_in,pt_line))
 		{
 			vector<string> pt_sv = separate_line(pt_line);
-			time_upstream.push_back(stod(pt_sv[0],0));
+			tu.push_back(stod(pt_sv[0],0));
 
 			double p = stod(pt_sv[1],0);
-			value_upstream.push_back(p);
+			vu.push_back(p);
 		}
 		// eliminating the delay if present
-		for(unsigned int i=0; i<time_upstream.size(); i++)
-		{
-			time_upstream[i] -= time_upstream[0];
-		}
+		// for(unsigned int i=0; i<time_upstream.size(); i++)
+		// {
+		// 	time_upstream[i] -= time_upstream[0];
+		// }
 	}
 	else
 	{
 		cout << "! ERROR !" << endl << " File is not open when calling load_time_series() function!!! file: " << file_name << "\nExiting..." << endl;
 		exit(-1);
 	}
+	time_upstream.push_back(tu);
+	value_upstream.push_back(vu);
 }
 
 //--------------------------------------------------------------
@@ -415,7 +425,7 @@ void solver_moc::save_model(string model_name, string folder_name)
 	{
 		if(nodes[i]->type_code == 2) // heart
 		{
-			fprintf(out_file, "%s,%s,0,P,%s\n",nodes[i]->type.c_str(),nodes[i]->name.c_str(),pt_file_name.c_str());
+			fprintf(out_file, "%s,%s,0,P,%s\n",nodes[i]->type.c_str(),nodes[i]->name.c_str(),pt_file_name[nodes[i]->upstream_boundary].c_str());
 		}
 		else if(nodes[i]->type_code == 0) // node
 		{
@@ -433,28 +443,31 @@ void solver_moc::save_model(string model_name, string folder_name)
 //--------------------------------------------------------------
 void solver_moc::save_pt_series(string model_name, string folder_name)
 {
-	FILE* out_file;
-   string file_name = folder_name + "/" + model_name + "/" + pt_file_name + ".csv";
-	out_file = fopen(file_name.c_str(),"w");
+	for(int j=0; j<pt_file_name.size(); j++)
+	{
+		FILE* out_file;
+	   string file_name = folder_name + "/" + model_name + "/" + pt_file_name[j] + ".csv";
+		out_file = fopen(file_name.c_str(),"w");
 
-	if(type_upstream == 0)
-	{
-		for(int i=0; i<time_upstream.size(); i++)
-	   {
-			double p_mmHg = (value_upstream[i]-atmospheric_pressure)/mmHg_to_Pa;   	
-			fprintf(out_file,"%6.3e,%8.5e\n",time_upstream[i],p_mmHg);	
-	   }
-	}
-	else if(type_upstream == 1)
-	{
-		for(int i=0; i<time_upstream.size(); i++)
+		if(type_upstream[j] == 0)
 		{
-			double q_mls = value_upstream[i]*1.e6; // m3/s to ml/s
-			fprintf(out_file,"%6.3e,%8.5e\n",time_upstream[i],q_mls);	
+			for(int i=0; i<time_upstream[j].size(); i++)
+		   {
+				double p_mmHg = (value_upstream[j][i]-atmospheric_pressure)/mmHg_to_Pa;   	
+				fprintf(out_file,"%6.3e,%8.5e\n",time_upstream[j][i],p_mmHg);	
+		   }
 		}
+		else if(type_upstream[j] == 1)
+		{
+			for(int i=0; i<time_upstream[j].size(); i++)
+			{
+				double q_mls = value_upstream[j][i]*1.e6; // m3/s to ml/s
+				fprintf(out_file,"%6.3e,%8.5e\n",time_upstream[j][i],q_mls);	
+			}
+		}
+	   
+	   fclose(out_file);
 	}
-   
-   fclose(out_file);
 
 }
 

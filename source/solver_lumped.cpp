@@ -10,7 +10,7 @@ solver_lumped::solver_lumped(string a_name, string a_folder)
 solver_lumped::~solver_lumped(){}
 
 //--------------------------------------------------------------
-void solver_lumped::initialization()
+void solver_lumped::initialization(double hr)
 {
 	// setting sizes
 	number_of_nodes = nodes.size();
@@ -19,6 +19,9 @@ void solver_lumped::initialization()
 
 	// clearing master boundary indices
 	boundary_indices.clear();
+
+	// heart rate
+	heart_rate = hr; // from Charlton2019
 
 	// setting the par variables, converting from SI to non-SI for favourable conditioning
 	set_non_SI_parameters();
@@ -90,21 +93,23 @@ void solver_lumped::coefficients_newton(double t_act)
 		int i1 = edges[i]->node_index_start;
 		int i2 = edges[i]->node_index_end;
 
+		double par = edges[i]->par_non_SI*edges[i]->parameter_factor;
+
 		if(edges[i]->type_code == 0) // resistor
 		{
 			Jac(i,m+i2) = 1.;
 			Jac(i,m+i1) = -1.;
-			Jac(i,i) = edges[i]->par_non_SI; // R
+			Jac(i,i) = par; // R*Rf
 
-			f(i) = x(m+i2) - x(m+i1) + edges[i]->par_non_SI*x(i);
+			f(i) = x(m+i2) - x(m+i1) + par*x(i);
 		}
 		else if(edges[i]->type_code == 1) // capacitor
 		{
 			Jac(i,m+i2) = 1.;
 			Jac(i,m+i1) = -1.;
-			Jac(i,i) = dt/edges[i]->par_non_SI; // dt/C
+			Jac(i,i) = dt/par; // dt/C
 
-			f(i) = x(m+i2) - x(m+i1) + dt/edges[i]->par_non_SI*x(i) - nodes[i2]->p + nodes[i1]->p;
+			f(i) = x(m+i2) - x(m+i1) + dt/par*x(i) - nodes[i2]->p + nodes[i1]->p;
 		}
 		else if(edges[i]->type_code == 2) // elastance
 		{
@@ -127,14 +132,14 @@ void solver_lumped::coefficients_newton(double t_act)
 		{
 			Jac(i,m+i2) = 1.;
 			Jac(i,m+i1) = -1.;
-			Jac(i,i) = edges[i]->par_non_SI/dt; // L/dt
-			f(i) = x(m+i2) - x(m+i1) + edges[i]->par_non_SI/dt * (x(i)-edges[i]->vfr);
+			Jac(i,i) = par/dt; // L/dt
+			f(i) = x(m+i2) - x(m+i1) + par/dt * (x(i)-edges[i]->vfr);
 		}
 		else if(edges[i]->type_code == 4) // voltage source
 		{
 			Jac(i,m+i2) = 1.;
 			Jac(i,m+i1) = -1.;
-			f(i) = x(m+i2) - x(m+i1) - edges[i]->par_non_SI;
+			f(i) = x(m+i2) - x(m+i1) - par;
 		}
 		else if(edges[i]->type_code == 5) // diode
 		{
@@ -143,22 +148,45 @@ void solver_lumped::coefficients_newton(double t_act)
 
 			if(x(m+i1)>x(m+i2)) // diode is open
 			{
-				Jac(i,i) = edges[i]->par_non_SI; // R
-				f(i) = x(m+i2) - x(m+i1) + edges[i]->par_non_SI*x(i);
+				Jac(i,i) = par; // R
+				f(i) = x(m+i2) - x(m+i1) + par*x(i);
 			}
 			else // diode is closed
 			{
-				Jac(i,i) = 1.e10*edges[i]->par_non_SI; // R*1.e10
-				f(i) = x(m+i2) - x(m+i1) + 1.e10*edges[i]->par_non_SI*x(i);
+				Jac(i,i) = 1.e10*par; // R*1.e10
+				f(i) = x(m+i2) - x(m+i1) + 1.e10*par*x(i);
 			}
 		}
-		else if(edges[i]->type_code == 6) // square resistor
+		else if(edges[i]->type_code == 6) // valve
 		{
 			Jac(i,m+i2) = 1.;
 			Jac(i,m+i1) = -1.;
-			Jac(i,i) = 2.*edges[i]->par_non_SI*x(i); // 2*R
+			Jac(i,i) = 2.*par*x(i); // 2*R*Q
 
-			f(i) = x(m+i2) - x(m+i1) + edges[i]->par_non_SI*x(i)*x(i); // dp = R*Q^2
+			f(i) = x(m+i2) - x(m+i1) + par*x(i)*x(i); // dp = R*Q^2
+		}
+		else if(edges[i]->type_code == 7) // resistor for coronaries
+		{
+			Jac(i,m+i2) = 1.;
+			Jac(i,m+i1) = -1.;
+			double R = par*(1. + beta_coronary*E_act/elastance_max); // from Reymond2009
+			Jac(i,i) = R; // R
+
+			f(i) = x(m+i2) - x(m+i1) + R*x(i);
+		}
+		else if(edges[i]->type_code == 8) // capacitor
+		{
+			Jac(i,m+i2) = 1.;
+			Jac(i,m+i1) = -1.;
+			double C = par*(1. - alpha_coronary*E_act/elastance_max); // from Reymond2009
+			Jac(i,i) = dt/C; // dt/C
+
+			f(i) = x(m+i2) - x(m+i1) + dt/C*x(i) - nodes[i2]->p + nodes[i1]->p;
+		}
+		else if(edges[i]->type_code == 9) // current source
+		{
+			Jac(i,i) = 1.;
+			f(i) = x(i) - par;
 		}
 	}
 
@@ -446,6 +474,18 @@ void solver_lumped::set_non_SI_parameters()
 		else if(edges[i]->type_code == 6) // squared resistance
 		{
 			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa*1.e-6*1.e-6;
+		}
+		else if(edges[i]->type_code == 7) // resistance_coronary
+		{
+			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa*1.e-6;
+		}
+		else if(edges[i]->type_code == 8) // capacitor
+		{
+			edges[i]->par_non_SI = edges[i]->parameter*mmHg_to_Pa*1.e6;
+		}
+		else if(edges[i]->type_code == 9) // current source
+		{
+			edges[i]->par_non_SI = edges[i]->parameter*1.e6;
 		}
 	}
 }

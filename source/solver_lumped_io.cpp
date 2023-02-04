@@ -19,7 +19,7 @@ void solver_lumped::load_model()
 			
 			vector<string> sv = separate_line(line);
 
-			if(sv[0] == "resistor" || sv[0] == "capacitor" || sv[0] == "inductor" || sv[0] == "voltage" || sv[0] == "diode" || sv[0] == "resistor2") // edges with parameter
+			if(sv[0] == "resistor" || sv[0] == "capacitor" || sv[0] == "inductor" || sv[0] == "voltage" || sv[0] == "diode" || sv[0] == "resistor2" || sv[0] == "valve" || sv[0] == "resistor_coronary" || sv[0] == "capacitor_coronary" || sv[0] == "current") // edges with parameter
 			{
 				edges.push_back(new edge);
 				edges[ne]->type = sv[0];
@@ -52,10 +52,25 @@ void solver_lumped::load_model()
 					edges[ne]->parameter = stod(sv[5],0);
 					edges[ne]->type_code = 5;
 				}
-				else if(sv[0] == "resistor2")
+				else if(sv[0] == "resistor2" || sv[0] == "valve")
 				{
 					edges[ne]->parameter = stod(sv[5],0);
 					edges[ne]->type_code = 6;
+				}
+				else if(sv[0] == "resistor_coronary")
+				{
+					edges[ne]->parameter = stod(sv[5],0);
+					edges[ne]->type_code = 7;
+				}
+				else if(sv[0] == "capacitor_coronary")
+				{
+					edges[ne]->parameter = stod(sv[5],0);
+					edges[ne]->type_code = 8;
+				}
+				else if(sv[0] == "current")
+				{
+					edges[ne]->parameter = stod(sv[5],0);					
+					edges[ne]->type_code = 9;
 				}
 				ne++;
 			}

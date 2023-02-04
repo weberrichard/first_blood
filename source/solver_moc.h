@@ -50,14 +50,14 @@ public:
 	int number_of_nodes, number_of_edges;
 
 	// index of upstream boundary for interpolation
-	int index_upstream;
+	vector<int> index_upstream;
 	// upper boundary p-t
-	vector<double> time_upstream;
-	vector<double> value_upstream; // SI in code
-	int type_upstream; // 0: pressure mmHg in file, 1: volume flow rate ml/s in file
-
+	vector<vector<double> > time_upstream;
+	vector<vector<double> > value_upstream; // SI in code
+	vector<int> type_upstream; // 0: pressure mmHg in file, 1: volume flow rate ml/s in file
+	vector<int> node_upstream; // which
 	// number of which period is the simulation
-	int period;
+	vector<int> period;
 
 	// giving initial conditions
 	void initialization(double pressure_initial);
@@ -147,7 +147,7 @@ private:
 	double beta; // exponent for wave velocity
 
 	// heart p-t diagram
-	string pt_file_name;
+	vector<string> pt_file_name;
 	
 };
 

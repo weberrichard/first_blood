@@ -130,9 +130,12 @@ bool moc_edge::new_timestep()
 		if(dt[i]<0.)
 		{
 			cout << " Negative time step in edge: " << name << " , at i " << i << "-th inner node, dt: " << dt[i] << endl;
-			cout <<  " velocity:      " << v[i] << endl;
-			cout <<  " wave velocity: " << a[i] << endl;
-			cout <<  " pressure:      " << p[i] << endl;
+			cout <<  " velocity left:        " << v[i-1] << endl;
+			cout <<  " velocity right:       " << v[i+1] << endl;
+			cout <<  " wave velocity left:   " << a[i-1] << endl;
+			cout <<  " wave velocity right:  " << a[i+1] << endl;
+			cout <<  " pressure left:        " << p[i-1] << endl;
+			cout <<  " pressure right:       " << p[i+1] << endl;
 			return false;
 		}
 	}
@@ -553,7 +556,7 @@ double moc_edge::JL(double dt, double p, double v, double a, double epsz, double
 	double AL = ( (p-p0)*dnp*(2.*epsz+1)/(eta2*snp) - 2.*E2/eta2*epsz2 )*exp(-E2/eta2*dt);
 
 	// output
-	double JL = g*(hs-he)/l + 32.*nu*v/(d*d) + a/(2.*epsz+1.)*AL;
+	double JL = g*(hs-he)/l + 32.*nu*nu_f*v/(d*d) + a/(2.*epsz+1.)*AL;
 
 	return JL;
 }
@@ -575,7 +578,7 @@ double moc_edge::JR(double dt, double p, double v, double a, double epsz, double
 	double AR = ( (p-p0)*dnp*(2.*epsz+1)/(eta2*snp) - 2.*E2/eta2*epsz2 )*exp(-E2/eta2*dt);
 
 	// output
-	double JR = g*(hs-he)/l + 32.*nu*v/(d*d) - a/(2.*epsz+1.)*AR;
+	double JR = g*(hs-he)/l + 32.*nu*nu_f*v/(d*d) - a/(2.*epsz+1.)*AR;
 
 	return JR;
 }
@@ -790,7 +793,6 @@ vector<double> moc_edge::junction_newton_end(double pp, double t_act)
 	double pL = (p[nx-2]-p[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + p[nx-1];
 	double dL = (d[nx-2]-d[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + d[nx-1];
 	double AL = dL*dL*pi*.25;
-	
 	double hL = (h[nx-2]-h[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + h[nx-1];
 	double epszL = (epsz[nx-2]-epsz[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz[nx-1];
 	double epsz2L = (epsz2[nx-2]-epsz2[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz2[nx-1];
@@ -1008,15 +1010,77 @@ void moc_edge::boundary_end_variables(double t_act, double p, double q)
 }
 
 //--------------------------------------------------------------
-double moc_edge::boundary_periferia(double dt, double p_out)
+double moc_edge::boundary_periferia_start(double dt, double p_out)
+{	
+	int k=0;
+	double p_s = p[0], p_old = 0., v_s = 0., delta = 0.0001;
+	do
+	{	
+		p_old = p_s;
+		double f2 = f_perif_start(p_s*(1.+delta), p_out, dt, v_s);
+		double f = f_perif_start(p_s, p_out, dt, v_s);
+		double fd = (f2-f)/(p_s*delta);
+		p_s = p_s - f/fd;
+		k++;
+	}
+	while(abs(p_s-p_old) > 1e-5 && k<100);
+
+	if(k>=100)
+	{
+		cout << "Iteration did NOT converge at boundary_periferia_start, ID: " << ID << "\nExiting..." << endl;
+		exit(-1);
+	}
+
+	// update v_s with final p_s
+	f_perif_start(p_s, p_out, dt, v_s);
+
+	// update field variables
+	double ex = exp(-E2/eta2*dt_act);
+	update_ith_variables(0, ex, p_s, epsz2[0], epsz[0]);
+
+	pp[0] = p_s;
+	vp[0] = v_s;
+	return v_s*A[0];
+}
+
+//--------------------------------------------------------------
+double moc_edge::f_perif_start(double pp, double p_out, double dt, double &v_s)
+{
+	double xR = boundary_start_position(dt);
+
+	// interpolating fied variables to xR
+	double aR = (a[1]-a[0]) / (x[1]-x[0]) * xR + a[0];
+	double vR = (v[1]-v[0]) / (x[1]-x[0]) * xR + v[0];
+	double pR = (p[1]-p[0]) / (x[1]-x[0]) * xR + p[0];
+	double dR = (d[1]-d[0]) / (x[1]-x[0]) * xR + d[0];
+	double AR = dR*dR*pi/4.;
+	double hR = (h[1]-h[0]) / (x[1]-x[0]) * xR + h[0];
+	double epszR = (epsz[1]-epsz[0]) / (x[1]-x[0]) * xR + epsz[0];
+	double epsz2R = (epsz2[1]-epsz2[0]) / (x[1]-x[0]) * xR + epsz2[0];
+
+	// source term
+	double J = JR(dt, pR, vR, aR, epszR, epsz2R, dR, hR, xR, x[0]);
+
+	v_s = vR + (pp-pR)/(rho*aR) - dt*J;
+
+	double ex = exp(-E2/eta2*dt_act);
+	double C1 = (2.*epsz[0]+1.) *dns / (E1*2.*sns*pow(epsz[0]+1.,beta)) + (2.*epsz[0]+1.)*(1.-ex) * dns / (E2*2.*sns);
+	double C3 = epsz2[0]*ex;
+
+	double f = 4.*(pp-p_out) + Rs*v_s*(dns*dns*pi*pow(C1*(pp-p0)+C3+1.,2));
+	return f;
+}
+
+//--------------------------------------------------------------
+double moc_edge::boundary_periferia_end(double dt, double p_out)
 {	
 	int k=0;
 	double p_e = p[nx-1], p_old = 0., v_e = 0., delta = 0.0001;
 	do
 	{	
 		p_old = p_e;
-		double f2 = f_perif(p_e*(1.+delta), p_out, dt, v_e);
-		double f = f_perif(p_e, p_out, dt, v_e);
+		double f2 = f_perif_end(p_e*(1.+delta), p_out, dt, v_e);
+		double f = f_perif_end(p_e, p_out, dt, v_e);
 		double fd = (f2-f)/(p_e*delta);
 		p_e = p_e - f/fd;
 		k++;
@@ -1025,12 +1089,12 @@ double moc_edge::boundary_periferia(double dt, double p_out)
 
 	if(k>=100)
 	{
-		cout << "Iteration did NOT converge at upstream_boundary_p, ID: " << ID << "\nExiting..." << endl;
+		cout << "Iteration did NOT converge at boundary_periferia_end, ID: " << ID << "\nExiting..." << endl;
 		exit(-1);
 	}
 
 	// update v_e with final p_e
-	f_perif(p_e, p_out, dt, v_e);
+	f_perif_end(p_e, p_out, dt, v_e);
 
 	// update field variables
 	double ex = exp(-E2/eta2*dt_act);
@@ -1042,7 +1106,7 @@ double moc_edge::boundary_periferia(double dt, double p_out)
 }
 
 //--------------------------------------------------------------
-double moc_edge::f_perif(double pp, double p_out, double dt, double &v_e)
+double moc_edge::f_perif_end(double pp, double p_out, double dt, double &v_e)
 {
 	double xL = boundary_end_position(dt);
 
@@ -1089,7 +1153,7 @@ double moc_edge::boundary_end_position(double dt)
 double moc_edge::upstream_boundary_p(double dt, double p_in)
 {
 	int k=0;
-	double p_s = p[nx-1], p_old = 0., v_s = 0., delta = 0.0001;
+	double p_s = p[0], p_old = 0., v_s = 0., delta = 0.0001;
 	do
 	{	
 		p_old = p_s;
@@ -1154,10 +1218,78 @@ double moc_edge::f_upstream_p(double pp, double p_in, double dt, double &v_s)
 }
 
 //--------------------------------------------------------------
+double moc_edge::downstream_boundary_p(double dt, double p_in)
+{
+	int k=0;
+	double p_e = p[nx-1], p_old = 0., v_e = 0., delta = 0.0001;
+	do
+	{	
+		p_old = p_e;
+		double f2 = f_downstream_p(p_e*(1.+delta), p_in, dt, v_e);
+		double f = f_downstream_p(p_e, p_in, dt, v_e);
+		double fd = (f2-f)/(p_e*delta);
+		p_e = p_e - f/fd;
+		k++;
+	}
+	while(abs(p_e-p_old) > 1e-5 && k<100);
+
+	if(k>=100)
+	{
+		cout << "Iteration did NOT converge at downstream_boundary_p, ID: " << ID << "\nExiting..." << endl;
+		exit(-1);
+	}
+
+	// update v_e with final p_e
+	f_downstream_p(p_e, p_in, dt, v_e);
+
+	double q_in = v_e*A[nx-1];
+
+	// update field variables
+	double ex = exp(-E2/eta2*dt_act);
+	double ans = sqrt(E1*sne / (rho*dne));
+
+	epsz2[nx-1] = (p_e+Re*q_in-p0)*(2.*epsz[nx-1]+1.)*(1.-ex) * dne / (E2*2.*sne) + epsz2[nx-1]*ex;
+	epsz[nx-1]  = epsz2[nx-1] + (p_e+Rs*q_in-p0)*(2.*epsz[nx-1]+1.) *dne / (E1*2.*sne*pow(epsz[nx-1]+1.,beta));
+	a[nx-1]     = ans*pow(epsz[nx-1]+1.,beta/2.);
+	d[nx-1]     = dne*(epsz[nx-1]+1.);
+	A[nx-1]     = d[nx-1]*d[nx-1]*pi/4.;
+
+	vp[nx-1] = v_e;
+	pp[nx-1] = p_e;
+	return q_in;
+}
+
+//--------------------------------------------------------------
+double moc_edge::f_downstream_p(double pp, double p_in, double dt, double &v_e)
+{
+	double xL = boundary_end_position(dt);
+
+	double aL = (a[nx-2]-a[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + a[nx-1];
+	double vL = (v[nx-2]-v[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + v[nx-1];
+	double pL = (p[nx-2]-p[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + p[nx-1];
+	double dL = (d[nx-2]-d[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + d[nx-1];
+	double AL = dL*dL*pi/4.;
+	double hL = (h[nx-2]-h[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + h[nx-1];
+	double epszL = (epsz[nx-2]-epsz[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz[nx-1];
+	double epsz2L = (epsz2[nx-2]-epsz2[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz2[nx-1];
+
+	double J = JL(dt, pL, vL, aL, epszL, epsz2L, dL, hL, xL, x[nx-1]);
+
+	v_e = vL - (pp-pL)/(rho*aL) - dt*J;
+
+	double ex = exp(-E2/eta2*dt_act);
+	double C1 = (2.*epsz[0]+1.) *dns / (E1*2.*sns*pow(epsz[0]+1.,beta)) + (2.*epsz[0]+1.)*(1.-ex) * dns / (E2*2.*sns);
+	double C3 = epsz2[0]*ex;
+
+	double f = 4.*(p_in-pp) - Re*v_e*(dns*dns*pi*pow(C1*(pp-p0)+C3+1.,2));
+	return f;
+}
+
+//--------------------------------------------------------------
 double moc_edge::upstream_boundary_q(double dt, double q_in)
 {
 	int k=0;
-	double p_s = p[nx-1], p_old = -10., v_s = 0., delta = 0.0001;
+	double p_s = p[0], p_old = -10., v_s = 0., delta = 0.0001;
 	do
 	{	
 		p_old = p_s;
@@ -1221,6 +1353,73 @@ double moc_edge::f_upstream_q(double pp, double q_in, double dt, double &v_s)
 }
 
 //--------------------------------------------------------------
+double moc_edge::downstream_boundary_q(double dt, double q_in)
+{
+	int k=0;
+	double p_e = p[nx-1], p_old = -10., v_e = 0., delta = 0.0001;
+	do
+	{	
+		p_old = p_e;
+		double f2 = f_downstream_q(p_e*(1.+delta), q_in, dt, v_e);
+		double f = f_downstream_q(p_e, q_in, dt, v_e);
+		double fd = (f2-f)/(p_e*delta);
+		p_e = p_e - f/fd;
+		k++;
+	}
+	while(abs(p_e-p_old) > 1e-5 && k<100);
+
+	if(k>=100)
+	{
+		cout << "Iteration did NOT converge at downstream_boundary_p, ID: " << ID << "\nExiting..." << endl;
+		exit(-1);
+	}
+
+	// update v_e with final p_e
+	f_downstream_q(p_e, q_in, dt, v_e);
+
+	// update field variables
+	double ex = exp(-E2/eta2*dt_act);
+	double ans = sqrt(E1*sne / (rho*dne));
+
+	epsz2[nx-1] = (p_e+Re*q_in-p0)*(2.*epsz[nx-1]+1.)*(1.-ex) * dne / (E2*2.*sne) + epsz2[nx-1]*ex;
+	epsz[nx-1]  = epsz2[nx-1] + (p_e+Re*q_in-p0)*(2.*epsz[nx-1]+1.) *dne / (E1*2.*sne*pow(epsz[nx-1]+1.,beta));
+	a[nx-1]     = ans*pow(epsz[nx-1]+1.,beta/2.);
+	d[nx-1]     = dne*(epsz[nx-1]+1.);
+	A[nx-1]     = d[nx-1]*d[nx-1]*pi/4.;
+
+	vp[nx-1] = v_e;
+	pp[nx-1] = p_e;
+
+	return pp[nx-1];
+}
+
+//--------------------------------------------------------------
+double moc_edge::f_downstream_q(double pp, double q_in, double dt, double &v_e)
+{
+	double xL = boundary_end_position(dt);
+
+	double aL = (a[nx-2]-a[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + a[nx-1];
+	double vL = (v[nx-2]-v[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + v[nx-1];
+	double pL = (p[nx-2]-p[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + p[nx-1];
+	double dL = (d[nx-2]-d[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + d[nx-1];
+	double AL = dL*dL*pi/4.;
+	double hL = (h[nx-2]-h[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + h[nx-1];
+	double epszL = (epsz[nx-2]-epsz[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz[nx-1];
+	double epsz2L = (epsz2[nx-2]-epsz2[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz2[nx-1];
+
+	double J = JL(dt, pL, vL, aL, epszL, epsz2L, dL, hL, xL, x[nx-1]);
+
+	v_e = vL - (pp-pL)/(rho*aL) - dt*J;
+
+	double ex = exp(-E2/eta2*dt_act);
+	double C1 = (2.*epsz[nx-1]+1.) *dne / (E1*2.*sne*pow(epsz[nx-1]+1.,beta)) + (2.*epsz[nx-1]+1.)*(1.-ex) * dne / (E2*2.*sne);
+	double C3 = epsz2[nx-1]*ex;
+
+	double f = q_in - v_e*dne*dne*0.25*pi*pow(C1*(pp-p0)+C3+1.,2);
+	return f;
+}
+
+//--------------------------------------------------------------
 double moc_edge::upstream_boundary_v(double dt, double v_in, double &q_in)
 {
 	double xR = boundary_start_position(dt);
@@ -1255,9 +1454,43 @@ double moc_edge::upstream_boundary_v(double dt, double v_in, double &q_in)
 }
 
 //--------------------------------------------------------------
+double moc_edge::downstream_boundary_v(double dt, double v_in, double &q_in)
+{
+	double xL = boundary_end_position(dt);
+
+	double aL = (a[nx-2]-a[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + a[nx-1];
+	double vL = (v[nx-2]-v[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + v[nx-1];
+	double pL = (p[nx-2]-p[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + p[nx-1];
+	double dL = (d[nx-2]-d[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + d[nx-1];
+	double AL = dL*dL*pi/4.;
+	double hL = (h[nx-2]-h[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + h[nx-1];
+	double epszL = (epsz[nx-2]-epsz[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz[nx-1];
+	double epsz2L = (epsz2[nx-2]-epsz2[nx-1]) / (x[nx-2]-x[nx-1]) * (xL - x[nx-1]) + epsz2[nx-1];
+
+	double J = JL(dt, pL, vL, aL, epszL, epsz2L, dL, hL, xL, x[nx-1]);
+
+	vp[nx-1] = v_in;
+	pp[nx-1] = pL + rho*aL*(-v_in+vL + dt*J);
+	double ex = exp(-E2/eta2*dt_act);
+	double C1 = (2.*epsz[nx-1]+1.) *dns / (E1*2.*sns*pow(epsz[nx-1]+1.,beta)) + (2.*epsz[nx-1]+1.)*(1.-ex) * dns / (E2*2.*sns);
+	double C3 = epsz2[nx-1]*ex;
+	double Ap = dns*dns*0.25*pi*pow(C1*(pp[nx-1]-p0)+C3+1.,2);
+	q_in = Ap*v_in;
+	double p_in = -Re*q_in + pp[nx-1];
+
+	epsz2[nx-1] = (pp[nx-1]+Re*q_in-p0)*(2.*epsz[nx-1]+1.)*(1.-ex) * dns / (E2*2.*sns) + epsz2[nx-1]*ex;
+	epsz[nx-1]  = epsz2[nx-1] + (pp[nx-1]+Re*q_in-p0)*(2.*epsz[nx-1]+1.) *dns / (E1*2.*sns*pow(epsz[nx-1]+1.,beta));
+	a[nx-1]     = ans*pow(epsz[nx-1]+1.,beta/2.);
+	d[nx-1]     = dns*(epsz[nx-1]+1.);
+	A[nx-1]     = d[nx-1]*d[nx-1]*pi/4.;
+
+	return p_in;
+}
+
+//--------------------------------------------------------------
 void moc_edge::set_short_parameters()
 {
-   l    = length;
+   l     = length;
    dns   = nominal_diameter_start;
    dne   = nominal_diameter_end;
    sns   = nominal_thickness_start;
@@ -1271,6 +1504,7 @@ void moc_edge::set_short_parameters()
    g     = gravity;
    rho   = density;
    nu    = kinematic_viscosity;
+   nu_f  = kinematic_viscosity_factor;
    hs    = geodetic_height_start;
    he    = geodetic_height_end;
    p0    = atmospheric_pressure;

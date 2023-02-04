@@ -62,6 +62,7 @@ public:
 	double gravity; // m/s2
 	double density; // m/s2
 	double kinematic_viscosity; // m2/s
+	double kinematic_viscosity_factor = 1.; // -
 	double atmospheric_pressure; // Pa
 	double beta; // exponent for wave velocity, -
 
@@ -148,13 +149,17 @@ public:
 	// [*] upstream boundary node
 	// if the node is upstream pressure BC, this calculates the velocity
 	double upstream_boundary_p(double dt, double p_in);
+	double downstream_boundary_p(double dt, double p_in);
 	// if the node is upstream vfr BC, this calculates the pressure
 	double upstream_boundary_q(double dt, double q_in);
+	double downstream_boundary_q(double dt, double q_in);
 	double upstream_boundary_v(double dt, double v_in, double &q);
+	double downstream_boundary_v(double dt, double v_in, double &q);
 
 	// [*] periferia points 
 	// for periferia points solving p=p0
-	double boundary_periferia(double dt, double p_out);
+	double boundary_periferia_start(double dt, double p_out);
+	double boundary_periferia_end(double dt, double p_out);
 
 	//---------------------
 	// BACKWARD CALCULATION
@@ -196,7 +201,7 @@ public:
 	void reduce_field_vectors();
 
 	// short notations
-	double l, dns, dne, sns, sne, eta2, E1, E2, Rs, Re, g, rho, nu, dx, hs, he, ans, ane, p0, Ans, Ane;
+	double l, dns, dne, sns, sne, eta2, E1, E2, Rs, Re, g, rho, nu, nu_f, dx, hs, he, ans, ane, p0, Ans, Ane;
 	unsigned int nx; // number of division points
 	void set_short_parameters(); // matching the longer and shorter parameters
 
@@ -217,9 +222,12 @@ public:
 	void update_ith_variables(int i, double ex, double p, double epsz2, double epsz);
 
 	// for inner iteration for pp of periferia boundary
-	double f_perif(double pp, double p_out, double dt, double &v_e);
+	double f_perif_start(double pp, double p_out, double dt, double &v_s);
+	double f_perif_end(double pp, double p_out, double dt, double &v_e);
 	double f_upstream_p(double pp, double p_in, double dt, double &v_s);
+	double f_downstream_p(double pp, double p_in, double dt, double &v_e);
 	double f_upstream_q(double pp, double q_in, double dt, double &v_s);
+	double f_downstream_q(double pp, double q_in, double dt, double &v_e);
 };
 
 #endif // MOC_EDGE_H

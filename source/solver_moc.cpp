@@ -26,10 +26,10 @@ void solver_moc::initialization(double p_init)
 	}
 
 	// setting back the pressure_upstream interpolation index to 0
-	index_upstream = 0;
+	index_upstream.assign(type_upstream.size(),0);
 
 	// setting back the period counter
-	period = 0;
+	period.assign(type_upstream.size(),0.);
 
 	// also storing the initial pressure
 	pressure_initial = p_init;
@@ -152,26 +152,27 @@ void solver_moc::boundaries(int e_idx, double t_act)
 	{
 		if(nodes[node_idx[i]]->is_master_node == false)
 		{
-			if(nodes[node_idx[i]]->is_upstream_boundary) // handling the upstream boundary
-			{
+			if(nodes[node_idx[i]]->upstream_boundary>-1) // handling the upstream boundary
+			{	
+				int up_idx = nodes[node_idx[i]]->upstream_boundary;
 				// finding the position for linear interpolation
-				int j=index_upstream;
+				int j=index_upstream[up_idx];
 				bool got_it = false;
 				while(!got_it)
 				{
 					// making the inlet function periodic
-					if(j >= time_upstream.size()-1)
+					if(j >= time_upstream[up_idx].size()-1)
 					{
-						j -= time_upstream.size();
-						period += 1;
+						j -= time_upstream[up_idx].size();
+						period[up_idx] += 1;
 					}
 
-					double t = t_act-period*(time_upstream.back()-time_upstream[0]);
+					double t = t_act-period[up_idx]*(time_upstream[up_idx].back()-time_upstream[up_idx][0]);
 
-					if(t >= time_upstream[j] && t <= time_upstream[j+1])
+					if(t >= time_upstream[up_idx][j] && t <= time_upstream[up_idx][j+1])
 					{
 						got_it=true;
-						index_upstream = j;
+						index_upstream[up_idx] = j;
 					}
 					else
 					{
@@ -180,12 +181,12 @@ void solver_moc::boundaries(int e_idx, double t_act)
 				}
 
 				// interpolating
-				double v_h = value_upstream[index_upstream+1]; // pressure at higher index
-				double v_l = value_upstream[index_upstream]; // pressure at lower index
-				double t_h = time_upstream[index_upstream+1]; // time at higher index
-				double t_l = time_upstream[index_upstream]; // time at lower index
+				double v_h = value_upstream[up_idx][index_upstream[up_idx]+1]; // pressure at higher index
+				double v_l = value_upstream[up_idx][index_upstream[up_idx]]; // pressure at lower index
+				double t_h = time_upstream[up_idx][index_upstream[up_idx]+1]; // time at higher index
+				double t_l = time_upstream[up_idx][index_upstream[up_idx]]; // time at lower index
 
-				double t_in = t_act-period*time_upstream.back(); // actual time of the simulation
+				double t_in = t_act-period[up_idx]*time_upstream[up_idx].back(); // actual time of the simulation
 				double v_in = (v_h-v_l)/(t_h-t_l) * (t_in-t_l) + v_l; // actual pressure of the simulation
 
 				double q_in=0., p_in;
@@ -193,24 +194,44 @@ void solver_moc::boundaries(int e_idx, double t_act)
 				for(unsigned int j=0; j<nodes[node_idx[i]]->edge_out.size(); j++)
 				{
 					int ei = nodes[node_idx[i]]->edge_out[j];
+					double dt = edges[ei]->dt_act;
 					// calculating vp and pp values of edge
-					if(type_upstream == 0) // pressure BC
+					if(type_upstream[up_idx] == 0) // pressure BC
 					{
-						double dt = edges[ei]->dt_act;
 						p_in = v_in; // v_in is pressure
 						q_in += edges[ei]->upstream_boundary_p(dt, p_in);
 					}
-					else if(type_upstream == 1) // vfr BC
+					else if(type_upstream[up_idx] == 1) // vfr BC
 					{
-						double dt = edges[ei]->dt_act;
 						p_in = edges[ei]->upstream_boundary_q(dt, v_in);
 						q_in += v_in; // v_in is volume flow rate
 					}
-					else if(type_upstream == 2) // v BC
+					else if(type_upstream[up_idx] == 2) // v BC
 					{
-						double dt = edges[ei]->dt_act;
 						double q=0.;
 						p_in = edges[ei]->upstream_boundary_v(dt, v_in, q);
+						q_in += q;
+					}
+				}
+				for(unsigned int j=0; j<nodes[node_idx[i]]->edge_in.size(); j++)
+				{
+					int ei = nodes[node_idx[i]]->edge_in[j];
+					double dt = edges[ei]->dt_act;
+					// calculating vp and pp values of edge
+					if(type_upstream[up_idx] == 0) // pressure BC
+					{
+						p_in = v_in; // v_in is pressure
+						q_in += edges[ei]->downstream_boundary_p(dt, p_in);
+					}
+					else if(type_upstream[up_idx] == 1) // vfr BC
+					{
+						p_in = edges[ei]->downstream_boundary_q(dt, v_in);
+						q_in += v_in; // v_in is volume flow rate
+					}
+					else if(type_upstream[up_idx] == 2) // v BC
+					{
+						double q=0.;
+						p_in = edges[ei]->downstream_boundary_v(dt, v_in, q);
 						q_in += q;
 					}
 				}
@@ -222,11 +243,23 @@ void solver_moc::boundaries(int e_idx, double t_act)
 			}
 			else if(nodes[node_idx[i]]->type_code == 1) // perifera
 			{
-				// there can be only one incoming edge
-				int edge_index = nodes[node_idx[i]]->edge_in[0];
-				double dt = edges[edge_index]->dt_act;
-				double p_out = nodes[node_idx[i]]->pressure_out;
-				double q_out = edges[edge_index]->boundary_periferia(dt,p_out);
+				double p_out,q_out;
+				if(i==0)
+				{
+					// there can be only one incoming edge
+					int edge_index = nodes[node_idx[i]]->edge_out[0];
+					double dt = edges[edge_index]->dt_act;
+					p_out = nodes[node_idx[i]]->pressure_out;
+					q_out = edges[edge_index]->boundary_periferia_start(dt,p_out);
+				}
+				else
+				{
+					// there can be only one incoming edge
+					int edge_index = nodes[node_idx[i]]->edge_in[0];
+					double dt = edges[edge_index]->dt_act;
+					p_out = nodes[node_idx[i]]->pressure_out;
+					q_out = edges[edge_index]->boundary_periferia_end(dt,p_out);
+				}
 
 				if(nodes[node_idx[i]]->do_save_memory)
 				{
@@ -291,7 +324,7 @@ void solver_moc::boundaries(int e_idx, double t_act)
 					}
 					while(abs(dp) >1e-6 && k<100);
 
-					if(k>=100)
+					if(k>=10)
 					{
 						cout << "\n Newton's technique did NOT converge at node " << nodes[node_idx[i]]->name << " and edge " << edges[e_idx]->name << " for special case (Rs,Re=0)" << endl;
 						cout << " k: " << k << " f.norm: " << f << endl;
@@ -544,13 +577,13 @@ void solver_moc::full_tree()
 	for(int i=0; i<number_of_nodes; i++)
 	{
 		forward_nodes.push_back(i);
-		if(nodes[i]->is_master_node == false) // not master node
-		{
-			if(nodes[i]->type_code == 2) // heart
-			{
-				nodes[i]->is_upstream_boundary = true;
-			}
-		}
+		//if(nodes[i]->is_master_node == false) // not master node
+		//{
+		//	if(nodes[i]->type_code == 2) // heart
+		//	{
+		//		nodes[i]->upstream_boundary = true;
+		//	}
+		//}
 	}
 	for(int i=0; i<number_of_edges; i++)
 	{
@@ -577,7 +610,7 @@ void solver_moc::forward_tree(string node_id)
 		exit(-1);
 	}
 	// setting upstream node
-	nodes[node_index]->is_upstream_boundary = true;
+	//nodes[node_index]->is_upstream_boundary = true;
 
 	// finding edges directly connected to the node
 	for(unsigned int i=0; i<number_of_edges; i++)
@@ -700,19 +733,22 @@ void solver_moc::set_constants(double g, double rho, double nu, double mmHg, dou
 //--------------------------------------------------------------
 void solver_moc::convert_time_series()
 {
-	if(type_upstream == 0)
+	for(int j=0; j<type_upstream.size(); j++)
 	{
-		for(unsigned int i=0; i<value_upstream.size(); i++)
+		if(type_upstream[j] == 0)
 		{
-			value_upstream[i] *= mmHg_to_Pa;
-			value_upstream[i] += atmospheric_pressure;
+			for(unsigned int i=0; i<value_upstream[j].size(); i++)
+			{
+				value_upstream[j][i] *= mmHg_to_Pa;
+				value_upstream[j][i] += atmospheric_pressure;
+			}
 		}
-	}
-	else if(type_upstream == 1)
-	{
-		for(unsigned int i=0; i<value_upstream.size(); i++)
+		else if(type_upstream[j] == 1)
 		{
-			value_upstream[i] *= 1.e-6;
+			for(unsigned int i=0; i<value_upstream[j].size(); i++)
+			{
+				value_upstream[j][i] *= 1.e-6;
+			}
 		}
 	}
 }

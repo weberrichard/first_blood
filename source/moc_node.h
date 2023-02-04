@@ -52,7 +52,8 @@ public:
 	double pressure_out; // outside pressure 
 	double density; // density of the fluid (blood)
 
-	bool is_upstream_boundary = false; // for heart or upper boundary it is true
+	// bool is_upstream_boundary = false;
+	int upstream_boundary = -1; // for heart or upper boundary it is true
 	bool is_master_node = false; // if it is connected to an other model, e.g lumped model
 	int master_node_lum = -1; // index of lumped model if 
 

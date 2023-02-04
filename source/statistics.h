@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <cmath>
+#include <string>
 
 using namespace std;
 
@@ -28,5 +29,18 @@ double time_delay_max(const vector<double> &x, const vector<double> &y, const ve
 double pearson_correlation(const vector<double> &x, const vector<double> &y);
 vector<double> cross_correlation(const vector<double> &x, const vector<double> &y);
 double time_delay_correl(const vector<double> &x, const vector<double> &y, const vector<double> &t, double T);
+
+class time_average
+{
+public:
+	time_average();
+	~time_average();
+	vector<double> average, value, time; // actual averaged time series
+	double area=0.;
+	int last_idx=0;
+	void update(double tnew, double vnew, double T); // inicializalas!!!
+	void save_results(string file_name);
+	void save_results(double dt, string file_name);
+};
 
 #endif

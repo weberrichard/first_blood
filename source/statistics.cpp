@@ -16,6 +16,7 @@ double minimum(const vector<double> &x, int &idx)
 			idx = i;
 		}
 	}
+
 	return out;
 }
 
@@ -216,4 +217,81 @@ double time_delay_correl(const vector<double> &x, const vector<double> &y, const
 	double cc_max = maximum(cc,idx_max);
 
 	return t[idx_max]-t[0];
+}
+
+//--------------------------------------------------
+time_average::time_average(){}
+
+time_average::~time_average()
+{
+	time.clear();
+	average.clear();
+	value.clear();
+}
+
+//--------------------------------------------------
+void time_average::update(double tnew, double vnew, double T)
+{
+	if(tnew<T)
+	{
+		if(average.size()>0)
+		{
+			double Anew = (vnew+value.back())*.5*(tnew-time.back());
+			double avenew = (average.back()*(time.back()-time[0]) + Anew)/(tnew-time[0]);
+			average.push_back(avenew);
+			area += Anew;
+		}
+		else
+		{
+			average.push_back(vnew);
+			area = vnew*.5*tnew;
+		}
+		value.push_back(vnew);
+		time.push_back(tnew);
+	}
+	else
+	{
+		double Anew = (vnew+value.back())*.5*(tnew-time.back());
+		area += Anew;
+
+		while(tnew-time[last_idx]>=T)
+		{
+			last_idx++;
+			area -= (value[last_idx]+value[last_idx-1])*.5*(time[last_idx]-time[last_idx-1]);
+		}
+
+		double avenew = area/T;
+
+		average.push_back(avenew);
+		value.push_back(vnew);
+		time.push_back(tnew);
+	}
+}
+
+//--------------------------------------------------
+void time_average::save_results(string file_name)
+{
+   FILE *out_file;
+	out_file = fopen(file_name.c_str(),"w");
+   for(int i=0; i<time.size(); i++)
+   {
+		fprintf(out_file, "%9.7e, %9.7e\n", time[i], average[i]);
+   }
+	fclose(out_file);
+}
+
+//--------------------------------------------------
+void time_average::save_results(double dt, string file_name)
+{
+	vector<double> a_resample = resample(average,time,dt);
+
+   FILE *out_file;
+	out_file = fopen(file_name.c_str(),"w");
+	double t=0.;
+   for(int i=0; i<a_resample.size(); i++)
+   {
+		fprintf(out_file, "%9.7e, %9.7e\n", t, a_resample[i]);
+		t += dt;
+   }
+	fclose(out_file);
 }

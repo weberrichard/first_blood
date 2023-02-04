@@ -39,7 +39,7 @@ void moc_node::initialization(double p_init)
    }
    volume_flow_rate.push_back(0.);
 
-   is_upstream_boundary = false;
+   //upstream_boundary = -1;
    is_master_node = false;
 }
 

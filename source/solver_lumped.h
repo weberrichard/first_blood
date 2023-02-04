@@ -29,7 +29,7 @@ public:
 
 	// general functions
 	// giving initial conditions
-	void initialization();
+	void initialization(double hr);
 
 	// loading the CSV file
 	void load_model();
@@ -87,7 +87,11 @@ public:
 	// parameters of elastance function
 	double elastance_max = 2.5;
 	double elastance_min = 0.06;
-	double heart_rate = 75.6; // from Charlton2019
+	double heart_rate;
+
+	// coronary modelling parameters from Reymond2009
+	double alpha_coronary = 0.;
+	double beta_coronary = 0.;
 
 private:
 	// general constants
@@ -143,6 +147,7 @@ private:
 		// coefficient of the edge, e.g. R, C, L
 		double parameter; // SI
 		double par_non_SI; // non-SI
+		double parameter_factor=1.; // dimensionless factor, multiplies the parameter
 		// actual volume flow rate for calculations
 		double vfr; // ml/s
 		// saving field variables

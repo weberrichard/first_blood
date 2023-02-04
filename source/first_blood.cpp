@@ -9,9 +9,6 @@ first_blood::first_blood(string folder_name)
 	// getting rid of global path
 	case_name = input_folder_path.substr(input_folder_path.rfind('/')+1);
 
-	// some feedback to console
-	//cout << " [*] Case name: " << case_name << endl;
-
 	// loading all the input data from csv files
 	load_ok = load_model();
 
@@ -68,7 +65,6 @@ bool first_blood::load_model()
 	{
 		lum[i]->load_model();
 	}
-
 	return load_ok;
 }
 
@@ -145,7 +141,7 @@ bool first_blood::load_main_csv()
 	}
 	else
 	{
-		//cout << "! ERROR !" << endl << " File is not open when calling load_main_csv() function!!! file: " << file_path << "\n" << endl;
+		cout << "! ERROR !" << endl << " File is not open when calling load_main_csv() function!!! file: " << file_path << "\n" << endl;
 		load_ok = false;
 		return load_ok;
 	}
@@ -190,65 +186,110 @@ bool first_blood::run()
 	{
 		is_run_ok = true;
 
-		// add everything to forward
-		for(int i=0; i<number_of_moc; i++)
+		if(number_of_moc>0)
 		{
-			moc[i]->full_tree();
+			// add everything to forward
+			for(int i=0; i<number_of_moc; i++)
+			{
+				moc[i]->full_tree();
+			}
+
+			// initial timesteps
+			int moc_idx=0, e_idx;
+			for(int i=0; i<number_of_moc; i++)
+			{
+				moc[i]->timesteps();
+			}
+			// finding lowest new timestep
+			double t_act = lowest_new_time(moc_idx, e_idx);
+			double t_old = -1.e10;
+
+			// main cycle
+			while(!is_run_end(t_act,t_old) && is_run_ok)
+			{
+				/*if(t_act>7.) // improve this
+				{
+					int idx = lum_id_to_index("heart_kim");
+					heart_rate = 90.;
+					lum[idx]->heart_rate = heart_rate;
+					time_period = 60./heart_rate;
+				}
+
+				if(t_act>13.)
+				{
+					do_autoregulation = true;
+				}
+
+				if(do_autoregulation)
+				{
+					autoregulation();
+				}*/
+
+				// solving lowest edge inner points
+				moc[moc_idx]->edges[e_idx]->solve();
+
+				// boundaries (inner)
+				moc[moc_idx]->boundaries(e_idx, t_act);
+
+				// boundaries with 0D if exist
+				int si = moc[moc_idx]->edges[e_idx]->node_index_start;
+				if(moc[moc_idx]->nodes[si]->is_master_node)
+				{
+					int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+					solve_lum_newton(lum_idx, t_act);
+				}
+
+				int ei = moc[moc_idx]->edges[e_idx]->node_index_end;
+				if(moc[moc_idx]->nodes[ei]->is_master_node)
+				{
+					int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+					solve_lum_newton(lum_idx, t_act);
+				}
+
+				// postproc: interpolate, save
+				moc[moc_idx]->edges[e_idx]->interpolate();
+				moc[moc_idx]->edges[e_idx]->update_variables();
+				if(moc[moc_idx]->edges[e_idx]->do_save_memory)
+				{
+					moc[moc_idx]->edges[e_idx]->save_field_variables();
+				}
+
+				// get the time average values, e.g MAP
+				//if(moc[moc_idx]->edges[e_idx]->ID == "A1")
+				//{
+				//	calculate_time_average();
+				//}
+
+				// new timestep
+				is_run_ok = moc[moc_idx]->edges[e_idx]->new_timestep();
+
+				// find new lowest timestep
+				t_old = t_act;
+				t_act = lowest_new_time(moc_idx, e_idx);
+
+				// decreasing time_counter if it passed t_end
+				if(t_act >= time_end)
+				{
+					time_counter--;
+				}
+
+				// update the period
+				period = floor(t_act/time_period);
+			}
 		}
-
-		// initial timesteps
-		int moc_idx=0, e_idx;
-		for(int i=0; i<number_of_moc; i++)
+		else // only LUMPED MODEL without any moc
 		{
-			moc[i]->timesteps();
-		}
-		// finding lowest new timestep
-		double t_act = lowest_new_time(moc_idx, e_idx);
-		double t_old = -1.e10;
-
-		// main cycle
-		while(!is_run_end(t_act,t_old) && is_run_ok)
-		{
-			// solving lowest edge inner points
-			moc[moc_idx]->edges[e_idx]->solve();
-
-			// boundaries (inner)
-			moc[moc_idx]->boundaries(e_idx, t_act);
-
-			// boundaries with 0D if exist
-			int si = moc[moc_idx]->edges[e_idx]->node_index_start;
-			if(moc[moc_idx]->nodes[si]->is_master_node)
+			if(number_of_lum==0)
 			{
-				int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
-				solve_lum_newton(lum_idx, t_act);
+				cout << " There is no LUMPED model (nor MOC).\n Exiting..." << endl;
+				return false;
 			}
 
-			int ei = moc[moc_idx]->edges[e_idx]->node_index_end;
-			if(moc[moc_idx]->nodes[ei]->is_master_node)
+			double t_act = 0.;
+			while(t_act<time_end)
 			{
-				int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-				solve_lum_newton(lum_idx, t_act);
-			}
-
-			// postproc: interpolate, save
-			moc[moc_idx]->edges[e_idx]->interpolate();
-			moc[moc_idx]->edges[e_idx]->update_variables();
-			if(moc[moc_idx]->edges[e_idx]->do_save_memory)
-			{
-				moc[moc_idx]->edges[e_idx]->save_field_variables();
-			}
-
-			// new timestep
-			is_run_ok = moc[moc_idx]->edges[e_idx]->new_timestep();
-
-			// find new lowest timestep
-			t_old = t_act;
-			t_act = lowest_new_time(moc_idx, e_idx);
-
-			// decreasing time_counter if it passed t_end
-			if(t_act >= time_end)
-			{
-				time_counter--;
+				t_act = lum[0]->time.back() + dt_lumped;
+				solve_lum_newton(0, t_act);
 			}
 		}
 	}
@@ -278,6 +319,10 @@ double first_blood::lowest_new_time(int &moc_idx, int &e_idx)
 //--------------------------------------------------------------
 void first_blood::solve_lum_newton(int index, double t_act)
 {
+	/*
+	x = [q1,q2,...qm,p1,p2,p3,...pn,y1,y2,...ye,qmoc1,A1,...qmock,Ak] y: for elastance if present
+	f = [edge1,edge2,...edgem,node1,node2,...node,elas1,elas2,...elase,char1,A1,char2,A2,...]
+	*/
 	int m = lum[index]->number_of_edges;
 	int n = lum[index]->number_of_nodes;
 	int l = lum[index]->number_of_elastance;
@@ -338,13 +383,14 @@ void first_blood::solve_lum_newton(int index, double t_act)
 			lum[index]->Jac(m+n+2*l+2*j+1,m+n+2*l+2*j+1) = 1.; // dA
 		}
 
-		//cout << " ITERATION " << i << endl;
-		//cout << lum[index]->Jac << endl;
+		//cout << endl << i << " ITERATION " << i << endl;
+		//cout << endl << lum[index]->Jac << endl;
 		//cout << "x" << endl << lum[index]->x << endl;
 		//cout << "f" << endl << lum[index]->f << endl;
 
 		// actually solving the Newton's technique
-		lum[index]->x += lum[index]->Jac.colPivHouseholderQr().solve(-lum[index]->f);
+		VectorXd dx = lum[index]->Jac.colPivHouseholderQr().solve(-lum[index]->f);
+		lum[index]->x += dx;
 
 		//cout << " ITERATION END " << endl;
 		//cout << endl;
@@ -352,11 +398,15 @@ void first_blood::solve_lum_newton(int index, double t_act)
 		
 		i++;
 	}
-	while(lum[index]->f.norm() > 1e-10 && i<100);
+	while(lum[index]->f.norm() > 1e-5 && i<100);
 
-	if(k>=100)
+	if(i>=100)
 	{
-		cout << "\n Newton's technique did NOT converge at Lum model " << lum[index]->name << endl;
+		cout << "\n !!! ERROR !!! Newton's technique did NOT converge at Lum model " << lum[index]->name << endl;
+		cout << endl << i << " ITERATION " << i << endl;
+		cout << lum[index]->Jac << endl;
+		cout << "x" << endl << lum[index]->x << endl;
+		cout << "f" << endl << lum[index]->f << endl;
 	}
 
 	// substitute the results back to 0D
@@ -374,6 +424,78 @@ void first_blood::solve_lum_newton(int index, double t_act)
 		moc[moc_index]->substitute_newton(moc_edge_index,edge_end,t_act,p,q);
 	}
 }
+
+//--------------------------------------------------------------
+void first_blood::calculate_time_average()
+{
+	// mean arterial pressure
+	string id = "A1";
+	int idx = moc[0]->edge_id_to_index(id);
+	double tn = moc[0]->edges[idx]->time.back();
+	double vn = moc[0]->edges[idx]->pressure_start.back();
+	map->update(tn,vn,time_period);
+
+	// mean cerebral flow rate
+	vector<string> ids{"A5","A6","A20","A15"};
+	vn=0.;
+	for(int i=0; i<ids.size(); i++)
+	{
+		idx = moc[0]->edge_id_to_index(ids[i]);
+		vn += moc[0]->edges[idx]->volume_flow_rate_start.back();
+	}
+	cfr->update(tn,vn,time_period);
+}
+
+//--------------------------------------------------------------
+void first_blood::autoregulation()
+{	
+	//double S = 1.;
+	//double pset = 90.;
+	//pset = pset*mmHg_to_Pa + atmospheric_pressure;
+	//double factor = 1.0 + S*(map->average.back()-pset);
+	//cout << "f: " << factor << endl;
+
+	double pset = 90.;
+	double factor = (map->average.back()-atmospheric_pressure)/mmHg_to_Pa / pset;
+
+	vector<string> perif_brain{"p25","p26","p27","p28","p29","p30","p31","p32","p33","p34","p35","p36","p37","p38","p39","p40","p41","p42","p43","p44","p45","p46"};
+
+	for(int i=0; i<perif_brain.size(); i++)
+      {
+         string id = perif_brain[i];
+         int idx = lum_id_to_index(id);
+         lum[idx]->edges[0]->parameter_factor = factor;
+         lum[idx]->edges[1]->parameter_factor = factor;
+         lum[idx]->edges[2]->parameter_factor = 1./factor;
+      }
+}
+
+//--------------------------------------------------------------
+void first_blood::save_time_average(string folder_name)
+{
+	mkdir("results",0777);
+	mkdir(("results/"+folder_name).c_str(),0777);
+
+	string file_name = folder_name + "/arterial/map.txt";
+	map->save_results(file_name);
+
+	file_name = folder_name + "/arterial/cfr.txt";
+	cfr->save_results(file_name);
+}
+
+//--------------------------------------------------------------
+void first_blood::save_time_average(double dt, string folder_name)
+{
+	mkdir("results",0777);
+	mkdir(("results/"+folder_name).c_str(),0777);
+
+	string file_name = folder_name + "/arterial/map.txt";
+	map->save_results(dt, file_name);
+
+	file_name = folder_name + "/arterial/cfr.txt";
+	cfr->save_results(dt, file_name);
+}
+
 
 //--------------------------------------------------------------
 /*void first_blood::solve_lum(int index, double dt)
@@ -510,7 +632,7 @@ void first_blood::initialization()
 	}
 	for(int i=0; i<number_of_lum; i++)
 	{
-		lum[i]->initialization();
+		lum[i]->initialization(heart_rate);
 		time_counter += 1;
 	}
 
@@ -532,6 +654,14 @@ void first_blood::initialization()
 		   set_save_memory(moc[0]->name,"moc",el,nl);
 		}
 	}
+
+	// saving these for time average vectors
+	// vector<string> el{"A1","A5","A6","A15","A20"}, nl;
+	// set_save_memory(moc[0]->name,"moc",el,nl);
+
+	// time average stuff
+	map = new time_average();
+	cfr = new time_average();
 }
 
 //--------------------------------------------------------------
@@ -598,6 +728,9 @@ void first_blood::save_results()
 	{
 		lum[i]->save_results(folder_name);
 	}
+
+	// saving time averages, e.g. map, cfr
+	// save_time_average("results/" + folder_name);
 }
 
 //--------------------------------------------------------------
@@ -607,6 +740,28 @@ void first_blood::save_results(double dt)
    mkdir(("results/" + case_name).c_str(),0777);
 
    string folder_name = case_name;
+
+	// saving the results of moc models
+	for(int i=0; i<number_of_moc; i++)
+	{
+		moc[i]->save_results(dt, folder_name);
+	}
+
+	// saving the results of lumped models
+	for(int i=0; i<number_of_lum; i++)
+	{
+		lum[i]->save_results(dt, folder_name);
+	}
+
+	// saving time averages, e.g. map, cfr
+	save_time_average(dt, "results/" + folder_name);
+}
+
+//--------------------------------------------------------------
+void first_blood::save_results(double dt, string folder_name)
+{
+   mkdir("results",0777);
+   mkdir(("results/" + folder_name).c_str(),0777);
 
 	// saving the results of moc models
 	for(int i=0; i<number_of_moc; i++)
