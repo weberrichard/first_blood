@@ -4,9 +4,9 @@ import pandas as pd
 # name of case, model, element
 case_name = 'Reymond_99_heart_ref3_mutet'
 model = 'arterial'
-element = 'A1'
+element = 'A12'
 # start node (1) or end node (0) of artery
-start = 0
+start = 1
 
 mmHg_to_Pa = 133.3616
 
@@ -14,11 +14,11 @@ plt.figure()
 data = pd.read_csv("results\\" + case_name + "\\" + model + "\\" + element + ".txt",header=None)
 t = data[0]
 p = (data[2-start]-1e5)/mmHg_to_Pa;
-'''q = data[6-start]*1e6;
+q = data[6-start]*1e3*60;
 v = data[4-start];
 d = data[10-start];
-a = data[16-start];'''
-plt.plot(t,p)
+a = data[16-start];
+plt.plot(t,q)
 
 plt.xlabel('time [s]')
 plt.ylabel('volume flow rate [ml/s]')
