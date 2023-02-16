@@ -780,7 +780,7 @@ void first_blood::save_results(double dt, string folder_name)
 void first_blood::save_results(string folder_name, string model_name, string model_type, vector<string> edge_list, vector<string> node_list)
 {
    mkdir("results",0777);
-   mkdir(("results/" + case_name).c_str(),0777);
+   mkdir(("results/" + folder_name).c_str(),0777);
 
 	if(model_type == "moc")
 	{
@@ -808,7 +808,7 @@ void first_blood::save_results(string folder_name, string model_name, string mod
 void first_blood::save_results(double dt, string folder_name, string model_name, string model_type, vector<string> edge_list, vector<string> node_list)
 {
 	mkdir("results",0777);
-   mkdir(("results/" + case_name).c_str(),0777);
+   mkdir(("results/" + folder_name).c_str(),0777);
 
 	if(model_type == "moc")
 	{
