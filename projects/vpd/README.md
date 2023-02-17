@@ -1,0 +1,26 @@
+# Virtual Patient Database
+Virtual patient database (VPD) with physiologically accurate data and morphology, such as sex and age. *vpd.csv* file contains all the data: index, sex, age, input factors and diagnostic outputs (e.g. systolic/diastolic pressure, cardiac output, pulse wave velocities). The methods are detailed in the publication, see below.
+
+### How to use
+To complie, use
+
+```sh
+$ make -f make_run.mk
+```
+
+Then the running *run.out X* file will run the simulation, where *X* stands for the index of the virtual patient from *vpd.csv*. *X* must be between 0 and 36127.
+
+### Result example
+
+The plots below show the results for the 1227th patient, who is a 65 year old male.
+
+![VPD_ex](1227_male_65_arterial.png?raw=true "Arterial results")
+![VPD_ex](1227_male_65_heart.png?raw=true "Heart results")
+
+### Dependencies
+- *C++ compiler:* first_blood uses clang++, but any general C++ compiler should work
+- *Eigen:* Eigen solves linear sets of equation ensuring computational efficiency, see [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page)
+- *make:* for compyling multiple cpp files at once
+
+### Dependencies
+R. Wéber, M. Viharos, D. Gyürki, Gy. Paál, Hemodynamic virtual patient database with morphology, 2023, Computer Methods and Programs in Biomedicine, under publication
