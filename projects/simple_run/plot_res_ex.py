@@ -10,9 +10,6 @@ elements = ['A5','A1','A8','A52','A49']
 title = ['Carotid','Aorta','Radial','Femoral','Anetrior Tibial']
 start = [0,1,1,1,1,0]
 
-lit_folder = 'literature_results/charlton_data/'
-lit_files = ['carotid','aortic','radial','femoral','tibial']
-
 mmHg_to_Pa = 133.3616
 dt = [756-18,756-10,756-63,756-91,756-148]
 T = 756
@@ -34,18 +31,6 @@ for i in range(0,len(elements)):
 	d = data[10-start[i]]*1e3
 	t0 = t.size-T-dt[i]
 	t1 = t0+T
-
-	data_lit = pd.read_csv(lit_folder+lit_files[i]+'_pres.txt',header=None)
-	t_lit = data_lit[0]
-	t_lit = t_lit/max(t_lit)*T/1000
-	p_lit = data_lit[1]
-	axs[i,0].plot(t_lit,p_lit,'b')
-
-	data_lit = pd.read_csv(lit_folder+lit_files[i]+'_vel.txt',header=None)
-	t_lit = data_lit[0]
-	t_lit = t_lit/max(t_lit)*T/1000
-	v_lit = data_lit[1]
-	axs[i,1].plot(t_lit,v_lit,'b')
 
 	axs[i,0].plot(t[:T],p[t0:t1],'r')
 	axs[i,0].set_ylim([0,140])
