@@ -16,10 +16,9 @@ void solver_lumped::load_model()
 			line.erase(remove(line.begin(), line.end(), ' '), line.end());
 			line.erase(remove(line.begin(), line.end(), '\n'), line.end());
 			line.erase(remove(line.begin(), line.end(), '\r'), line.end());
-			
 			vector<string> sv = separate_line(line);
 
-			if(sv[0] == "resistor" || sv[0] == "capacitor" || sv[0] == "inductor" || sv[0] == "voltage" || sv[0] == "diode" || sv[0] == "resistor2" || sv[0] == "valve" || sv[0] == "resistor_coronary" || sv[0] == "capacitor_coronary" || sv[0] == "current") // edges with parameter
+			if(sv[0] == "resistor" || sv[0] == "capacitor" || sv[0] == "inductor" || sv[0] == "voltage" || sv[0] == "diode" || sv[0] == "resistor2" || sv[0] == "valve" || sv[0] == "resistor_coronary" || sv[0] == "capacitor_coronary" || sv[0] == "current") // edges with one parameter
 			{
 				edges.push_back(new edge);
 				edges[ne]->type = sv[0];
@@ -29,52 +28,52 @@ void solver_lumped::load_model()
 				edges[ne]->volume_flow_rate_initial = stod(sv[4],0);
 				if(sv[0] == "resistor")
 				{
-					edges[ne]->parameter = stod(sv[5],0);
+					edges[ne]->parameter.push_back(stod(sv[5],0));
 					edges[ne]->type_code = 0;
 				}
 				else if(sv[0] == "capacitor")
 				{
-					edges[ne]->parameter = stod(sv[5],0);
+					edges[ne]->parameter.push_back(stod(sv[5],0));
 					edges[ne]->type_code = 1;
 				}
 				else if(sv[0] == "inductor")
 				{
-					edges[ne]->parameter = stod(sv[5],0);
+					edges[ne]->parameter.push_back(stod(sv[5],0));
 					edges[ne]->type_code = 3;
 				}
 				else if(sv[0] == "voltage")
 				{
-					edges[ne]->parameter = stod(sv[5],0);					
+					edges[ne]->parameter.push_back(stod(sv[5],0));					
 					edges[ne]->type_code = 4;
 				}
 				else if(sv[0] == "diode")
 				{
-					edges[ne]->parameter = stod(sv[5],0);
+					edges[ne]->parameter.push_back(stod(sv[5],0));
 					edges[ne]->type_code = 5;
 				}
 				else if(sv[0] == "resistor2" || sv[0] == "valve")
 				{
-					edges[ne]->parameter = stod(sv[5],0);
+					edges[ne]->parameter.push_back(stod(sv[5],0));
 					edges[ne]->type_code = 6;
 				}
 				else if(sv[0] == "resistor_coronary")
 				{
-					edges[ne]->parameter = stod(sv[5],0);
+					edges[ne]->parameter.push_back(stod(sv[5],0));
 					edges[ne]->type_code = 7;
 				}
 				else if(sv[0] == "capacitor_coronary")
 				{
-					edges[ne]->parameter = stod(sv[5],0);
+					edges[ne]->parameter.push_back(stod(sv[5],0));
 					edges[ne]->type_code = 8;
 				}
 				else if(sv[0] == "current")
 				{
-					edges[ne]->parameter = stod(sv[5],0);					
+					edges[ne]->parameter.push_back(stod(sv[5],0));					
 					edges[ne]->type_code = 9;
 				}
 				ne++;
 			}
-			else if(sv[0] == "elastance") // edges without parameters
+			else if(sv[0] == "elastance")
 			{
 				edges.push_back(new edge);
 				edges[ne]->type = sv[0];
@@ -82,6 +81,16 @@ void solver_lumped::load_model()
 				edges[ne]->node_name_start = sv[2];
 				edges[ne]->node_name_end = sv[3];
 				edges[ne]->volume_flow_rate_initial = stod(sv[4],0);
+				if(sv.size()>5)
+				{
+					edges[ne]->parameter.push_back(stod(sv[5],0)); // elastance max SI 
+					edges[ne]->parameter.push_back(stod(sv[6],0)); // elastance min SI
+				}
+				else
+				{
+					edges[ne]->parameter.push_back(elastance_max_nom*mmHg_to_Pa*1e6); // in SI
+					edges[ne]->parameter.push_back(elastance_min_nom*mmHg_to_Pa*1e6); // in SI
+				}
 				edges[ne]->type_code = 2;
 				ne++;
 			}
@@ -291,7 +300,12 @@ void solver_lumped::save_model(string model_name, string folder_name)
 	fprintf(out_file,"type, name, node start, node end, initial condition [SI], parameter [SI]\n");
 	for(int i=0; i<number_of_edges; i++)
 	{
-		fprintf(out_file, "%s, %s, %s, %s, %6.3e, %6.3e\n",edges[i]->type.c_str(),edges[i]->name.c_str(),edges[i]->node_name_start.c_str(), edges[i]->node_name_end.c_str(), edges[i]->volume_flow_rate_initial, edges[i]->parameter);
+		fprintf(out_file, "%s, %s, %s, %s, %6.3e",edges[i]->type.c_str(),edges[i]->name.c_str(),edges[i]->node_name_start.c_str(), edges[i]->node_name_end.c_str(), edges[i]->volume_flow_rate_initial);
+		for(int j=0; j<edges[i]->parameter.size(); j++)
+		{
+			fprintf(out_file, ", %6.3e", edges[i]->parameter[j]);
+		}
+		fprintf(out_file,"\n");
 	}
 	fprintf(out_file,"\n");
 

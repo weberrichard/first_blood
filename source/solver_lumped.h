@@ -85,8 +85,8 @@ public:
 	void set_non_SI_parameters();
 
 	// parameters of elastance function
-	double elastance_max = 2.5;
-	double elastance_min = 0.06;
+	double elastance_max_nom = 2.5;
+	double elastance_min_nom = 0.06;
 	double heart_rate;
 
 	// coronary modelling parameters from Reymond2009
@@ -145,9 +145,9 @@ private:
 		// 0: resistance, 1: capacity, 2: elastance (time-varying capacity) 3: inductor, 4: voltage, 5: diode
 		int type_code;
 		// coefficient of the edge, e.g. R, C, L
-		double parameter; // SI
-		double par_non_SI; // non-SI
-		double parameter_factor=1.; // dimensionless factor, multiplies the parameter
+		vector<double> parameter; // SI
+		vector<double> par_non_SI; // non-SI
+		double parameter_factor = 1.; // dimensionless factor, multiplies the parameter
 		// actual volume flow rate for calculations
 		double vfr; // ml/s
 		// saving field variables
@@ -164,7 +164,8 @@ private:
 
 	// general elastance function
 	double elastance(double t);
-	double elastance_derived(double t);
+	double elastance(double t, vector<double> par);
+	double elastance_derived(double t, vector<double> par);
 
 public:
 	// containing nodes and edges in a vector

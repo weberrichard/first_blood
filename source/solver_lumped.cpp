@@ -84,16 +84,13 @@ void solver_lumped::coefficients_newton(double t_act)
 	// tracing the virtual nodes of elastance
 	int i_elas=0;
 
-	// actual elastance
-	double E_act = elastance(t_act);
-
 	// edges
 	for(int i=0; i<number_of_edges; i++)
 	{
 		int i1 = edges[i]->node_index_start;
 		int i2 = edges[i]->node_index_end;
 
-		double par = edges[i]->par_non_SI*edges[i]->parameter_factor;
+		double par = edges[i]->par_non_SI[0]*edges[i]->parameter_factor;
 
 		if(edges[i]->type_code == 0) // resistor
 		{
@@ -113,6 +110,9 @@ void solver_lumped::coefficients_newton(double t_act)
 		}
 		else if(edges[i]->type_code == 2) // elastance
 		{
+			// actual elastance
+			double E_act = elastance(t_act,edges[i]->par_non_SI);
+
 			// basic equation for the edge
 			Jac(i,m+n+i_elas+1) = 1.;
 			Jac(i,m+n+i_elas) = -1.;
@@ -167,18 +167,22 @@ void solver_lumped::coefficients_newton(double t_act)
 		}
 		else if(edges[i]->type_code == 7) // resistor for coronaries
 		{
+			double E_act = elastance(t_act);
+
 			Jac(i,m+i2) = 1.;
 			Jac(i,m+i1) = -1.;
-			double R = par*(1. + beta_coronary*E_act/elastance_max); // from Reymond2009
+			double R = par*(1. + beta_coronary*E_act/elastance_max_nom); // from Reymond2009
 			Jac(i,i) = R; // R
 
 			f(i) = x(m+i2) - x(m+i1) + R*x(i);
 		}
 		else if(edges[i]->type_code == 8) // capacitor
 		{
+			double E_act = elastance(t_act);
+
 			Jac(i,m+i2) = 1.;
 			Jac(i,m+i1) = -1.;
-			double C = par*(1. - alpha_coronary*E_act/elastance_max); // from Reymond2009
+			double C = par*(1. - alpha_coronary*E_act/elastance_max_nom); // from Reymond2009
 			Jac(i,i) = dt/C; // dt/C
 
 			f(i) = x(m+i2) - x(m+i1) + dt/C*x(i) - nodes[i2]->p + nodes[i1]->p;
@@ -244,16 +248,8 @@ void solver_lumped::substitute_newton(double t_act)
 	time.push_back(t_act);
 
 	// putting back the outputs
-	for(int i=0; i<number_of_edges; i++)
-	{
-		edges[i]->vfr = x(i);
-		if(edges[i]->do_save_memory)
-		{
-			edges[i]->volume_flow_rate.push_back(x(i)*1.e-6);
-		}
-	}
-
-	double E_act = elastance(time.back());
+	vector<double> par{elastance_max_nom,elastance_min_nom};
+	double E_act = elastance(time.back(),par);
 	for(int i=0; i<number_of_nodes; i++)
 	{
 		nodes[i]->p = x(number_of_edges+i);
@@ -263,10 +259,29 @@ void solver_lumped::substitute_newton(double t_act)
 			nodes[i]->pressure.push_back(x(number_of_edges+i)*mmHg_to_Pa);
 		}
 	}
+
+	for(int i=0; i<number_of_edges; i++)
+	{
+		edges[i]->vfr = x(i);
+		if(edges[i]->do_save_memory)
+		{
+			edges[i]->volume_flow_rate.push_back(x(i)*1.e-6);
+		}
+		if(edges[i]->type_code == 2) // elastance
+		{
+			// rewriting the elastance nodes with actual E_act
+			int si = edges[i]->node_index_start;
+			int ei = edges[i]->node_index_end;
+			E_act = elastance(time.back(),edges[i]->par_non_SI);
+			nodes[si]->y = nodes[si]->p/E_act;
+			nodes[ei]->y = nodes[ei]->p/E_act;
+		}
+	}
+
 }
 
 //--------------------------------------------------------------
-vector<vector<double> > solver_lumped::solve_one_step(double dt, vector<vector<double> > boundary_coefficients)
+/*vector<vector<double> > solver_lumped::solve_one_step(double dt, vector<vector<double> > boundary_coefficients)
 {
 	// increasing time
 	double time_prev = time.back();
@@ -280,7 +295,7 @@ vector<vector<double> > solver_lumped::solve_one_step(double dt, vector<vector<d
 	int i_elas=0;
 
 	// actual elastance
-	double E_act = elastance(time_act);
+	double E_act = elastance(time_act,edges[i]->parameter);
 
 	// edges
 	for(int i=0; i<number_of_edges; i++)
@@ -430,6 +445,7 @@ vector<vector<double> > solver_lumped::solve_one_step(double dt, vector<vector<d
 
 	return out;
 }
+*/
 
 //--------------------------------------------------------------
 void solver_lumped::set_constants(double g, double rho, double nu, double mmHg, double p0)
@@ -453,39 +469,44 @@ void solver_lumped::set_non_SI_parameters()
 		edges[i]->vfr_ini_non_SI = edges[i]->volume_flow_rate_initial*1.e-6;
 		if(edges[i]->type_code == 0) // resistance
 		{
-			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa*1.e-6;
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]/mmHg_to_Pa*1.e-6);
 		}
 		else if(edges[i]->type_code == 1) // capacitor
 		{
-			edges[i]->par_non_SI = edges[i]->parameter*mmHg_to_Pa*1.e6;
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]*mmHg_to_Pa*1.e6);
+		}
+		else if(edges[i]->type_code == 2) // elastance
+		{
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]/mmHg_to_Pa*1.e-6);
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[1]/mmHg_to_Pa*1.e-6);
 		}
 		else if(edges[i]->type_code == 3) // inductor
 		{
-			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa*1.e-6;
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]/mmHg_to_Pa*1.e-6);
 		}
 		else if(edges[i]->type_code == 4) // voltage
 		{
-			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa;
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]/mmHg_to_Pa);
 		}
 		else if(edges[i]->type_code == 5) // diode
 		{
-			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa*1.e-6;
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]/mmHg_to_Pa*1.e-6);
 		}
 		else if(edges[i]->type_code == 6) // squared resistance
 		{
-			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa*1.e-6*1.e-6;
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]/mmHg_to_Pa*1.e-6*1.e-6);
 		}
 		else if(edges[i]->type_code == 7) // resistance_coronary
 		{
-			edges[i]->par_non_SI = edges[i]->parameter/mmHg_to_Pa*1.e-6;
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]/mmHg_to_Pa*1.e-6);
 		}
 		else if(edges[i]->type_code == 8) // capacitor
 		{
-			edges[i]->par_non_SI = edges[i]->parameter*mmHg_to_Pa*1.e6;
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]*mmHg_to_Pa*1.e6);
 		}
 		else if(edges[i]->type_code == 9) // current source
 		{
-			edges[i]->par_non_SI = edges[i]->parameter*1.e6;
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]*1.e6);
 		}
 	}
 }
@@ -562,6 +583,13 @@ int solver_lumped::edge_id_to_index(string edge_id)
 
 //--------------------------------------------------------------
 double solver_lumped::elastance(double t)
+{
+	vector<double> par{elastance_max_nom,elastance_min_nom};
+	return elastance(t,par);
+}
+
+//--------------------------------------------------------------
+double solver_lumped::elastance(double t, vector<double> par)
 {	
 	// normalized version
 	double tn = t * heart_rate/60.;
@@ -576,7 +604,7 @@ double solver_lumped::elastance(double t)
 
 	//double En = 1.55*pow(tn/0.7,1.9)/(1.+pow(tn/0.7,1.9)) * (1./(1.+pow(tn/1.17,21.9)));
 
-	double E = (elastance_max-elastance_min)*En + elastance_min;
+	double E = (par[0]-par[1])*En + par[1];
 
 	// E = E*mmHg_to_Pa*1.e6; // mmHg/ml to SI: Pa/m3 
 
@@ -584,7 +612,7 @@ double solver_lumped::elastance(double t)
 }
 
 //--------------------------------------------------------------
-double solver_lumped::elastance_derived(double t)
+double solver_lumped::elastance_derived(double t, vector<double> par)
 {
 	// normalized version
 	double tn = t * heart_rate/60.;
@@ -597,7 +625,7 @@ double solver_lumped::elastance_derived(double t)
 
 	double Enp = (9.450202509727443e-16*pow(tn,0.9) - 1.6570681411267346e-7*pow(tn,22.8) - 2.037762561602155e-6*pow(tn,24.7))/(pow(0.0890432 + pow(tn,1.9),2.)*pow(6.003121623244087e-8 + pow(tn,21.9),2.));
 
-	double Ep = (elastance_max-elastance_min)*Enp;
+	double Ep = (par[0]-par[1])*Enp;
 
 	//Ep = Ep*mmHg_to_Pa*1.e6;
 
