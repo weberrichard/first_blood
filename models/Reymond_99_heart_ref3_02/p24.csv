@@ -1,0 +1,28 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, In_p24_R0, In_p24_n1, In_p24_P1, 0.000e+00, 5.991e+09
+resistor, In_p24_R1, In_p24_P1, In_p24_Q1, 0.000e+00, 3.429e+10
+resistor, In_p24_R2, In_p24_P2, In_p24_Q2, 0.000e+00, 1.319e+10
+resistor, In_p24_R3, In_p24_P3, In_p24_Q3, 0.000e+00, 4.220e+09
+resistor, In_p24_R4, In_p24_P4, In_p24_Q4, 0.000e+00, 1.055e+09
+capacitor, In_p24_C1, In_p24_P1, g, 0.000e+00, 9.899e-12
+capacitor, In_p24_C2, In_p24_P2, g, 0.000e+00, 9.898e-13
+capacitor, In_p24_C3, In_p24_P3, g, 0.000e+00, 2.948e-11
+capacitor, In_p24_C4, In_p24_P4, g, 0.000e+00, 3.128e-10
+inductor, In_p24_L1, In_p24_Q1, In_p24_P2, 0.000e+00, 2.552e+07
+inductor, In_p24_L2, In_p24_Q2, In_p24_P3, 0.000e+00, 4.291e+06
+inductor, In_p24_L3, In_p24_Q3, In_p24_P4, 0.000e+00, 7.601e+06
+inductor, In_p24_L4, In_p24_Q4, g, 0.000e+00, 8.463e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, In_p24_n1, 1.000e+05
+node, In_p24_P1, 1.000e+05
+node, In_p24_P2, 1.000e+05
+node, In_p24_P3, 1.000e+05
+node, In_p24_P4, 1.000e+05
+node, In_p24_Q1, 1.000e+05
+node, In_p24_Q2, 1.000e+05
+node, In_p24_Q3, 1.000e+05
+node, In_p24_Q4, 1.000e+05
+ground, g, 1.000e+05

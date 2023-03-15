@@ -1,0 +1,1329 @@
+p4
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ul_p4_R0, Ul_p4_n1, Ul_p4_P1, 0.000e+00, 1.847e+10
+resistor, Ul_p4_R1, Ul_p4_P1, Ul_p4_Q1, 0.000e+00, 2.210e+10
+resistor, Ul_p4_R2, Ul_p4_P2, Ul_p4_Q2, 0.000e+00, 8.500e+09
+resistor, Ul_p4_R3, Ul_p4_P3, Ul_p4_Q3, 0.000e+00, 2.720e+09
+resistor, Ul_p4_R4, Ul_p4_P4, Ul_p4_Q4, 0.000e+00, 6.800e+08
+capacitor, Ul_p4_C1, Ul_p4_P1, g, 0.000e+00, 1.536e-11
+capacitor, Ul_p4_C2, Ul_p4_P2, g, 0.000e+00, 1.536e-12
+capacitor, Ul_p4_C3, Ul_p4_P3, g, 0.000e+00, 4.574e-11
+capacitor, Ul_p4_C4, Ul_p4_P4, g, 0.000e+00, 4.853e-10
+inductor, Ul_p4_L1, Ul_p4_Q1, Ul_p4_P2, 0.000e+00, 1.645e+07
+inductor, Ul_p4_L2, Ul_p4_Q2, Ul_p4_P3, 0.000e+00, 2.766e+06
+inductor, Ul_p4_L3, Ul_p4_Q3, Ul_p4_P4, 0.000e+00, 4.900e+06
+inductor, Ul_p4_L4, Ul_p4_Q4, g, 0.000e+00, 5.455e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Ul_p4_n1, 1.000e+05
+node, Ul_p4_P1, 1.000e+05
+node, Ul_p4_P2, 1.000e+05
+node, Ul_p4_P3, 1.000e+05
+node, Ul_p4_P4, 1.000e+05
+node, Ul_p4_Q1, 1.000e+05
+node, Ul_p4_Q2, 1.000e+05
+node, Ul_p4_Q3, 1.000e+05
+node, Ul_p4_Q4, 1.000e+05
+ground, g, 1.000e+05
+
+
+p5
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ul_p5_R0, Ul_p5_n1, Ul_p5_P1, 0.000e+00, 5.121e+10
+resistor, Ul_p5_R1, Ul_p5_P1, Ul_p5_Q1, 0.000e+00, 5.115e+11
+resistor, Ul_p5_R2, Ul_p5_P2, Ul_p5_Q2, 0.000e+00, 1.967e+11
+resistor, Ul_p5_R3, Ul_p5_P3, Ul_p5_Q3, 0.000e+00, 6.295e+10
+resistor, Ul_p5_R4, Ul_p5_P4, Ul_p5_Q4, 0.000e+00, 1.574e+10
+capacitor, Ul_p5_C1, Ul_p5_P1, g, 0.000e+00, 6.636e-13
+capacitor, Ul_p5_C2, Ul_p5_P2, g, 0.000e+00, 6.635e-14
+capacitor, Ul_p5_C3, Ul_p5_P3, g, 0.000e+00, 1.976e-12
+capacitor, Ul_p5_C4, Ul_p5_P4, g, 0.000e+00, 2.097e-11
+inductor, Ul_p5_L1, Ul_p5_Q1, Ul_p5_P2, 0.000e+00, 3.806e+08
+inductor, Ul_p5_L2, Ul_p5_Q2, Ul_p5_P3, 0.000e+00, 6.401e+07
+inductor, Ul_p5_L3, Ul_p5_Q3, Ul_p5_P4, 0.000e+00, 1.134e+08
+inductor, Ul_p5_L4, Ul_p5_Q4, g, 0.000e+00, 1.262e+08
+
+data of nodes
+type, name, initial condition [SI]
+node, Ul_p5_n1, 1.000e+05
+node, Ul_p5_P1, 1.000e+05
+node, Ul_p5_P2, 1.000e+05
+node, Ul_p5_P3, 1.000e+05
+node, Ul_p5_P4, 1.000e+05
+node, Ul_p5_Q1, 1.000e+05
+node, Ul_p5_Q2, 1.000e+05
+node, Ul_p5_Q3, 1.000e+05
+node, Ul_p5_Q4, 1.000e+05
+
+
+p6
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ul_p6_R0, Ul_p6_n1, Ul_p6_P1, 0.000e+00, 1.333e+10
+resistor, Ul_p6_R1, Ul_p6_P1, Ul_p6_Q1, 0.000e+00, 2.544e+10
+resistor, Ul_p6_R2, Ul_p6_P2, Ul_p6_Q2, 0.000e+00, 9.786e+09
+resistor, Ul_p6_R3, Ul_p6_P3, Ul_p6_Q3, 0.000e+00, 3.131e+09
+resistor, Ul_p6_R4, Ul_p6_P4, Ul_p6_Q4, 0.000e+00, 7.829e+08
+capacitor, Ul_p6_C1, Ul_p6_P1, g, 0.000e+00, 1.334e-11
+capacitor, Ul_p6_C2, Ul_p6_P2, g, 0.000e+00, 1.334e-12
+capacitor, Ul_p6_C3, Ul_p6_P3, g, 0.000e+00, 3.973e-11
+capacitor, Ul_p6_C4, Ul_p6_P4, g, 0.000e+00, 4.215e-10
+inductor, Ul_p6_L1, Ul_p6_Q1, Ul_p6_P2, 0.000e+00, 1.893e+07
+inductor, Ul_p6_L2, Ul_p6_Q2, Ul_p6_P3, 0.000e+00, 3.184e+06
+inductor, Ul_p6_L3, Ul_p6_Q3, Ul_p6_P4, 0.000e+00, 5.641e+06
+inductor, Ul_p6_L4, Ul_p6_Q4, g, 0.000e+00, 6.280e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Ul_p6_n1, 1.000e+05
+node, Ul_p6_P1, 1.000e+05
+node, Ul_p6_P2, 1.000e+05
+node, Ul_p6_P3, 1.000e+05
+node, Ul_p6_P4, 1.000e+05
+node, Ul_p6_Q1, 1.000e+05
+node, Ul_p6_Q2, 1.000e+05
+node, Ul_p6_Q3, 1.000e+05
+node, Ul_p6_Q4, 1.000e+05
+
+
+p7
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ll_p7_R0, Ll_p7_n1, Ll_p7_P1, 0.000e+00, 1.145e+10
+resistor, Ll_p7_R1, Ll_p7_P1, Ll_p7_Q1, 0.000e+00, 4.202e+10
+resistor, Ll_p7_R2, Ll_p7_P2, Ll_p7_Q2, 0.000e+00, 1.616e+10
+resistor, Ll_p7_R3, Ll_p7_P3, Ll_p7_Q3, 0.000e+00, 5.172e+09
+resistor, Ll_p7_R4, Ll_p7_P4, Ll_p7_Q4, 0.000e+00, 1.289e+09
+capacitor, Ll_p7_C1, Ll_p7_P1, g, 0.000e+00, 7.822e-12
+capacitor, Ll_p7_C2, Ll_p7_P2, g, 0.000e+00, 7.822e-13
+capacitor, Ll_p7_C3, Ll_p7_P3, g, 0.000e+00, 6.034e-11
+capacitor, Ll_p7_C4, Ll_p7_P4, g, 0.000e+00, 1.173e-09
+inductor, Ll_p7_L1, Ll_p7_Q1, Ll_p7_P2, 0.000e+00, 3.222e+07
+inductor, Ll_p7_L2, Ll_p7_Q2, Ll_p7_P3, 0.000e+00, 5.369e+06
+inductor, Ll_p7_L3, Ll_p7_Q3, Ll_p7_P4, 0.000e+00, 9.665e+06
+inductor, Ll_p7_L4, Ll_p7_Q4, g, 0.000e+00, 1.074e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Ll_p7_n1, 1.000e+05
+node, Ll_p7_P1, 1.000e+05
+node, Ll_p7_P2, 1.000e+05
+node, Ll_p7_P3, 1.000e+05
+node, Ll_p7_P4, 1.000e+05
+node, Ll_p7_Q1, 1.000e+05
+node, Ll_p7_Q2, 1.000e+05
+node, Ll_p7_Q3, 1.000e+05
+node, Ll_p7_Q4, 1.000e+05
+
+
+
+p8
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ll_p8_R0, Ll_p8_n1, Ll_p8_P1, 0.000e+00, 8.935e+09
+resistor, Ll_p8_R1, Ll_p8_P1, Ll_p8_Q1, 0.000e+00, 2.394e+10
+resistor, Ll_p8_R2, Ll_p8_P2, Ll_p8_Q2, 0.000e+00, 9.204e+09
+resistor, Ll_p8_R3, Ll_p8_P3, Ll_p8_Q3, 0.000e+00, 2.955e+09
+resistor, Ll_p8_R4, Ll_p8_P4, Ll_p8_Q4, 0.000e+00, 7.342e+08
+capacitor, Ll_p8_C1, Ll_p8_P1, g, 0.000e+00, 1.284e-11
+capacitor, Ll_p8_C2, Ll_p8_P2, g, 0.000e+00, 1.284e-12
+capacitor, Ll_p8_C3, Ll_p8_P3, g, 0.000e+00, 3.798e-11
+capacitor, Ll_p8_C4, Ll_p8_P4, g, 0.000e+00, 9.550e-10
+inductor, Ll_p8_L1, Ll_p8_Q1, Ll_p8_P2, 0.000e+00, 2.507e+07
+inductor, Ll_p8_L2, Ll_p8_Q2, Ll_p8_P3, 0.000e+00, 4.118e+06
+inductor, Ll_p8_L3, Ll_p8_Q3, Ll_p8_P4, 0.000e+00, 7.521e+06
+inductor, Ll_p8_L4, Ll_p8_Q4, g, 0.000e+00, 8.237e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Ll_p8_n1, 1.000e+05
+node, Ll_p8_P1, 1.000e+05
+node, Ll_p8_P2, 1.000e+05
+node, Ll_p8_P3, 1.000e+05
+node, Ll_p8_P4, 1.000e+05
+node, Ll_p8_Q1, 1.000e+05
+node, Ll_p8_Q2, 1.000e+05
+node, Ll_p8_Q3, 1.000e+05
+node, Ll_p8_Q4, 1.000e+05
+
+
+
+p9
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ll_p9_R0, Ll_p9_n1, Ll_p9_P1, 0.000e+00, 8.298e+09
+resistor, Ll_p9_R1, Ll_p9_P1, Ll_p9_Q1, 0.000e+00, 2.940e+10
+resistor, Ll_p9_R2, Ll_p9_P2, Ll_p9_Q2, 0.000e+00, 1.132e+10
+resistor, Ll_p9_R3, Ll_p9_P3, Ll_p9_Q3, 0.000e+00, 3.625e+09
+resistor, Ll_p9_R4, Ll_p9_P4, Ll_p9_Q4, 0.000e+00, 9.011e+08
+capacitor, Ll_p9_C1, Ll_p9_P1, g, 0.000e+00, 1.098e-11
+capacitor, Ll_p9_C2, Ll_p9_P2, g, 0.000e+00, 1.098e-12
+capacitor, Ll_p9_C3, Ll_p9_P3, g, 0.000e+00, 3.245e-11
+capacitor, Ll_p9_C4, Ll_p9_P4, g, 0.000e+00, 1.384e-10
+inductor, Ll_p9_L1, Ll_p9_Q1, Ll_p9_P2, 0.000e+00, 2.934e+07
+inductor, Ll_p9_L2, Ll_p9_Q2, Ll_p9_P3, 0.000e+00, 4.820e+06
+inductor, Ll_p9_L3, Ll_p9_Q3, Ll_p9_P4, 0.000e+00, 8.801e+06
+inductor, Ll_p9_L4, Ll_p9_Q4, g, 0.000e+00, 9.639e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Ll_p9_n1, 1.000e+05
+node, Ll_p9_P1, 1.000e+05
+node, Ll_p9_P2, 1.000e+05
+node, Ll_p9_P3, 1.000e+05
+node, Ll_p9_P4, 1.000e+05
+node, Ll_p9_Q1, 1.000e+05
+node, Ll_p9_Q2, 1.000e+05
+node, Ll_p9_Q3, 1.000e+05
+node, Ll_p9_Q4, 1.000e+05
+
+
+
+p10
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ll_p10_R0, Ll_p10_n1, Ll_p10_P1, 0.000e+00, 7.986e+09
+resistor, Ll_p10_R1, Ll_p10_P1, Ll_p10_Q1, 0.000e+00, 2.455e+10
+resistor, Ll_p10_R2, Ll_p10_P2, Ll_p10_Q2, 0.000e+00, 9.446e+09
+resistor, Ll_p10_R3, Ll_p10_P3, Ll_p10_Q3, 0.000e+00, 3.025e+09
+resistor, Ll_p10_R4, Ll_p10_P4, Ll_p10_Q4, 0.000e+00, 7.582e+08
+capacitor, Ll_p10_C1, Ll_p10_P1, g, 0.000e+00, 1.240e-11
+capacitor, Ll_p10_C2, Ll_p10_P2, g, 0.000e+00, 1.240e-12
+capacitor, Ll_p10_C3, Ll_p10_P3, g, 0.000e+00, 3.843e-11
+capacitor, Ll_p10_C4, Ll_p10_P4, g, 0.000e+00, 4.835e-10
+inductor, Ll_p10_L1, Ll_p10_Q1, Ll_p10_P2, 0.000e+00, 1.694e+07
+inductor, Ll_p10_L2, Ll_p10_Q2, Ll_p10_P3, 0.000e+00, 2.823e+06
+inductor, Ll_p10_L3, Ll_p10_Q3, Ll_p10_P4, 0.000e+00, 5.001e+06
+inductor, Ll_p10_L4, Ll_p10_Q4, g, 0.000e+00, 5.566e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Ll_p10_n1, 1.000e+05
+node, Ll_p10_P1, 1.000e+05
+node, Ll_p10_P2, 1.000e+05
+node, Ll_p10_P3, 1.000e+05
+node, Ll_p10_P4, 1.000e+05
+node, Ll_p10_Q1, 1.000e+05
+node, Ll_p10_Q2, 1.000e+05
+node, Ll_p10_Q3, 1.000e+05
+node, Ll_p10_Q4, 1.000e+05
+
+
+
+p11
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ll_p11_R0, Ll_p11_n1, Ll_p11_P1, 0.000e+00, 1.145e+10
+resistor, Ll_p11_R1, Ll_p11_P1, Ll_p11_Q1, 0.000e+00, 4.202e+10
+resistor, Ll_p11_R2, Ll_p11_P2, Ll_p11_Q2, 0.000e+00, 1.616e+10
+resistor, Ll_p11_R3, Ll_p11_P3, Ll_p11_Q3, 0.000e+00, 5.172e+09
+resistor, Ll_p11_R4, Ll_p11_P4, Ll_p11_Q4, 0.000e+00, 1.289e+09
+capacitor, Ll_p11_C1, Ll_p11_P1, g, 0.000e+00, 7.822e-12
+capacitor, Ll_p11_C2, Ll_p11_P2, g, 0.000e+00, 7.822e-13
+capacitor, Ll_p11_C3, Ll_p11_P3, g, 0.000e+00, 6.034e-11
+capacitor, Ll_p11_C4, Ll_p11_P4, g, 0.000e+00, 1.173e-09
+inductor, Ll_p11_L1, Ll_p11_Q1, Ll_p11_P2, 0.000e+00, 3.222e+07
+inductor, Ll_p11_L2, Ll_p11_Q2, Ll_p11_P3, 0.000e+00, 5.369e+06
+inductor, Ll_p11_L3, Ll_p11_Q3, Ll_p11_P4, 0.000e+00, 9.665e+06
+inductor, Ll_p11_L4, Ll_p11_Q4, g, 0.000e+00, 1.074e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Ll_p11_n1, 1.000e+05
+node, Ll_p11_P1, 1.000e+05
+node, Ll_p11_P2, 1.000e+05
+node, Ll_p11_P3, 1.000e+05
+node, Ll_p11_P4, 1.000e+05
+node, Ll_p11_Q1, 1.000e+05
+node, Ll_p11_Q2, 1.000e+05
+node, Ll_p11_Q3, 1.000e+05
+node, Ll_p11_Q4, 1.000e+05
+
+
+
+p12
+ldata of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ll_p12_R0, Ll_p12_n1, Ll_p12_P1, 0.000e+00, 8.935e+09
+resistor, Ll_p12_R1, Ll_p12_P1, Ll_p12_Q1, 0.000e+00, 2.394e+10
+resistor, Ll_p12_R2, Ll_p12_P2, Ll_p12_Q2, 0.000e+00, 9.204e+09
+resistor, Ll_p12_R3, Ll_p12_P3, Ll_p12_Q3, 0.000e+00, 2.955e+09
+resistor, Ll_p12_R4, Ll_p12_P4, Ll_p12_Q4, 0.000e+00, 7.342e+08
+capacitor, Ll_p12_C1, Ll_p12_P1, g, 0.000e+00, 1.284e-11
+capacitor, Ll_p12_C2, Ll_p12_P2, g, 0.000e+00, 1.284e-12
+capacitor, Ll_p12_C3, Ll_p12_P3, g, 0.000e+00, 3.798e-11
+capacitor, Ll_p12_C4, Ll_p12_P4, g, 0.000e+00, 9.550e-10
+inductor, Ll_p12_L1, Ll_p12_Q1, Ll_p12_P2, 0.000e+00, 2.507e+07
+inductor, Ll_p12_L2, Ll_p12_Q2, Ll_p12_P3, 0.000e+00, 4.118e+06
+inductor, Ll_p12_L3, Ll_p12_Q3, Ll_p12_P4, 0.000e+00, 7.521e+06
+inductor, Ll_p12_L4, Ll_p12_Q4, g, 0.000e+00, 8.237e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Ll_p12_n1, 1.000e+05
+node, Ll_p12_P1, 1.000e+05
+node, Ll_p12_P2, 1.000e+05
+node, Ll_p12_P3, 1.000e+05
+node, Ll_p12_P4, 1.000e+05
+node, Ll_p12_Q1, 1.000e+05
+node, Ll_p12_Q2, 1.000e+05
+node, Ll_p12_Q3, 1.000e+05
+node, Ll_p12_Q4, 1.000e+05
+
+
+
+p13
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ll_p13_R0, Ll_p13_n1, Ll_p13_P1, 0.000e+00, 7.986e+09
+resistor, Ll_p13_R1, Ll_p13_P1, Ll_p13_Q1, 0.000e+00, 2.455e+10
+resistor, Ll_p13_R2, Ll_p13_P2, Ll_p13_Q2, 0.000e+00, 9.446e+09
+resistor, Ll_p13_R3, Ll_p13_P3, Ll_p13_Q3, 0.000e+00, 3.025e+09
+resistor, Ll_p13_R4, Ll_p13_P4, Ll_p13_Q4, 0.000e+00, 7.582e+08
+capacitor, Ll_p13_C1, Ll_p13_P1, g, 0.000e+00, 1.240e-11
+capacitor, Ll_p13_C2, Ll_p13_P2, g, 0.000e+00, 1.240e-12
+capacitor, Ll_p13_C3, Ll_p13_P3, g, 0.000e+00, 3.843e-11
+capacitor, Ll_p13_C4, Ll_p13_P4, g, 0.000e+00, 4.835e-10
+inductor, Ll_p13_L1, Ll_p13_Q1, Ll_p13_P2, 0.000e+00, 1.694e+07
+inductor, Ll_p13_L2, Ll_p13_Q2, Ll_p13_P3, 0.000e+00, 2.823e+06
+inductor, Ll_p13_L3, Ll_p13_Q3, Ll_p13_P4, 0.000e+00, 5.001e+06
+inductor, Ll_p13_L4, Ll_p13_Q4, g, 0.000e+00, 5.566e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Ll_p13_n1, 1.000e+05
+node, Ll_p13_P1, 1.000e+05
+node, Ll_p13_P2, 1.000e+05
+node, Ll_p13_P3, 1.000e+05
+node, Ll_p13_P4, 1.000e+05
+node, Ll_p13_Q1, 1.000e+05
+node, Ll_p13_Q2, 1.000e+05
+node, Ll_p13_Q3, 1.000e+05
+node, Ll_p13_Q4, 1.000e+05
+
+
+
+p14
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ll_p14_R0, Ll_p14_n1, Ll_p14_P1, 0.000e+00, 8.298e+09
+resistor, Ll_p14_R1, Ll_p14_P1, Ll_p14_Q1, 0.000e+00, 2.940e+10
+resistor, Ll_p14_R2, Ll_p14_P2, Ll_p14_Q2, 0.000e+00, 1.132e+10
+resistor, Ll_p14_R3, Ll_p14_P3, Ll_p14_Q3, 0.000e+00, 3.625e+09
+resistor, Ll_p14_R4, Ll_p14_P4, Ll_p14_Q4, 0.000e+00, 9.011e+08
+capacitor, Ll_p14_C1, Ll_p14_P1, g, 0.000e+00, 1.098e-11
+capacitor, Ll_p14_C2, Ll_p14_P2, g, 0.000e+00, 1.098e-12
+capacitor, Ll_p14_C3, Ll_p14_P3, g, 0.000e+00, 3.245e-11
+capacitor, Ll_p14_C4, Ll_p14_P4, g, 0.000e+00, 1.384e-10
+inductor, Ll_p14_L1, Ll_p14_Q1, Ll_p14_P2, 0.000e+00, 2.934e+07
+inductor, Ll_p14_L2, Ll_p14_Q2, Ll_p14_P3, 0.000e+00, 4.820e+06
+inductor, Ll_p14_L3, Ll_p14_Q3, Ll_p14_P4, 0.000e+00, 8.801e+06
+inductor, Ll_p14_L4, Ll_p14_Q4, g, 0.000e+00, 9.639e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Ll_p14_n1, 1.000e+05
+node, Ll_p14_P1, 1.000e+05
+node, Ll_p14_P2, 1.000e+05
+node, Ll_p14_P3, 1.000e+05
+node, Ll_p14_P4, 1.000e+05
+node, Ll_p14_Q1, 1.000e+05
+node, Ll_p14_Q2, 1.000e+05
+node, Ll_p14_Q3, 1.000e+05
+node, Ll_p14_Q4, 1.000e+05
+
+
+
+p15
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ul_p15_R0, Ul_p15_n1, Ul_p15_P1, 0.000e+00, 1.333e+10
+resistor, Ul_p15_R1, Ul_p15_P1, Ul_p15_Q1, 0.000e+00, 2.544e+10
+resistor, Ul_p15_R2, Ul_p15_P2, Ul_p15_Q2, 0.000e+00, 9.786e+09
+resistor, Ul_p15_R3, Ul_p15_P3, Ul_p15_Q3, 0.000e+00, 3.131e+09
+resistor, Ul_p15_R4, Ul_p15_P4, Ul_p15_Q4, 0.000e+00, 7.829e+08
+capacitor, Ul_p15_C1, Ul_p15_P1, g, 0.000e+00, 1.334e-11
+capacitor, Ul_p15_C2, Ul_p15_P2, g, 0.000e+00, 1.334e-12
+capacitor, Ul_p15_C3, Ul_p15_P3, g, 0.000e+00, 3.973e-11
+capacitor, Ul_p15_C4, Ul_p15_P4, g, 0.000e+00, 4.215e-10
+inductor, Ul_p15_L1, Ul_p15_Q1, Ul_p15_P2, 0.000e+00, 1.893e+07
+inductor, Ul_p15_L2, Ul_p15_Q2, Ul_p15_P3, 0.000e+00, 3.184e+06
+inductor, Ul_p15_L3, Ul_p15_Q3, Ul_p15_P4, 0.000e+00, 5.641e+06
+inductor, Ul_p15_L4, Ul_p15_Q4, g, 0.000e+00, 6.280e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Ul_p15_n1, 1.000e+05
+node, Ul_p15_P1, 1.000e+05
+node, Ul_p15_P2, 1.000e+05
+node, Ul_p15_P3, 1.000e+05
+node, Ul_p15_P4, 1.000e+05
+node, Ul_p15_Q1, 1.000e+05
+node, Ul_p15_Q2, 1.000e+05
+node, Ul_p15_Q3, 1.000e+05
+node, Ul_p15_Q4, 1.000e+05
+
+
+p16
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ul_p16_R0, Ul_p16_n1, Ul_p16_P1, 0.000e+00, 5.121e+10
+resistor, Ul_p16_R1, Ul_p16_P1, Ul_p16_Q1, 0.000e+00, 5.115e+11
+resistor, Ul_p16_R2, Ul_p16_P2, Ul_p16_Q2, 0.000e+00, 1.967e+11
+resistor, Ul_p16_R3, Ul_p16_P3, Ul_p16_Q3, 0.000e+00, 6.295e+10
+resistor, Ul_p16_R4, Ul_p16_P4, Ul_p16_Q4, 0.000e+00, 1.574e+10
+capacitor, Ul_p16_C1, Ul_p16_P1, g, 0.000e+00, 6.636e-13
+capacitor, Ul_p16_C2, Ul_p16_P2, g, 0.000e+00, 6.635e-14
+capacitor, Ul_p16_C3, Ul_p16_P3, g, 0.000e+00, 1.976e-12
+capacitor, Ul_p16_C4, Ul_p16_P4, g, 0.000e+00, 2.097e-11
+inductor, Ul_p16_L1, Ul_p16_Q1, Ul_p16_P2, 0.000e+00, 3.806e+08
+inductor, Ul_p16_L2, Ul_p16_Q2, Ul_p16_P3, 0.000e+00, 6.401e+07
+inductor, Ul_p16_L3, Ul_p16_Q3, Ul_p16_P4, 0.000e+00, 1.134e+08
+inductor, Ul_p16_L4, Ul_p16_Q4, g, 0.000e+00, 1.262e+08
+
+data of nodes
+type, name, initial condition [SI]
+node, Ul_p16_n1, 1.000e+05
+node, Ul_p16_P1, 1.000e+05
+node, Ul_p16_P2, 1.000e+05
+node, Ul_p16_P3, 1.000e+05
+node, Ul_p16_P4, 1.000e+05
+node, Ul_p16_Q1, 1.000e+05
+node, Ul_p16_Q2, 1.000e+05
+node, Ul_p16_Q3, 1.000e+05
+node, Ul_p16_Q4, 1.000e+05
+
+
+p17
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ul_p17_R0, Ul_p17_n1, Ul_p17_P1, 0.000e+00, 1.847e+10
+resistor, Ul_p17_R1, Ul_p17_P1, Ul_p17_Q1, 0.000e+00, 2.210e+10
+resistor, Ul_p17_R2, Ul_p17_P2, Ul_p17_Q2, 0.000e+00, 8.500e+09
+resistor, Ul_p17_R3, Ul_p17_P3, Ul_p17_Q3, 0.000e+00, 2.720e+09
+resistor, Ul_p17_R4, Ul_p17_P4, Ul_p17_Q4, 0.000e+00, 6.800e+08
+capacitor, Ul_p17_C1, Ul_p17_P1, g, 0.000e+00, 1.536e-11
+capacitor, Ul_p17_C2, Ul_p17_P2, g, 0.000e+00, 1.536e-12
+capacitor, Ul_p17_C3, Ul_p17_P3, g, 0.000e+00, 4.574e-11
+capacitor, Ul_p17_C4, Ul_p17_P4, g, 0.000e+00, 4.853e-10
+inductor, Ul_p17_L1, Ul_p17_Q1, Ul_p17_P2, 0.000e+00, 1.645e+07
+inductor, Ul_p17_L2, Ul_p17_Q2, Ul_p17_P3, 0.000e+00, 2.766e+06
+inductor, Ul_p17_L3, Ul_p17_Q3, Ul_p17_P4, 0.000e+00, 4.900e+06
+inductor, Ul_p17_L4, Ul_p17_Q4, g, 0.000e+00, 5.455e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Ul_p17_n1, 1.000e+05
+node, Ul_p17_P1, 1.000e+05
+node, Ul_p17_P2, 1.000e+05
+node, Ul_p17_P3, 1.000e+05
+node, Ul_p17_P4, 1.000e+05
+node, Ul_p17_Q1, 1.000e+05
+node, Ul_p17_Q2, 1.000e+05
+node, Ul_p17_Q3, 1.000e+05
+node, Ul_p17_Q4, 1.000e+05
+
+
+p18
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, H_p18_R0, H_p18_n1, H_p18_P1, 0.000e+00, 3.164e+09
+resistor, H_p18_R1, H_p18_P1, H_p18_Q1, 0.000e+00, 1.810e+10
+resistor, H_p18_R2, H_p18_P2, H_p18_Q2, 0.000e+00, 6.963e+09
+resistor, H_p18_R3, H_p18_P3, H_p18_Q3, 0.000e+00, 2.228e+09
+resistor, H_p18_R4, H_p18_P4, H_p18_Q4, 0.000e+00, 5.570e+08
+capacitor, H_p18_C1, H_p18_P1, g, 0.000e+00, 1.875e-11
+capacitor, H_p18_C2, H_p18_P2, g, 0.000e+00, 1.874e-12
+capacitor, H_p18_C3, H_p18_P3, g, 0.000e+00, 5.583e-11
+capacitor, H_p18_C4, H_p18_P4, g, 0.000e+00, 5.924e-10
+inductor, H_p18_L1, H_p18_Q1, H_p18_P2, 0.000e+00, 1.347e+07
+inductor, H_p18_L2, H_p18_Q2, H_p18_P3, 0.000e+00, 2.266e+06
+inductor, H_p18_L3, H_p18_Q3, H_p18_P4, 0.000e+00, 4.014e+06
+inductor, H_p18_L4, H_p18_Q4, g, 0.000e+00, 4.469e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, H_p18_n1, 1.000e+05
+node, H_p18_P1, 1.000e+05
+node, H_p18_P2, 1.000e+05
+node, H_p18_P3, 1.000e+05
+node, H_p18_P4, 1.000e+05
+node, H_p18_Q1, 1.000e+05
+node, H_p18_Q2, 1.000e+05
+node, H_p18_Q3, 1.000e+05
+node, H_p18_Q4, 1.000e+05
+
+
+p19
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, G_p19_R0, G_p19_n1, G_p19_P1, 0.000e+00, 1.055e+10
+resistor, G_p19_R1, G_p19_P1, G_p19_Q1, 0.000e+00, 2.323e+10
+resistor, G_p19_R2, G_p19_P2, G_p19_Q2, 0.000e+00, 8.935e+09
+resistor, G_p19_R3, G_p19_P3, G_p19_Q3, 0.000e+00, 2.859e+09
+resistor, G_p19_R4, G_p19_P4, G_p19_Q4, 0.000e+00, 7.148e+08
+capacitor, G_p19_C1, G_p19_P1, g, 0.000e+00, 1.461e-11
+capacitor, G_p19_C2, G_p19_P2, g, 0.000e+00, 1.461e-12
+capacitor, G_p19_C3, G_p19_P3, g, 0.000e+00, 4.351e-11
+capacitor, G_p19_C4, G_p19_P4, g, 0.000e+00, 4.617e-10
+inductor, G_p19_L1, G_p19_Q1, G_p19_P2, 0.000e+00, 1.729e+07
+inductor, G_p19_L2, G_p19_Q2, G_p19_P3, 0.000e+00, 2.907e+06
+inductor, G_p19_L3, G_p19_Q3, G_p19_P4, 0.000e+00, 5.150e+06
+inductor, G_p19_L4, G_p19_Q4, g, 0.000e+00, 5.734e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, G_p19_n1, 1.000e+05
+node, G_p19_P1, 1.000e+05
+node, G_p19_P2, 1.000e+05
+node, G_p19_P3, 1.000e+05
+node, G_p19_P4, 1.000e+05
+node, G_p19_Q1, 1.000e+05
+node, G_p19_Q2, 1.000e+05
+node, G_p19_Q3, 1.000e+05
+node, G_p19_Q4, 1.000e+05
+
+
+p20
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Sp_p20_R0, Sp_p20_n1, Sp_p20_P1, 0.000e+00, 1.147e+10
+resistor, Sp_p20_R1, Sp_p20_P1, Sp_p20_Q1, 0.000e+00, 2.857e+10
+resistor, Sp_p20_R2, Sp_p20_P2, Sp_p20_Q2, 0.000e+00, 1.099e+10
+resistor, Sp_p20_R3, Sp_p20_P3, Sp_p20_Q3, 0.000e+00, 3.516e+09
+resistor, Sp_p20_R4, Sp_p20_P4, Sp_p20_Q4, 0.000e+00, 8.790e+08
+capacitor, Sp_p20_C1, Sp_p20_P1, g, 0.000e+00, 1.188e-11
+capacitor, Sp_p20_C2, Sp_p20_P2, g, 0.000e+00, 1.188e-12
+capacitor, Sp_p20_C3, Sp_p20_P3, g, 0.000e+00, 3.539e-11
+capacitor, Sp_p20_C4, Sp_p20_P4, g, 0.000e+00, 3.754e-10
+inductor, Sp_p20_L1, Sp_p20_Q1, Sp_p20_P2, 0.000e+00, 2.126e+07
+inductor, Sp_p20_L2, Sp_p20_Q2, Sp_p20_P3, 0.000e+00, 3.575e+06
+inductor, Sp_p20_L3, Sp_p20_Q3, Sp_p20_P4, 0.000e+00, 6.333e+06
+inductor, Sp_p20_L4, Sp_p20_Q4, g, 0.000e+00, 7.051e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Sp_p20_n1, 1.000e+05
+node, Sp_p20_P1, 1.000e+05
+node, Sp_p20_P2, 1.000e+05
+node, Sp_p20_P3, 1.000e+05
+node, Sp_p20_P4, 1.000e+05
+node, Sp_p20_Q1, 1.000e+05
+node, Sp_p20_Q2, 1.000e+05
+node, Sp_p20_Q3, 1.000e+05
+node, Sp_p20_Q4, 1.000e+05
+
+
+p21
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, K_p21_R0, K_p21_n1, K_p21_P1, 0.000e+00, 1.847e+10
+resistor, K_p21_R1, K_p21_P1, K_p21_Q1, 0.000e+00, 3.952e+10
+resistor, K_p21_R2, K_p21_P2, K_p21_Q2, 0.000e+00, 1.520e+10
+resistor, K_p21_R3, K_p21_P3, K_p21_Q3, 0.000e+00, 4.864e+09
+resistor, K_p21_R4, K_p21_P4, K_p21_Q4, 0.000e+00, 1.216e+09
+capacitor, K_p21_C1, K_p21_P1, g, 0.000e+00, 8.589e-12
+capacitor, K_p21_C2, K_p21_P2, g, 0.000e+00, 8.587e-13
+capacitor, K_p21_C3, K_p21_P3, g, 0.000e+00, 2.558e-11
+capacitor, K_p21_C4, K_p21_P4, g, 0.000e+00, 2.714e-10
+inductor, K_p21_L1, K_p21_Q1, K_p21_P2, 0.000e+00, 2.941e+07
+inductor, K_p21_L2, K_p21_Q2, K_p21_P3, 0.000e+00, 4.946e+06
+inductor, K_p21_L3, K_p21_Q3, K_p21_P4, 0.000e+00, 8.761e+06
+inductor, K_p21_L4, K_p21_Q4, g, 0.000e+00, 9.754e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, K_p21_n1, 1.000e+05
+node, K_p21_P1, 1.000e+05
+node, K_p21_P2, 1.000e+05
+node, K_p21_P3, 1.000e+05
+node, K_p21_P4, 1.000e+05
+node, K_p21_Q1, 1.000e+05
+node, K_p21_Q2, 1.000e+05
+node, K_p21_Q3, 1.000e+05
+node, K_p21_Q4, 1.000e+05
+
+
+p22
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Su_p22_R0, Su_p22_n1, Su_p22_P1, 0.000e+00, 1.338e+09
+resistor, Su_p22_R1, Su_p22_P1, Su_p22_Q1, 0.000e+00, 4.306e+09
+resistor, Su_p22_R2, Su_p22_P2, Su_p22_Q2, 0.000e+00, 1.656e+09
+resistor, Su_p22_R3, Su_p22_P3, Su_p22_Q3, 0.000e+00, 5.300e+08
+resistor, Su_p22_R4, Su_p22_P4, Su_p22_Q4, 0.000e+00, 1.325e+08
+capacitor, Su_p22_C1, Su_p22_P1, g, 0.000e+00, 7.882e-11
+capacitor, Su_p22_C2, Su_p22_P2, g, 0.000e+00, 7.881e-12
+capacitor, Su_p22_C3, Su_p22_P3, g, 0.000e+00, 2.348e-10
+capacitor, Su_p22_C4, Su_p22_P4, g, 0.000e+00, 2.491e-09
+inductor, Su_p22_L1, Su_p22_Q1, Su_p22_P2, 0.000e+00, 3.204e+06
+inductor, Su_p22_L2, Su_p22_Q2, Su_p22_P3, 0.000e+00, 5.389e+05
+inductor, Su_p22_L3, Su_p22_Q3, Su_p22_P4, 0.000e+00, 9.546e+05
+inductor, Su_p22_L4, Su_p22_Q4, g, 0.000e+00, 1.063e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Su_p22_n1, 1.000e+05
+node, Su_p22_P1, 1.000e+05
+node, Su_p22_P2, 1.000e+05
+node, Su_p22_P3, 1.000e+05
+node, Su_p22_P4, 1.000e+05
+node, Su_p22_Q1, 1.000e+05
+node, Su_p22_Q2, 1.000e+05
+node, Su_p22_Q3, 1.000e+05
+node, Su_p22_Q4, 1.000e+05
+
+
+p23
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, K_p23_R0, K_p23_n1, K_p23_P1, 0.000e+00, 2.253e+09
+resistor, K_p23_R1, K_p23_P1, K_p23_Q1, 0.000e+00, 4.820e+09
+resistor, K_p23_R2, K_p23_P2, K_p23_Q2, 0.000e+00, 1.854e+09
+resistor, K_p23_R3, K_p23_P3, K_p23_Q3, 0.000e+00, 5.932e+08
+resistor, K_p23_R4, K_p23_P4, K_p23_Q4, 0.000e+00, 1.483e+08
+capacitor, K_p23_C1, K_p23_P1, g, 0.000e+00, 7.042e-11
+capacitor, K_p23_C2, K_p23_P2, g, 0.000e+00, 7.041e-12
+capacitor, K_p23_C3, K_p23_P3, g, 0.000e+00, 2.097e-10
+capacitor, K_p23_C4, K_p23_P4, g, 0.000e+00, 2.225e-09
+inductor, K_p23_L1, K_p23_Q1, K_p23_P2, 0.000e+00, 3.587e+06
+inductor, K_p23_L2, K_p23_Q2, K_p23_P3, 0.000e+00, 6.032e+05
+inductor, K_p23_L3, K_p23_Q3, K_p23_P4, 0.000e+00, 1.069e+06
+inductor, K_p23_L4, K_p23_Q4, g, 0.000e+00, 1.190e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, K_p23_n1, 1.000e+05
+node, K_p23_P1, 1.000e+05
+node, K_p23_P2, 1.000e+05
+node, K_p23_P3, 1.000e+05
+node, K_p23_P4, 1.000e+05
+node, K_p23_Q1, 1.000e+05
+node, K_p23_Q2, 1.000e+05
+node, K_p23_Q3, 1.000e+05
+node, K_p23_Q4, 1.000e+05
+
+
+p24
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, In_p24_R0, In_p24_n1, In_p24_P1, 0.000e+00, 5.991e+09
+resistor, In_p24_R1, In_p24_P1, In_p24_Q1, 0.000e+00, 3.429e+10
+resistor, In_p24_R2, In_p24_P2, In_p24_Q2, 0.000e+00, 1.319e+10
+resistor, In_p24_R3, In_p24_P3, In_p24_Q3, 0.000e+00, 4.220e+09
+resistor, In_p24_R4, In_p24_P4, In_p24_Q4, 0.000e+00, 1.055e+09
+capacitor, In_p24_C1, In_p24_P1, g, 0.000e+00, 9.899e-12
+capacitor, In_p24_C2, In_p24_P2, g, 0.000e+00, 9.898e-13
+capacitor, In_p24_C3, In_p24_P3, g, 0.000e+00, 2.948e-11
+capacitor, In_p24_C4, In_p24_P4, g, 0.000e+00, 3.128e-10
+inductor, In_p24_L1, In_p24_Q1, In_p24_P2, 0.000e+00, 2.552e+07
+inductor, In_p24_L2, In_p24_Q2, In_p24_P3, 0.000e+00, 4.291e+06
+inductor, In_p24_L3, In_p24_Q3, In_p24_P4, 0.000e+00, 7.601e+06
+inductor, In_p24_L4, In_p24_Q4, g, 0.000e+00, 8.463e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, In_p24_n1, 1.000e+05
+node, In_p24_P1, 1.000e+05
+node, In_p24_P2, 1.000e+05
+node, In_p24_P3, 1.000e+05
+node, In_p24_P4, 1.000e+05
+node, In_p24_Q1, 1.000e+05
+node, In_p24_Q2, 1.000e+05
+node, In_p24_Q3, 1.000e+05
+node, In_p24_Q4, 1.000e+05
+
+
+p25
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p25_R0, Br_p25_n1, Br_p25_P1, 0.000e+00, 4.302e+10
+resistor, Br_p25_R1, Br_p25_P1, Br_p25_Q1, 0.000e+00, 1.517e+11
+resistor, Br_p25_R2, Br_p25_P2, Br_p25_Q2, 0.000e+00, 5.836e+10
+resistor, Br_p25_R3, Br_p25_P3, Br_p25_Q3, 0.000e+00, 1.868e+10
+resistor, Br_p25_R4, Br_p25_P4, Br_p25_Q4, 0.000e+00, 4.669e+09
+capacitor, Br_p25_C1, Br_p25_P1, g, 0.000e+00, 2.237e-12
+capacitor, Br_p25_C2, Br_p25_P2, g, 0.000e+00, 2.236e-13
+capacitor, Br_p25_C3, Br_p25_P3, g, 0.000e+00, 6.662e-12
+capacitor, Br_p25_C4, Br_p25_P4, g, 0.000e+00, 7.068e-11
+inductor, Br_p25_L1, Br_p25_Q1, Br_p25_P2, 0.000e+00, 1.129e+08
+inductor, Br_p25_L2, Br_p25_Q2, Br_p25_P3, 0.000e+00, 1.899e+07
+inductor, Br_p25_L3, Br_p25_Q3, Br_p25_P4, 0.000e+00, 3.364e+07
+inductor, Br_p25_L4, Br_p25_Q4, g, 0.000e+00, 3.745e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p25_n1, 1.000e+05
+node, Br_p25_P1, 1.000e+05
+node, Br_p25_P2, 1.000e+05
+node, Br_p25_P3, 1.000e+05
+node, Br_p25_P4, 1.000e+05
+node, Br_p25_Q1, 1.000e+05
+node, Br_p25_Q2, 1.000e+05
+node, Br_p25_Q3, 1.000e+05
+node, Br_p25_Q4, 1.000e+05
+
+
+p26
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p26_R0, Br_p26_n1, Br_p26_P1, 0.000e+00, 3.586e+10
+resistor, Br_p26_R1, Br_p26_P1, Br_p26_Q1, 0.000e+00, 1.265e+11
+resistor, Br_p26_R2, Br_p26_P2, Br_p26_Q2, 0.000e+00, 4.866e+10
+resistor, Br_p26_R3, Br_p26_P3, Br_p26_Q3, 0.000e+00, 1.557e+10
+resistor, Br_p26_R4, Br_p26_P4, Br_p26_Q4, 0.000e+00, 3.893e+09
+capacitor, Br_p26_C1, Br_p26_P1, g, 0.000e+00, 2.683e-12
+capacitor, Br_p26_C2, Br_p26_P2, g, 0.000e+00, 2.682e-13
+capacitor, Br_p26_C3, Br_p26_P3, g, 0.000e+00, 7.990e-12
+capacitor, Br_p26_C4, Br_p26_P4, g, 0.000e+00, 8.478e-11
+inductor, Br_p26_L1, Br_p26_Q1, Br_p26_P2, 0.000e+00, 9.414e+07
+inductor, Br_p26_L2, Br_p26_Q2, Br_p26_P3, 0.000e+00, 1.583e+07
+inductor, Br_p26_L3, Br_p26_Q3, Br_p26_P4, 0.000e+00, 2.805e+07
+inductor, Br_p26_L4, Br_p26_Q4, g, 0.000e+00, 3.123e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p26_n1, 1.000e+05
+node, Br_p26_P1, 1.000e+05
+node, Br_p26_P2, 1.000e+05
+node, Br_p26_P3, 1.000e+05
+node, Br_p26_P4, 1.000e+05
+node, Br_p26_Q1, 1.000e+05
+node, Br_p26_Q2, 1.000e+05
+node, Br_p26_Q3, 1.000e+05
+node, Br_p26_Q4, 1.000e+05
+
+
+p27
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p27_R0, Br_p27_n1, Br_p27_P1, 0.000e+00, 3.586e+10
+resistor, Br_p27_R1, Br_p27_P1, Br_p27_Q1, 0.000e+00, 1.265e+11
+resistor, Br_p27_R2, Br_p27_P2, Br_p27_Q2, 0.000e+00, 4.866e+10
+resistor, Br_p27_R3, Br_p27_P3, Br_p27_Q3, 0.000e+00, 1.557e+10
+resistor, Br_p27_R4, Br_p27_P4, Br_p27_Q4, 0.000e+00, 3.893e+09
+capacitor, Br_p27_C1, Br_p27_P1, g, 0.000e+00, 2.683e-12
+capacitor, Br_p27_C2, Br_p27_P2, g, 0.000e+00, 2.682e-13
+capacitor, Br_p27_C3, Br_p27_P3, g, 0.000e+00, 7.990e-12
+capacitor, Br_p27_C4, Br_p27_P4, g, 0.000e+00, 8.478e-11
+inductor, Br_p27_L1, Br_p27_Q1, Br_p27_P2, 0.000e+00, 9.414e+07
+inductor, Br_p27_L2, Br_p27_Q2, Br_p27_P3, 0.000e+00, 1.583e+07
+inductor, Br_p27_L3, Br_p27_Q3, Br_p27_P4, 0.000e+00, 2.805e+07
+inductor, Br_p27_L4, Br_p27_Q4, g, 0.000e+00, 3.123e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p27_n1, 1.000e+05
+node, Br_p27_P1, 1.000e+05
+node, Br_p27_P2, 1.000e+05
+node, Br_p27_P3, 1.000e+05
+node, Br_p27_P4, 1.000e+05
+node, Br_p27_Q1, 1.000e+05
+node, Br_p27_Q2, 1.000e+05
+node, Br_p27_Q3, 1.000e+05
+node, Br_p27_Q4, 1.000e+05
+
+
+p28
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p28_R0, Br_p28_n1, Br_p28_P1, 0.000e+00, 3.586e+10
+resistor, Br_p28_R1, Br_p28_P1, Br_p28_Q1, 0.000e+00, 1.265e+11
+resistor, Br_p28_R2, Br_p28_P2, Br_p28_Q2, 0.000e+00, 4.866e+10
+resistor, Br_p28_R3, Br_p28_P3, Br_p28_Q3, 0.000e+00, 1.557e+10
+resistor, Br_p28_R4, Br_p28_P4, Br_p28_Q4, 0.000e+00, 3.893e+09
+capacitor, Br_p28_C1, Br_p28_P1, g, 0.000e+00, 2.683e-12
+capacitor, Br_p28_C2, Br_p28_P2, g, 0.000e+00, 2.682e-13
+capacitor, Br_p28_C3, Br_p28_P3, g, 0.000e+00, 7.990e-12
+capacitor, Br_p28_C4, Br_p28_P4, g, 0.000e+00, 8.478e-11
+inductor, Br_p28_L1, Br_p28_Q1, Br_p28_P2, 0.000e+00, 9.414e+07
+inductor, Br_p28_L2, Br_p28_Q2, Br_p28_P3, 0.000e+00, 1.583e+07
+inductor, Br_p28_L3, Br_p28_Q3, Br_p28_P4, 0.000e+00, 2.805e+07
+inductor, Br_p28_L4, Br_p28_Q4, g, 0.000e+00, 3.123e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p28_n1, 1.000e+05
+node, Br_p28_P1, 1.000e+05
+node, Br_p28_P2, 1.000e+05
+node, Br_p28_P3, 1.000e+05
+node, Br_p28_P4, 1.000e+05
+node, Br_p28_Q1, 1.000e+05
+node, Br_p28_Q2, 1.000e+05
+node, Br_p28_Q3, 1.000e+05
+node, Br_p28_Q4, 1.000e+05
+
+
+p29
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p29_R0, Br_p29_n1, Br_p29_P1, 0.000e+00, 1.026e+10
+resistor, Br_p29_R1, Br_p29_P1, Br_p29_Q1, 0.000e+00, 5.318e+10
+resistor, Br_p29_R2, Br_p29_P2, Br_p29_Q2, 0.000e+00, 2.045e+10
+resistor, Br_p29_R3, Br_p29_P3, Br_p29_Q3, 0.000e+00, 6.545e+09
+resistor, Br_p29_R4, Br_p29_P4, Br_p29_Q4, 0.000e+00, 1.636e+09
+capacitor, Br_p29_C1, Br_p29_P1, g, 0.000e+00, 6.382e-12
+capacitor, Br_p29_C2, Br_p29_P2, g, 0.000e+00, 6.382e-13
+capacitor, Br_p29_C3, Br_p29_P3, g, 0.000e+00, 1.901e-11
+capacitor, Br_p29_C4, Br_p29_P4, g, 0.000e+00, 2.017e-10
+inductor, Br_p29_L1, Br_p29_Q1, Br_p29_P2, 0.000e+00, 3.957e+07
+inductor, Br_p29_L2, Br_p29_Q2, Br_p29_P3, 0.000e+00, 6.655e+06
+inductor, Br_p29_L3, Br_p29_Q3, Br_p29_P4, 0.000e+00, 1.179e+07
+inductor, Br_p29_L4, Br_p29_Q4, g, 0.000e+00, 1.313e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p29_n1, 1.000e+05
+node, Br_p29_P1, 1.000e+05
+node, Br_p29_P2, 1.000e+05
+node, Br_p29_P3, 1.000e+05
+node, Br_p29_P4, 1.000e+05
+node, Br_p29_Q1, 1.000e+05
+node, Br_p29_Q2, 1.000e+05
+node, Br_p29_Q3, 1.000e+05
+node, Br_p29_Q4, 1.000e+05
+
+
+p30
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p30_R0, Br_p30_n1, Br_p30_P1, 0.000e+00, 1.026e+10
+resistor, Br_p30_R1, Br_p30_P1, Br_p30_Q1, 0.000e+00, 5.318e+10
+resistor, Br_p30_R2, Br_p30_P2, Br_p30_Q2, 0.000e+00, 2.045e+10
+resistor, Br_p30_R3, Br_p30_P3, Br_p30_Q3, 0.000e+00, 6.545e+09
+resistor, Br_p30_R4, Br_p30_P4, Br_p30_Q4, 0.000e+00, 1.636e+09
+capacitor, Br_p30_C1, Br_p30_P1, g, 0.000e+00, 6.382e-12
+capacitor, Br_p30_C2, Br_p30_P2, g, 0.000e+00, 6.382e-13
+capacitor, Br_p30_C3, Br_p30_P3, g, 0.000e+00, 1.901e-11
+capacitor, Br_p30_C4, Br_p30_P4, g, 0.000e+00, 2.017e-10
+inductor, Br_p30_L1, Br_p30_Q1, Br_p30_P2, 0.000e+00, 3.957e+07
+inductor, Br_p30_L2, Br_p30_Q2, Br_p30_P3, 0.000e+00, 6.655e+06
+inductor, Br_p30_L3, Br_p30_Q3, Br_p30_P4, 0.000e+00, 1.179e+07
+inductor, Br_p30_L4, Br_p30_Q4, g, 0.000e+00, 1.313e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p30_n1, 1.000e+05
+node, Br_p30_P1, 1.000e+05
+node, Br_p30_P2, 1.000e+05
+node, Br_p30_P3, 1.000e+05
+node, Br_p30_P4, 1.000e+05
+node, Br_p30_Q1, 1.000e+05
+node, Br_p30_Q2, 1.000e+05
+node, Br_p30_Q3, 1.000e+05
+node, Br_p30_Q4, 1.000e+05
+
+
+p31
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p31_R0, Br_p31_n1, Br_p31_P1, 0.000e+00, 1.099e+10
+resistor, Br_p31_R1, Br_p31_P1, Br_p31_Q1, 0.000e+00, 5.695e+10
+resistor, Br_p31_R2, Br_p31_P2, Br_p31_Q2, 0.000e+00, 2.190e+10
+resistor, Br_p31_R3, Br_p31_P3, Br_p31_Q3, 0.000e+00, 7.009e+09
+resistor, Br_p31_R4, Br_p31_P4, Br_p31_Q4, 0.000e+00, 1.752e+09
+capacitor, Br_p31_C1, Br_p31_P1, g, 0.000e+00, 5.960e-12
+capacitor, Br_p31_C2, Br_p31_P2, g, 0.000e+00, 5.959e-13
+capacitor, Br_p31_C3, Br_p31_P3, g, 0.000e+00, 1.775e-11
+capacitor, Br_p31_C4, Br_p31_P4, g, 0.000e+00, 1.883e-10
+inductor, Br_p31_L1, Br_p31_Q1, Br_p31_P2, 0.000e+00, 4.238e+07
+inductor, Br_p31_L2, Br_p31_Q2, Br_p31_P3, 0.000e+00, 7.127e+06
+inductor, Br_p31_L3, Br_p31_Q3, Br_p31_P4, 0.000e+00, 1.263e+07
+inductor, Br_p31_L4, Br_p31_Q4, g, 0.000e+00, 1.406e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p31_n1, 1.000e+05
+node, Br_p31_P1, 1.000e+05
+node, Br_p31_P2, 1.000e+05
+node, Br_p31_P3, 1.000e+05
+node, Br_p31_P4, 1.000e+05
+node, Br_p31_Q1, 1.000e+05
+node, Br_p31_Q2, 1.000e+05
+node, Br_p31_Q3, 1.000e+05
+node, Br_p31_Q4, 1.000e+05
+
+
+p32
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p32_R0, Br_p32_n1, Br_p32_P1, 0.000e+00, 2.737e+10
+resistor, Br_p32_R1, Br_p32_P1, Br_p32_Q1, 0.000e+00, 1.419e+11
+resistor, Br_p32_R2, Br_p32_P2, Br_p32_Q2, 0.000e+00, 5.456e+10
+resistor, Br_p32_R3, Br_p32_P3, Br_p32_Q3, 0.000e+00, 1.746e+10
+resistor, Br_p32_R4, Br_p32_P4, Br_p32_Q4, 0.000e+00, 4.365e+09
+capacitor, Br_p32_C1, Br_p32_P1, g, 0.000e+00, 2.393e-12
+capacitor, Br_p32_C2, Br_p32_P2, g, 0.000e+00, 2.392e-13
+capacitor, Br_p32_C3, Br_p32_P3, g, 0.000e+00, 7.126e-12
+capacitor, Br_p32_C4, Br_p32_P4, g, 0.000e+00, 7.560e-11
+inductor, Br_p32_L1, Br_p32_Q1, Br_p32_P2, 0.000e+00, 1.056e+08
+inductor, Br_p32_L2, Br_p32_Q2, Br_p32_P3, 0.000e+00, 1.775e+07
+inductor, Br_p32_L3, Br_p32_Q3, Br_p32_P4, 0.000e+00, 3.145e+07
+inductor, Br_p32_L4, Br_p32_Q4, g, 0.000e+00, 3.501e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p32_n1, 1.000e+05
+node, Br_p32_P1, 1.000e+05
+node, Br_p32_P2, 1.000e+05
+node, Br_p32_P3, 1.000e+05
+node, Br_p32_P4, 1.000e+05
+node, Br_p32_Q1, 1.000e+05
+node, Br_p32_Q2, 1.000e+05
+node, Br_p32_Q3, 1.000e+05
+node, Br_p32_Q4, 1.000e+05
+
+
+p33
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p33_R0, Br_p33_n1, Br_p33_P1, 0.000e+00, 1.099e+10
+resistor, Br_p33_R1, Br_p33_P1, Br_p33_Q1, 0.000e+00, 5.695e+10
+resistor, Br_p33_R2, Br_p33_P2, Br_p33_Q2, 0.000e+00, 2.190e+10
+resistor, Br_p33_R3, Br_p33_P3, Br_p33_Q3, 0.000e+00, 7.009e+09
+resistor, Br_p33_R4, Br_p33_P4, Br_p33_Q4, 0.000e+00, 1.752e+09
+capacitor, Br_p33_C1, Br_p33_P1, g, 0.000e+00, 5.960e-12
+capacitor, Br_p33_C2, Br_p33_P2, g, 0.000e+00, 5.959e-13
+capacitor, Br_p33_C3, Br_p33_P3, g, 0.000e+00, 1.775e-11
+capacitor, Br_p33_C4, Br_p33_P4, g, 0.000e+00, 1.883e-10
+inductor, Br_p33_L1, Br_p33_Q1, Br_p33_P2, 0.000e+00, 4.238e+07
+inductor, Br_p33_L2, Br_p33_Q2, Br_p33_P3, 0.000e+00, 7.127e+06
+inductor, Br_p33_L3, Br_p33_Q3, Br_p33_P4, 0.000e+00, 1.263e+07
+inductor, Br_p33_L4, Br_p33_Q4, g, 0.000e+00, 1.406e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p33_n1, 1.000e+05
+node, Br_p33_P1, 1.000e+05
+node, Br_p33_P2, 1.000e+05
+node, Br_p33_P3, 1.000e+05
+node, Br_p33_P4, 1.000e+05
+node, Br_p33_Q1, 1.000e+05
+node, Br_p33_Q2, 1.000e+05
+node, Br_p33_Q3, 1.000e+05
+node, Br_p33_Q4, 1.000e+05
+
+
+p34
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p34_R0, Br_p34_n1, Br_p34_P1, 0.000e+00, 2.737e+10
+resistor, Br_p34_R1, Br_p34_P1, Br_p34_Q1, 0.000e+00, 1.419e+11
+resistor, Br_p34_R2, Br_p34_P2, Br_p34_Q2, 0.000e+00, 5.456e+10
+resistor, Br_p34_R3, Br_p34_P3, Br_p34_Q3, 0.000e+00, 1.746e+10
+resistor, Br_p34_R4, Br_p34_P4, Br_p34_Q4, 0.000e+00, 4.365e+09
+capacitor, Br_p34_C1, Br_p34_P1, g, 0.000e+00, 2.393e-12
+capacitor, Br_p34_C2, Br_p34_P2, g, 0.000e+00, 2.392e-13
+capacitor, Br_p34_C3, Br_p34_P3, g, 0.000e+00, 7.126e-12
+capacitor, Br_p34_C4, Br_p34_P4, g, 0.000e+00, 7.560e-11
+inductor, Br_p34_L1, Br_p34_Q1, Br_p34_P2, 0.000e+00, 1.056e+08
+inductor, Br_p34_L2, Br_p34_Q2, Br_p34_P3, 0.000e+00, 1.775e+07
+inductor, Br_p34_L3, Br_p34_Q3, Br_p34_P4, 0.000e+00, 3.145e+07
+inductor, Br_p34_L4, Br_p34_Q4, g, 0.000e+00, 3.501e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p34_n1, 1.000e+05
+node, Br_p34_P1, 1.000e+05
+node, Br_p34_P2, 1.000e+05
+node, Br_p34_P3, 1.000e+05
+node, Br_p34_P4, 1.000e+05
+node, Br_p34_Q1, 1.000e+05
+node, Br_p34_Q2, 1.000e+05
+node, Br_p34_Q3, 1.000e+05
+node, Br_p34_Q4, 1.000e+05
+
+
+p35
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p35_R0, Br_p35_n1, Br_p35_P1, 0.000e+00, 2.737e+10
+resistor, Br_p35_R1, Br_p35_P1, Br_p35_Q1, 0.000e+00, 1.419e+11
+resistor, Br_p35_R2, Br_p35_P2, Br_p35_Q2, 0.000e+00, 5.456e+10
+resistor, Br_p35_R3, Br_p35_P3, Br_p35_Q3, 0.000e+00, 1.746e+10
+resistor, Br_p35_R4, Br_p35_P4, Br_p35_Q4, 0.000e+00, 4.365e+09
+capacitor, Br_p35_C1, Br_p35_P1, g, 0.000e+00, 2.393e-12
+capacitor, Br_p35_C2, Br_p35_P2, g, 0.000e+00, 2.392e-13
+capacitor, Br_p35_C3, Br_p35_P3, g, 0.000e+00, 7.126e-12
+capacitor, Br_p35_C4, Br_p35_P4, g, 0.000e+00, 7.560e-11
+inductor, Br_p35_L1, Br_p35_Q1, Br_p35_P2, 0.000e+00, 1.056e+08
+inductor, Br_p35_L2, Br_p35_Q2, Br_p35_P3, 0.000e+00, 1.775e+07
+inductor, Br_p35_L3, Br_p35_Q3, Br_p35_P4, 0.000e+00, 3.145e+07
+inductor, Br_p35_L4, Br_p35_Q4, g, 0.000e+00, 3.501e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p35_n1, 1.000e+05
+node, Br_p35_P1, 1.000e+05
+node, Br_p35_P2, 1.000e+05
+node, Br_p35_P3, 1.000e+05
+node, Br_p35_P4, 1.000e+05
+node, Br_p35_Q1, 1.000e+05
+node, Br_p35_Q2, 1.000e+05
+node, Br_p35_Q3, 1.000e+05
+node, Br_p35_Q4, 1.000e+05
+
+
+p36
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p36_R0, Br_p36_n1, Br_p36_P1, 0.000e+00, 1.099e+10
+resistor, Br_p36_R1, Br_p36_P1, Br_p36_Q1, 0.000e+00, 5.695e+10
+resistor, Br_p36_R2, Br_p36_P2, Br_p36_Q2, 0.000e+00, 2.190e+10
+resistor, Br_p36_R3, Br_p36_P3, Br_p36_Q3, 0.000e+00, 7.009e+09
+resistor, Br_p36_R4, Br_p36_P4, Br_p36_Q4, 0.000e+00, 1.752e+09
+capacitor, Br_p36_C1, Br_p36_P1, g, 0.000e+00, 5.960e-12
+capacitor, Br_p36_C2, Br_p36_P2, g, 0.000e+00, 5.959e-13
+capacitor, Br_p36_C3, Br_p36_P3, g, 0.000e+00, 1.775e-11
+capacitor, Br_p36_C4, Br_p36_P4, g, 0.000e+00, 1.883e-10
+inductor, Br_p36_L1, Br_p36_Q1, Br_p36_P2, 0.000e+00, 4.238e+07
+inductor, Br_p36_L2, Br_p36_Q2, Br_p36_P3, 0.000e+00, 7.127e+06
+inductor, Br_p36_L3, Br_p36_Q3, Br_p36_P4, 0.000e+00, 1.263e+07
+inductor, Br_p36_L4, Br_p36_Q4, g, 0.000e+00, 1.406e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p36_n1, 1.000e+05
+node, Br_p36_P1, 1.000e+05
+node, Br_p36_P2, 1.000e+05
+node, Br_p36_P3, 1.000e+05
+node, Br_p36_P4, 1.000e+05
+node, Br_p36_Q1, 1.000e+05
+node, Br_p36_Q2, 1.000e+05
+node, Br_p36_Q3, 1.000e+05
+node, Br_p36_Q4, 1.000e+05
+
+
+p37
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p37_R0, Br_p37_n1, Br_p37_P1, 0.000e+00, 2.737e+10
+resistor, Br_p37_R1, Br_p37_P1, Br_p37_Q1, 0.000e+00, 1.419e+11
+resistor, Br_p37_R2, Br_p37_P2, Br_p37_Q2, 0.000e+00, 5.456e+10
+resistor, Br_p37_R3, Br_p37_P3, Br_p37_Q3, 0.000e+00, 1.746e+10
+resistor, Br_p37_R4, Br_p37_P4, Br_p37_Q4, 0.000e+00, 4.365e+09
+capacitor, Br_p37_C1, Br_p37_P1, g, 0.000e+00, 2.393e-12
+capacitor, Br_p37_C2, Br_p37_P2, g, 0.000e+00, 2.392e-13
+capacitor, Br_p37_C3, Br_p37_P3, g, 0.000e+00, 7.126e-12
+capacitor, Br_p37_C4, Br_p37_P4, g, 0.000e+00, 7.560e-11
+inductor, Br_p37_L1, Br_p37_Q1, Br_p37_P2, 0.000e+00, 1.056e+08
+inductor, Br_p37_L2, Br_p37_Q2, Br_p37_P3, 0.000e+00, 1.775e+07
+inductor, Br_p37_L3, Br_p37_Q3, Br_p37_P4, 0.000e+00, 3.145e+07
+inductor, Br_p37_L4, Br_p37_Q4, g, 0.000e+00, 3.501e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p37_n1, 1.000e+05
+node, Br_p37_P1, 1.000e+05
+node, Br_p37_P2, 1.000e+05
+node, Br_p37_P3, 1.000e+05
+node, Br_p37_P4, 1.000e+05
+node, Br_p37_Q1, 1.000e+05
+node, Br_p37_Q2, 1.000e+05
+node, Br_p37_Q3, 1.000e+05
+node, Br_p37_Q4, 1.000e+05
+
+
+p38
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p38_R0, Br_p38_n1, Br_p38_P1, 0.000e+00, 1.099e+10
+resistor, Br_p38_R1, Br_p38_P1, Br_p38_Q1, 0.000e+00, 5.695e+10
+resistor, Br_p38_R2, Br_p38_P2, Br_p38_Q2, 0.000e+00, 2.190e+10
+resistor, Br_p38_R3, Br_p38_P3, Br_p38_Q3, 0.000e+00, 7.009e+09
+resistor, Br_p38_R4, Br_p38_P4, Br_p38_Q4, 0.000e+00, 1.752e+09
+capacitor, Br_p38_C1, Br_p38_P1, g, 0.000e+00, 5.960e-12
+capacitor, Br_p38_C2, Br_p38_P2, g, 0.000e+00, 5.959e-13
+capacitor, Br_p38_C3, Br_p38_P3, g, 0.000e+00, 1.775e-11
+capacitor, Br_p38_C4, Br_p38_P4, g, 0.000e+00, 1.883e-10
+inductor, Br_p38_L1, Br_p38_Q1, Br_p38_P2, 0.000e+00, 4.238e+07
+inductor, Br_p38_L2, Br_p38_Q2, Br_p38_P3, 0.000e+00, 7.127e+06
+inductor, Br_p38_L3, Br_p38_Q3, Br_p38_P4, 0.000e+00, 1.263e+07
+inductor, Br_p38_L4, Br_p38_Q4, g, 0.000e+00, 1.406e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p38_n1, 1.000e+05
+node, Br_p38_P1, 1.000e+05
+node, Br_p38_P2, 1.000e+05
+node, Br_p38_P3, 1.000e+05
+node, Br_p38_P4, 1.000e+05
+node, Br_p38_Q1, 1.000e+05
+node, Br_p38_Q2, 1.000e+05
+node, Br_p38_Q3, 1.000e+05
+node, Br_p38_Q4, 1.000e+05
+
+
+p39
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p39_R0, Br_p39_n1, Br_p39_P1, 0.000e+00, 1.026e+10
+resistor, Br_p39_R1, Br_p39_P1, Br_p39_Q1, 0.000e+00, 5.318e+10
+resistor, Br_p39_R2, Br_p39_P2, Br_p39_Q2, 0.000e+00, 2.045e+10
+resistor, Br_p39_R3, Br_p39_P3, Br_p39_Q3, 0.000e+00, 6.545e+09
+resistor, Br_p39_R4, Br_p39_P4, Br_p39_Q4, 0.000e+00, 1.636e+09
+capacitor, Br_p39_C1, Br_p39_P1, g, 0.000e+00, 6.382e-12
+capacitor, Br_p39_C2, Br_p39_P2, g, 0.000e+00, 6.382e-13
+capacitor, Br_p39_C3, Br_p39_P3, g, 0.000e+00, 1.901e-11
+capacitor, Br_p39_C4, Br_p39_P4, g, 0.000e+00, 2.017e-10
+inductor, Br_p39_L1, Br_p39_Q1, Br_p39_P2, 0.000e+00, 3.957e+07
+inductor, Br_p39_L2, Br_p39_Q2, Br_p39_P3, 0.000e+00, 6.655e+06
+inductor, Br_p39_L3, Br_p39_Q3, Br_p39_P4, 0.000e+00, 1.179e+07
+inductor, Br_p39_L4, Br_p39_Q4, g, 0.000e+00, 1.313e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p39_n1, 1.000e+05
+node, Br_p39_P1, 1.000e+05
+node, Br_p39_P2, 1.000e+05
+node, Br_p39_P3, 1.000e+05
+node, Br_p39_P4, 1.000e+05
+node, Br_p39_Q1, 1.000e+05
+node, Br_p39_Q2, 1.000e+05
+node, Br_p39_Q3, 1.000e+05
+node, Br_p39_Q4, 1.000e+05
+
+
+p40
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p40_R0, Br_p40_n1, Br_p40_P1, 0.000e+00, 1.026e+10
+resistor, Br_p40_R1, Br_p40_P1, Br_p40_Q1, 0.000e+00, 5.318e+10
+resistor, Br_p40_R2, Br_p40_P2, Br_p40_Q2, 0.000e+00, 2.045e+10
+resistor, Br_p40_R3, Br_p40_P3, Br_p40_Q3, 0.000e+00, 6.545e+09
+resistor, Br_p40_R4, Br_p40_P4, Br_p40_Q4, 0.000e+00, 1.636e+09
+capacitor, Br_p40_C1, Br_p40_P1, g, 0.000e+00, 6.382e-12
+capacitor, Br_p40_C2, Br_p40_P2, g, 0.000e+00, 6.382e-13
+capacitor, Br_p40_C3, Br_p40_P3, g, 0.000e+00, 1.901e-11
+capacitor, Br_p40_C4, Br_p40_P4, g, 0.000e+00, 2.017e-10
+inductor, Br_p40_L1, Br_p40_Q1, Br_p40_P2, 0.000e+00, 3.957e+07
+inductor, Br_p40_L2, Br_p40_Q2, Br_p40_P3, 0.000e+00, 6.655e+06
+inductor, Br_p40_L3, Br_p40_Q3, Br_p40_P4, 0.000e+00, 1.179e+07
+inductor, Br_p40_L4, Br_p40_Q4, g, 0.000e+00, 1.313e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p40_n1, 1.000e+05
+node, Br_p40_P1, 1.000e+05
+node, Br_p40_P2, 1.000e+05
+node, Br_p40_P3, 1.000e+05
+node, Br_p40_P4, 1.000e+05
+node, Br_p40_Q1, 1.000e+05
+node, Br_p40_Q2, 1.000e+05
+node, Br_p40_Q3, 1.000e+05
+node, Br_p40_Q4, 1.000e+05
+
+
+p41
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p41_R0, Br_p41_n1, Br_p41_P1, 0.000e+00, 3.586e+10
+resistor, Br_p41_R1, Br_p41_P1, Br_p41_Q1, 0.000e+00, 1.265e+11
+resistor, Br_p41_R2, Br_p41_P2, Br_p41_Q2, 0.000e+00, 4.866e+10
+resistor, Br_p41_R3, Br_p41_P3, Br_p41_Q3, 0.000e+00, 1.557e+10
+resistor, Br_p41_R4, Br_p41_P4, Br_p41_Q4, 0.000e+00, 3.893e+09
+capacitor, Br_p41_C1, Br_p41_P1, g, 0.000e+00, 2.683e-12
+capacitor, Br_p41_C2, Br_p41_P2, g, 0.000e+00, 2.682e-13
+capacitor, Br_p41_C3, Br_p41_P3, g, 0.000e+00, 7.990e-12
+capacitor, Br_p41_C4, Br_p41_P4, g, 0.000e+00, 8.478e-11
+inductor, Br_p41_L1, Br_p41_Q1, Br_p41_P2, 0.000e+00, 9.414e+07
+inductor, Br_p41_L2, Br_p41_Q2, Br_p41_P3, 0.000e+00, 1.583e+07
+inductor, Br_p41_L3, Br_p41_Q3, Br_p41_P4, 0.000e+00, 2.805e+07
+inductor, Br_p41_L4, Br_p41_Q4, g, 0.000e+00, 3.123e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p41_n1, 1.000e+05
+node, Br_p41_P1, 1.000e+05
+node, Br_p41_P2, 1.000e+05
+node, Br_p41_P3, 1.000e+05
+node, Br_p41_P4, 1.000e+05
+node, Br_p41_Q1, 1.000e+05
+node, Br_p41_Q2, 1.000e+05
+node, Br_p41_Q3, 1.000e+05
+node, Br_p41_Q4, 1.000e+05
+
+
+p42
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p42_R0, Br_p42_n1, Br_p42_P1, 0.000e+00, 3.586e+10
+resistor, Br_p42_R1, Br_p42_P1, Br_p42_Q1, 0.000e+00, 1.265e+11
+resistor, Br_p42_R2, Br_p42_P2, Br_p42_Q2, 0.000e+00, 4.866e+10
+resistor, Br_p42_R3, Br_p42_P3, Br_p42_Q3, 0.000e+00, 1.557e+10
+resistor, Br_p42_R4, Br_p42_P4, Br_p42_Q4, 0.000e+00, 3.893e+09
+capacitor, Br_p42_C1, Br_p42_P1, g, 0.000e+00, 2.683e-12
+capacitor, Br_p42_C2, Br_p42_P2, g, 0.000e+00, 2.682e-13
+capacitor, Br_p42_C3, Br_p42_P3, g, 0.000e+00, 7.990e-12
+capacitor, Br_p42_C4, Br_p42_P4, g, 0.000e+00, 8.478e-11
+inductor, Br_p42_L1, Br_p42_Q1, Br_p42_P2, 0.000e+00, 9.414e+07
+inductor, Br_p42_L2, Br_p42_Q2, Br_p42_P3, 0.000e+00, 1.583e+07
+inductor, Br_p42_L3, Br_p42_Q3, Br_p42_P4, 0.000e+00, 2.805e+07
+inductor, Br_p42_L4, Br_p42_Q4, g, 0.000e+00, 3.123e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p42_n1, 1.000e+05
+node, Br_p42_P1, 1.000e+05
+node, Br_p42_P2, 1.000e+05
+node, Br_p42_P3, 1.000e+05
+node, Br_p42_P4, 1.000e+05
+node, Br_p42_Q1, 1.000e+05
+node, Br_p42_Q2, 1.000e+05
+node, Br_p42_Q3, 1.000e+05
+node, Br_p42_Q4, 1.000e+05
+
+
+p43
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p43_R0, Br_p43_n1, Br_p43_P1, 0.000e+00, 3.586e+10
+resistor, Br_p43_R1, Br_p43_P1, Br_p43_Q1, 0.000e+00, 1.265e+11
+resistor, Br_p43_R2, Br_p43_P2, Br_p43_Q2, 0.000e+00, 4.866e+10
+resistor, Br_p43_R3, Br_p43_P3, Br_p43_Q3, 0.000e+00, 1.557e+10
+resistor, Br_p43_R4, Br_p43_P4, Br_p43_Q4, 0.000e+00, 3.893e+09
+capacitor, Br_p43_C1, Br_p43_P1, g, 0.000e+00, 2.683e-12
+capacitor, Br_p43_C2, Br_p43_P2, g, 0.000e+00, 2.682e-13
+capacitor, Br_p43_C3, Br_p43_P3, g, 0.000e+00, 7.990e-12
+capacitor, Br_p43_C4, Br_p43_P4, g, 0.000e+00, 8.478e-11
+inductor, Br_p43_L1, Br_p43_Q1, Br_p43_P2, 0.000e+00, 9.414e+07
+inductor, Br_p43_L2, Br_p43_Q2, Br_p43_P3, 0.000e+00, 1.583e+07
+inductor, Br_p43_L3, Br_p43_Q3, Br_p43_P4, 0.000e+00, 2.805e+07
+inductor, Br_p43_L4, Br_p43_Q4, g, 0.000e+00, 3.123e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p43_n1, 1.000e+05
+node, Br_p43_P1, 1.000e+05
+node, Br_p43_P2, 1.000e+05
+node, Br_p43_P3, 1.000e+05
+node, Br_p43_P4, 1.000e+05
+node, Br_p43_Q1, 1.000e+05
+node, Br_p43_Q2, 1.000e+05
+node, Br_p43_Q3, 1.000e+05
+node, Br_p43_Q4, 1.000e+05
+
+
+p44
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p44_R0, Br_p44_n1, Br_p44_P1, 0.000e+00, 4.302e+10
+resistor, Br_p44_R1, Br_p44_P1, Br_p44_Q1, 0.000e+00, 1.517e+11
+resistor, Br_p44_R2, Br_p44_P2, Br_p44_Q2, 0.000e+00, 5.836e+10
+resistor, Br_p44_R3, Br_p44_P3, Br_p44_Q3, 0.000e+00, 1.868e+10
+resistor, Br_p44_R4, Br_p44_P4, Br_p44_Q4, 0.000e+00, 4.669e+09
+capacitor, Br_p44_C1, Br_p44_P1, g, 0.000e+00, 2.237e-12
+capacitor, Br_p44_C2, Br_p44_P2, g, 0.000e+00, 2.236e-13
+capacitor, Br_p44_C3, Br_p44_P3, g, 0.000e+00, 6.662e-12
+capacitor, Br_p44_C4, Br_p44_P4, g, 0.000e+00, 7.068e-11
+inductor, Br_p44_L1, Br_p44_Q1, Br_p44_P2, 0.000e+00, 1.129e+08
+inductor, Br_p44_L2, Br_p44_Q2, Br_p44_P3, 0.000e+00, 1.899e+07
+inductor, Br_p44_L3, Br_p44_Q3, Br_p44_P4, 0.000e+00, 3.364e+07
+inductor, Br_p44_L4, Br_p44_Q4, g, 0.000e+00, 3.745e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p44_n1, 1.000e+05
+node, Br_p44_P1, 1.000e+05
+node, Br_p44_P2, 1.000e+05
+node, Br_p44_P3, 1.000e+05
+node, Br_p44_P4, 1.000e+05
+node, Br_p44_Q1, 1.000e+05
+node, Br_p44_Q2, 1.000e+05
+node, Br_p44_Q3, 1.000e+05
+node, Br_p44_Q4, 1.000e+05
+
+
+p45
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p45_R0, Br_p45_n1, Br_p45_P1, 0.000e+00, 2.047e+10
+resistor, Br_p45_R1, Br_p45_P1, Br_p45_Q1, 0.000e+00, 1.061e+11
+resistor, Br_p45_R2, Br_p45_P2, Br_p45_Q2, 0.000e+00, 4.081e+10
+resistor, Br_p45_R3, Br_p45_P3, Br_p45_Q3, 0.000e+00, 1.306e+10
+resistor, Br_p45_R4, Br_p45_P4, Br_p45_Q4, 0.000e+00, 3.265e+09
+capacitor, Br_p45_C1, Br_p45_P1, g, 0.000e+00, 3.199e-12
+capacitor, Br_p45_C2, Br_p45_P2, g, 0.000e+00, 3.198e-13
+capacitor, Br_p45_C3, Br_p45_P3, g, 0.000e+00, 9.527e-12
+capacitor, Br_p45_C4, Br_p45_P4, g, 0.000e+00, 1.011e-10
+inductor, Br_p45_L1, Br_p45_Q1, Br_p45_P2, 0.000e+00, 7.896e+07
+inductor, Br_p45_L2, Br_p45_Q2, Br_p45_P3, 0.000e+00, 1.328e+07
+inductor, Br_p45_L3, Br_p45_Q3, Br_p45_P4, 0.000e+00, 2.352e+07
+inductor, Br_p45_L4, Br_p45_Q4, g, 0.000e+00, 2.619e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p45_n1, 1.000e+05
+node, Br_p45_P1, 1.000e+05
+node, Br_p45_P2, 1.000e+05
+node, Br_p45_P3, 1.000e+05
+node, Br_p45_P4, 1.000e+05
+node, Br_p45_Q1, 1.000e+05
+node, Br_p45_Q2, 1.000e+05
+node, Br_p45_Q3, 1.000e+05
+node, Br_p45_Q4, 1.000e+05
+
+
+p46
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p46_R0, Br_p46_n1, Br_p46_P1, 0.000e+00, 2.047e+10
+resistor, Br_p46_R1, Br_p46_P1, Br_p46_Q1, 0.000e+00, 1.061e+11
+resistor, Br_p46_R2, Br_p46_P2, Br_p46_Q2, 0.000e+00, 4.081e+10
+resistor, Br_p46_R3, Br_p46_P3, Br_p46_Q3, 0.000e+00, 1.306e+10
+resistor, Br_p46_R4, Br_p46_P4, Br_p46_Q4, 0.000e+00, 3.265e+09
+capacitor, Br_p46_C1, Br_p46_P1, g, 0.000e+00, 3.199e-12
+capacitor, Br_p46_C2, Br_p46_P2, g, 0.000e+00, 3.198e-13
+capacitor, Br_p46_C3, Br_p46_P3, g, 0.000e+00, 9.527e-12
+capacitor, Br_p46_C4, Br_p46_P4, g, 0.000e+00, 1.011e-10
+inductor, Br_p46_L1, Br_p46_Q1, Br_p46_P2, 0.000e+00, 7.896e+07
+inductor, Br_p46_L2, Br_p46_Q2, Br_p46_P3, 0.000e+00, 1.328e+07
+inductor, Br_p46_L3, Br_p46_Q3, Br_p46_P4, 0.000e+00, 2.352e+07
+inductor, Br_p46_L4, Br_p46_Q4, g, 0.000e+00, 2.619e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p46_n1, 1.000e+05
+node, Br_p46_P1, 1.000e+05
+node, Br_p46_P2, 1.000e+05
+node, Br_p46_P3, 1.000e+05
+node, Br_p46_P4, 1.000e+05
+node, Br_p46_Q1, 1.000e+05
+node, Br_p46_Q2, 1.000e+05
+node, Br_p46_Q3, 1.000e+05
+node, Br_p46_Q4, 1.000e+05
+
+
+p47
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, I_p47_R0, I_p47_n1, I_p47_P1, 0.000e+00, 2.244e+09
+resistor, I_p47_R1, I_p47_P1, I_p47_Q1, 0.000e+00, 6.299e+09
+resistor, I_p47_R2, I_p47_P2, I_p47_Q2, 0.000e+00, 2.423e+09
+resistor, I_p47_R3, I_p47_P3, I_p47_Q3, 0.000e+00, 7.753e+08
+resistor, I_p47_R4, I_p47_P4, I_p47_Q4, 0.000e+00, 1.938e+08
+capacitor, I_p47_C1, I_p47_P1, g, 0.000e+00, 5.388e-11
+capacitor, I_p47_C2, I_p47_P2, g, 0.000e+00, 5.387e-12
+capacitor, I_p47_C3, I_p47_P3, g, 0.000e+00, 1.605e-10
+capacitor, I_p47_C4, I_p47_P4, g, 0.000e+00, 1.703e-09
+inductor, I_p47_L1, I_p47_Q1, I_p47_P2, 0.000e+00, 4.688e+06
+inductor, I_p47_L2, I_p47_Q2, I_p47_P3, 0.000e+00, 7.884e+05
+inductor, I_p47_L3, I_p47_Q3, I_p47_P4, 0.000e+00, 1.397e+06
+inductor, I_p47_L4, I_p47_Q4, g, 0.000e+00, 1.555e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, I_p47_n1, 1.000e+05
+node, I_p47_P1, 1.000e+05
+node, I_p47_P2, 1.000e+05
+node, I_p47_P3, 1.000e+05
+node, I_p47_P4, 1.000e+05
+node, I_p47_Q1, 1.000e+05
+node, I_p47_Q2, 1.000e+05
+node, I_p47_Q3, 1.000e+05
+node, I_p47_Q4, 1.000e+05
+
+

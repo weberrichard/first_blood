@@ -1,0 +1,28 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ul_p16_R0, Ul_p16_n1, Ul_p16_P1, 0.000e+00, 5.121e+10
+resistor, Ul_p16_R1, Ul_p16_P1, Ul_p16_Q1, 0.000e+00, 5.115e+11
+resistor, Ul_p16_R2, Ul_p16_P2, Ul_p16_Q2, 0.000e+00, 1.967e+11
+resistor, Ul_p16_R3, Ul_p16_P3, Ul_p16_Q3, 0.000e+00, 6.295e+10
+resistor, Ul_p16_R4, Ul_p16_P4, Ul_p16_Q4, 0.000e+00, 1.574e+10
+capacitor, Ul_p16_C1, Ul_p16_P1, g, 0.000e+00, 6.636e-13
+capacitor, Ul_p16_C2, Ul_p16_P2, g, 0.000e+00, 6.635e-14
+capacitor, Ul_p16_C3, Ul_p16_P3, g, 0.000e+00, 1.976e-12
+capacitor, Ul_p16_C4, Ul_p16_P4, g, 0.000e+00, 2.097e-11
+inductor, Ul_p16_L1, Ul_p16_Q1, Ul_p16_P2, 0.000e+00, 3.806e+08
+inductor, Ul_p16_L2, Ul_p16_Q2, Ul_p16_P3, 0.000e+00, 6.401e+07
+inductor, Ul_p16_L3, Ul_p16_Q3, Ul_p16_P4, 0.000e+00, 1.134e+08
+inductor, Ul_p16_L4, Ul_p16_Q4, g, 0.000e+00, 1.262e+08
+
+data of nodes
+type, name, initial condition [SI]
+node, Ul_p16_n1, 1.000e+05
+node, Ul_p16_P1, 1.000e+05
+node, Ul_p16_P2, 1.000e+05
+node, Ul_p16_P3, 1.000e+05
+node, Ul_p16_P4, 1.000e+05
+node, Ul_p16_Q1, 1.000e+05
+node, Ul_p16_Q2, 1.000e+05
+node, Ul_p16_Q3, 1.000e+05
+node, Ul_p16_Q4, 1.000e+05
+ground, g, 1.000e+05

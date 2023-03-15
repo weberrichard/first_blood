@@ -1,0 +1,28 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Sp_p20_R0, Sp_p20_n1, Sp_p20_P1, 0.000e+00, 1.147e+10
+resistor, Sp_p20_R1, Sp_p20_P1, Sp_p20_Q1, 0.000e+00, 2.857e+10
+resistor, Sp_p20_R2, Sp_p20_P2, Sp_p20_Q2, 0.000e+00, 1.099e+10
+resistor, Sp_p20_R3, Sp_p20_P3, Sp_p20_Q3, 0.000e+00, 3.516e+09
+resistor, Sp_p20_R4, Sp_p20_P4, Sp_p20_Q4, 0.000e+00, 8.790e+08
+capacitor, Sp_p20_C1, Sp_p20_P1, g, 0.000e+00, 1.188e-11
+capacitor, Sp_p20_C2, Sp_p20_P2, g, 0.000e+00, 1.188e-12
+capacitor, Sp_p20_C3, Sp_p20_P3, g, 0.000e+00, 3.539e-11
+capacitor, Sp_p20_C4, Sp_p20_P4, g, 0.000e+00, 3.754e-10
+inductor, Sp_p20_L1, Sp_p20_Q1, Sp_p20_P2, 0.000e+00, 2.126e+07
+inductor, Sp_p20_L2, Sp_p20_Q2, Sp_p20_P3, 0.000e+00, 3.575e+06
+inductor, Sp_p20_L3, Sp_p20_Q3, Sp_p20_P4, 0.000e+00, 6.333e+06
+inductor, Sp_p20_L4, Sp_p20_Q4, g, 0.000e+00, 7.051e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Sp_p20_n1, 1.000e+05
+node, Sp_p20_P1, 1.000e+05
+node, Sp_p20_P2, 1.000e+05
+node, Sp_p20_P3, 1.000e+05
+node, Sp_p20_P4, 1.000e+05
+node, Sp_p20_Q1, 1.000e+05
+node, Sp_p20_Q2, 1.000e+05
+node, Sp_p20_Q3, 1.000e+05
+node, Sp_p20_Q4, 1.000e+05
+ground, g, 1.000e+05

@@ -1,0 +1,28 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Br_p45_R0, Br_p45_n1, Br_p45_P1, 0.000e+00, 2.047e+10
+resistor, Br_p45_R1, Br_p45_P1, Br_p45_Q1, 0.000e+00, 1.061e+11
+resistor, Br_p45_R2, Br_p45_P2, Br_p45_Q2, 0.000e+00, 4.081e+10
+resistor, Br_p45_R3, Br_p45_P3, Br_p45_Q3, 0.000e+00, 1.306e+10
+resistor, Br_p45_R4, Br_p45_P4, Br_p45_Q4, 0.000e+00, 3.265e+09
+capacitor, Br_p45_C1, Br_p45_P1, g, 0.000e+00, 3.199e-12
+capacitor, Br_p45_C2, Br_p45_P2, g, 0.000e+00, 3.198e-13
+capacitor, Br_p45_C3, Br_p45_P3, g, 0.000e+00, 9.527e-12
+capacitor, Br_p45_C4, Br_p45_P4, g, 0.000e+00, 1.011e-10
+inductor, Br_p45_L1, Br_p45_Q1, Br_p45_P2, 0.000e+00, 7.896e+07
+inductor, Br_p45_L2, Br_p45_Q2, Br_p45_P3, 0.000e+00, 1.328e+07
+inductor, Br_p45_L3, Br_p45_Q3, Br_p45_P4, 0.000e+00, 2.352e+07
+inductor, Br_p45_L4, Br_p45_Q4, g, 0.000e+00, 2.619e+07
+
+data of nodes
+type, name, initial condition [SI]
+node, Br_p45_n1, 1.000e+05
+node, Br_p45_P1, 1.000e+05
+node, Br_p45_P2, 1.000e+05
+node, Br_p45_P3, 1.000e+05
+node, Br_p45_P4, 1.000e+05
+node, Br_p45_Q1, 1.000e+05
+node, Br_p45_Q2, 1.000e+05
+node, Br_p45_Q3, 1.000e+05
+node, Br_p45_Q4, 1.000e+05
+ground, g, 1.000e+05

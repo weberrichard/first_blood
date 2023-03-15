@@ -1,0 +1,28 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, I_p47_R0, I_p47_n1, I_p47_P1, 0.000e+00, 2.244e+09
+resistor, I_p47_R1, I_p47_P1, I_p47_Q1, 0.000e+00, 6.299e+09
+resistor, I_p47_R2, I_p47_P2, I_p47_Q2, 0.000e+00, 2.423e+09
+resistor, I_p47_R3, I_p47_P3, I_p47_Q3, 0.000e+00, 7.753e+08
+resistor, I_p47_R4, I_p47_P4, I_p47_Q4, 0.000e+00, 1.938e+08
+capacitor, I_p47_C1, I_p47_P1, g, 0.000e+00, 5.388e-11
+capacitor, I_p47_C2, I_p47_P2, g, 0.000e+00, 5.387e-12
+capacitor, I_p47_C3, I_p47_P3, g, 0.000e+00, 1.605e-10
+capacitor, I_p47_C4, I_p47_P4, g, 0.000e+00, 1.703e-09
+inductor, I_p47_L1, I_p47_Q1, I_p47_P2, 0.000e+00, 4.688e+06
+inductor, I_p47_L2, I_p47_Q2, I_p47_P3, 0.000e+00, 7.884e+05
+inductor, I_p47_L3, I_p47_Q3, I_p47_P4, 0.000e+00, 1.397e+06
+inductor, I_p47_L4, I_p47_Q4, g, 0.000e+00, 1.555e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, I_p47_n1, 1.000e+05
+node, I_p47_P1, 1.000e+05
+node, I_p47_P2, 1.000e+05
+node, I_p47_P3, 1.000e+05
+node, I_p47_P4, 1.000e+05
+node, I_p47_Q1, 1.000e+05
+node, I_p47_Q2, 1.000e+05
+node, I_p47_Q3, 1.000e+05
+node, I_p47_Q4, 1.000e+05
+ground, g, 1.000e+05

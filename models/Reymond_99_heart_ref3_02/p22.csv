@@ -1,0 +1,28 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Su_p22_R0, Su_p22_n1, Su_p22_P1, 0.000e+00, 1.338e+09
+resistor, Su_p22_R1, Su_p22_P1, Su_p22_Q1, 0.000e+00, 4.306e+09
+resistor, Su_p22_R2, Su_p22_P2, Su_p22_Q2, 0.000e+00, 1.656e+09
+resistor, Su_p22_R3, Su_p22_P3, Su_p22_Q3, 0.000e+00, 5.300e+08
+resistor, Su_p22_R4, Su_p22_P4, Su_p22_Q4, 0.000e+00, 1.325e+08
+capacitor, Su_p22_C1, Su_p22_P1, g, 0.000e+00, 7.882e-11
+capacitor, Su_p22_C2, Su_p22_P2, g, 0.000e+00, 7.881e-12
+capacitor, Su_p22_C3, Su_p22_P3, g, 0.000e+00, 2.348e-10
+capacitor, Su_p22_C4, Su_p22_P4, g, 0.000e+00, 2.491e-09
+inductor, Su_p22_L1, Su_p22_Q1, Su_p22_P2, 0.000e+00, 3.204e+06
+inductor, Su_p22_L2, Su_p22_Q2, Su_p22_P3, 0.000e+00, 5.389e+05
+inductor, Su_p22_L3, Su_p22_Q3, Su_p22_P4, 0.000e+00, 9.546e+05
+inductor, Su_p22_L4, Su_p22_Q4, g, 0.000e+00, 1.063e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Su_p22_n1, 1.000e+05
+node, Su_p22_P1, 1.000e+05
+node, Su_p22_P2, 1.000e+05
+node, Su_p22_P3, 1.000e+05
+node, Su_p22_P4, 1.000e+05
+node, Su_p22_Q1, 1.000e+05
+node, Su_p22_Q2, 1.000e+05
+node, Su_p22_Q3, 1.000e+05
+node, Su_p22_Q4, 1.000e+05
+ground, g, 1.000e+05

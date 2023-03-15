@@ -1,0 +1,28 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, K_p23_R0, K_p23_n1, K_p23_P1, 0.000e+00, 2.253e+09
+resistor, K_p23_R1, K_p23_P1, K_p23_Q1, 0.000e+00, 4.820e+09
+resistor, K_p23_R2, K_p23_P2, K_p23_Q2, 0.000e+00, 1.854e+09
+resistor, K_p23_R3, K_p23_P3, K_p23_Q3, 0.000e+00, 5.932e+08
+resistor, K_p23_R4, K_p23_P4, K_p23_Q4, 0.000e+00, 1.483e+08
+capacitor, K_p23_C1, K_p23_P1, g, 0.000e+00, 7.042e-11
+capacitor, K_p23_C2, K_p23_P2, g, 0.000e+00, 7.041e-12
+capacitor, K_p23_C3, K_p23_P3, g, 0.000e+00, 2.097e-10
+capacitor, K_p23_C4, K_p23_P4, g, 0.000e+00, 2.225e-09
+inductor, K_p23_L1, K_p23_Q1, K_p23_P2, 0.000e+00, 3.587e+06
+inductor, K_p23_L2, K_p23_Q2, K_p23_P3, 0.000e+00, 6.032e+05
+inductor, K_p23_L3, K_p23_Q3, K_p23_P4, 0.000e+00, 1.069e+06
+inductor, K_p23_L4, K_p23_Q4, g, 0.000e+00, 1.190e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, K_p23_n1, 1.000e+05
+node, K_p23_P1, 1.000e+05
+node, K_p23_P2, 1.000e+05
+node, K_p23_P3, 1.000e+05
+node, K_p23_P4, 1.000e+05
+node, K_p23_Q1, 1.000e+05
+node, K_p23_Q2, 1.000e+05
+node, K_p23_Q3, 1.000e+05
+node, K_p23_Q4, 1.000e+05
+ground, g, 1.000e+05

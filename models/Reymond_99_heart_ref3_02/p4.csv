@@ -1,0 +1,28 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, Ul_p4_R0, Ul_p4_n1, Ul_p4_P1, 0.000e+00, 1.847e+10
+resistor, Ul_p4_R1, Ul_p4_P1, Ul_p4_Q1, 0.000e+00, 2.210e+10
+resistor, Ul_p4_R2, Ul_p4_P2, Ul_p4_Q2, 0.000e+00, 8.500e+09
+resistor, Ul_p4_R3, Ul_p4_P3, Ul_p4_Q3, 0.000e+00, 2.720e+09
+resistor, Ul_p4_R4, Ul_p4_P4, Ul_p4_Q4, 0.000e+00, 6.800e+08
+capacitor, Ul_p4_C1, Ul_p4_P1, g, 0.000e+00, 1.536e-11
+capacitor, Ul_p4_C2, Ul_p4_P2, g, 0.000e+00, 1.536e-12
+capacitor, Ul_p4_C3, Ul_p4_P3, g, 0.000e+00, 4.574e-11
+capacitor, Ul_p4_C4, Ul_p4_P4, g, 0.000e+00, 4.853e-10
+inductor, Ul_p4_L1, Ul_p4_Q1, Ul_p4_P2, 0.000e+00, 1.645e+07
+inductor, Ul_p4_L2, Ul_p4_Q2, Ul_p4_P3, 0.000e+00, 2.766e+06
+inductor, Ul_p4_L3, Ul_p4_Q3, Ul_p4_P4, 0.000e+00, 4.900e+06
+inductor, Ul_p4_L4, Ul_p4_Q4, g, 0.000e+00, 5.455e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, Ul_p4_n1, 1.000e+05
+node, Ul_p4_P1, 1.000e+05
+node, Ul_p4_P2, 1.000e+05
+node, Ul_p4_P3, 1.000e+05
+node, Ul_p4_P4, 1.000e+05
+node, Ul_p4_Q1, 1.000e+05
+node, Ul_p4_Q2, 1.000e+05
+node, Ul_p4_Q3, 1.000e+05
+node, Ul_p4_Q4, 1.000e+05
+ground, g, 1.000e+05
