@@ -39,6 +39,15 @@ void solver_moc::load_model()
 				edges[i]->elasticity_spring = stod(sv[11],0);
 				edges[i]->elasticity_voigt = stod(sv[12],0);
 				edges[i]->viscosity = stod(sv[13],0);
+				if(edges[i]->viscosity==0.)
+				{
+					edges[i]->viscosity = 1.e-5;
+					edges[i]->viscosity_factor = 0.;
+				}
+				else
+				{
+					edges[i]->viscosity_factor = 1.;
+				}
 				edges[i]->resistance_start = stod(sv[14],0);
 				edges[i]->resistance_end = stod(sv[15],0);
 				if(sv[0] == "vis_f")
@@ -120,7 +129,8 @@ void solver_moc::load_model()
 				nodes[j]->type = "heart";
 				nodes[j]->type_code = 2;
 
-				if(sv.size()>3)
+				// loading the pressure-time curve
+				if(sv.size()>4 && sv[4] != "")
 				{
 					nodes[j]->upstream_boundary = up_counter;
 					up_counter++;
@@ -136,10 +146,6 @@ void solver_moc::load_model()
 					{
 						type_upstream.push_back(2);
 					}
-				}
-				// loading the pressure-time curve
-				if(sv.size()>4 && sv[4] != "")
-				{
 					pt_file_name.push_back(sv[4]);
 					load_time_series(sv[4]);
 				}
