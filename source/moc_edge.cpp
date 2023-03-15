@@ -553,7 +553,7 @@ double moc_edge::JL(double dt, double p, double v, double a, double epsz, double
 	double dnp = dns + xp/l*(dne-dns);
 	double snp = sns + xp/l*(sne-sns);
 
-	double AL = ( (p-p0)*dnp*(2.*epsz+1)/(eta2*snp) - 2.*E2/eta2*epsz2 )*exp(-E2/eta2*dt);
+	double AL = eta2_f * ( (p-p0)*dnp*(2.*epsz+1)/(eta2*snp) - 2.*E2/eta2*epsz2 )*exp(-E2/eta2*dt);
 
 	// output
 	double JL = g*(hs-he)/l + 32.*nu*nu_f*v/(d*d) + a/(2.*epsz+1.)*AL;
@@ -575,7 +575,7 @@ double moc_edge::JR(double dt, double p, double v, double a, double epsz, double
 	double dnp = dns + xp/l*(dne-dns);
 	double snp = sns + xp/l*(sne-sns);
 
-	double AR = ( (p-p0)*dnp*(2.*epsz+1)/(eta2*snp) - 2.*E2/eta2*epsz2 )*exp(-E2/eta2*dt);
+	double AR = eta2_f * ( (p-p0)*dnp*(2.*epsz+1)/(eta2*snp) - 2.*E2/eta2*epsz2 )*exp(-E2/eta2*dt);
 
 	// output
 	double JR = g*(hs-he)/l + 32.*nu*nu_f*v/(d*d) - a/(2.*epsz+1.)*AR;
@@ -614,7 +614,7 @@ void moc_edge::update_ith_variables(int i, double ex, double p_new, double epsz2
 	double snp = sns + (sne-sns) * ((double)i/((double)nx-1.));
 	double anp = sqrt(E1*snp / (rho*dnp));
 
-	epsz2[i] = (p_new-p0)*(2.*epsz_old+1.)*(1.-ex) * dnp / (E2*2.*snp) + epsz2_old*ex;
+	epsz2[i] = eta2_f*((p_new-p0)*(2.*epsz_old+1.)*(1.-ex) * dnp / (E2*2.*snp) + epsz2_old*ex);
 	epsz[i]  = epsz2[i] + (p_new-p0)*(2.*epsz_old+1.) *dnp / (E1*2.*snp*pow(epsz_old+1.,beta));
 	a[i]     = anp*pow(epsz[i]+1.,beta/2.);
 	d[i]     = dnp*(epsz[i]+1.);
@@ -1490,30 +1490,31 @@ double moc_edge::downstream_boundary_v(double dt, double v_in, double &q_in)
 //--------------------------------------------------------------
 void moc_edge::set_short_parameters()
 {
-   l     = length;
-   dns   = nominal_diameter_start;
-   dne   = nominal_diameter_end;
-   sns   = nominal_thickness_start;
-   sne   = nominal_thickness_end;
-   eta2  = viscosity;
-   E1    = elasticity_spring;
-   E2    = elasticity_voigt;
-   Rs    = resistance_start;
-   Re    = resistance_end;
-   nx    = division_points;
-   g     = gravity;
-   rho   = density;
-   nu    = kinematic_viscosity;
-   nu_f  = kinematic_viscosity_factor;
-   hs    = geodetic_height_start;
-   he    = geodetic_height_end;
-   p0    = atmospheric_pressure;
+   l      = length;
+   dns    = nominal_diameter_start;
+   dne    = nominal_diameter_end;
+   sns    = nominal_thickness_start;
+   sne    = nominal_thickness_end;
+   eta2   = viscosity;
+   eta2_f = viscosity_factor;
+   E1     = elasticity_spring;
+   E2     = elasticity_voigt;
+   Rs     = resistance_start;
+   Re     = resistance_end;
+   nx     = division_points;
+   g      = gravity;
+   rho    = density;
+   nu     = kinematic_viscosity;
+   nu_f   = kinematic_viscosity_factor;
+   hs     = geodetic_height_start;
+   he     = geodetic_height_end;
+   p0     = atmospheric_pressure;
 
-   Ans   = dns*dns*pi/4.;
-   Ane   = dne*dne*pi/4.;
+   Ans    = dns*dns*pi/4.;
+   Ane    = dne*dne*pi/4.;
 
-   ans   = sqrt(E1*sns / (rho*dns));
-   ane   = sqrt(E1*sne / (rho*dne));
+   ans    = sqrt(E1*sns / (rho*dns));
+   ane    = sqrt(E1*sne / (rho*dne));
 }
 
 //--------------------------------------------------------------

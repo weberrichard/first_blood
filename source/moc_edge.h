@@ -48,6 +48,7 @@ public:
 	double nominal_thickness_start; // m
 	double nominal_thickness_end; // m
 	double viscosity;  // Ns/m2
+	double viscosity_factor;  // 0 or 1
 	double elasticity_spring; // Ns/m2
 	double elasticity_voigt; // Ns/m2
 	double resistance_start; // 1/ms
@@ -201,7 +202,7 @@ public:
 	void reduce_field_vectors();
 
 	// short notations
-	double l, dns, dne, sns, sne, eta2, E1, E2, Rs, Re, g, rho, nu, nu_f, dx, hs, he, ans, ane, p0, Ans, Ane;
+	double l, dns, dne, sns, sne, eta2, eta2_f, E1, E2, Rs, Re, g, rho, nu, nu_f, dx, hs, he, ans, ane, p0, Ans, Ane;
 	unsigned int nx; // number of division points
 	void set_short_parameters(); // matching the longer and shorter parameters
 

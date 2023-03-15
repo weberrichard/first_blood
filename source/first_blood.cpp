@@ -12,6 +12,7 @@ first_blood::first_blood(string folder_name)
 	// loading all the input data from csv files
 	load_ok = load_model();
 
+
 	if(load_ok == true)
 	{
 		// setting constants in every model
@@ -24,7 +25,6 @@ first_blood::first_blood(string folder_name)
 		{
 			lum[i]->set_constants(gravity, density, kinematic_viscosity, mmHg_to_Pa, atmospheric_pressure);
 		}
-
 		// converting moc t-p to SI
 		for(int i=0; i<number_of_moc; i++)
 		{
@@ -207,6 +207,7 @@ bool first_blood::run()
 			// main cycle
 			while(!is_run_end(t_act,t_old) && is_run_ok)
 			{
+				//cout << "t: " << t_act << endl;
 				/*if(t_act>7.) // improve this
 				{
 					int idx = lum_id_to_index("heart_kim");
