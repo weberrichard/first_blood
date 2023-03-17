@@ -44,6 +44,11 @@ void solver_lumped::initialization(double hr)
 		if(edges[i]->type_code == 2)
 		{
 			number_of_elastance++;
+			int si = edges[i]->node_index_start;
+			int ei = edges[i]->node_index_end;
+			E = elastance(0.,edges[i]->par_non_SI);
+			nodes[si]->y = nodes[si]->p/E;
+			nodes[ei]->y = nodes[ei]->p/E;
 		}
 	}
 
@@ -279,173 +284,6 @@ void solver_lumped::substitute_newton(double t_act)
 	}
 
 }
-
-//--------------------------------------------------------------
-/*vector<vector<double> > solver_lumped::solve_one_step(double dt, vector<vector<double> > boundary_coefficients)
-{
-	// increasing time
-	double time_prev = time.back();
-	double time_act = time_prev+dt;
-	time.push_back(time_act);
-
-	// sizes of nodes and edges
-	int n=number_of_nodes, m=number_of_edges, l=number_of_elastance;
-
-	// tracing the virtual nodes of elastance
-	int i_elas=0;
-
-	// actual elastance
-	double E_act = elastance(time_act,edges[i]->parameter);
-
-	// edges
-	for(int i=0; i<number_of_edges; i++)
-	{
-		int i1 = edges[i]->node_index_start;
-		int i2 = edges[i]->node_index_end;
-
-		if(edges[i]->type_code == 0) // resistor
-		{
-			A(i,m+i2) = 1.;
-			A(i,m+i1) = -1.;
-			A(i,i) = edges[i]->par_non_SI; // R
-			//A(i,i) = edges[i]->parameter; // R
-		}
-		else if(edges[i]->type_code == 1) // capacitor
-		{
-			A(i,m+i2) = 1.;
-			A(i,m+i1) = -1.;
-			A(i,i) = dt/edges[i]->par_non_SI; // dt/C
-			b(i) = nodes[i2]->p - nodes[i1]->p; // pj-pi from previous timestamp
-		}
-		else if(edges[i]->type_code == 2) // elastance
-		{
-			// basic equation for the edge
-			A(i,m+n+i_elas+1) = 1.;
-			A(i,m+n+i_elas) = -1.;
-			A(i,i) = dt;
-			b(i) = nodes[i2]->y-nodes[i1]->y;
-
-			// equations for the virtual nodes
-			A(n+m+i_elas,m+i1) = -1.;
-			A(n+m+i_elas+1,m+i2) = -1.;
-			A(n+m+i_elas,n+m+i_elas) = E_act;
-			A(n+m+i_elas+1,n+m+i_elas+1) = E_act;
-			i_elas+=2;
-		}
-		else if(edges[i]->type_code == 3) // inductor
-		{
-			A(i,m+i2) = 1.;
-			A(i,m+i1) = -1.;
-			A(i,i) = edges[i]->par_non_SI/dt; // L/dt
-			b(i) = edges[i]->par_non_SI/dt * edges[i]->vfr; // L/dt * qk
-		}
-		else if(edges[i]->type_code == 4) // voltage source
-		{
-			A(i,m+i2) = 1.;
-			A(i,m+i1) = -1.;
-			b(i) = edges[i]->par_non_SI; // p_const
-		}
-		else if(edges[i]->type_code == 5) // diode
-		{
-			double p2 = nodes[i2]->p;
-			double p1 = nodes[i1]->p;
-			bool is_closed;
-
-			if(p1>p2) // diode is open
-			{
-				A(i,m+i2) = 1.;
-				A(i,m+i1) = -1.;
-				A(i,i) = edges[i]->par_non_SI; // R
-				is_closed = false;
-			}
-			else // diode is closed
-			{
-				A(i,m+i2) = 1.;
-				A(i,m+i1) = -1.;
-				A(i,i) = 1.e10*edges[i]->par_non_SI; // R*1.e10
-				is_closed = true;
-			}
-		}
-	}
-
-	// nodes
-	for(int i=0; i<number_of_nodes; i++)
-	{
-		if(nodes[i]->is_ground == false) // non-ground nodes, intersections
-		{
-			for(int j=0; j<nodes[i]->edge_in.size(); j++)
-			{
-				A(m+i,nodes[i]->edge_in[j]) = 1;
-			}
-			for(int j=0; j<nodes[i]->edge_out.size(); j++)
-			{
-				A(m+i,nodes[i]->edge_out[j]) = -1;
-			}
-		}
-		else // ground nodes, pi = p0[mmHg]
-		{
-			A(m+i,m+i) = 1;
-			b(m+i) = 1.e5/mmHg_to_Pa;
-		}
-	}
-
-	// master boundary node from MOC
-	for(int i=0; i<boundary_indices.size(); i++)
-	{
-		// setting indecies
-		int idx = boundary_indices[i][3];
-
-		A(n+m+2*l+i,n+m+2*l+i) = boundary_coefficients[i][0]*1.e-6; // m3/s to ml
-		A(n+m+2*l+i,m+idx) = boundary_coefficients[i][1]*mmHg_to_Pa; // Pa to mmHg
-		b(n+m+2*l+i) = boundary_coefficients[i][2];
-
-		// adding +1/-1 to node equation
-		if(boundary_coefficients[i][1] > 0.) // ingoing edge
-		{
-			A(m+idx,n+m+2*l+i) = 1.;
-		}
-		else // outgoing edge
-		{
-			A(m+idx,n+m+2*l+i) = -1.;
-		}
-	}
-
-	// actually solving the equations
-	VectorXd x = A.colPivHouseholderQr().solve(b);
-
-	// putting back the outputs
-	for(int i=0; i<number_of_edges; i++)
-	{
-		edges[i]->vfr = x(i);
-		if(edges[i]->do_save_memory)
-		{
-			edges[i]->volume_flow_rate.push_back(x(i)*1.e-6);
-		}
-	}
-	for(int i=0; i<number_of_nodes; i++)
-	{
-		nodes[i]->p = x(m+i);
-		nodes[i]->y = x(m+i)/E_act;
-		if(nodes[i]->do_save_memory)
-		{
-			nodes[i]->pressure.push_back(x(m+i)*mmHg_to_Pa);
-		}
-	}
-
-	// outputs for moc model
-	vector<vector<double> > out;
-	for(int i=0; i<boundary_indices.size(); i++)
-	{
-		int idx=boundary_indices[i][3];
-		double q = x(n+m+2*l+i)*1e-6;
-		double p = x(m+idx)*mmHg_to_Pa;
-		vector<double> v{q,p};
-		out.push_back(v);
-	}
-
-	return out;
-}
-*/
 
 //--------------------------------------------------------------
 void solver_lumped::set_constants(double g, double rho, double nu, double mmHg, double p0)

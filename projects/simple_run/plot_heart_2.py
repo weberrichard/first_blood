@@ -13,7 +13,7 @@ edges = ['D-mitral','D-aorta']
 c_nodes = ['r','k','b']
 c_edges = ['r','b']
 
-fig = plt.figure(figsize=(8*cm, 12*cm))
+fig = plt.figure(figsize=(16*cm, 24*cm))
 gs = fig.add_gridspec(2,1,hspace=.2*cm)
 axs = gs.subplots(sharex=True)
 
