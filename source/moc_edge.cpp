@@ -67,8 +67,11 @@ void moc_edge::initialization(double pressure_initial)
 		// linear interpolation
 		double nx_d = (double)nx;
 		double i_d = (double)i;
-		double dnp = dns*(nx_d-i_d-1.)/(nx_d-1.) + dne*i_d/(nx_d-1.);
-		double snp = sns*(nx_d-i_d-1.)/(nx_d-1.) + sne*i_d/(nx_d-1.);
+		//double dnp = dns*(nx_d-i_d-1.)/(nx_d-1.) + dne*i_d/(nx_d-1.);
+		//double snp = sns*(nx_d-i_d-1.)/(nx_d-1.) + sne*i_d/(nx_d-1.);
+
+		double dnp = pow(dns*dns+i_d/(nx_d-1.)*(dne*dne-dns*dns),.5);
+		double snp = pow(sns*sns+i_d/(nx_d-1.)*(sne*sne-sns*sns),.5);
 
 		a[i] = pow(E1*snp/(dnp*rho),0.5);
 		d[i] = dnp;
@@ -550,13 +553,19 @@ double moc_edge::JL(int i)
 double moc_edge::JL(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
 {
 	// temp variable 
-	double dnp = dns + xp/l*(dne-dns);
-	double snp = sns + xp/l*(sne-sns);
+	// double dnp = dns + xp/l*(dne-dns);
+	// double snp = sns + xp/l*(sne-sns);
 
-	double AL = eta2_f * ( (p-p0)*dnp*(2.*epsz+1)/(eta2*snp) - 2.*E2/eta2*epsz2 )*exp(-E2/eta2*dt);
+	// linearly changing A0
+	//double dnp = pow(dns*dns+xp/l*(dne*dne-dns*dns),.5);
+	double Anp = Ans + xp/l*(Ane-Ans);
+	double dnp = pow(4./pi*Anp,.5);
+	double snp = pow(sns*sns+xp/l*(sne*sne-sns*sns),.5);
+
+	double AL = .5*eta2_f * ( (p-p0)*dnp*(2.*epsz+1)/(eta2*snp) - 2.*E2/eta2*epsz2 )*exp(-E2/eta2*dt) + .5*v*(2.*epsz+1.)*(Ane-Ans)/(Anp*l);
 
 	// output
-	double JL = g*(hs-he)/l + 32.*nu*nu_f*v/(d*d) + a/(2.*epsz+1.)*AL;
+	double JL = g*(hs-he)/l + 32.*nu*nu_f*v/(d*d) + 2.*a/(2.*epsz+1.)*AL;
 
 	return JL;
 }
@@ -572,13 +581,19 @@ double moc_edge::JR(int i)
 double moc_edge::JR(double dt, double p, double v, double a, double epsz, double epsz2, double d, double h, double xp, double x)
 {
 	// temp variables
-	double dnp = dns + xp/l*(dne-dns);
-	double snp = sns + xp/l*(sne-sns);
+	// double dnp = dns + xp/l*(dne-dns);
+	// double snp = sns + xp/l*(sne-sns);
 
-	double AR = eta2_f * ( (p-p0)*dnp*(2.*epsz+1)/(eta2*snp) - 2.*E2/eta2*epsz2 )*exp(-E2/eta2*dt);
+	// linearly changing A0
+	//double dnp = pow(dns*dns+xp/l*(dne*dne-dns*dns),.5);
+	double Anp = Ans + xp/l*(Ane-Ans);
+	double dnp = pow(4./pi*Anp,.5);
+	double snp = pow(sns*sns+xp/l*(sne*sne-sns*sns),.5);
+
+	double AR = .5*eta2_f * ( (p-p0)*dnp*(2.*epsz+1)/(eta2*snp) - 2.*E2/eta2*epsz2 )*exp(-E2/eta2*dt) + .5*v*(2.*epsz+1.)*(Ane-Ans)/(Anp*l);
 
 	// output
-	double JR = g*(hs-he)/l + 32.*nu*nu_f*v/(d*d) - a/(2.*epsz+1.)*AR;
+	double JR = g*(hs-he)/l + 32.*nu*nu_f*v/(d*d) - 2.*a/(2.*epsz+1.)*AR;
 
 	return JR;
 }
@@ -610,8 +625,15 @@ void moc_edge::update_variables()
 void moc_edge::update_ith_variables(int i, double ex, double p_new, double epsz2_old, double epsz_old)
 {
 	// linear interpolation of nominal diameter, thickness and sound velocity
-	double dnp = dns + (dne-dns) * ((double)i/((double)nx-1.));
-	double snp = sns + (sne-sns) * ((double)i/((double)nx-1.));
+	// double dnp = dns + (dne-dns) * ((double)i/((double)nx-1.));
+	// double snp = sns + (sne-sns) * ((double)i/((double)nx-1.));
+
+	// double dnp = pow(dns*dns+((double)i/((double)nx-1.))*(dne*dne-dns*dns),.5);
+
+	double Anp = Ans + ((double)i/((double)nx-1.))*(Ane-Ans);
+	double dnp = pow(4./pi*Anp,.5);
+	double snp = pow(sns*sns+((double)i/((double)nx-1.))*(sne*sne-sns*sns),.5);
+
 	double anp = sqrt(E1*snp / (rho*dnp));
 
 	epsz2[i] = eta2_f*((p_new-p0)*(2.*epsz_old+1.)*(1.-ex) * dnp / (E2*2.*snp) + epsz2_old*ex);
@@ -641,6 +663,12 @@ void moc_edge::save_field_variables()
 	double vf_e = v[nx-1] * d[nx-1]*d[nx-1]*pi/4.;
 	volume_flow_rate_start.push_back(vf_s);
 	volume_flow_rate_end.push_back(vf_e);
+
+	// debug
+	//for(int i=0; i<nx; i++)
+	//	cout << i << " vfr: " << v[i] * d[i]*d[i]*pi/4. << " epsz: " << epsz[i] << endl;
+	//cout << endl;
+	//cin.get();
 
 	double mf_s = vf_s * rho;
 	double mf_e = vf_e * rho;
@@ -767,13 +795,13 @@ vector<double> moc_edge::junction_newton_start(double pp, double t_act)
 	double C7 = C3*C3*An;
 
 	// more constants
-	double alfa  = +C5/(rho*aR);
-	double beta  = +C6/(rho*aR) + C4*C5;
-	double gamma = +C7/(rho*aR) + C4*C6;
-	double delta =  C4*C7;
+	double D1  = +C5/(rho*aR);
+	double D2  = +C6/(rho*aR) + C4*C5;
+	double D3 = +C7/(rho*aR) + C4*C6;
+	double D4 =  C4*C7;
 
-	double q  = alfa*pp*pp*pp + beta*pp*pp + gamma*pp + delta;
-	double dq = 3.*alfa*pp*pp + 2.*beta*pp + gamma;
+	double q  = D1*pp*pp*pp + D2*pp*pp + D3*pp + D4;
+	double dq = 3.*D1*pp*pp + 2.*D2*pp + D3;
 	vector<double> out{q,dq};
 	return out;
 }
@@ -813,13 +841,13 @@ vector<double> moc_edge::junction_newton_end(double pp, double t_act)
 	double C7 = C3*C3*An;
 
 	// more constants
-	double alfa  = -C5/(rho*aL);
-	double beta  = -C6/(rho*aL) + C4*C5;
-	double gamma = -C7/(rho*aL) + C4*C6;
-	double delta =  C4*C7;
+	double D1  = -C5/(rho*aL);
+	double D2  = -C6/(rho*aL) + C4*C5;
+	double D3 = -C7/(rho*aL) + C4*C6;
+	double D4 =  C4*C7;
 
-	double q  = alfa*pp*pp*pp + beta*pp*pp + gamma*pp + delta;
-	double dq = 3.*alfa*pp*pp + 2.*beta*pp + gamma;
+	double q  = D1*pp*pp*pp + D2*pp*pp + D3*pp + D4;
+	double dq = 3.*D1*pp*pp + 2.*D2*pp + D3;
 	vector<double> out{q,dq};
 	return out;
 }
@@ -901,7 +929,7 @@ vector<double> moc_edge::boundary_newton_end(double qp, double Ap, double pp, do
 
 	// derivative to qp
 	double dchar_dq = 1./Ap + Re/(rho*aL);
-	double dA_dq = -dns*dns*pi*.5*((pp-p0)*C1+C2+1.)*C1*Re;
+	double dA_dq = -dne*dne*pi*.5*((pp-p0)*C1+C2+1.)*C1*Re;
 
 	vector<double> out{f_char,f_A,dchar_dp,dA_dp,dchar_dq,dA_dq};
 	return out;
@@ -1246,11 +1274,11 @@ double moc_edge::downstream_boundary_p(double dt, double p_in)
 
 	// update field variables
 	double ex = exp(-E2/eta2*dt_act);
-	double ans = sqrt(E1*sne / (rho*dne));
+	double ane = sqrt(E1*sne / (rho*dne));
 
 	epsz2[nx-1] = (p_e+Re*q_in-p0)*(2.*epsz[nx-1]+1.)*(1.-ex) * dne / (E2*2.*sne) + epsz2[nx-1]*ex;
 	epsz[nx-1]  = epsz2[nx-1] + (p_e+Rs*q_in-p0)*(2.*epsz[nx-1]+1.) *dne / (E1*2.*sne*pow(epsz[nx-1]+1.,beta));
-	a[nx-1]     = ans*pow(epsz[nx-1]+1.,beta/2.);
+	a[nx-1]     = ane*pow(epsz[nx-1]+1.,beta/2.);
 	d[nx-1]     = dne*(epsz[nx-1]+1.);
 	A[nx-1]     = d[nx-1]*d[nx-1]*pi/4.;
 
@@ -1278,10 +1306,10 @@ double moc_edge::f_downstream_p(double pp, double p_in, double dt, double &v_e)
 	v_e = vL - (pp-pL)/(rho*aL) - dt*J;
 
 	double ex = exp(-E2/eta2*dt_act);
-	double C1 = (2.*epsz[0]+1.) *dns / (E1*2.*sns*pow(epsz[0]+1.,beta)) + (2.*epsz[0]+1.)*(1.-ex) * dns / (E2*2.*sns);
+	double C1 = (2.*epsz[0]+1.) *dne / (E1*2.*sne*pow(epsz[0]+1.,beta)) + (2.*epsz[0]+1.)*(1.-ex) * dne / (E2*2.*sne);
 	double C3 = epsz2[0]*ex;
 
-	double f = 4.*(p_in-pp) - Re*v_e*(dns*dns*pi*pow(C1*(pp-p0)+C3+1.,2));
+	double f = 4.*(p_in-pp) - Re*v_e*(dne*dne*pi*pow(C1*(pp-p0)+C3+1.,2));
 	return f;
 }
 
@@ -1472,16 +1500,16 @@ double moc_edge::downstream_boundary_v(double dt, double v_in, double &q_in)
 	vp[nx-1] = v_in;
 	pp[nx-1] = pL + rho*aL*(-v_in+vL + dt*J);
 	double ex = exp(-E2/eta2*dt_act);
-	double C1 = (2.*epsz[nx-1]+1.) *dns / (E1*2.*sns*pow(epsz[nx-1]+1.,beta)) + (2.*epsz[nx-1]+1.)*(1.-ex) * dns / (E2*2.*sns);
+	double C1 = (2.*epsz[nx-1]+1.) *dne / (E1*2.*sne*pow(epsz[nx-1]+1.,beta)) + (2.*epsz[nx-1]+1.)*(1.-ex) * dne / (E2*2.*sne);
 	double C3 = epsz2[nx-1]*ex;
-	double Ap = dns*dns*0.25*pi*pow(C1*(pp[nx-1]-p0)+C3+1.,2);
+	double Ap = dne*dne*0.25*pi*pow(C1*(pp[nx-1]-p0)+C3+1.,2);
 	q_in = Ap*v_in;
 	double p_in = -Re*q_in + pp[nx-1];
 
-	epsz2[nx-1] = (pp[nx-1]+Re*q_in-p0)*(2.*epsz[nx-1]+1.)*(1.-ex) * dns / (E2*2.*sns) + epsz2[nx-1]*ex;
-	epsz[nx-1]  = epsz2[nx-1] + (pp[nx-1]+Re*q_in-p0)*(2.*epsz[nx-1]+1.) *dns / (E1*2.*sns*pow(epsz[nx-1]+1.,beta));
-	a[nx-1]     = ans*pow(epsz[nx-1]+1.,beta/2.);
-	d[nx-1]     = dns*(epsz[nx-1]+1.);
+	epsz2[nx-1] = (pp[nx-1]+Re*q_in-p0)*(2.*epsz[nx-1]+1.)*(1.-ex) * dne / (E2*2.*sne) + epsz2[nx-1]*ex;
+	epsz[nx-1]  = epsz2[nx-1] + (pp[nx-1]+Re*q_in-p0)*(2.*epsz[nx-1]+1.) *dne / (E1*2.*sne*pow(epsz[nx-1]+1.,beta));
+	a[nx-1]     = ane*pow(epsz[nx-1]+1.,beta/2.);
+	d[nx-1]     = dne*(epsz[nx-1]+1.);
 	A[nx-1]     = d[nx-1]*d[nx-1]*pi/4.;
 
 	return p_in;

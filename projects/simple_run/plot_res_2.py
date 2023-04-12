@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-cases = 'Reymond_99_heart_ref3_02'
+cases = 'Reymond_99_heart_ref3'
 
 # plot for the arterial system
 
 models = 'arterial'
-elements = ['A5','A1','A8','A52','A49']
+elements = ['A16','A1','A8','A52','A49']
 title = ['Carotid','Aorta','Radial','Femoral','Anetrior Tibial']
 start = [0,1,1,1,1,0]
 

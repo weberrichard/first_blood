@@ -12,7 +12,6 @@ first_blood::first_blood(string folder_name)
 	// loading all the input data from csv files
 	load_ok = load_model();
 
-
 	if(load_ok == true)
 	{
 		// setting constants in every model

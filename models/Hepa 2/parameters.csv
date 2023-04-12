@@ -1,0 +1,26 @@
+,Values,Units
+M_L,668,g
+M_R,907,g
+Mtot,1575,g
+Tresect,30,s
+Vra0,4.0,mL
+Vrv0,10.0,mL
+Vla0,4.0,mL
+Vlv0,5.0,mL
+Rpul,106.66,dyne s/cm^5
+Cpul,0.05,cm^5/dyne
+C_OO,0.000736,cm^5/dyne
+Cmes,0.003,cm^5/dyne
+Cliver,1.5e-05,cm^5/dyne/g
+Kpv,372.6,dyne/cm^2
+b_pv,10.0,/
+c_pv,-1.5,/
+Tvc,0.2956521739130435,s
+Tvr,0.13043478260869565,s
+Tac,0.14782608695652175,s
+Tar,0.14782608695652175,s
+tac,0.6956521739130435,s
+tar,0.8434782608695651,s
+alphaR,0.11111111111111112,/
+HR,69,beats/min
+alpha_liver,0.5,/
