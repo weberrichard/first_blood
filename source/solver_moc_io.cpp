@@ -36,23 +36,12 @@ void solver_moc::load_model()
 				edges[i]->nominal_thickness_end = stod(sv[8],0);
 				edges[i]->length = stod(sv[9],0);
 				edges[i]->division_points = stoi(sv[10],0);
-				edges[i]->elasticity_spring = stod(sv[11],0);
-				edges[i]->elasticity_voigt = stod(sv[12],0);
-				edges[i]->viscosity = stod(sv[13],0);
-				if(edges[i]->viscosity==0.)
-				{
-					edges[i]->viscosity = 1.e-5;
-					edges[i]->viscosity_factor = 0.;
-				}
-				else
-				{
-					edges[i]->viscosity_factor = 1.;
-				}
-				edges[i]->resistance_start = stod(sv[14],0);
-				edges[i]->resistance_end = stod(sv[15],0);
+				edges[i]->elasticity= stod(sv[11],0);
+				edges[i]->resistance_start = stod(sv[12],0);
+				edges[i]->resistance_end = stod(sv[13],0);
 				if(sv[0] == "vis_f")
 				{
-					edges[i]->kinematic_viscosity_factor = stod(sv[16],0);
+					edges[i]->kinematic_viscosity_factor = stod(sv[14],0);
 				}
 				i++;
 			}
@@ -273,16 +262,12 @@ void solver_moc::save_results(string folder_name, vector<string> edge_list, vect
 		         double vfre = edges[idx]->volume_flow_rate_end[j];
 		         double mfrs = edges[idx]->mass_flow_rate_start[j];
 		         double mfre = edges[idx]->mass_flow_rate_end[j];
-		         double ds = edges[idx]->diameter_start[j];
-		         double de = edges[idx]->diameter_end[j];
-		         double epszs = edges[idx]->total_deformation_start[j];
-		         double epsze = edges[idx]->total_deformation_end[j];
-		         double epsz2s = edges[idx]->damper_deformation_start[j];
-		         double epsz2e = edges[idx]->damper_deformation_end[j];
-		         double as = edges[idx]->wave_velocity_start[j];
-		         double ae = edges[idx]->wave_velocity_end[j];
+		         double As = edges[idx]->area_start[j];
+		         double Ae = edges[idx]->area_end[j];
+		         double as = edges[idx]->wave_speed_start[j];
+		         double ae = edges[idx]->wave_speed_end[j];
 
-		         fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",t,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,ds,de,epszs,epsze,epsz2s,epsz2e,as,ae);
+		         fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",t,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,As,Ae,as,ae);
 		      }
 		      fclose(out_file);
    		}
@@ -380,16 +365,12 @@ void solver_moc::save_results(double dt, string folder_name, vector<string> edge
 			         double vfre = edges[idx]->volume_flow_rate_end[j]*a0 + edges[idx]->volume_flow_rate_end[j+1]*a1;
 			         double mfrs = edges[idx]->mass_flow_rate_start[j]*a0 + edges[idx]->mass_flow_rate_start[j+1]*a1;
 			         double mfre = edges[idx]->mass_flow_rate_end[j]*a0 + edges[idx]->mass_flow_rate_end[j+1]*a1;
-			         double ds = edges[idx]->diameter_start[j]*a0 + edges[idx]->diameter_start[j+1]*a1;
-			         double de = edges[idx]->diameter_end[j]*a0 + edges[idx]->diameter_end[j+1]*a1;
-			         double epszs = edges[idx]->total_deformation_start[j]*a0 + edges[idx]->total_deformation_start[j+1]*a1;
-			         double epsze = edges[idx]->total_deformation_end[j]*a0 + edges[idx]->total_deformation_end[j+1]*a1;
-			         double epsz2s = edges[idx]->damper_deformation_start[j]*a0 + edges[idx]->damper_deformation_start[j+1]*a1;
-			         double epsz2e = edges[idx]->damper_deformation_end[j]*a0 + edges[idx]->damper_deformation_end[j+1]*a1;
-			         double as = edges[idx]->wave_velocity_start[j]*a0 + edges[idx]->wave_velocity_start[j+1]*a1;
-			         double ae = edges[idx]->wave_velocity_end[j]*a0 + edges[idx]->wave_velocity_end[j+1]*a1;
+			         double As = edges[idx]->area_start[j]*a0 + edges[idx]->area_start[j+1]*a1;
+			         double Ae = edges[idx]->area_end[j]*a0 + edges[idx]->area_end[j+1]*a1;
+			         double as = edges[idx]->wave_speed_start[j]*a0 + edges[idx]->wave_speed_start[j+1]*a1;
+			         double ae = edges[idx]->wave_speed_end[j]*a0 + edges[idx]->wave_speed_end[j+1]*a1;
 
-		         	fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",ts,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,ds,de,epszs,epsze,epsz2s,epsz2e,as,ae);
+		         	fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",ts,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,As,Ae,as,ae);
 		         	ts += dt;
 					}
 					else
@@ -421,7 +402,7 @@ void solver_moc::save_model(string model_name, string folder_name)
 	fprintf(out_file,"type,ID,name,start_node,end_node,start_diameter[SI],end_diameter[SI],start_thickness[SI],end_thickness[SI],length[SI],division_points,elastance_1[SI],elastance_2[SI],eta[SI],res_start[SI],res_end[SI]\n");
 	for(int i=0; i<number_of_edges; i++)
 	{
-		fprintf(out_file,"%s,%s,%s,%s,%s,%6.3e,%6.3e,%6.3e,%6.3e,%6.3e,%i,%6.3e,%6.3e,%6.3e,%6.3e,%6.3e\n",edges[i]->type.c_str(),edges[i]->ID.c_str(),edges[i]->name.c_str(),edges[i]->node_name_start.c_str(),edges[i]->node_name_end.c_str(),edges[i]->nominal_diameter_start,edges[i]->nominal_diameter_end,edges[i]->nominal_thickness_start,edges[i]->nominal_thickness_end,edges[i]->length,edges[i]->division_points,edges[i]->elasticity_spring,edges[i]->elasticity_voigt,edges[i]->viscosity,edges[i]->resistance_start,edges[i]->resistance_end);
+		fprintf(out_file,"%s,%s,%s,%s,%s,%6.3e,%6.3e,%6.3e,%6.3e,%6.3e,%i,%6.3e,%6.3e,%6.3e\n",edges[i]->type.c_str(),edges[i]->ID.c_str(),edges[i]->name.c_str(),edges[i]->node_name_start.c_str(),edges[i]->node_name_end.c_str(),edges[i]->nominal_diameter_start,edges[i]->nominal_diameter_end,edges[i]->nominal_thickness_start,edges[i]->nominal_thickness_end,edges[i]->length,edges[i]->division_points,edges[i]->elasticity,edges[i]->resistance_start,edges[i]->resistance_end);
 	}
 	fprintf(out_file,"\n");
 

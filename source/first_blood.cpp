@@ -17,7 +17,7 @@ first_blood::first_blood(string folder_name)
 		// setting constants in every model
 		for(int i=0; i<number_of_moc; i++)
 		{
-			moc[i]->set_constants(gravity, density, kinematic_viscosity, mmHg_to_Pa, atmospheric_pressure, beta);
+			moc[i]->set_constants(gravity, density, kinematic_viscosity, mmHg_to_Pa, atmospheric_pressure,poisson_coefficient, courant_number);
 		}
 
 		for(int i=0; i<number_of_lum; i++)
@@ -106,6 +106,28 @@ bool first_blood::load_main_csv()
 			{
 				time_end = stod(sv[1],0);
 			}
+			else if(sv[0] == "material") // material model
+			{
+				if(sv[1] == "linear")
+				{
+					material_type = 0;
+				}
+				else if(sv[1] == "Olufsen" || sv[1] == "olufsen")
+				{
+					material_type = 1;
+					material_const.clear();
+					if(sv.size()>4)
+					{
+						material_const.push_back(stod(sv[2],0));
+						material_const.push_back(stod(sv[3],0));
+						material_const.push_back(stod(sv[4],0));
+					}
+					else
+					{
+						material_const = olufsen_def_const;
+					}
+				}
+			}
 			else if(sv[0] == "moc") // 1D moc model
 			{
 				moc.push_back(new solver_moc(sv[1],input_folder_path));
@@ -187,18 +209,13 @@ bool first_blood::run()
 
 		if(number_of_moc>0)
 		{
-			// add everything to forward
-			for(int i=0; i<number_of_moc; i++)
-			{
-				moc[i]->full_tree();
-			}
-
 			// initial timesteps
 			int moc_idx=0, e_idx;
 			for(int i=0; i<number_of_moc; i++)
 			{
 				moc[i]->timesteps();
-			}
+			}	
+
 			// finding lowest new timestep
 			double t_act = lowest_new_time(moc_idx, e_idx);
 			double t_old = -1.e10;
@@ -206,6 +223,7 @@ bool first_blood::run()
 			// main cycle
 			while(!is_run_end(t_act,t_old) && is_run_ok)
 			{
+				
 				//cout << "t: " << t_act << endl;
 				/*if(t_act>7.) // improve this
 				{
@@ -247,8 +265,8 @@ bool first_blood::run()
 				}
 
 				// postproc: interpolate, save
-				moc[moc_idx]->edges[e_idx]->interpolate();
-				moc[moc_idx]->edges[e_idx]->update_variables();
+				moc[moc_idx]->edges[e_idx]->update();
+				//moc[moc_idx]->edges[e_idx]->update_variables();
 				if(moc[moc_idx]->edges[e_idx]->do_save_memory)
 				{
 					moc[moc_idx]->edges[e_idx]->save_field_variables();
@@ -320,8 +338,8 @@ double first_blood::lowest_new_time(int &moc_idx, int &e_idx)
 void first_blood::solve_lum_newton(int index, double t_act)
 {
 	/*
-	x = [q1,q2,...qm,p1,p2,p3,...pn,y1,y2,...ye,qmoc1,A1,...qmock,Ak] y: for elastance if present
-	f = [edge1,edge2,...edgem,node1,node2,...node,elas1,elas2,...elase,char1,A1,char2,A2,...]
+	x = [q1,q2,...qm,p1,p2,p3,...pn,y1,y2,...ye,qmoc1,...qmock] y: for elastance if present
+	f = [edge1,edge2,...edgem,node1,node2,...node,elas1,elas2,...elase,char1,char2,...]
 	*/
 	int m = lum[index]->number_of_edges;
 	int n = lum[index]->number_of_nodes;
@@ -336,7 +354,7 @@ void first_blood::solve_lum_newton(int index, double t_act)
 		int moc_index = lum[index]->boundary_indices[j][0];
 		int moc_edge_index = lum[index]->boundary_indices[j][1];
 		int edge_end = lum[index]->boundary_indices[j][2];
-		int N = m+n+2*l+2*j;
+		int N = m+n+2*l+j;
 		moc[moc_index]->initialization_newton(lum[index]->x,N,moc_edge_index,edge_end);
 	}
 
@@ -352,41 +370,41 @@ void first_blood::solve_lum_newton(int index, double t_act)
 			int moc_edge_index = lum[index]->boundary_indices[j][1];
 			int edge_end = lum[index]->boundary_indices[j][2];
 			int lum_node_index = lum[index]->boundary_indices[j][3];
-			double q = lum[index]->x(n+m+2*l+2*j);
-			double A = lum[index]->x(n+m+2*l+2*j+1);
+			double q = lum[index]->x(n+m+2*l+j);
+			// double A = lum[index]->x(n+m+2*l+2*j+1);
 			double p = lum[index]->x(m+lum_node_index)*mmHg_to_Pa;
-			vector<double> v; // f_char,f_A,dchar_dp,dA_dp,dchard_dq,dA_dq
+			vector<double> v; // f_char,dchar_dp,dchard_dq
 			if(edge_end==1)
 			{
-				v = moc[moc_index]->edges[moc_edge_index]->boundary_newton_end(q,A,p,t_act);
+				v = moc[moc_index]->edges[moc_edge_index]->boundary_newton_end(q,p,t_act);
 			}
 			else
 			{
-				v = moc[moc_index]->edges[moc_edge_index]->boundary_newton_start(q,A,p,t_act);
+				v = moc[moc_index]->edges[moc_edge_index]->boundary_newton_start(q,p,t_act);
 			}
 
 			// node continouity equation and jacobian
-			lum[index]->f(m+lum_node_index) += edge_end*lum[index]->x(m+n+2*l+2*j)*1.e6;
-			lum[index]->Jac(m+lum_node_index,m+n+2*l+2*j) = edge_end*1.e6; // for node continouity
+			lum[index]->f(m+lum_node_index) += edge_end*lum[index]->x(m+n+2*l+j)*1.e6; // sign(q)*q*1e6 [ml/s]
+			lum[index]->Jac(m+lum_node_index,m+n+2*l+j) = edge_end*1.e6; // for node continouity // sign(q)*1e6 [1]
 
 			// characteristic equation
 			// also converting to non_SI for numerical stability
-			lum[index]->f(m+n+2*l+2*j) = v[0];
-			lum[index]->Jac(m+n+2*l+2*j,m+lum_node_index) = v[2]*mmHg_to_Pa; // dp
-			lum[index]->Jac(m+n+2*l+2*j,m+n+2*l+2*j) = v[4]; // dQ
-			lum[index]->Jac(m+n+2*l+2*j,m+n+2*l+2*j+1) = -q/A/A; // dA
+			lum[index]->f(m+n+2*l+j) = v[0];
+			lum[index]->Jac(m+n+2*l+j,m+lum_node_index) = v[1]*mmHg_to_Pa; // dp
+			lum[index]->Jac(m+n+2*l+j,m+n+2*l+j) = v[2]; // dQ
+			// lum[index]->Jac(m+n+2*l+2*j,m+n+2*l+2*j+1) = -q/A/A; // dA
 
 			// cross section - pressure equation
-			lum[index]->f(m+n+2*l+2*j+1) = v[1];
-			lum[index]->Jac(m+n+2*l+2*j+1,m+lum_node_index) = v[3]*mmHg_to_Pa; // dp
-			lum[index]->Jac(m+n+2*l+2*j+1,m+n+2*l+2*j) = v[5]; // dQ
-			lum[index]->Jac(m+n+2*l+2*j+1,m+n+2*l+2*j+1) = 1.; // dA
+			// lum[index]->f(m+n+2*l+2*j+1) = v[1];
+			// lum[index]->Jac(m+n+2*l+2*j+1,m+lum_node_index) = v[3]*mmHg_to_Pa; // dp
+			// lum[index]->Jac(m+n+2*l+2*j+1,m+n+2*l+2*j) = v[5]; // dQ
+			// lum[index]->Jac(m+n+2*l+2*j+1,m+n+2*l+2*j+1) = 1.; // dA
 		}
 
-		//cout << endl << i << " ITERATION " << i << endl;
-		//cout << endl << lum[index]->Jac << endl;
-		//cout << "x" << endl << lum[index]->x << endl;
-		//cout << "f" << endl << lum[index]->f << endl;
+		// cout << endl << i << " ITERATION " << i << endl;
+		// cout << endl << lum[index]->Jac << endl;
+		// cout << "x" << endl << lum[index]->x << endl;
+		// cout << "f" << endl << lum[index]->f << endl;
 
 		// actually solving the Newton's technique
 		VectorXd dx = lum[index]->Jac.colPivHouseholderQr().solve(-lum[index]->f);
@@ -407,6 +425,7 @@ void first_blood::solve_lum_newton(int index, double t_act)
 		cout << lum[index]->Jac << endl;
 		cout << "x" << endl << lum[index]->x << endl;
 		cout << "f" << endl << lum[index]->f << endl;
+		exit(-1);
 	}
 
 	// substitute the results back to 0D
@@ -420,7 +439,7 @@ void first_blood::solve_lum_newton(int index, double t_act)
 		int edge_end = lum[index]->boundary_indices[j][2];
 		int lum_node_index = lum[index]->boundary_indices[j][3];
 		double p = lum[index]->x(m+lum_node_index)*mmHg_to_Pa;
-		double q = lum[index]->x(m+n+2*l+2*j);
+		double q = lum[index]->x(m+n+2*l+j);
 		moc[moc_index]->substitute_newton(moc_edge_index,edge_end,t_act,p,q);
 	}
 }
@@ -496,57 +515,6 @@ void first_blood::save_time_average(double dt, string folder_name)
 	cfr->save_results(dt, file_name);
 }
 
-
-//--------------------------------------------------------------
-/*void first_blood::solve_lum(int index, double dt)
-{
-	vector<vector<double> > coefs;
-	for(int j=0; j<lum[index]->boundary_indices.size(); j++)
-	{
-		int moc_index = lum[index]->boundary_indices[j][0];
-		int moc_edge_index = lum[index]->boundary_indices[j][1];
-		int edge_end = lum[index]->boundary_indices[j][2];
-		vector<double> c;
-		if(edge_end==1)
-		{
-			c = moc[moc_index]->edges[moc_edge_index]->boundary_master_end(dt);
-		}
-		else
-		{
-			c = moc[moc_index]->edges[moc_edge_index]->boundary_master_start(dt);
-		}
-		coefs.push_back(c);
-	}
-
-	vector<vector<double> > qps = lum[index]->solve_one_step(dt, coefs);
-
-	// updating master boundaries in mocs, n. 2
-	for(int j=0; j<qps.size(); j++)
-	{
-		int moc_index = lum[index]->boundary_indices[j][0]; // index of moc
-		int moc_edge_index = lum[index]->boundary_indices[j][1]; // edge index in moc
-		int edge_end = lum[index]->boundary_indices[j][2];
-		int lum_node_index = lum[index]->boundary_indices[j][3]; // node index in lum
-
-		double q = qps[j][0];
-		double p = qps[j][1];
-
-		double t_act = moc[moc_index]->edges[moc_edge_index]->time.back() + dt;
-		if(edge_end == 1)
-		{
-			moc[moc_index]->edges[moc_edge_index]->boundary_end_variables(dt,p,q);
-			int node_index = moc[moc_index]->edges[moc_edge_index]->node_index_end;
-			moc[moc_index]->nodes[node_index]->boundary_variables(p,t_act);
-		}
-		else
-		{
-			moc[moc_index]->edges[moc_edge_index]->boundary_start_variables(dt,p,q);
-			int node_index = moc[moc_index]->edges[moc_edge_index]->node_index_start;
-			moc[moc_index]->nodes[node_index]->boundary_variables(p,t_act);
-		}
-	}
-}*/
-
 //--------------------------------------------------------------
 bool first_blood::is_run_end(double t_act, double t_old)
 {
@@ -575,6 +543,11 @@ bool first_blood::is_run_end(double t_act, double t_old)
  			if((double)n*time_period>=t_old && (double)n*time_period<t_act)
  			{
 				int idx = moc[0]->node_id_to_index(time_node);
+				if(idx<0)
+				{
+					time_node = moc[0]->nodes[0]->name;
+					idx = 0;
+				}
 				if(time_var == "P")
 				{
 					double val = (systole(moc[0]->nodes[idx]->pressure, moc[0]->nodes[idx]->time, (n-1.)*time_period)-atmospheric_pressure)/mmHg_to_Pa;
@@ -627,7 +600,7 @@ void first_blood::initialization()
 	// setting initial conditions
 	for(int i=0; i<number_of_moc; i++)
 	{
-		moc[i]->initialization(pressure_initial);
+		moc[i]->initialization(pressure_initial,material_type,material_const);
 		time_counter += moc[i]->number_of_edges;
 	}
 	for(int i=0; i<number_of_lum; i++)
@@ -648,9 +621,15 @@ void first_blood::initialization()
 	// making sure time_node is saved
 	if(is_periodic_run)
 	{
+		int idx = moc[0]->node_id_to_index(time_node);
+		if(idx<0)
+		{
+			time_node = moc[0]->nodes[0]->name;
+			idx = 0;
+		}
 		if(moc.size()>0)
 		{
-			vector<string> el, nl{"H"};
+			vector<string> el, nl{time_node};
 		   set_save_memory(moc[0]->name,"moc",el,nl);
 		}
 	}
@@ -988,3 +967,53 @@ void first_blood::load_initials()
 		lum[i]->load_initials();
 	}
 }
+
+//--------------------------------------------------------------
+/*void first_blood::solve_lum(int index, double dt)
+{
+	vector<vector<double> > coefs;
+	for(int j=0; j<lum[index]->boundary_indices.size(); j++)
+	{
+		int moc_index = lum[index]->boundary_indices[j][0];
+		int moc_edge_index = lum[index]->boundary_indices[j][1];
+		int edge_end = lum[index]->boundary_indices[j][2];
+		vector<double> c;
+		if(edge_end==1)
+		{
+			c = moc[moc_index]->edges[moc_edge_index]->boundary_master_end(dt);
+		}
+		else
+		{
+			c = moc[moc_index]->edges[moc_edge_index]->boundary_master_start(dt);
+		}
+		coefs.push_back(c);
+	}
+
+	vector<vector<double> > qps = lum[index]->solve_one_step(dt, coefs);
+
+	// updating master boundaries in mocs, n. 2
+	for(int j=0; j<qps.size(); j++)
+	{
+		int moc_index = lum[index]->boundary_indices[j][0]; // index of moc
+		int moc_edge_index = lum[index]->boundary_indices[j][1]; // edge index in moc
+		int edge_end = lum[index]->boundary_indices[j][2];
+		int lum_node_index = lum[index]->boundary_indices[j][3]; // node index in lum
+
+		double q = qps[j][0];
+		double p = qps[j][1];
+
+		double t_act = moc[moc_index]->edges[moc_edge_index]->time.back() + dt;
+		if(edge_end == 1)
+		{
+			moc[moc_index]->edges[moc_edge_index]->boundary_end_variables(dt,p,q);
+			int node_index = moc[moc_index]->edges[moc_edge_index]->node_index_end;
+			moc[moc_index]->nodes[node_index]->boundary_variables(p,t_act);
+		}
+		else
+		{
+			moc[moc_index]->edges[moc_edge_index]->boundary_start_variables(dt,p,q);
+			int node_index = moc[moc_index]->edges[moc_edge_index]->node_index_start;
+			moc[moc_index]->nodes[node_index]->boundary_variables(p,t_act);
+		}
+	}
+}*/

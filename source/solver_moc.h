@@ -60,7 +60,7 @@ public:
 	vector<int> period;
 
 	// giving initial conditions
-	void initialization(double pressure_initial);
+	void initialization(double pressure_initial,int mat_type, vector<double> mat_const);
 	// initialazing Newton's method for 1D/0D boundaries
 	void initialization_newton(VectorXd &x, int N, int moc_edge_index, int edge_end);
 	// substituting the results back to field variables
@@ -93,7 +93,7 @@ public:
 	void convert_time_series();
 
 	// setting basic constants
-	void set_constants(double g, double rho, double nu, double mmHg, double p0, double beta);
+	void set_constants(double g, double rho, double nu, double mmHg, double p0, double nu_p, double cfl);
 
 	// setting the full model to solve
 	void full_tree();
@@ -125,17 +125,7 @@ public:
 	vector<int> edge_to_node(vector<int> edge_idx);
 
 private:
-	// determining the downward tree from a node for the forward_solver, returning the indicies of edges
-	void forward_tree(string node_id);
-	// for containing the forward tree edges
-	vector<int> forward_edges;
-	// for containing the forward tree nodes
-	vector<int> forward_nodes;
-	vector<int> unique(vector<int> x);
 
-	// founding the upward edge from a node, returning the edge index
-	int backward_tree(string node_id);
-	
 	const double pi=3.14159265359;
 
 	double gravity; // [m/s2]
@@ -152,3 +142,14 @@ private:
 };
 
 #endif // SOLVER_MOC_H
+
+
+// founding the upward edge from a node, returning the edge index
+//int backward_tree(string node_id);
+// determining the downward tree from a node for the forward_solver, returning the indicies of edges
+//void forward_tree(string node_id);
+// for containing the forward tree edges
+//vector<int> forward_edges;
+// for containing the forward tree nodes
+//vector<int> forward_nodes;
+//vector<int> unique(vector<int> x);

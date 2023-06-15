@@ -71,7 +71,7 @@ void solver_lumped::set_newton_size()
 	number_of_moc = boundary_indices.size();
 
 	// setting Eigen vars for nonlinear solvr
-	int N = number_of_edges + number_of_nodes + 2*number_of_elastance + 2*number_of_moc;
+	int N = number_of_edges + number_of_nodes + 2*number_of_elastance + number_of_moc;
 	Jac = MatrixXd::Zero(N,N);
 	x = VectorXd::Zero(N);
 	f = VectorXd::Zero(N);
