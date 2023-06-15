@@ -1,0 +1,6 @@
+run,forward
+time,5
+material,linear
+
+type,name,main node,model node,main node,model node,...
+moc,arterial

@@ -1,0 +1,47 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+elastance, ERA, G1, PVC,0, 0.000e+00, 6.2e+07, 8.0e+06
+diode, DTV, PVC, RV, 0.000e+00,1.39e+00
+elastance, ERV, G2, RV, 0.000e+00, 6.2e+07, 8.0e+06
+diode, DPV, RV, PA, 0.000e+00,0.79e+00
+resistor, RLLP, PA, PN, 0.000e+00, 1.0666e+07
+capacitor, CLL, G, PN, 0.000e+00, 5.0e-07
+resistor, RLLD, PN, LA, 0.000e+00, 1.0666e+07
+elastance, ELA, G3, LA, 0.000e+00, 2.4e+08, 8.0e+06
+diode, DLV, LA, LV, 0.000e+00,0.72e+00
+elastance, ELV, G4, LV, 0.000e+00, 2.4e+08, 8.0e+06
+diode, DMV, LV, MAP, 0.000e+00,0.83e+00
+resistor, ROOP, MAP, OO, 0.000e+00, 1.2e+08
+capacitor, COO, G, OO, 0.000e+00, 7.36e-08
+resistor, ROOD, OO, PVC, 0.000e+00, 1.2e+08
+resistor, RDOP, MAP, DO, 0.000e+00,6.0e+08
+capacitor, CDO, G, DO, 0.000e+00,8.31e-6
+resistor, RDOD, DO, PPV, 0.000e+00,6.0e+08
+resistor, RPVR, PPV, LR, 0.000e+00,1.0e+07
+resistor, RPV1, PPV, LL, 0.000e+00,1.0e+07
+capacitor, CliverR, G, LR, 0.000e+00,1.50e-07
+capacitor, CliverL, G, LL, 0.000e+00,1.50e-07
+resistor, RLivR, LR, PVC,  0.000e+00,1.0e+07
+resistor, RLivL, LL, PVC, 0.000e+00,1.0e+07
+resistor, RhaR, MAP, LR, 0.000e+00,2.5000e+09
+resistor, RhaL, MAP, LL, 0.000e+00,2.5000e+09
+
+data of nodes
+type, name, initial condition [SI]
+node, PVC, 1.000e+05
+node, RV, 1.000e+05
+node, PA, 1.000e+05
+node, PN, 1.000e+05
+node, LA, 1.000e+05
+node, LV, 1.000e+05
+node, MAP, 1.000e+05
+node, OO, 1.000e+05
+node, DO, 1.000e+05
+node, PPV, 1.000e+05
+node, LR, 1.000e+05
+node, LL, 1.000e+05
+ground, G, 0
+ground, G1, 0
+ground, G2, 0
+ground, G3, 0
+ground, G4, 0

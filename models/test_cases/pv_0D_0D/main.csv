@@ -1,0 +1,15 @@
+run,forward
+time,3
+material,linear
+
+type,name,main node,model node,main node,model node,...
+moc,arterial1,N1p,p1
+moc,arterial2,N2p,p1,N3p,p2
+
+lumped,p1,N1p,n1,N2p,n2
+lumped,p2,N3p,n1
+
+
+node,N1p
+node,N2p
+node,N3p

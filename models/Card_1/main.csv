@@ -1,0 +1,5 @@
+run,forward,,,,,
+time,10.,,,,,
+,,,,,,
+type,name,main node,model node,main node,model node,...
+lumped,card,,,,,
