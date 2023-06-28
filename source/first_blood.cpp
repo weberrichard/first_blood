@@ -138,6 +138,10 @@ bool first_blood::load_main_csv()
 				{
 					solver_type = 1;
 				}
+				else
+				{
+					cout << "Solver type: " << sv[1] << " is not known. Using MacCormack, continoiug..." << endl;
+				}
 			}
 			else if(sv[0] == "moc") // 1D moc model
 			{

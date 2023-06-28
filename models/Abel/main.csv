@@ -1,5 +1,7 @@
 run,forward
 time,10.317
+material,linear
+solver,maccormack
 
 type,name,main node,model node,main node,model node,...
 moc,arterial,N1p,p1,N2p,p2,N3p,p3,N4p,p4,N5p,p5,N6p,p6,N7p,p7,N8p,p8,N9p,p9,N10p,p10,N11p,p11,N12p,p12,N13p,p13,N14p,p14,N15p,p15,N16p,p16,N17p,p17,N18p,p18,N19p,p19,N20p,p20,N21p,p21,N22p,p22,N23p,p23,N24p,p24,N25p,p25,N26p,p26,N27p,p27,N28p,p28,N29p,p29,N30p,p30,N31p,p31,N32p,p32,N33p,p33,N34p,p34,N35p,p35,N36p,p36,N37p,p37,N38p,p38,N39p,p39,N40p,p40,N41p,p41,N42p,p42,N43p,p43,N44p,p44,N45p,p45,N46p,p46,N47p,p47,Heart,H

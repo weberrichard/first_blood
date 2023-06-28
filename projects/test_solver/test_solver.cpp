@@ -30,34 +30,33 @@ int main(int argc, char* argv[])
    
    case_names.push_back("Abel");
 
-   vector<int> st{0,1};
-   vector<string> sn{"MacCormack","MoC"};
-   vector<string> sf{"results_maccormack","results_moc"};
-   for(int j=1; j<2; j++)
+   int st = 1; // 0, 1
+   string sn = "MoC"; // "MacCormack", "MoC"
+   string sf = "results_moc"; // results_maccormack, "results_moc"
+
+   cout << "[O] SOLVER: " << sn << endl;
+
+   for(int i=0; i<case_names.size(); i++)
    {
-      cout << "[O] SOLVER: " << sn[j] << endl;
-      for(int i=0; i<case_names.size(); i++)
+      cout << " [*] case: " << case_names[i] << endl;
+      // loading original case
+      first_blood *fb = new first_blood(case_folder + case_names[i]);
+      cout << "   + load: OK" << endl;
+
+      //fb->time_end = sim_time;
+      fb->time_period = period_time;
+      fb->is_periodic_run = false;
+      fb->solver_type = st;
+      //fb->time_node = "n1";
+    
+      // running the simulation
+      bool is_run_ok = fb->run();
+      cout << "   + run: OK" << endl;
+
+      if(is_run_ok)
       {
-         cout << " [*] case: " << case_names[i] << endl;
-         // loading original case
-         first_blood *fb = new first_blood(case_folder + case_names[i]);
-         cout << "   + load: OK" << endl;
-
-         //fb->time_end = sim_time;
-         fb->time_period = period_time;
-         fb->is_periodic_run = false;
-         fb->solver_type = st[j];
-         //fb->time_node = "n1";
-       
-         // running the simulation
-         bool is_run_ok = fb->run();
-         cout << "   + run: OK" << endl;
-
-         if(is_run_ok)
-         {
-            fb->save_results(sf[j] + "/" + case_names[i]);
-            cout << "   + save: OK" << endl;
-         }
+         fb->save_results(sf + "/" + case_names[i]);
+         cout << "   + save: OK" << endl;
       }
    }
 
