@@ -32,8 +32,12 @@ Then the running *.out* file will run the simulation. The *models* folder must c
 ### Developement team
 Dr. Richárd Wéber, assistant professor
 
+Márta Viharos, BSc student
+
 Dániel Gyürki, research assistant fellow
 
 ### Publications
+
+Richárd Wéber, Dániel Gyürki, György Paál (2023) First blood: An efficient, hybrid one- and zero-dimensional, modular hemodynamic solver, International Journal for Numerical Methods in Biomedical Engineering, DOI: 10.1002/cnm.3701
 
 Dániel Gyürki, Tamás Horváth, Sára Till, Attila Egri, Csilla Celeng, György Paál, Béla Merkely, Pál Maurovich-Horvat & Gábor Halász (2022) Central arterial pressure and patient-specific model parameter estimation based on radial pressure measurements, Computer Methods in Biomechanics and Biomedical Engineering, DOI: 10.1080/10255842.2022.2115292
