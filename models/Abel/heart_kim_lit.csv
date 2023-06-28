@@ -1,0 +1,49 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI], parameter [SI]
+
+
+Right Atrium
+voltage, V_ra, g, p_RA1, 0.000e+00, 1.333e+03
+inductor, L_ra_rv, p_RA1, p_RA2, 0.000e+00, 1.000e+5
+diode, R_ra_rv, p_RA2, p_RA3, 0.000e+00, 5.000e+04
+
+
+Right Ventrice
+elastance, E_rv, g2, p_RA3, 0.000e+00, 6.2e+07, 8.0e+06
+inductor, L_rv_pa, p_RA3, p_RV1, 0.000e+00, 5.50e+04
+diode, R_rv_pa, p_RV1, p_RV2, 0.000e+00, 1.000e+06
+
+
+P
+resistor, R_p, p_RV2, p_LA1, 0.000e+00, 6.0e+07
+capacitor, C_p, g, p_RV2, 0.000e+00, 1.00e-08
+
+
+Left Atrium
+capacitor, E_la, g, p_LA1, 0.000e+00, 2.200e-07
+inductor, L_la_lv, p_LA1, p_LA2, 0.000e+00, 1.00e+06
+diode, R_la_lv, p_LA2, p_LA3, 0.000e+00, 1.700e+06
+
+
+Left Ventrice
+elastance, E_lv, g1, p_LA3, 0.000e+00, 2.4e+08, 8.0e+06
+inductor, L_lv_aorta, p_LA3, p_LV1, 0.000e+00, 6.90e+04
+diode, R_lv_aorta, p_LV1, aorta, 0.000e+00, 1.00e+06
+
+
+
+data of nodes
+type, name, initial condition [SI]
+node, aorta, 1.13e+05
+ground, g, 1.00e+05
+ground, g1, 1.00e+05
+ground, g2, 1.00e+05
+node, p_RA1, 1.010e+05
+node, p_RA2, 1.010e+05
+node, p_RA3, 1.010e+05
+node, p_RV1, 1.010e+05
+node, p_RV2, 1.010e+05
+node, p_LA1, 1.0140e+05
+node, p_LA2, 1.0140e+05
+node, p_LA3, 1.0140e+05
+node, p_LV1, 1.0140e+05
