@@ -15,7 +15,6 @@ par.nu_p = 0.5;
 par.p0 = 1e5;
 par.v1 = 1;
 par.beta = sqrt(pi)*par.E/(1-par.nu_p^2);
-par.CFL = 1.0;
 
 nx = 41;
 
@@ -44,8 +43,8 @@ Vmean = (Vmax+Vmin)*.5;
 Amean = Vmean/par.l;
 
 Anx = A;
-Aref1 = max(Anx);
-Aref2 = min(Anx);
+Aref1 = Amean;
+Aref2 = Amean;
 pnew = zeros(nx,1);
 vnew = zeros(nx,1);
 Anew = zeros(nx,1);
@@ -59,15 +58,8 @@ pend=[];
 A1=[];
 Aend=[];
 
-U=zeros(2,nx);
-F=zeros(2,nx);
-S=zeros(2,nx);
-Us=zeros(2,nx);
-Fs=zeros(2,nx);
-Ss=zeros(2,nx);
-
 t_act=0;
-t_end=4.9;
+t_end=20;
 while(t_act<t_end)
    
     % finding dt-s
@@ -76,39 +68,47 @@ while(t_act<t_end)
         dt(i) = min(dx/(a(i-1)+v(i-1)),dx/(a(i+1)-v(i+1)));
     end
     dt(nx) = dx/(a(nx-1)+v(nx-1));
-    dt_act = par.CFL*min(dt);
+    dt_act = min(dt);
     t_act = t_act + dt_act;
     t = [t,t_act];
-    
-    % inner points
-    Sp = zeros(nx,1);
-    for i=1:nx
-        [~,~,dp_dx] = cross_section(Anew(i),x(i),par);
-        Sp(i) = dp_dx;
-    end
-    U = [A';v'];
-    F = [(A.*v)';(v.^2/2+p/par.rho)'];
-    S = [zeros(1,nx);(-8*pi*par.nu./A.*v)'];
 
-    Us(:,1) = U(:,1) - dt_act/dx*(F(:,2)-F(:,1)) + dt_act*S(:,1);
-    As = Us(1,1);
-    vs = Us(2,1);
-    [ps,~,dp_dxs] = cross_section(As,x(1),par);
-    Fs(:,1) = [As*vs;vs^2/2+ps/par.rho];
     for i=2:nx-1
-        Us(:,i) = U(:,i) - dt_act/dx*(F(:,i+1)-F(:,i)) + dt_act*S(:,i);
+        xL = pos_l(dt_act,v(i-1),v(i),a(i-1),a(i),dx,x(i));
+        vL = v(i-1) + (xL-x(i-1))/dx*(v(i)-v(i-1));
+        AL = A(i-1) + (xL-x(i-1))/dx*(A(i)-A(i-1));
+        aL = a(i-1) + (xL-x(i-1))/dx*(a(i)-a(i-1));
+        
+        J_l = JL(AL,vL,xL,par,aL);
 
-        As = Us(1,i);
-        vs = Us(2,i);
-        [ps,~,dp_dxs] = cross_section(As,x(i),par);
-        Fs(:,i) = [As*vs;vs^2/2+ps/par.rho];
-        Ss(:,i) = [0;-8*pi*par.nu/As*vs];
-
-        U(:,i) = .5*(U(:,i)+Us(:,i)) - dt_act/2/dx*(Fs(:,i)-Fs(:,i-1)) + dt_act/2*Ss(:,i);
-        Anew(i) = U(1,i);
-        vnew(i) = U(2,i);
+        [dnL,~] = nominal_diameter(xL,par);
+        [snL,~] = nominal_wall(xL,par);
+        AnL = dnL*dnL*pi/4;
+        
+        xR = pos_r(dt_act,v(i),v(i+1),a(i),a(i+1),dx,x(i));
+        vR = v(i) + (xR-x(i))/dx*(v(i+1)-v(i));
+        AR = A(i) + (xR-x(i))/dx*(A(i+1)-A(i));
+        aR = a(i) + (xR-x(i))/dx*(a(i+1)-a(i));
+        
+        J_r = JR(AR,vR,xR,par,aR);
+           
+        [dnR,~] = nominal_diameter(xR,par);
+        [snR,~] = nominal_wall(xR,par);
+        AnR = dnR*dnR*pi/4;
+        
+        [dn,~] = nominal_diameter(x(i),par);
+        [sn,~] = nominal_wall(x(i),par);
+        An = dn*dn*pi/4;
+        
+        W1L =  4* sqrt(par.beta*snL/(2*par.rho*AnL)) *(AL^.25-AnL^.25) + vL;
+        W2R = -4* sqrt(par.beta*snR/(2*par.rho*AnR)) *(AR^.25-AnR^.25) + vR;
+        
+        vnew(i) = .5*(W1L+W2R-dt_act*(J_l+J_r) + 4* sqrt(par.beta*sn/(2*par.rho*An))*(An^.25-An^.25));
+        Anew(i) = 1/1024 * (par.rho*An/(par.beta*sn))^2 * (W1L-W2R-dt_act*(J_l-J_r) ...
+            + 4* sqrt(par.beta*sn/(2*par.rho*An))*(An^.25+An^.25))^4;
         [pnew(i),dp_dA,~] = cross_section(Anew(i),x(i),par);
         anew(i) = sqrt(Anew(i)/par.rho*dp_dA);
+       
+%        fprintf("P: %3i, vfr: %6.3e, a: %6.3f, d: %8.5f, p: %6.3f, v: %8.5f\n",i,vnew(i)*dnew(i)*dnew(i)*pi/4,anew(i),dnew(i),pnew(i),vnew(i));
     end
 
     % left boundary - inlet velocity
@@ -116,17 +116,15 @@ while(t_act<t_end)
 
     pR = p(1) + xR/dx*(p(2)-p(1));
     vR = v(1) + xR/dx*(v(2)-v(1));
-    aR = a(1) + xR/dx*(a(2)-a(1));
     AR = A(1) + xR/dx*(A(2)-A(1));
+    aR = a(1) + xR/dx*(a(2)-a(1));
 
     J_r = JR(AR,vR,xR,par,aR);
 
     [dnR,~] = nominal_diameter(xR,par);
     [snR,~] = nominal_wall(xR,par);
     AnR = dnR*dnR*pi/4;
-    
     W2R = -4* sqrt(par.beta*snR/(2*par.rho*AnR)) *(AR^.25-AnR^.25) + vR;
-    % W2R = -4* sqrt(par.beta*snR/(2*par.rho*AnR)) *(AR^.25-Aref1^.25) + vR;
 
     [dn,~] = nominal_diameter(x(1),par);
     [sn,~] = nominal_wall(x(1),par);
@@ -134,7 +132,6 @@ while(t_act<t_end)
 
     vnew(1) = par.v1;
     Anew(1) = 1/64*(par.rho*An/(par.beta*sn))^2 * (vnew(1) - W2R + dt_act*J_r + 4* sqrt(par.beta*sn/(2*par.rho*An))*An^.25)^4;
-    % Anew(1) = 1/64*(par.rho*An/(par.beta*sn))^2 * (vnew(1) - W2R + dt_act*J_r + 4* sqrt(par.beta*sn/(2*par.rho*An))*Aref1^.25)^4;
     [pnew(1),dp_dA,dp_dx] = cross_section(Anew(1),x(1),par);
     anew(1) = sqrt(Anew(1)/par.rho*dp_dA);
 
@@ -143,17 +140,15 @@ while(t_act<t_end)
 
     pL = p(nx-1) + (xL-x(nx-1))/dx*(p(nx)-p(nx-1));
     vL = v(nx-1) + (xL-x(nx-1))/dx*(v(nx)-v(nx-1));
-    aL = a(nx-1) + (xL-x(nx-1))/dx*(a(nx)-a(nx-1));
     AL = A(nx-1) + (xL-x(nx-1))/dx*(A(nx)-A(nx-1));
+    aL = a(nx-1) + (xL-x(nx-1))/dx*(a(nx)-a(nx-1));
 
     J_l = JL(AL,vL,xL,par,aL);
 
     [dnL,~] = nominal_diameter(xL,par);
     [snL,~] = nominal_wall(xL,par);
     AnL = dnL*dnL*pi/4;
-
     W1L =  4* sqrt(par.beta*snL/(2*par.rho*AnL)) *(AL^.25-AnL^.25) + vL;
-    % W1L =  4* sqrt(par.beta*snL/(2*par.rho*AnL)) *(AL^.25-Aref2^.25) + vL;
 
     [dn,~] = nominal_diameter(x(nx),par);
     [sn,~] = nominal_wall(x(nx),par);
@@ -162,7 +157,6 @@ while(t_act<t_end)
     pnew(nx) = par.p0;
     Anew(nx) = ( (pnew(nx)-par.p0) *An/(par.beta*sn) + sqrt(An) )^2;
     vnew(nx) = W1L - dt_act*J_l + 4* sqrt(par.beta*sn/(2*par.rho*An))*(An^.25-Anew(nx)^.25);
-    % vnew(nx) = W1L - dt_act*J_l + 4* sqrt(par.beta*sn/(2*par.rho*An))*(Aref2^.25-Anew(nx)^.25);
     [~,dp_dA,~] = cross_section(Anew(nx),x(nx),par);
     anew(nx) = sqrt(Anew(nx)/par.rho*dp_dA);
  
@@ -182,12 +176,7 @@ while(t_act<t_end)
     vend = [vend,v(nx)];
     A1 = [A1,A(1)];
     Aend = [Aend,A(nx)];
-
-%     for i=1:nx
-%         fprintf("i: %3i, A: %6.3e, v: %6.3f, p: %8.1f, a: %6.3f\n",i,Anew(i),vnew(i),pnew(i),anew(i));
-%     end
-%     fprintf("\n");
-
+    
     % plot
 %     figure(1);
 %     subplot(4,1,1);
@@ -248,7 +237,6 @@ function J_l = JL(A,v,x,par,a)
     An_dx = dn*pi/2*dn_dx;
     C1 = -2*sqrt(par.beta/2/par.rho)*((0.5*sqrt(1/An/sn)*sn_dx-0.5*sqrt(sn/An^3)*An_dx)*(A^0.25-An^0.25)-sqrt(sn/An)*0.25*An^(-0.75)*An_dx);
     J_l = 8*pi*par.nu/A*v + 1/par.rho*dp_dx + 2*(v+a)*C1;
-    % J_l = 8*pi*par.nu/A*v + 1/par.rho*dp_dx;
 end
 
 function J_r = JR(A,v,x,par,a)
@@ -259,7 +247,6 @@ function J_r = JR(A,v,x,par,a)
     An_dx = dn*pi/2*dn_dx;
     C2 = 2*sqrt(par.beta/2/par.rho)*((0.5*sqrt(1/An/sn)*sn_dx-0.5*sqrt(sn/An^3)*An_dx)*(A^0.25-An^0.25)-sqrt(sn/An)*0.25*An^(-0.75)*An_dx);
     J_r = 8*pi*par.nu/A*v + 1/par.rho*dp_dx + 2*(v-a)*C2;
-    % J_r = 8*pi*par.nu/A*v + 1/par.rho*dp_dx;
 end
 
 function [p,dp_dA,dp_dx] = cross_section(A,x,par)
@@ -269,15 +256,16 @@ function [p,dp_dA,dp_dx] = cross_section(A,x,par)
     An_dx = dn*pi/2*dn_dx;
     p = par.p0 + par.beta*sn/An*(sqrt(A)-sqrt(An));
     dp_dx = par.beta/An*( (sqrt(A)-sqrt(An))*(sn_dx - sn/An*An_dx) - .5*sn/sqrt(An)*An_dx );
-%     dp_dx = 0;
+       %+ 1/An*(p-par.p0+par.beta*sn/2/sqrt(An))*An_dx;
+    % dp_dx = 0;
     dp_dA = par.beta*sn/An*.5/sqrt(A);
 end
 
 function [dn,dn_dx] = nominal_diameter(x,par)
-%     dn = par.ds + x/par.l*(par.de-par.ds);
-%     dn_dx = (par.de-par.ds)/par.l;
-    dn = sqrt(par.ds^2+x/par.l*(par.de^2-par.ds^2));
-    dn_dx = 1/2/dn*(par.de^2-par.ds^2)/par.l;
+    dn = par.ds + x/par.l*(par.de-par.ds);
+    dn_dx = (par.de-par.ds)/par.l;
+%     dn = sqrt(par.ds^2+x/par.l*(par.de^2-par.ds^2));
+%     dn_dx = 1/2/dn*(par.de^2-par.ds^2)/par.l;
 end
 
 function [sn,sn_dx] = nominal_wall(x,par)
