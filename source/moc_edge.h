@@ -90,9 +90,18 @@ public:
 	//---------------------
 	// FORWARD CALCULATION
 	// calculating the field variables at the new time step level
-	void solve();
+	void solve_maccormack();
+	void solve_moc();
 	// calculating the new timesteps for each division point
 	bool new_timestep();
+
+	// riemann invariants
+	double W1L(int j, double dt);
+	double W2R(int j, double dt);
+
+	// interpolated positions
+	double right_position(int j, double dt);
+	double left_position(int j, double dt);
 
 	// saving start and end field variables to vectors in time
 	void save_field_variables();

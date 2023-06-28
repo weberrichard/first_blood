@@ -135,7 +135,7 @@ bool moc_edge::new_timestep()
 }
 
 //--------------------------------------------------------------
-void moc_edge::solve()
+void moc_edge::solve_maccormack()
 {
 	double dp_dA, dp_dx;
 	double As = A[0] - dt_act/dx*(A[1]*v[1]-A[0]*v[0]);
@@ -167,6 +167,28 @@ void moc_edge::solve()
 }
 
 //--------------------------------------------------------------
+void moc_edge::solve_moc()
+{
+	for(int i=1; i<nx-1; i++)
+	{
+		double W1_L = W1L(i, dt_act);
+		double W2_R = W2R(i, dt_act);
+
+		double J1_L = JL(i);
+		double J2_R = JR(i);
+
+		double sn_dx, An_dx, dp_dA, dp_dx;
+		double sn = nominal_wall_thickness(x[i],sn_dx);
+		double An = nominal_area(x[i],An_dx);
+
+		vnew[i] = -J1_L*dt_act + W1_L - J2_R*dt_act + W2_R;
+		Anew[i] = pow(.25*pow(2.*rho*An/(beta*sn),.5) * (-J1_L*dt_act + W1_L + J2_R*dt_act - W2_R) + pow(An,.25),4.);
+		pnew[i] = pressure(x[i],Anew[i],dp_dA,dp_dx);
+		anew[i] = wave_speed(x[i],Anew[i]);
+	}
+}
+
+//--------------------------------------------------------------
 double moc_edge::JL(int i)
 {
 	double out = JL(dt[i], p[i-1], v[i-1], a[i-1], A[i-1], x[i-1]);
@@ -179,7 +201,14 @@ double moc_edge::JL(double dt, double p, double v, double a, double A, double xp
 	double dp_dA, dp_dx;
 	pressure(xp,A,dp_dA,dp_dx);
 
-	double JL = 4.*pi*nu*v/A + .5*dp_dx/rho; // TODO: add gravity
+	double sn_dx, An_dx;
+	double sn = nominal_wall_thickness(xp,sn_dx);
+	double An = nominal_area(xp,An_dx);
+
+	double C1 = -2.*pow(beta*.5/rho,.5)*((0.5*pow(1./(An*sn),.5)*sn_dx-0.5*pow(sn/pow(An,3.),.5)*An_dx)*(pow(A,0.25)-pow(An,0.25))-pow((sn/An),.5)*0.25*pow(An,-0.75)*An_dx);
+    
+	double JL = 4.*pi*nu*v/A + .5*dp_dx/rho + (v+a)*C1; // TODO: add gravity
+	// double JL = 4.*pi*nu*v/A + .5*dp_dx/rho; // TODO: add gravity
 
 	return JL;
 }
@@ -197,7 +226,14 @@ double moc_edge::JR(double dt, double p, double v, double a, double A, double xp
 	double dp_dA, dp_dx;
 	pressure(xp,A,dp_dA,dp_dx);
 
-	double JR = 4.*pi*nu*v/A + .5*dp_dx/rho; // TODO: add gravity
+	double sn_dx, An_dx;
+	double sn = nominal_wall_thickness(xp,sn_dx);
+	double An = nominal_area(xp,An_dx);
+
+	double C2 = 2.*pow(beta*.5/rho,.5)*((0.5*pow(1./(An*sn),.5)*sn_dx-0.5*pow(sn/pow(An,3.),.5)*An_dx)*(pow(A,0.25)-pow(An,0.25))-pow((sn/An),.5)*0.25*pow(An,-0.75)*An_dx);
+
+	// double JR = 4.*pi*nu*v/A + .5*dp_dx/rho; // TODO: add gravity
+	double JR = 4.*pi*nu*v/A + .5*dp_dx/rho + (v-a)*C2; // TODO: add gravity
 
 	return JR;
 }
@@ -300,6 +336,68 @@ double moc_edge::area(double x, double p)
 		cout << "Unknown material type = " << material_type << endl;
 		return -1.;
 	}
+}
+
+//--------------------------------------------------------------
+double moc_edge::W1L(int j, double dt)
+{
+	// location of R point
+	double xL = left_position(j,dt);
+
+	double vL = (v[j-1]-v[j]) / (x[j-1]-x[j]) * (xL - x[j]) + v[j];
+	double pL = (p[j-1]-p[j]) / (x[j-1]-x[j]) * (xL - x[j]) + p[j];
+	double aL = (a[j-1]-a[j]) / (x[j-1]-x[j]) * (xL - x[j]) + a[j];
+	double AL = (A[j-1]-A[j]) / (x[j-1]-x[j]) * (xL - x[j]) + A[j];
+
+	double J = JL(dt, pL, vL, aL, AL, xL);
+
+	double d;
+	double snL = nominal_wall_thickness(xL,d);
+	double AnL = nominal_area(xL,d);
+
+	double W1 = .5*vL + 2.*pow(beta*snL/(2.*rho*AnL),.5)*(pow(AL,.25)-pow(AnL,.25));
+
+	return W1;
+}
+
+//--------------------------------------------------------------
+double moc_edge::W2R(int j, double dt)
+{
+	// location of R point
+	double xR = right_position(j,dt);
+
+	double vR = (v[j+1]-v[j]) / (x[j+1]-x[j]) * (xR - x[j]) + v[j];
+	double pR = (p[j+1]-p[j]) / (x[j+1]-x[j]) * (xR - x[j]) + p[j];
+	double aR = (a[j+1]-a[j]) / (x[j+1]-x[j]) * (xR - x[j]) + a[j];
+	double AR = (A[j+1]-A[j]) / (x[j+1]-x[j]) * (xR - x[j]) + A[j];
+
+	double J = JR(dt, pR, vR, aR, AR, xR);
+
+	double d;
+	double snR = nominal_wall_thickness(xR,d);
+	double AnR = nominal_area(xR,d);
+
+	double W2 = .5*vR - 2.*pow(beta*snR/(2.*rho*AnR),.5)*(pow(AR,.25)-pow(AnR,.25));
+
+	return W2;
+}
+
+//--------------------------------------------------------------
+double moc_edge::right_position(int j, double dt)
+{
+	double dv = (v[j+1]-v[j]) / (x[j+1]-x[j]);
+	double da = (a[j+1]-a[j]) / (x[j+1]-x[j]);
+	double xR = x[j] + dt*(a[j]-v[j]) / (1.+dt*dv-dt*da);
+	return xR;
+}
+
+//--------------------------------------------------------------
+double moc_edge::left_position(int j, double dt)
+{
+	double dv = (v[j]-v[j-1]) / (x[j]-x[j-1]);
+	double da = (a[j]-a[j-1]) / (x[j]-x[j-1]);
+	double xL = x[j] - dt*(v[j]+a[j]) / (1.+dt*da+dt*dv);
+	return xL;
 }
 
 //--------------------------------------------------------------
@@ -533,7 +631,7 @@ vector<double> moc_edge::boundary_junction_start(double pp, double t_act)
 	double snR = nominal_wall_thickness(xR,d);
 	double AnR = nominal_area(xR,d);
 
-	double W2R = .5*vR - 2.*pow(beta*snR/(2.*rho*AnR),.5)*(pow(AR,.25)-pow(Ans,.25));
+	double W2R = .5*vR - 2.*pow(beta*snR/(2.*rho*AnR),.5)*(pow(AR,.25)-pow(AnR,.25));
 	double Ap = area(x[0],pp);
 
 	double q  = Ap*(-2.*dt*J + 2*W2R + 4.*pow(beta*sns/(2.*rho*Ans),.5)*(pow(Ap,.25)-pow(Ans,.25)));
@@ -567,7 +665,7 @@ vector<double> moc_edge::boundary_junction_end(double pp, double t_act)
 	double snL = nominal_wall_thickness(xL,d);
 	double AnL = nominal_area(xL,d);
 
-	double W1L = .5*vL + 2.*pow(beta*snL/(2.*rho*AnL),.5)*(pow(AL,.25)-pow(Ane,.25));
+	double W1L = .5*vL + 2.*pow(beta*snL/(2.*rho*AnL),.5)*(pow(AL,.25)-pow(AnL,.25));
 	double Ap = area(x[nx-1],pp);
 
 	double q  = Ap*(-2.*dt*J + 2*W1L - 4.*pow(beta*sne/(2.*rho*Ane),.5)*(pow(Ap,.25)-pow(Ane,.25)));
@@ -601,7 +699,7 @@ vector<double> moc_edge::boundary_newton_start(double qp, double pp, double t_ac
 	double snR = nominal_wall_thickness(xR,d);
 	double AnR = nominal_area(xR,d);
 
-	double W2R = .5*vR - 2.*pow(beta*snR/(2.*rho*AnR),.5)*(pow(AR,.25)-pow(Ans,.25));
+	double W2R = .5*vR - 2.*pow(beta*snR/(2.*rho*AnR),.5)*(pow(AR,.25)-pow(AnR,.25));
 	double Ap = area(x[0],pp);
 
 	// characteristic equation
@@ -640,7 +738,7 @@ vector<double> moc_edge::boundary_newton_end(double qp, double pp, double t_act)
 	double snL = nominal_wall_thickness(xL,d);
 	double AnL = nominal_area(xL,d);
 
-	double W1L = .5*vL + 2.*pow(beta*snL/(2.*rho*AnL),.5)*(pow(AL,.25)-pow(Ane,.25));
+	double W1L = .5*vL + 2.*pow(beta*snL/(2.*rho*AnL),.5)*(pow(AL,.25)-pow(AnL,.25));
 	double Ap = area(x[nx-1],pp);
 
 	// characteristic equation
@@ -710,7 +808,7 @@ double moc_edge::f_pressure_start(double pp, double p_in, double dt, double &v_s
 	double snR = nominal_wall_thickness(xR,d);
 	double AnR = nominal_area(xR,d);
 
-	double W2R = .5*vR - 2.*pow(beta*snR/(2.*rho*AnR),.5)*(pow(AR,.25)-pow(Ans,.25));
+	double W2R = .5*vR - 2.*pow(beta*snR/(2.*rho*AnR),.5)*(pow(AR,.25)-pow(AnR,.25));
 	double Ap = area(x[0],pp);
 
 	v_s = -2.*dt_act*J + 2.*W2R + 4.*pow(beta*sns/(2.*rho*Ans),.5)*(pow(Ap,.25)-pow(Ans,.25));
@@ -771,7 +869,7 @@ double moc_edge::f_pressure_end(double pp, double p_in, double dt, double &v_e)
 	double snL = nominal_wall_thickness(xL,d);
 	double AnL = nominal_area(xL,d);
 
-	double W1L = .5*vL + 2.*pow(beta*snL/(2.*rho*AnL),.5)*(pow(AL,.25)-pow(Ane,.25));
+	double W1L = .5*vL + 2.*pow(beta*snL/(2.*rho*AnL),.5)*(pow(AL,.25)-pow(AnL,.25));
 	double Ap = area(x[nx-1],pp);
 
 	v_e = -2.*dt_act*J + 2.*W1L - 4.*pow(beta*sns/(2.*rho*Ane),.5)*(pow(Ap,.25)-pow(Ane,.25));
@@ -830,7 +928,7 @@ double moc_edge::f_flowrate_start(double pp, double q_in, double dt, double &v_s
 	double snR = nominal_wall_thickness(xR,d);
 	double AnR = nominal_area(xR,d);
 
-	double W2R = .5*vR - 2.*pow(beta*snR/(2.*rho*AnR),.5)*(pow(AR,.25)-pow(Ans,.25));
+	double W2R = .5*vR - 2.*pow(beta*snR/(2.*rho*AnR),.5)*(pow(AR,.25)-pow(AnR,.25));
 	double Ap = area(x[0],pp);
 
 	v_s = q_in/Ap;
@@ -889,7 +987,7 @@ double moc_edge::f_flowrate_end(double pp, double q_in, double dt, double &v_e)
 	double snL = nominal_wall_thickness(xL,d);
 	double AnL = nominal_area(xL,d);
 
-	double W1L = .5*vL + 2.*pow(beta*snL/(2.*rho*AnL),.5)*(pow(AL,.25)-pow(Ane,.25));
+	double W1L = .5*vL + 2.*pow(beta*snL/(2.*rho*AnL),.5)*(pow(AL,.25)-pow(AnL,.25));
 	double Ap = area(x[nx-1],pp);
 
 	v_e = q_in/Ap;
@@ -915,12 +1013,10 @@ double moc_edge::boundary_velocity_start(double dt, double v_in, double &q_in)
 	double snR = nominal_wall_thickness(xR,d);
 	double AnR = nominal_area(xR,d);
 
-	double W2R = .5*vR - 2.*pow(beta*snR/(2.*rho*AnR),.5)*(pow(AR,.25)-pow(Ans,.25));
+	double W2R = .5*vR - 2.*pow(beta*snR/(2.*rho*AnR),.5)*(pow(AR,.25)-pow(AnR,.25));
 
 	vnew[0] = v_in;
 	Anew[0] = pow(.5*pow(2.*rho*Ans/(beta*sns),.5)*(dt_act*J - W2R + .5*vnew[0]) + pow(Ans,.25),4.);
-
-	// Anew(1) = 1/64*(par.rho*An/(par.beta*sn))^2 * (vnew(1) - W2R + dt_act*J_r + 4* sqrt(par.beta*sn/(2*par.rho*An))*Aref1^.25)^4;
 
 	q_in = Anew[0]*vnew[0];
 	double dp_dA, dp_dx;
@@ -948,7 +1044,7 @@ double moc_edge::boundary_velocity_end(double dt, double v_in, double &q_in)
 	double snL = nominal_wall_thickness(xL,d);
 	double AnL = nominal_area(xL,d);
 
-	double W1L = .5*vL + 2.*pow(beta*snL/(2.*rho*AnL),.5)*(pow(AL,.25)-pow(Ane,.25));
+	double W1L = .5*vL + 2.*pow(beta*snL/(2.*rho*AnL),.5)*(pow(AL,.25)-pow(AnL,.25));
 
 	vnew[nx-1] = v_in;
 	Anew[nx-1] = pow(.5*pow(2.*rho*Ane/(beta*sne),.5)*(-dt_act*J + W1L - .5*vnew[nx-1]) + pow(Ane,.25),4.);    

@@ -81,6 +81,7 @@ public:
 	int material_type=0; // 0: linear, 1: olufsen
 	vector<double> material_const; // actual used constants
 	vector<double> olufsen_def_const{2.e6,-2253.,8.65e4}; // default constants for olufsen model
+	int solver_type = 0; // 0:maccormack, 1:moc with EE,
 
 	// lumped time step if only lumped model exists
 	double dt_lumped = 1.e-3;
@@ -95,6 +96,7 @@ public:
 	void set_save_memory(string model_name, string model_type, vector<string> edge_list, vector<string> node_list);
 	double save_file_dt = 0.0; // time step of saving data in files, if 0, every data is saved
 	void save_results(); // default folder name: case_name
+	void save_results(string folder_name);
 	void save_results(double dt); // default folder name: case_name
 	void save_results(double dt, string folder_name);
 	void save_results(string folder_name, string model_name, string model_type, vector<string> edge_list, vector<string> node_list); // saving specific time results to save time

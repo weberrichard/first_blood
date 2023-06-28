@@ -128,6 +128,17 @@ bool first_blood::load_main_csv()
 					}
 				}
 			}
+			else if(sv[0] == "solver") // setting solver type, 0: maccormack, 1: moc
+			{
+				if(sv[1] == "maccormack" || sv[1] == "Maccormack" || sv[1] == "MacCormack")
+				{
+					solver_type = 0;
+				}
+				else if(sv[1] == "moc")
+				{
+					solver_type = 1;
+				}
+			}
 			else if(sv[0] == "moc") // 1D moc model
 			{
 				moc.push_back(new solver_moc(sv[1],input_folder_path));
@@ -244,7 +255,14 @@ bool first_blood::run()
 				}*/
 
 				// solving lowest edge inner points
-				moc[moc_idx]->edges[e_idx]->solve();
+				if(solver_type == 0)
+				{
+					moc[moc_idx]->edges[e_idx]->solve_maccormack();
+				}
+				else if(solver_type == 1)
+				{
+					moc[moc_idx]->edges[e_idx]->solve_moc();
+				}
 
 				// boundaries (inner)
 				moc[moc_idx]->boundaries(e_idx, t_act);
@@ -695,6 +713,28 @@ void first_blood::save_results()
    mkdir(("results/" + case_name).c_str(),0777);
 
    string folder_name = case_name;
+
+	// saving the results of moc models
+	for(int i=0; i<number_of_moc; i++)
+	{
+		moc[i]->save_results(folder_name);
+	}
+
+	// saving the results of lumped models
+	for(int i=0; i<number_of_lum; i++)
+	{
+		lum[i]->save_results(folder_name);
+	}
+
+	// saving time averages, e.g. map, cfr
+	// save_time_average("results/" + folder_name);
+}
+
+//--------------------------------------------------------------
+void first_blood::save_results(string folder_name)
+{
+   mkdir("results",0777);
+   mkdir(("results/" + folder_name).c_str(),0777);
 
 	// saving the results of moc models
 	for(int i=0; i<number_of_moc; i++)
