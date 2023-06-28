@@ -5,16 +5,16 @@ import pandas as pd
 # Reymond_103
 # Reymond_103_Q
 
-cases = ['Reymond_99_heart_ref3','Reymond_99_heart_ref3']
+cases = ['Abel','Abel']
 models = ['arterial','arterial']
 
-elements = ['A5','A5']
+elements = ['A1','A1']
 
 mmHg_to_Pa = 133.3616
 
 start = 1
 
-data = pd.read_csv("results\\" + cases[0] + "\\" + models[0] + "\\" + elements[0] + ".txt",header=None)
+data = pd.read_csv("results\\results_moc\\" + cases[0] + "\\" + models[0] + "\\" + elements[0] + ".txt",header=None)
 t = data[0]
 p = (data[2-start]-1e5)/mmHg_to_Pa;
 v = data[4-start];
@@ -23,11 +23,11 @@ m = data[8-start];
 d = data[10-start];
 a = data[12-start];
 #q = data[2]*1e6
-plt.plot(t,q)
+plt.plot(t,p)
 
-start = 0
+#start = 0
 
-data = pd.read_csv("results\\" + cases[1] + "\\" + models[1] + "\\" + elements[1] + ".txt",header=None)
+data = pd.read_csv("results\\results_maccormack\\" + cases[1] + "\\" + models[1] + "\\" + elements[1] + ".txt",header=None)
 t = data[0]
 p = (data[2-start]-1e5)/mmHg_to_Pa;
 v = data[4-start];
@@ -36,12 +36,12 @@ m = data[8-start];
 d = data[10-start];
 a = data[12-start];
 #q = data[2]*1e6
-plt.plot(t,q)
+plt.plot(t,p)
 
 plt.xlabel('time [s]')
 #plt.ylabel('volume flow rate [ml/s]')
 #plt.ylabel('pressure [mmHg]')
-leg = ['start','end']
+leg = ['moc','maccormack']
 plt.legend(leg)
 plt.grid()
 plt.show()
@@ -53,7 +53,7 @@ plt.show()
 # node_id = "R1"
 # data = pd.read_csv("results\\" + cases[1] + "\\" + model + "\\" + node_id + ".txt",header=None)
 # t = data[0]
-# #p = (data[1]-1e5)/mmHg_to_Pa;
+# #p = (data[1]-1e5)/mmHg_to_Pa;9
 # q = data[1]*1e6
 # plt.plot(t,q)
 # plt.grid()
