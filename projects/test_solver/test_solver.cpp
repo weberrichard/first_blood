@@ -30,9 +30,9 @@ int main(int argc, char* argv[])
    
    case_names.push_back("Abel");
 
-   int st = 1; // 0, 1
-   string sn = "MoC"; // "MacCormack", "MoC"
-   string sf = "results_moc"; // results_maccormack, "results_moc"
+   int st = 0; // 0, 1
+   string sn = "MacCormack"; // "MacCormack", "MoC"
+   string sf = "results_maccormack"; // results_maccormack, "results_moc"
 
    cout << "[O] SOLVER: " << sn << endl;
 
