@@ -96,8 +96,8 @@ public:
 	bool new_timestep();
 
 	// riemann invariants
-	double W1L(int j, double dt);
-	double W2R(int j, double dt);
+	double W1L(int j, double dt, double &J_L);
+	double W2R(int j, double dt, double &J_R);
 
 	// interpolated positions
 	double right_position(int j, double dt);
