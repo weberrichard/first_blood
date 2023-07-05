@@ -160,7 +160,7 @@ private:
 	double nominal_wall_thickness(int i, double &sn_dx);
 
 	double wave_speed(double x, double A);
-	double pressure(double x, double A, double &dp_dA, double &dp_dx);
+	double pressure(double x, double A, double &dp_dA, double &dp_dx, double &dF_dx);
 	double area(double x, double p);
 
 	// variables for calculations of new field variables
@@ -176,6 +176,7 @@ private:
 
 	// short notations
 	double l, dns, dne, Ans, Ane, sns, sne, E, Rs, Re, g, rho, nu, nu_f, dx, hs, he, p0, nu_p, cfl, beta;
+	double k1, k2, k3;
 	unsigned int nx; // number of division points
 	void set_short_parameters(); // matching the longer and shorter parameters
 
