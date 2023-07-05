@@ -6,33 +6,33 @@ using namespace std;
 int main(int argc, char* argv[])
 {
    // basic stuff
-	//string case_folder = "../../models/test_cases/";
+	// string case_folder = "../../models/test_cases/";
    string case_folder = "../../models/";
    double heart_rate = 75.6;  // if there is a heart model   
    double period_time = 60./heart_rate;
 
    // tested models
    vector<string> case_names;
-   //case_names.push_back("v_perif_p0");
-   //case_names.push_back("p0_perif_v");
-   //case_names.push_back("q_perif_p0");
-   //case_names.push_back("p0_perif_q");
-   //case_names.push_back("p_perif_p0");
-   //case_names.push_back("p0_perif_p");
-   //case_names.push_back("p_Re_perif");
-   //case_names.push_back("p_Rs_perif");
-   //case_names.push_back("p1_p0");
-   //case_names.push_back("p_node_perif_p0");
-   //case_names.push_back("p_join_perif_p0");
-   //case_names.push_back("p_0D");
-   //case_names.push_back("p_0D_perif");
-   //case_names.push_back("p_0D_p37");
+   // case_names.push_back("v_perif_p0");
+   // case_names.push_back("p0_perif_v");
+   // case_names.push_back("q_perif_p0");
+   // case_names.push_back("p0_perif_q");
+   // case_names.push_back("p_perif_p0");
+   // case_names.push_back("p0_perif_p");
+   // case_names.push_back("p_Re_perif");
+   // case_names.push_back("p_Rs_perif");
+   // case_names.push_back("p1_p0");
+   // case_names.push_back("p_node_perif_p0");
+   // case_names.push_back("p_join_perif_p0");
+   // case_names.push_back("p_0D");
+   // case_names.push_back("p_0D_perif");
+   // case_names.push_back("p_0D_p37");
    
    case_names.push_back("Abel");
 
-   int st = 0; // 0, 1
-   string sn = "MacCormack"; // "MacCormack", "MoC"
-   string sf = "results_maccormack"; // results_maccormack, "results_moc"
+   int st = 1; // 0, 1
+   string sn = "MoC"; // "MacCormack", "MoC"
+   string sf = "results_moc_olufsen"; // results_maccormack, "results_moc"
 
    cout << "[O] SOLVER: " << sn << endl;
 
@@ -44,6 +44,9 @@ int main(int argc, char* argv[])
       cout << "   + load: OK" << endl;
 
       //fb->time_end = sim_time;
+      fb->material_type = 1; // setting to olufsen 1, linear 0
+      vector<double> olufsen_def_const{2.e6,-2253.,8.65e4}; // default constants for olufsen model
+      fb->material_const = olufsen_def_const;
       fb->time_period = period_time;
       fb->is_periodic_run = false;
       fb->solver_type = st;
