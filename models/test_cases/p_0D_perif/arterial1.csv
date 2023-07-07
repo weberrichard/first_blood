@@ -2,5 +2,5 @@ type,ID,name,start_node,end_node,start_diameter[SI],end_diameter[SI],start_thick
 vis,A1,Ascending aorta 1,n1,p1,0.01,0.01,0.001,0.001,0.1,11,5E+05,0,0
 
 type,ID,name,valami,parameter,file name
-heart,n1,0,P,ger_base
+heart,n1,0,P,ger_P035e
 perif,p1,0,
