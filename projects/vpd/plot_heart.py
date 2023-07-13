@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
-cases = '1227_male_65'
+cases = 'Abel'
 
 mmHg_to_Pa = 133.3616
 t01 = 750
@@ -10,7 +10,7 @@ t02 = 1650
 cm = 1/2.54
 
 # plot for the heart
-models = 'heart_kim'
+models = 'heart_kim_lit'
 nodes = ['left-atrium','left-ventricular','aorta']
 edges = ['D-mitral','D-aorta']
 c_nodes = ['r','k','b']

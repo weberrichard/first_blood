@@ -546,7 +546,7 @@ void moc_edge::set_short_parameters()
 		k3 = material_const[2];
    }
 
-   beta   = pow(pi,.5)*E/(1.-nu_p*nu_p);
+   beta = pow(pi,.5)*E/(1.-nu_p*nu_p);
 }
 
 //--------------------------------------------------------------
