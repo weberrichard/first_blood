@@ -18,8 +18,9 @@ int main(int argc, char* argv[])
    vector<double> perif_par(6,1.); // brain, face, hands, legs, spine, coronary
    vector<double> len_par(6,1.); // brain, face, hands, legs, spine, coronary
    vector<double> diam_par(6,1.); // brain, face, hands, legs, spine, coronary
+   vector<double> node_res_par(6,1.); // brain, face, hands, legs, spine, coronary
    double heart_rate = 75.6;
-   int n_par = 42;
+   int n_par = 48;
 
    if(argc == n_par)
    {
@@ -46,6 +47,10 @@ int main(int argc, char* argv[])
       for(int i=0; i<6; i++)
       {
          diam_par[i] = stod(argv[i+36],0);
+      }
+      for(int i=0; i<6; i++)
+      {
+         node_res_par[i] = stod(argv[i+42],0);
       }
    }
    else if(argc == 1)
@@ -74,9 +79,11 @@ int main(int argc, char* argv[])
       int idx = fb->lum_id_to_index(cor_id[i]);
       if(idx>-1)
       {
-         fb->lum[idx]->edges[0]->parameter[0] *= cor_par[0];
-         fb->lum[idx]->edges[1]->parameter[0] *= cor_par[0];
-         fb->lum[idx]->edges[2]->parameter[0] *= cor_par[0];
+         fb->lum[idx]->alpha_coronary = .5; // default alpha value
+         fb->lum[idx]->beta_coronary  = 5.; // default beta value
+         fb->lum[idx]->edges[0]->parameter[0] *= cor_par[0]; // R
+         fb->lum[idx]->edges[1]->parameter[0] *= cor_par[0]; // R
+         fb->lum[idx]->edges[2]->parameter[0] /= cor_par[0]; // C
          fb->lum[idx]->alpha_coronary *= cor_par[1];
          fb->lum[idx]->beta_coronary *= cor_par[2];
       }
@@ -111,9 +118,8 @@ int main(int argc, char* argv[])
    vector<string> perif_hands{"p4","p5","p6","p15","p16","p17"};
    vector<string> perif_legs{"p7","p8","p9","p10","p11","p12","p13","p14"};
    vector<string> perif_spine{"p18","p19","p20","p21","p22","p23","p24","p47"};
-   vector<string> perif_coronary{"p1","p2","p3"};
    // organizing some stuff for loops
-   vector<vector<string> > id_lum{perif_brain, perif_face, perif_hands, perif_legs, perif_spine, perif_coronary};
+   vector<vector<string> > id_lum{perif_brain, perif_face, perif_hands, perif_legs, perif_spine};
    // setting perif
    for(int i=0; i<id_lum.size(); i++)
    {
@@ -121,9 +127,19 @@ int main(int argc, char* argv[])
       {
          string id = id_lum[i][j];
          int idx = fb->lum_id_to_index(id);
-         fb->lum[idx]->edges[0]->parameter[0] *= perif_par[i];
-         fb->lum[idx]->edges[1]->parameter[0] *= perif_par[i];
-         fb->lum[idx]->edges[2]->parameter[0] *= perif_par[i];
+         fb->lum[idx]->edges[0]->parameter[0]  *= perif_par[i]; // resistor
+         fb->lum[idx]->edges[1]->parameter[0]  *= perif_par[i]; // resistor
+         fb->lum[idx]->edges[2]->parameter[0]  *= perif_par[i]; // resistor
+         fb->lum[idx]->edges[3]->parameter[0]  *= perif_par[i]; // resistor
+         fb->lum[idx]->edges[4]->parameter[0]  *= perif_par[i]; // resistor
+         fb->lum[idx]->edges[5]->parameter[0]  /= perif_par[i]; // capacitor
+         fb->lum[idx]->edges[6]->parameter[0]  /= perif_par[i]; // capacitor
+         fb->lum[idx]->edges[7]->parameter[0]  /= perif_par[i]; // capacitor
+         fb->lum[idx]->edges[8]->parameter[0]  /= perif_par[i]; // capacitor
+         fb->lum[idx]->edges[9]->parameter[0]  *= perif_par[i]; // inductor
+         fb->lum[idx]->edges[10]->parameter[0] *= perif_par[i]; // inductor
+         fb->lum[idx]->edges[11]->parameter[0] *= perif_par[i]; // inductor
+         fb->lum[idx]->edges[12]->parameter[0] *= perif_par[i]; // inductor
       }
    }
 
@@ -145,6 +161,24 @@ int main(int argc, char* argv[])
          fb->moc[0]->edges[idx]->length *= len_par[i];
          fb->moc[0]->edges[idx]->nominal_diameter_start *= diam_par[i];
          fb->moc[0]->edges[idx]->nominal_diameter_end *= diam_par[i];
+      }
+   }
+
+   // setting the model parameters with argv values
+   vector<string> node_brain{"n30","n31","n36","n37","n38","n39","n40","n41","n42","n43","n44","n45","n46","n47","n48","n49","n50"};
+   vector<string> node_face{"n26","n27","n28","n29","n32","n33","n34","n35"};
+   vector<string> node_hands{"n6","n7","n8","n9","n10","n11","n12"};
+   vector<string> node_legs{"n14","n15","n16","n17","n18","n19"};
+   vector<string> node_spine{"n20","n21","n22","n23","n24","n25","n51","n52","n13"};
+   vector<string> node_coronary{"n53"};
+   vector<vector<string> > id_node{node_brain, node_face, node_hands, node_legs, node_spine, node_coronary};
+   for(int i=0; i<id_node.size(); i++)
+   {  
+      for(int j=0; j<id_node[i].size(); j++)
+      {
+         string id = id_node[i][j];
+         int idx = fb->moc[0]->node_id_to_index(id);
+         fb->moc[0]->nodes[idx]->resistance *= node_res_par[i];
       }
    }
 
@@ -229,22 +263,3 @@ int main(int argc, char* argv[])
    return 0;
 }
 
-
-/*
-   // setting the model parameters with argv values
-   // moce node parameters
-   vector<string> node_brain{"n26","n27","n28","n29","n30","n31","n32","n33","n34","n35","n36","n37","n38","n39","n40","n41","n42","n43","n44","n45","n46","n47","n48","n49","n50"};
-   vector<string> node_hands{"n6","n7","n8","n9","n10","n11","n12"};
-   vector<string> node_legs{"n14","n15","n16","n17","n18","n19"};
-   vector<string> node_spine{"n20","n21","n22","n23","n24","n25","n51","n52","n13"};
-   vector<vector<string> > id_node{node_brain, node_hands, node_legs, node_spine};
-   for(int i=0; i<id_node.size(); i++)
-   {  
-      for(int j=0; j<id_node[i].size(); j++)
-      {
-         string id = id_node[i][j];
-         int idx = fb->moc[0]->node_id_to_index(id);
-         fb->moc[0]->nodes[idx]->resistance *= res_node[i];
-      }
-   }
-*/
