@@ -110,7 +110,12 @@ int main(int argc, char* argv[])
    fb->lum[heart_index]->heart_rate *= heart_par[16]; // HR
 
    // setting material parameters
-   fb->material_const = mat_par;
+   fb->material_type = 1; // olufsen model
+   vector<double> olufsen_def_const{2.e6,-2253.,8.65e4}; // default constants for olufsen model
+   fb->material_const = olufsen_def_const;
+   fb->material_const[0] *= mat_par[0];
+   fb->material_const[1] *= mat_par[1];
+   fb->material_const[2] *= mat_par[2];
 
    // setting perif parameters
    vector<string> perif_brain{"p29","p30","p31","p32","p33","p34","p35","p36","p37","p38","p39","p40","p45","p46"};
