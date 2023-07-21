@@ -1,0 +1,9 @@
+run,forward
+time,10
+material,linear
+
+type,name,main node,model node,main node,model node,...
+moc,pipe,N1,n2
+lum,tesla,N1,n1
+
+node, N1

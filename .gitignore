@@ -49,6 +49,8 @@ pilot_matlab/*
 # other files
 *.xlsx
 *.xls
+*.pptx
+*.ppt
 *.txt
 *.res
 *.nb
