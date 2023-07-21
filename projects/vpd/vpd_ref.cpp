@@ -6,21 +6,21 @@ using namespace std;
 int main(int argc, char* argv[])
 {
    // basic stuff
-	string case_folder = "../../models/";
+   string case_folder = "../../models/";
    string case_name = "Abel";
    double save_dt = 1e-3;
    bool init_from_file = false;
 
    // handling inputs
    vector<double> cor_par(3,1.); // RCR, alpha, beta
-   vector<double> heart_par(17,1.); // V_ra, L_ra_rv, R_ra_rv, E_rv_min, E_rv_max, L_rv_pa, R_rv_pa, R_p, C_p, E_la, L_la_lv, R_la_lv, E_lv_min, E_lv_max, L_lv_aorta, R_lv_aorta, heart_rate
+   vector<double> heart_par(7,1.); // V_ra, R, E_max, E_min, R_p, E_la, heart_rate
    vector<double> mat_par(3,1.); // k1, k2, k3
-   vector<double> perif_par(6,1.); // brain, face, hands, legs, spine, coronary
+   vector<double> perif_par(5,1.); // brain, face, hands, legs, spine
    vector<double> len_par(6,1.); // brain, face, hands, legs, spine, coronary
    vector<double> diam_par(6,1.); // brain, face, hands, legs, spine, coronary
    vector<double> node_res_par(6,1.); // brain, face, hands, legs, spine, coronary
    double heart_rate = 75.6;
-   int n_par = 48;
+   int n_par = 36;
 
    if(argc == n_par)
    {
@@ -28,29 +28,29 @@ int main(int argc, char* argv[])
       {
          cor_par[i] = stod(argv[i+1],0);
       }
-      for(int i=0; i<17; i++)
+      for(int i=0; i<7; i++)
       {
          heart_par[i] = stod(argv[i+4],0);
       }
       for(int i=0; i<3; i++)
       {
-         mat_par[i] = stod(argv[i+21],0);
+         mat_par[i] = stod(argv[i+11],0);
+      }
+      for(int i=0; i<5; i++)
+      {
+         perif_par[i] = stod(argv[i+14],0);
       }
       for(int i=0; i<6; i++)
       {
-         perif_par[i] = stod(argv[i+24],0);
+         len_par[i] = stod(argv[i+19],0);
       }
       for(int i=0; i<6; i++)
       {
-         len_par[i] = stod(argv[i+30],0);
+         diam_par[i] = stod(argv[i+25],0);
       }
       for(int i=0; i<6; i++)
       {
-         diam_par[i] = stod(argv[i+36],0);
-      }
-      for(int i=0; i<6; i++)
-      {
-         node_res_par[i] = stod(argv[i+42],0);
+         node_res_par[i] = stod(argv[i+31],0);
       }
    }
    else if(argc == 1)
@@ -62,6 +62,9 @@ int main(int argc, char* argv[])
       cout << "Incorrect number of inputs (" << argc << "). Right one: " << n_par << endl;
       exit(-1);
    }
+
+   // setting HR
+   heart_rate *= heart_par[6];
 
    // loading original case
    first_blood *fb = new first_blood(case_folder + case_name);
@@ -91,23 +94,25 @@ int main(int argc, char* argv[])
    
    // setting heart
    int heart_index = fb->lum_id_to_index("heart_kim_lit");
-   fb->lum[heart_index]->edges[0]->parameter[0] *= heart_par[0]; // V_ra
-   fb->lum[heart_index]->edges[1]->parameter[0] *= heart_par[1]; // L_ra_rv
-   fb->lum[heart_index]->edges[2]->parameter[0] *= heart_par[2]; // R_ra_rv
-   fb->lum[heart_index]->edges[3]->parameter[0] *= heart_par[3]; // E_rv_min
-   fb->lum[heart_index]->edges[3]->parameter[1] *= heart_par[4]; // E_rv_max
-   fb->lum[heart_index]->edges[4]->parameter[0] *= heart_par[5]; // L_rv_pa
-   fb->lum[heart_index]->edges[5]->parameter[0] *= heart_par[6]; // R_rv_pa
-   fb->lum[heart_index]->edges[6]->parameter[0] *= heart_par[7]; // R_p
-   fb->lum[heart_index]->edges[7]->parameter[0] *= heart_par[8]; // C_p
-   fb->lum[heart_index]->edges[8]->parameter[0] *= heart_par[9]; // E_la
-   fb->lum[heart_index]->edges[9]->parameter[0] *= heart_par[10]; // L_la_lv
-   fb->lum[heart_index]->edges[10]->parameter[0] *= heart_par[11]; // R_la_lv
-   fb->lum[heart_index]->edges[11]->parameter[0] *= heart_par[12]; // E_lv_min
-   fb->lum[heart_index]->edges[11]->parameter[1] *= heart_par[13]; // E_lv_max
-   fb->lum[heart_index]->edges[12]->parameter[0] *= heart_par[14]; // L_lv_aorta
-   fb->lum[heart_index]->edges[13]->parameter[0] *= heart_par[15]; // R_lv_aorta
-   fb->lum[heart_index]->heart_rate *= heart_par[16]; // HR
+   // 0   , 1, 2    , 3    , 4  , 5   , 6
+   // V_ra, R, E_max, E_min, R_p, E_la, heart_rate
+   fb->lum[heart_index]->edges[0]->parameter[0]  *= heart_par[0]; // V_ra
+   fb->lum[heart_index]->edges[1]->parameter[0]  *= heart_par[1]; // L_ra_rv, R
+   fb->lum[heart_index]->edges[2]->parameter[0]  *= heart_par[1]; // R_ra_rv, R
+   fb->lum[heart_index]->edges[3]->parameter[0]  *= heart_par[2]; // E_rv_max, E_max
+   fb->lum[heart_index]->edges[3]->parameter[1]  *= heart_par[3]; // E_rv_min, E_min
+   fb->lum[heart_index]->edges[4]->parameter[0]  *= heart_par[1]; // L_rv_pa, R
+   fb->lum[heart_index]->edges[5]->parameter[0]  *= heart_par[1]; // R_rv_pa, R
+   fb->lum[heart_index]->edges[6]->parameter[0]  *= heart_par[4]; // R_p, R_p
+   fb->lum[heart_index]->edges[7]->parameter[0]  /= heart_par[4]; // C_p, R_p
+   fb->lum[heart_index]->edges[8]->parameter[0]  *= heart_par[5]; // E_la, E_la
+   fb->lum[heart_index]->edges[9]->parameter[0]  *= heart_par[1]; // L_la_lv, R
+   fb->lum[heart_index]->edges[10]->parameter[0] *= heart_par[1]; // R_la_lv, R
+   fb->lum[heart_index]->edges[11]->parameter[0] *= heart_par[2]; // E_lv_max, E_max
+   fb->lum[heart_index]->edges[11]->parameter[1] *= heart_par[3]; // E_lv_min, E_min
+   fb->lum[heart_index]->edges[12]->parameter[0] *= heart_par[1]; // L_lv_aorta, R
+   fb->lum[heart_index]->edges[13]->parameter[0] *= heart_par[1]; // R_lv_aorta, R
+   fb->lum[heart_index]->heart_rate = heart_rate; // HR
 
    // setting material parameters
    fb->material_type = 1; // olufsen model
