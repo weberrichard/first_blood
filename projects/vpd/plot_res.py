@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
-cases = 'Abel'
+cases = 'Abel_ref1'
 
 # plot for the arterial system
 

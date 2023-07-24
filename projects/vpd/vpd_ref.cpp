@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
 {
    // basic stuff
    string case_folder = "../../models/";
-   string case_name = "Abel";
+   string case_name = "Abel_ref1";
    double save_dt = 1e-3;
    bool init_from_file = false;
 
@@ -72,6 +72,7 @@ int main(int argc, char* argv[])
    double period_time = 60./heart_rate;
    double sim_time = 10.*period_time;
    fb->time_period = period_time;
+   fb->heart_rate = heart_rate;
    fb->is_periodic_run = true;
    fb->init_from_file = init_from_file;
 
@@ -112,7 +113,7 @@ int main(int argc, char* argv[])
    fb->lum[heart_index]->edges[11]->parameter[1] *= heart_par[3]; // E_lv_min, E_min
    fb->lum[heart_index]->edges[12]->parameter[0] *= heart_par[1]; // L_lv_aorta, R
    fb->lum[heart_index]->edges[13]->parameter[0] *= heart_par[1]; // R_lv_aorta, R
-   fb->lum[heart_index]->heart_rate = heart_rate; // HR
+   // fb->lum[heart_index]->heart_rate = heart_rate; // HR
 
    // setting material parameters
    fb->material_type = 1; // olufsen model
