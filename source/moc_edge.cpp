@@ -223,7 +223,7 @@ double moc_edge::JL(double dt, double p, double v, double a, double A, double xp
 		C1 = -pow(pow(An,.5)/(2.*rho*F),.5)*(pow(An,-.25)-pow(A,-.25))*dF_dx + pow(F/(8.*rho),.5)*pow(A,-.25)*pow(An,-.75)*An_dx;
 	}
     
-	double JL = 4.*pi*nu*v/A + .5*dp_dx/rho + (v+a)*C1; // TODO: add gravity
+	double JL = nu_f*4.*pi*nu*v/A + .5*dp_dx/rho + (v+a)*C1; // TODO: add gravity
 	// double JL = 4.*pi*nu*v/A + .5*dp_dx/rho; // TODO: add gravity
 
 	return JL;
@@ -259,7 +259,7 @@ double moc_edge::JR(double dt, double p, double v, double a, double A, double xp
 	}
 
 	// double JR = 4.*pi*nu*v/A + .5*dp_dx/rho; // TODO: add gravity
-	double JR = 4.*pi*nu*v/A + .5*dp_dx/rho + (v-a)*C2; // TODO: add gravity
+	double JR = nu_f*4.*pi*nu*v/A + .5*dp_dx/rho + (v-a)*C2; // TODO: add gravity
 
 	return JR;
 }
