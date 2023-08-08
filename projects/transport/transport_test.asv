@@ -8,22 +8,21 @@ dx = x(2)-x(1);
 v0 = 2;
 v = v0*ones(n,1);
 fi = zeros(n,1);
-o2 = zeros(n,1);
+o2 = zeros()
 fi_old = zeros(n,1);
 
 fi_c_fut = []; % capillaries
 fi_c = [];
-o2_c = [];
 dt_c = .1;
 c_c = .9;
 
 fi_p_fut = []; % pulmonary
 fi_p = [];
-o2_p = [];
 dt_p = .1;
 c_p = 1.;
 
 dt_h = .1;
+
 
 CFL = 1.;
 dt = CFL*dx/v0;
