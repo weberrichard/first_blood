@@ -6,7 +6,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
    // basic stuff
-	string case_folder = "../../models/test_cases/";
+	string case_folder = "../../models/";
    //string case_folder = "../../models/";
    double heart_rate = 75.6;  // if there is a heart model   
    double period_time = 60./heart_rate;
@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
    vector<string> case_names;
    // case_names.push_back("v_perif_p0");
    // case_names.push_back("p0_perif_v");
-   case_names.push_back("q_perif_p0");
+   // case_names.push_back("q_perif_p0");
    // case_names.push_back("p0_perif_q");
    // case_names.push_back("p_perif_p0");
    // case_names.push_back("p0_perif_p");
@@ -29,10 +29,11 @@ int main(int argc, char* argv[])
    // case_names.push_back("p_0D_p37");
    
    // case_names.push_back("Abel");
+   case_names.push_back("Hepa_3");
 
    int st = 0; // 0, 1
-   string sn = "MacCormack"; // "MacCormack", "MoC"
-   string sf = "results_maccormack"; // results_maccormack, "results_moc"
+   string sn = "0D"; // "MacCormack", "MoC"
+   string sf = "results"; // results_maccormack, "results_moc"
 
    cout << "[O] SOLVER: " << sn << endl;
 
@@ -58,7 +59,8 @@ int main(int argc, char* argv[])
 
       if(is_run_ok)
       {
-         fb->save_results(sf + "/" + case_names[i]);
+         //fb->save_results(sf + "/" + case_names[i]);
+         fb->save_results();
          cout << "   + save: OK" << endl;
       }
    }

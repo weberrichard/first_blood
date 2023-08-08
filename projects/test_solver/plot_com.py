@@ -5,16 +5,14 @@ import pandas as pd
 # Reymond_103
 # Reymond_103_Q
 
-cases = ['q_perif_p0','q_perif_p0']
+cases = ['Abel_ref1','Abel_ref1']
 models = ['arterial','arterial']
 
 elements = ['A1','A1']
 
 mmHg_to_Pa = 133.3616
 
-start = 1
-
-data = pd.read_csv("results\\results_maccormack\\" + cases[0] + "\\" + models[0] + "\\" + elements[0] + ".txt",header=None)
+data = pd.read_csv("results\\" + cases[1] + "\\" + models[1] + "\\" + elements[1] + ".txt",header=None)
 t = data[0]
 p = (data[2-start]-1e5)/mmHg_to_Pa;
 v = data[4-start];
@@ -25,9 +23,7 @@ a = data[12-start];
 #q = data[2]*1e6
 plt.plot(t,p)
 
-#start = 1
-
-data = pd.read_csv("results\\results_maccormack_olufsen\\" + cases[1] + "\\" + models[1] + "\\" + elements[1] + ".txt",header=None)
+data = pd.read_csv("results\\" + cases[1] + "\\" + models[1] + "\\" + elements[1] + ".txt",header=None)
 t = data[0]
 p = (data[2-start]-1e5)/mmHg_to_Pa;
 v = data[4-start];
