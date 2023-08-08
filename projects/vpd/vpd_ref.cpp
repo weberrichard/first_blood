@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
    vector<double> diam_par(6,1.); // brain, face, hands, legs, spine, coronary
    vector<double> node_res_par(6,1.); // brain, face, hands, legs, spine, coronary
    double heart_rate = 75.6;
-   int n_par = 36;
+   int n_par = 37;
 
    if(argc == n_par)
    {
