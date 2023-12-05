@@ -18,7 +18,7 @@ void moc_edge::print_input()
 }
 
 //--------------------------------------------------------------
-void moc_edge::initialization(double pressure_initial, int mat_type, vector<double> mat_const)
+void moc_edge::initialization(double pressure_initial, int mat_type)
 {
 	// clearing time variables
 	pressure_start.clear();
@@ -38,7 +38,6 @@ void moc_edge::initialization(double pressure_initial, int mat_type, vector<doub
 
    // setting material properties
 	material_type = mat_type;
-	material_const = mat_const;
 
    // matching the parameters for the short notations
 	set_short_parameters();
@@ -138,7 +137,7 @@ void moc_edge::solve_maccormack()
 {
 	double dp_dA, dp_dx, dF_dx;
 	double As = A[0] - dt_act/dx*(A[1]*v[1]-A[0]*v[0]);
-	double vs = v[0] - dt_act/dx*(v[1]*v[1]*.5 + p[1]/rho - v[0]*v[0]*.5 - p[0]/rho) + dt_act*(-8.*pi*nu/A[0]*v[0]); // TODO: add gravity
+	double vs = v[0] - dt_act/dx*(v[1]*v[1]*.5 + p[1]/rho - v[0]*v[0]*.5 - p[0]/rho) + dt_act*(-8.*pi*nu*nu_f/A[0]*v[0]); // TODO: add gravity
 	double ps = pressure(x[0],As,dp_dA,dp_dx,dF_dx);
 
 	double Fs_L_1 = As*vs;
@@ -148,14 +147,14 @@ void moc_edge::solve_maccormack()
 	{
 		// predictor step Us = U_i - dt/dx*(F_i+1 - F_i) + dt*S_i
 		As = A[i] - dt_act/dx*(A[i+1]*v[i+1]-A[i]*v[i]);
-		vs = v[i] - dt_act/dx*(v[i+1]*v[i+1]*.5 + p[i+1]/rho - v[i]*v[i]*.5 - p[i]/rho) + dt_act*(-8.*pi*nu/A[i]*v[i]); // TODO: add gravity to source
+		vs = v[i] - dt_act/dx*(v[i+1]*v[i+1]*.5 + p[i+1]/rho - v[i]*v[i]*.5 - p[i]/rho) + dt_act*(-8.*pi*nu*nu_f/A[i]*v[i]); // TODO: add gravity to source
 		ps = pressure(x[i],As,dp_dA,dp_dx,dF_dx);
 
 		double Fs_i_1 = As*vs;
 		double Fs_i_2 = vs*vs*.5 + ps/rho;
 		// corrector step Un+1 = .5*(Us+U_n) + dt/(2dx)*(Fs_i - Fs_i-1) + dt/2*Ss_i
 		Anew[i] = .5*(As+A[i]) - dt_act/(2.*dx)*(Fs_i_1-Fs_L_1);
-		vnew[i] = .5*(vs+v[i]) - dt_act/(2.*dx)*(Fs_i_2-Fs_L_2) + dt_act*.5*(-8.*pi*nu/As*vs);
+		vnew[i] = .5*(vs+v[i]) - dt_act/(2.*dx)*(Fs_i_2-Fs_L_2) + dt_act*.5*(-8.*pi*nu*nu_f/As*vs);
 		pnew[i] = pressure(x[i],Anew[i],dp_dA,dp_dx,dF_dx);
 		anew[i] = wave_speed(x[i],Anew[i]);
 

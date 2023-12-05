@@ -83,7 +83,7 @@ public:
 	void print_vars();
 
 	// setting initial condition to field variables and setting short parameters
-	void initialization(double p_init, int mat_type, vector<double> mat_const);
+	void initialization(double p_init, int mat_type);
 	// setting upstream pressure p[0], only in the case of upstream_boundary
 	void set_pressure_upstream(double p_in);
 
@@ -176,7 +176,7 @@ private:
 
 	// short notations
 	double l, dns, dne, Ans, Ane, sns, sne, E, Rs, Re, g, rho, nu, nu_f, dx, hs, he, p0, nu_p, cfl, beta;
-	double k1, k2, k3;
+	double k1, k2, k3; // olufsen model const
 	unsigned int nx; // number of division points
 	void set_short_parameters(); // matching the longer and shorter parameters
 

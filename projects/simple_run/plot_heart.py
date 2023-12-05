@@ -1,17 +1,18 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-cases = 'Reymond_99_heart_ref3'
-
 mmHg_to_Pa = 133.3616
 t01 = 750
 t02 = 1650
 cm = 1/2.54
 
 # plot for the heart
-models = 'heart_kim'
-nodes = ['left-atrium','left-ventricular','aorta']
-edges = ['D-mitral','D-aorta']
+cases = 'Abel_ref2'
+
+# plot for the heart
+models = 'heart_kim_lit'
+nodes = ['p_LA1','p_LV1','aorta']
+edges = ['R_la','R_lv_aorta']
 c_nodes = ['r','k','b']
 c_edges = ['r','b']
 

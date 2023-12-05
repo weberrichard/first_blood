@@ -79,7 +79,7 @@ public:
 	double poisson_coefficient = 0.5;
 	double courant_number = 0.9;
 	int material_type=0; // 0: linear, 1: olufsen
-	vector<double> material_const; // actual used constants
+	// vector<double> material_const; // actual used constants
 	vector<double> olufsen_def_const{2.e6,-2253.,8.65e4}; // default constants for olufsen model
 	int solver_type = 0; // 0:maccormack, 1:moc with EE,
 

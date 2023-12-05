@@ -115,17 +115,6 @@ bool first_blood::load_main_csv()
 				else if(sv[1] == "Olufsen" || sv[1] == "olufsen")
 				{
 					material_type = 1;
-					material_const.clear();
-					if(sv.size()>4)
-					{
-						material_const.push_back(stod(sv[2],0));
-						material_const.push_back(stod(sv[3],0));
-						material_const.push_back(stod(sv[4],0));
-					}
-					else
-					{
-						material_const = olufsen_def_const;
-					}
 				}
 			}
 			else if(sv[0] == "solver") // setting solver type, 0: maccormack, 1: moc
@@ -234,6 +223,7 @@ bool first_blood::run()
 			// finding lowest new timestep
 			double t_act = lowest_new_time(moc_idx, e_idx);
 			double t_old = -1.e10;
+
 
 			// main cycle
 			while(!is_run_end(t_act,t_old) && is_run_ok)
@@ -622,7 +612,7 @@ void first_blood::initialization()
 	// setting initial conditions
 	for(int i=0; i<number_of_moc; i++)
 	{
-		moc[i]->initialization(pressure_initial,material_type,material_const);
+		moc[i]->initialization(pressure_initial,material_type);
 		time_counter += moc[i]->number_of_edges;
 	}
 	for(int i=0; i<number_of_lum; i++)

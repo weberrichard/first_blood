@@ -10,7 +10,7 @@ solver_moc::solver_moc(string a_name, string a_folder)
 solver_moc::~solver_moc(){}
 
 //--------------------------------------------------------------
-void solver_moc::initialization(double p_init, int material_type, vector<double> material_const)
+void solver_moc::initialization(double p_init, int material_type)
 {
 	// setting the size of nodes and edges
 	number_of_nodes = nodes.size();
@@ -22,7 +22,7 @@ void solver_moc::initialization(double p_init, int material_type, vector<double>
 	}
 	for(unsigned int i=0; i<number_of_edges; i++)
 	{
-		edges[i]->initialization(p_init,material_type,material_const);
+		edges[i]->initialization(p_init,material_type);
 	}
 
 	// setting back the pressure_upstream interpolation index to 0

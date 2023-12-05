@@ -31,8 +31,9 @@ int main(int argc, char* argv[])
    fb->time_period = period_time;
    fb->is_periodic_run = false;
    fb->init_from_file = init_from_file;
-   //int heart_index = fb->lum_id_to_index("heart_kim");
+   //int heart_index = fb->lum_id_to_index("rats");
    //fb->lum[heart_index]->heart_rate = heart_rate;
+   fb->heart_rate = heart_rate;
 
    // fielad variable for saving to memory / files
    // variables from moc

@@ -14,10 +14,11 @@ par.rho = 1055;
 par.nu_p = 0.5;
 par.p0 = 1e5;
 par.v1 = 1;
+par.omega = 2*pi;
 par.beta = sqrt(pi)*par.E/(1-par.nu_p^2);
 par.CFL = 1.0;
 
-nx = 41;
+nx = 81;
 
 dt = zeros(nx,1);
 x = linspace(0,par.l,nx);
@@ -67,7 +68,7 @@ Fs=zeros(2,nx);
 Ss=zeros(2,nx);
 
 t_act=0;
-t_end=4.9;
+t_end=10;
 while(t_act<t_end)
    
     % finding dt-s
@@ -126,15 +127,13 @@ while(t_act<t_end)
     AnR = dnR*dnR*pi/4;
     
     W2R = -4* sqrt(par.beta*snR/(2*par.rho*AnR)) *(AR^.25-AnR^.25) + vR;
-    % W2R = -4* sqrt(par.beta*snR/(2*par.rho*AnR)) *(AR^.25-Aref1^.25) + vR;
 
     [dn,~] = nominal_diameter(x(1),par);
     [sn,~] = nominal_wall(x(1),par);
     An = dn*dn*pi/4;
 
-    vnew(1) = par.v1;
+    vnew(1) = par.v1/4*sin(par.omega*t_act);
     Anew(1) = 1/64*(par.rho*An/(par.beta*sn))^2 * (vnew(1) - W2R + dt_act*J_r + 4* sqrt(par.beta*sn/(2*par.rho*An))*An^.25)^4;
-    % Anew(1) = 1/64*(par.rho*An/(par.beta*sn))^2 * (vnew(1) - W2R + dt_act*J_r + 4* sqrt(par.beta*sn/(2*par.rho*An))*Aref1^.25)^4;
     [pnew(1),dp_dA,dp_dx] = cross_section(Anew(1),x(1),par);
     anew(1) = sqrt(Anew(1)/par.rho*dp_dA);
 
@@ -153,7 +152,6 @@ while(t_act<t_end)
     AnL = dnL*dnL*pi/4;
 
     W1L =  4* sqrt(par.beta*snL/(2*par.rho*AnL)) *(AL^.25-AnL^.25) + vL;
-    % W1L =  4* sqrt(par.beta*snL/(2*par.rho*AnL)) *(AL^.25-Aref2^.25) + vL;
 
     [dn,~] = nominal_diameter(x(nx),par);
     [sn,~] = nominal_wall(x(nx),par);
@@ -162,7 +160,6 @@ while(t_act<t_end)
     pnew(nx) = par.p0;
     Anew(nx) = ( (pnew(nx)-par.p0) *An/(par.beta*sn) + sqrt(An) )^2;
     vnew(nx) = W1L - dt_act*J_l + 4* sqrt(par.beta*sn/(2*par.rho*An))*(An^.25-Anew(nx)^.25);
-    % vnew(nx) = W1L - dt_act*J_l + 4* sqrt(par.beta*sn/(2*par.rho*An))*(Aref2^.25-Anew(nx)^.25);
     [~,dp_dA,~] = cross_section(Anew(nx),x(nx),par);
     anew(nx) = sqrt(Anew(nx)/par.rho*dp_dA);
  
@@ -231,12 +228,14 @@ plot(x,q);
 xlabel('x [m]');
 ylabel('q [m3/s');
 
-figure;
+figure(2);
 subplot(2,1,1);
-plot(t,(p1-par.p0)/133.36);
+hold on; grid on;
+plot(t,(p1-par.p0)/133.36,'b');
 ylabel('p [mmHg]');
 subplot(2,1,2);
-plot(t,vend);
+hold on; grid ;
+plot(t,vend,'r');
 xlabel('t [s]');
 ylabel('v [m/s]');
 
@@ -248,7 +247,6 @@ function J_l = JL(A,v,x,par,a)
     An_dx = dn*pi/2*dn_dx;
     C1 = -2*sqrt(par.beta/2/par.rho)*((0.5*sqrt(1/An/sn)*sn_dx-0.5*sqrt(sn/An^3)*An_dx)*(A^0.25-An^0.25)-sqrt(sn/An)*0.25*An^(-0.75)*An_dx);
     J_l = 8*pi*par.nu/A*v + 1/par.rho*dp_dx + 2*(v+a)*C1;
-    % J_l = 8*pi*par.nu/A*v + 1/par.rho*dp_dx;
 end
 
 function J_r = JR(A,v,x,par,a)
@@ -259,7 +257,6 @@ function J_r = JR(A,v,x,par,a)
     An_dx = dn*pi/2*dn_dx;
     C2 = 2*sqrt(par.beta/2/par.rho)*((0.5*sqrt(1/An/sn)*sn_dx-0.5*sqrt(sn/An^3)*An_dx)*(A^0.25-An^0.25)-sqrt(sn/An)*0.25*An^(-0.75)*An_dx);
     J_r = 8*pi*par.nu/A*v + 1/par.rho*dp_dx + 2*(v-a)*C2;
-    % J_r = 8*pi*par.nu/A*v + 1/par.rho*dp_dx;
 end
 
 function [p,dp_dA,dp_dx] = cross_section(A,x,par)
@@ -269,15 +266,14 @@ function [p,dp_dA,dp_dx] = cross_section(A,x,par)
     An_dx = dn*pi/2*dn_dx;
     p = par.p0 + par.beta*sn/An*(sqrt(A)-sqrt(An));
     dp_dx = par.beta/An*( (sqrt(A)-sqrt(An))*(sn_dx - sn/An*An_dx) - .5*sn/sqrt(An)*An_dx );
-%     dp_dx = 0;
     dp_dA = par.beta*sn/An*.5/sqrt(A);
 end
 
 function [dn,dn_dx] = nominal_diameter(x,par)
-%     dn = par.ds + x/par.l*(par.de-par.ds);
-%     dn_dx = (par.de-par.ds)/par.l;
-    dn = sqrt(par.ds^2+x/par.l*(par.de^2-par.ds^2));
-    dn_dx = 1/2/dn*(par.de^2-par.ds^2)/par.l;
+    dn = par.ds + x/par.l*(par.de-par.ds);
+    dn_dx = (par.de-par.ds)/par.l;
+%     dn = sqrt(par.ds^2+x/par.l*(par.de^2-par.ds^2));
+%     dn_dx = 1/2/dn*(par.de^2-par.ds^2)/par.l;
 end
 
 function [sn,sn_dx] = nominal_wall(x,par)

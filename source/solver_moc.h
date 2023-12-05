@@ -60,7 +60,7 @@ public:
 	vector<int> period;
 
 	// giving initial conditions
-	void initialization(double pressure_initial,int mat_type, vector<double> mat_const);
+	void initialization(double pressure_initial,int mat_type);
 	// initialazing Newton's method for 1D/0D boundaries
 	void initialization_newton(VectorXd &x, int N, int moc_edge_index, int edge_end);
 	// substituting the results back to field variables

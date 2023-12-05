@@ -14,9 +14,10 @@ par.rho = 1055;
 par.nu_p = 0.5;
 par.p0 = 1e5;
 par.v1 = 1;
+par.omega = 2*pi;
 par.beta = sqrt(pi)*par.E/(1-par.nu_p^2);
 
-nx = 41;
+nx = 81;
 
 dt = zeros(nx,1);
 x = linspace(0,par.l,nx);
@@ -59,7 +60,7 @@ A1=[];
 Aend=[];
 
 t_act=0;
-t_end=20;
+t_end=10;
 while(t_act<t_end)
    
     % finding dt-s
@@ -130,7 +131,7 @@ while(t_act<t_end)
     [sn,~] = nominal_wall(x(1),par);
     An = dn*dn*pi/4;
 
-    vnew(1) = par.v1;
+    vnew(1) = par.v1/4*sin(par.omega*t_act);
     Anew(1) = 1/64*(par.rho*An/(par.beta*sn))^2 * (vnew(1) - W2R + dt_act*J_r + 4* sqrt(par.beta*sn/(2*par.rho*An))*An^.25)^4;
     [pnew(1),dp_dA,dp_dx] = cross_section(Anew(1),x(1),par);
     anew(1) = sqrt(Anew(1)/par.rho*dp_dA);
@@ -220,12 +221,14 @@ plot(x,q);
 xlabel('x [m]');
 ylabel('q [m3/s');
 
-figure;
+figure(2);
 subplot(2,1,1);
-plot(t,(p1-par.p0)/133.36);
+hold on; grid on;
+plot(t,(p1-par.p0)/133.36,'r');
 ylabel('p [mmHg]');
 subplot(2,1,2);
-plot(t,vend);
+hold on; grid ;
+plot(t,vend,'r');
 xlabel('t [s]');
 ylabel('v [m/s]');
 
@@ -256,8 +259,6 @@ function [p,dp_dA,dp_dx] = cross_section(A,x,par)
     An_dx = dn*pi/2*dn_dx;
     p = par.p0 + par.beta*sn/An*(sqrt(A)-sqrt(An));
     dp_dx = par.beta/An*( (sqrt(A)-sqrt(An))*(sn_dx - sn/An*An_dx) - .5*sn/sqrt(An)*An_dx );
-       %+ 1/An*(p-par.p0+par.beta*sn/2/sqrt(An))*An_dx;
-    % dp_dx = 0;
     dp_dA = par.beta*sn/An*.5/sqrt(A);
 end
 

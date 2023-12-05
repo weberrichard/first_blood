@@ -43,6 +43,12 @@ void solver_moc::load_model()
 				{
 					edges[i]->kinematic_viscosity_factor = stod(sv[14],0);
 				}
+				if(sv.size()>17)
+				{
+					edges[i]->material_const.push_back(stod(sv[15],0));
+					edges[i]->material_const.push_back(stod(sv[16],0));
+					edges[i]->material_const.push_back(stod(sv[17],0));
+				}
 				i++;
 			}
 			else if(sv[0] == "elag" || sv[0] == "junction" || sv[0] == "node") // nodes
