@@ -1,0 +1,41 @@
+data of edges						
+type, name, node start, node end, initial condition [SI], parameter [SI]
+capacitor,ERA,G1,PV,0.000e+00,1e-11
+diode,DTV,PV,RV,0.000e+00,1e6
+elastance,ERV,G2,RV,0.000e+00,4.34e10,1.3e9
+diode,DPV,RV,PB,0.000e+00,1e6
+resistor,RLP,PB,PN,0.000e+00,1e7	
+capacitor,CL,G,PN,0.000e+00,2e-11
+resistor,RLD,PN,LA,0.000e+00,1.8e10	
+capacitor,ELA,G3,LA,0.000e+00,1e-11
+diode,DLV,LA,LV,0.000e+00,1e6
+elastance,ELV,G4,LV,0.000e+00,3.66e11,7.8e9
+diode,DMV,LV,PA,0.000e+00,1e6
+resistor,LLL,PA,PV,0.000e+00,1e10
+resistor,LML,PPV,PV,0.000e+00,1e10	
+resistor,RDOP,PA,DO,0.000e+00,9.51e9	
+capacitor,CDO,G,DO,0.000e+00,1E-11	
+resistor,RDOD,DO,PPV,0.000e+00,8.56e10	
+resistor,ROOP,PA,OO,0.000e+00,1e7	
+capacitor,COO,G,OO,0.000e+00,2E-11	
+resistor,ROOD,OO,PV,0.000e+00,1.8e10
+
+
+data of nodes		
+type, name, initial condition [SI]		
+node,PV,1.00010e+05
+node,PPV,1.00010e+05
+node,RV,1.00010e+05
+node,PB,1.00010e+05
+node,PA,1.00010e+05
+node,PN,1.00010e+05
+node,LA,1.00010e+05
+node,LV,1.00010e+05
+node,OO,1.00010e+05
+node,DO,1.00010e+05
+ground,G,1.000e+05
+ground,G1,1.000e+05
+ground,G2,1.000e+05
+ground,G3,1.000e+05
+ground,G4,1.000e+05
+

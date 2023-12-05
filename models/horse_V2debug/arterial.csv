@@ -1,0 +1,231 @@
+type,ID,name,start_node,end_node,start_diameter[SI],end_diameter[SI],start_thickness[SI],end_thickness[SI],length[SI],division_points,elastance_1[SI],res_start[SI],res_end[SI],
+vis_f,A1,Aorta ascendens 1,H,n1,0.06818,0.06739,0.006818,0.006739,0.018,10,1.0e6,0,0,2.75
+vis_f,A2,A coronaria sinistra,n1,p1,0.023638,0.0121,0.002364,0.00121,0.02,10,1.0e6,0,0,2.75
+vis_f,A3,A coronaria dextra,n1,p2,0.023638,0.0121,0.002364,0.00121,0.02,10,1.0e6,0,0,2.75
+vis_f,A4,Aorta ascendens 2,n1,n2,0.06722,0.06682,0.006722,0.006682,0.064,12,1.0e6,0,0,2.75
+vis_f,A5,Truncus brachiocephalicus 1,n2,n3,0.038882,0.03888,0.003888,0.003888,0.038,10,1.0e6,0,0,2.75
+vis_f,A6,A subclavia sinistra 1,n3,n4,0.025332,0.02533,0.002533,0.002533,0.039,10,1.0e6,0,0,2.75
+vis_f,A7,Truncus costocervicalis sinister,n4,p3,0.012102,0.0105,0.00121,0.00105,0.01,10,1.0e6,0,0,2.75
+vis_f,A8,A subclavia sinistra 2,n4,n5,0.02411,0.02411,0.002411,0.002411,0.019,10,1.0e6,0,0,2.75
+vis_f,A9,A cervicalis profunda sinistra,n5,p4,0.00282,0.00282,0.000282,0.000282,0.07,12,1.0e6,0,0,2.75
+vis_f,A10,A subclavia sinistra 3,n5,n6,0.02411,0.02411,0.002411,0.002411,0.014,10,1.0e6,0,0,2.75
+vis_f,A11,A vertebralis sinistra,n6,p5,0.01417,0.00998,0.001417,0.000998,0.095,12,1.0e6,0,0,2.75
+vis_f,A12,A subclavia sinistra 4,n6,n7,0.02289,0.02289,0.002289,0.002289,0.04,10,1.0e6,0,0,2.75
+vis_f,A13,A thoracica interna sinistra,n7,p6,0.01211,0.01211,0.001211,0.001211,0.137,14,1.0e7,0,0,2.75
+vis_f,A14,A subclavia sinistra 5,n7,n8,0.02289,0.02289,0.002289,0.002289,0.007,10,1.0e6,0,0,2.75
+vis_f,A15,A cervicalis superficialis sinistra,n8,p7,0.01031,0.00479,0.001031,0.000479,0.08,12,1.0e6,0,0,2.75
+vis_f,A16,A axillaris sinistra 1,n8,n9,0.0215,0.02037,0.00215,0.002037,0.062,12,1.0e6,0,0,2.75
+vis_f,A17,A suprascapularis sinistra,n9,p6,0.00768,0.007,0.000768,0.0007,0.015,10,1.0e6,0,0,2.75
+vis_f,A18,A axillaris sinistra 2,n9,n10,0.0199,0.0199,0.00199,0.00199,0.058,12,1.0e6,0,0,2.75
+vis_f,A19,A subscapularis sinistra,n10,p9,0.0168,0.0168,0.00168,0.00168,0.01,10,1.0e6,0,0,2.75
+vis_f,A20,A axillaris sinistra 3,n10,n11,0.01802,0.01802,0.001802,0.001802,0.023,10,1.0e6,0,0,2.75
+vis_f,A21,A circumflexa humeri cranialis sinistra,n11,p10,0.00611,0.00279,0.000611,0.000279,0.03,10,1.0e6,0,0,2.75
+vis_f,A22,A axillaris sinistra 4,n11,n12,0.01705,0.01705,0.001705,0.001705,0.07,12,1.0e6,0,0,2.75
+vis_f,A23,A profunda brachii sinistra,n12,p11,0.011281,0.0096,0.001128,0.00096,0.005,10,1.0e6,0,0,2.75
+vis_f,A24,A axillaris sinistra 5,n12,n13,0.01535,0.01279,0.001535,0.001279,0.082,12,1.0e6,0,0,2.75
+vis_f,A25,A collateralis ulnaris sinistra,n13,p12,0.0086,0.00492,0.00086,0.000492,0.005,10,1.0e6,0,0,2.75
+vis_f,A26,A mediana sinistra,n13,p13,0.01001,0.0053,0.001001,0.00053,0.145,14,1.0e6,0,0,2.75
+vis_f,A27,Truncus brachiocephalicus 2,n3,n14,0.03888,0.03888,0.003888,0.003888,0.05,12,1.0e6,0,0,2.75
+vis_f,A28,Truncus costocervicalis dexter,n14,p14,0.01438,0.00707,0.001438,0.000707,0.01,10,1.0e6,0,0,2.75
+vis_f,A29,Truncus brachiocephalicus 3,n14,n15,0.03888,0.03888,0.003888,0.003888,0.01,10,1.0e6,0,0,2.75
+vis_f,A30,A cervicalis profunda dextra,n15,p15,0.00281,0.00281,0.000281,0.000281,0.07,12,1.0e6,0,0,2.75
+vis_f,A31,Trunucus brachiocephalicus 4,n15,n16,0.03888,0.03888,0.003888,0.003888,0.01,10,1.0e6,0,0,2.75
+vis_f,A32,A vertebralis dextra,n16,p16,0.01695,0.00712,0.001695,0.000712,0.095,12,1.0e6,0,0,2.75
+vis_f,A33,Truncus brachiocephalicus 5,n16,n17,0.02696,0.025,0.002696,0.0025,0.02,10,1.0e6,0,0,2.75
+vis_f,A34,A subclavia dextra 1,n17,n18,0.025,0.025,0.0025,0.0025,0.03,10,1.0e6,0,0,2.75
+vis_f,A35,A thoracica interna dextra,n17,p17,0.01212,0.0121,0.001212,0.00121,0.137,14,1.0e6,0,0,2.75
+vis_f,A36,A cervicalis superficialis dextra,n18,p18,0.00807,0.00802,0.000807,0.000802,0.08,12,1.0e6,0,0,2.75
+vis_f,A37,A axillaris dextra 1,n18,n19,0.02095,0.02094,0.002095,0.002094,0.062,12,1.0e6,0,0,2.75
+vis_f,A38,A suprascapularis,n19,p19,0.00643,0.00547,0.000643,0.000547,0.015,10,1.0e6,0,0,2.75
+vis_f,A39,A axillaris dextra 2,n19,n20,0.0199,0.0199,0.00199,0.00199,0.058,12,1.0e6,0,0,2.75
+vis_f,A40,A subscapularis dextra,n20,p20,0.0168,0.0168,0.00168,0.00168,0.01,10,1.0e6,0,0,2.75
+vis_f,A41,A axillaris dextra 3,n20,n21,0.01802,0.01802,0.001802,0.001802,0.023,10,1.0e6,0,0,2.75
+vis_f,A42,A circumflexa humeri cranialis dextra,n21,p21,0.006115,0.00279,0.000612,0.000279,0.03,10,1.0e6,0,0,2.75
+vis_f,A43,A axillaris dextra 4,n21,n22,0.01705,0.01705,0.001705,0.001705,0.07,12,1.0e6,0,0,2.75
+vis_f,A44,A profunda brachii dextra,n22,p22,0.01047,0.01047,0.001047,0.001047,0.005,10,1.0e6,0,0,2.75
+vis_f,A45,A axillaris dextra 5,n22,n23,0.01705,0.01042,0.001705,0.001042,0.082,12,1.0e6,0,0,2.75
+vis_f,A46,A collateralis ulnaris dextra,n23,p23,0.0086,0.00492,0.00086,0.000492,0.005,10,1.0e6,0,0,2.75
+vis_f,A47,A mediana dextra,n23,p24,0.01,0.0053,0.001,0.00053,0.145,14,1.0e6,0,0,2.75
+vis_f,A48,Truncus bicaroticus,n3,n24,0.02206,0.02126,0.002206,0.002126,0.078,12,1.0e6,0,0,2.75
+vis_f,A49,A carotis communis sinistra,n24,n25,0.01345,0.01035,0.001345,0.001035,0.71,28,1.0e6,0,0,2.75
+vis_f,A50,A carotis interna sinistra,n25,p25,0.00443,0.00353,0.000443,0.000353,0.12,12,1.0e6,0,0,2.75
+vis_f,A51,A occipitalis sinistra,n25,p26,0.00494,0.00413,0.000494,0.000413,0.045,10,1.0e6,0,0,2.75
+vis_f,A52,A carotis externa sinistra 1,n25,n26,0.01004,0.01004,0.001004,0.001004,0.065,12,1.0e6,0,0,2.75
+vis_f,A53,Truncus linguofacialis sinister,n26,p27,0.00654,0.0055,0.000654,0.00055,0.08,12,1.0e6,0,0,2.75
+vis_f,A54,A carotis externa sinistra 2,n26,n27,0.00922,0.00883,0.000922,0.000883,0.041,10,1.0e6,0,0,2.75
+vis_f,A55,Ramus massetericus sinister,n27,p28,0.00251,0.00121,0.000251,0.000121,0.02,10,1.0e6,0,0,2.75
+vis_f,A56,A carotis externa sinistra 3,n27,n28,0.00856,0.00855,0.000856,0.000855,0.013,10,1.0e6,0,0,2.75
+vis_f,A57,A auricularis caudalis sinistra,n28,p29,0.003953,0.00174,0.000395,0.000174,0.01,10,1.0e6,0,0,2.75
+vis_f,A58,A carotis externa sinistra 4,n28,n29,0.00856,0.00515,0.000856,0.000515,0.023,10,1.0e6,0,0,2.75
+vis_f,A59,A temporalis superficialis sinistra,n29,p30,0.00344,0.00248,0.000344,0.000248,0.02,10,1.0e6,0,0,2.75
+vis_f,A60,A carotis communis dextra,n24,n30,0.01345,0.01035,0.001345,0.001035,0.71,28,1.0e6,0,0,2.75
+vis_f,A61,A carotis interna dextra,n30,p31,0.00443,0.00353,0.000443,0.000353,0.12,12,1.0e6,0,0,2.75
+vis_f,A62,A occipitalis dextra,n30,p32,0.00494,0.00413,0.000494,0.000413,0.045,10,1.0e6,0,0,2.75
+vis_f,A63,A carotis externa dextra 1,n30,n31,0.01004,0.01004,0.001004,0.001004,0.065,12,1.0e6,0,0,2.75
+vis_f,A64,Truncus linguofacialis dexter,n31,p33,0.00654,0.0055,0.000654,0.00055,0.08,12,1.0e6,0,0,2.75
+vis_f,A65,A carotis externa dextra 2,n31,n32,0.00922,0.00883,0.000922,0.000883,0.041,10,1.0e6,0,0,2.75
+vis_f,A66,Ramus massetericus dexter,n32,p34,0.00251,0.00121,0.000251,0.000121,0.02,10,1.0e6,0,0,2.75
+vis_f,A67,A carotis externa dextra 3,n32,n33,0.00856,0.00855,0.000856,0.000855,0.013,10,1.0e6,0,0,2.75
+vis_f,A68,A aurocularis caudalis dextra,n33,p35,0.00395,0.00174,0.000395,0.000174,0.01,10,1.0e6,0,0,2.75
+vis_f,A69,A carotis externa dextra 4,n33,n34,0.00856,0.00515,0.000856,0.000515,0.023,10,1.0e6,0,0,2.75
+vis_f,A70,A temporalis superficialis dextra,n34,p36,0.00344,0.00248,0.000344,0.000248,0.02,10,1.0e6,0,0,2.75
+vis_f,A71,Arcus aortae lig. Art Botalli,n2,n35,0.05807,0.04953,0.005807,0.004953,0.077,12,1.0e6,0,0,2.75
+vis_f,A72,Aorta descendens 1,n35,n36,0.04821,0.04062,0.004821,0.004062,0.105,12,1.0e6,0,0,2.75
+vis_f,A73,A broncho-oesophagea,n36,p37,0.01371,0.00631,0.001371,0.000631,0.066,12,1.0e6,0,0,2.75
+vis_f,A74,Aorta descendens 2,n36,n37,0.03844,0.03228,0.003844,0.003228,0.486,22,1.0e6,0,0,2.75
+vis_f,A75,A coeliaca,n37,p38,0.01931,0.00924,0.001931,0.000924,0.02,10,1.0e6,0,0,2.75
+vis_f,A76,Aorta descendens 3,n37,n38,0.0287,0.0287,0.00287,0.00287,0.048,10,1.0e6,0,0,2.75
+vis_f,A77,A mesenterica cranialis,n38,p39,0.01348,0.00756,0.001348,0.000756,0.02,10,1.0e6,0,0,2.75
+vis_f,A78,Aorta descendens 4,n38,n39,0.0287,0.0287,0.00287,0.00287,0.03,10,1.0e6,0,0,2.75
+vis_f,A79,A renalis dextra,n39,p40,0.01326,0.00721,0.001326,0.000721,0.03,10,1.0e6,0,0,2.75
+vis_f,A80,Aorta descendens 5,n39,n40,0.0287,0.0287,0.00287,0.00287,0.02,10,1.0e6,0,0,2.75
+vis_f,A81,A renalis sinistra,n40,p41,0.01326,0.00721,0.001326,0.000721,0.03,10,1.0e6,0,0,2.75
+vis_f,A82,Aorta descendens 6,n40,n41,0.0287,0.0287,0.00287,0.00287,0.104,12,1.0e6,0,0,2.75
+vis_f,A83,A ovarica sinistra,n41,p42,0.00276,0.00276,0.000276,0.000276,0.3,18,1.0e6,0,0,2.75
+vis_f,A84,A ovarica dextra,n41,p43,0.00276,0.00276,0.000276,0.000276,0.3,18,1.0e6,0,0,2.75
+vis_f,A85,Aorta descendens 7,n41,n42,0.0287,0.0287,0.00287,0.00287,0.04,10,1.0e6,0,0,2.75
+vis_f,A86,A mesenterica caudalis,n42,p44,0.00978,0.00463,0.000978,0.000463,0.01,10,1.0e6,0,0,2.75
+vis_f,A87,Aorta descendens 8,n42,n43,0.0287,0.0287,0.00287,0.00287,0.063,12,1.0e6,0,0,2.75
+vis_f,A88,A iliaca interna sinistra,n43,p45,0.02019,0.01512,0.002019,0.001512,0.03,10,1.0e6,0,0,2.75
+vis_f,A89,A iliaca externa sinistra 1,n43,n44,0.01693,0.01624,0.001693,0.001624,0.03,10,1.0e6,0,0,2.75
+vis_f,A90,A circumflexa iliumprofunda sinistra,n44,p46,0.00758,0.00366,0.000758,0.000366,0.16,14,1.0e6,0,0,2.75
+vis_f,A91,A iliaca externa sinistra 2,n44,n45,0.01599,0.01554,0.001599,0.001554,0.029,10,1.0e6,0,0,2.75
+vis_f,A92,A uterina sinistra,n45,p47,0.00319,0.00319,0.000319,0.000319,0.2,16,1.0e6,0,0,2.75
+vis_f,A93,A iliaca externa sinistra 3,n45,n46,0.0153,0.0153,0.00153,0.00153,0.23,16,1.0e6,0,0,2.75
+vis_f,A94,A profunda femoris sinistra,n46,p48,0.00793,0.00723,0.000793,0.000723,0.03,10,1.0e6,0,0,2.75
+vis_f,A95,A femoralis sinistra 1,n46,n47,0.01526,0.01427,0.001526,0.001427,0.051,12,1.0e6,0,0,2.75
+vis_f,A96,A circumflexa femoris lateralis sinistra,n47,p49,0.00769,0.00362,0.000769,0.000362,0.03,10,1.0e6,0,0,2.75
+vis_f,A97,A femoralis sinistra 2,n47,n48,0.01078,0.01078,0.001078,0.001078,0.18,14,1.0e6,0,0,2.75
+vis_f,A98,A saphena sinistra,n48,p50,0.00259,0.00259,0.000259,0.000259,0.625,26,1.0e6,0,0,2.75
+vis_f,A99,A femoralis sinistra 3,n48,n49,0.01078,0.00971,0.001078,0.000971,0.025,10,1.0e6,0,0,2.75
+vis_f,A100,A genus descendens sinistra,n49,p51,0.00446,0.00347,0.000446,0.000347,0.025,10,1.0e6,0,0,2.75
+vis_f,A101,A iliaca interna dextra,n43,p52,0.02019,0.01512,0.002019,0.001512,0.03,10,1.0e6,0,0,2.75
+vis_f,A102,A iliaca externa dextra 1,n43,n50,0.01698,0.01619,0.001698,0.001619,0.03,10,1.0e6,0,0,2.75
+vis_f,A103,A uterina dextra,n50,p53,0.00319,0.00319,0.000319,0.000319,0.2,16,1.0e6,0,0,2.75
+vis_f,A104,A iliaca externa dextra 2,n50,n51,0.01597,0.01556,0.001597,0.001556,0.029,10,1.0e6,0,0,2.75
+vis_f,A105,A circumflexa iliumprofunda dextra,n51,p54,0.00752,0.00377,0.000752,0.000377,0.16,14,1.0e6,0,0,2.75
+vis_f,A106,A iliaca externa dextra 3,n51,n52,0.0153,0.0153,0.00153,0.00153,0.23,16,1.0e6,0,0,2.75
+vis_f,A107,A profunda femoris dextra,n52,p55,0.00793,0.00723,0.000793,0.000723,0.03,10,1.0e6,0,0,2.75
+vis_f,A108,A femoralis dextra 1,n52,n53,0.01526,0.01427,0.001526,0.001427,0.051,12,1.0e6,0,0,2.75
+vis_f,A109,A circumflexa femoris lateralis dextra,n53,p56,0.00769,0.00362,0.000769,0.000362,0.03,10,1.0e6,0,0,2.75
+vis_f,A110,A femoralis dextra 2,n53,n54,0.01078,0.01078,0.001078,0.001078,0.18,14,1.0e6,0,0,2.75
+vis_f,A111,A saphena dextra,n54,p57,0.00259,0.00259,0.000259,0.000259,0.625,26,1.0e6,0,0,2.75
+vis_f,A112,A femoralis dextra 3,n54,n55,0.01078,0.00971,0.001078,0.000971,0.025,10,1.0e6,0,0,2.75
+vis_f,A113,A genus descendens dextra,n55,p58,0.00446,0.00347,0.000446,0.000347,0.025,10,1.0e6,0,0,2.75
+
+
+type,ID,name,valami,parameter,file name
+heart,H,0,P,proximal_aorta_pressure_mmHg
+node,n1,0,5.27E+11,
+node,n2,0,5.27E+11,
+node,n3,0,5.27E+11,
+node,n4,0,5.27E+11,
+node,n5,0,5.27E+11,
+node,n6,0,5.27E+11,
+node,n7,0,5.27E+11,
+node,n8,0,5.27E+11,
+node,n9,0,5.27E+11,
+node,n10,0,5.27E+11,
+node,n11,0,5.27E+11,
+node,n12,0,5.27E+11,
+node,n13,0,5.27E+11,
+node,n14,0,5.27E+11,
+node,n15,0,5.27E+11,
+node,n16,0,5.27E+11,
+node,n17,0,5.27E+11,
+node,n18,0,5.27E+11,
+node,n19,0,5.27E+11,
+node,n20,0,5.27E+11,
+node,n21,0,5.27E+11,
+node,n22,0,5.27E+11,
+node,n23,0,5.27E+11,
+node,n24,0,5.27E+11,
+node,n25,0,5.27E+11,
+node,n26,0,5.27E+11,
+node,n27,0,5.27E+11,
+node,n28,0,5.27E+11,
+node,n29,0,5.27E+11,
+node,n30,0,5.27E+11,
+node,n31,0,5.27E+11,
+node,n32,0,5.27E+11,
+node,n33,0,5.27E+11,
+node,n34,0,5.27E+11,
+node,n35,0,5.27E+11,
+node,n36,0,5.27E+11,
+node,n37,0,5.27E+11,
+node,n38,0,5.27E+11,
+node,n39,0,5.27E+11,
+node,n40,0,5.27E+11,
+node,n41,0,5.27E+11,
+node,n42,0,5.27E+11,
+node,n43,0,5.27E+11,
+node,n44,0,5.27E+11,
+node,n45,0,5.27E+11,
+node,n46,0,5.27E+11,
+node,n47,0,5.27E+11,
+node,n48,0,5.27E+11,
+node,n49,0,5.27E+11,
+node,n50,0,5.27E+11,
+node,n51,0,5.27E+11,
+node,n52,0,5.27E+11,
+node,n53,0,5.27E+11,
+node,n54,0,5.27E+11,
+node,n55,0,5.27E+11,
+perif,p1,0,,
+perif,p2,0,,
+perif,p3,0,,
+perif,p4,0,,
+perif,p5,0,,
+perif,p6,0,,
+perif,p7,0,,
+perif,p8,0,,
+perif,p9,0,,
+perif,p10,0,,
+perif,p11,0,,
+perif,p12,0,,
+perif,p13,0,,
+perif,p14,0,,
+perif,p15,0,,
+perif,p16,0,,
+perif,p17,0,,
+perif,p18,0,,
+perif,p19,0,,
+perif,p20,0,,
+perif,p21,0,,
+perif,p22,0,,
+perif,p23,0,,
+perif,p24,0,,
+perif,p25,0,,
+perif,p26,0,,
+perif,p27,0,,
+perif,p28,0,,
+perif,p29,0,,
+perif,p30,0,,
+perif,p31,0,,
+perif,p32,0,,
+perif,p33,0,,
+perif,p34,0,,
+perif,p35,0,,
+perif,p36,0,,
+perif,p37,0,,
+perif,p38,0,,
+perif,p39,0,,
+perif,p40,0,,
+perif,p41,0,,
+perif,p42,0,,
+perif,p43,0,,
+perif,p44,0,,
+perif,p45,0,,
+perif,p46,0,,
+perif,p47,0,,
+perif,p48,0,,
+perif,p49,0,,
+perif,p50,0,,
+perif,p51,0,,
+perif,p52,0,,
+perif,p53,0,,
+perif,p54,0,,
+perif,p55,0,,
+perif,p56,0,,
+perif,p57,0,,
+perif,p58,0,,
