@@ -1,4 +1,4 @@
-type,ID,name,start_node,end_node,start_diameter[SI],end_diameter[SI],start_thickness[SI],end_thickness[SI],length[SI],division_points,elastance_1[SI],res_start[SI],res_end[SI]
+type,ID,name,start_node,end_node,start_diameter[SI],end_diameter[SI],start_thickness[SI],end_thickness[SI],length[SI],division_points,elastance_1[SI],res_start[SI],res_end[SI],visc_fact[1],k1[SI],k2[SI],k3[SI]
 vis_f,A1,Ascending aorta 1,H,n1,0.0294,0.0293,0.00294,0.00293,0.005,5,2.92E+05,0,0,2.75,2.e6,-2253.,8.65e4
 vis_f,A2,Aortic arch A,n2,n3,0.0251,0.024,0.00251,0.0024,0.02,5,3.19E+05,0,0,2.75,2.e6,-2253.,8.65e4
 vis_f,A3,Brachiocephalic,n2,n6,0.0202,0.018,0.00202,0.0018,0.034,6,3.62E+05,0,0,2.75,2.e6,-2253.,8.65e4
@@ -94,10 +94,10 @@ vis_f,A93,Superficial temporal frontal br.,n29,p28,0.0022,0.0014,0.00022,0.00014
 vis_f,A92,Superficial temporal parietal br.,n35,p42,0.0022,0.0014,0.00022,0.00014,0.101,9,1.43E+06,0,0,2.75,2.e6,-2253.,8.65e4
 vis_f,A94,Superficial temporal parietal br.,n29,p27,0.0022,0.0014,0.00022,0.00014,0.101,11,1.43E+06,0,0,2.75,2.e6,-2253.,8.65e4
 vis_f,A95,Ascending aorta 2,n1,n2,0.0293,0.0288,0.00293,0.00288,0.035,7,2.94E+05,0,0,2.75,2.e6,-2253.,8.65e4
-vis_f,A96,RightCoronary,n1,p1,3.60E-03,2.60E-03,3.60E-04,2.60E-04,5.37E-02,7,8.60E+05,0.00E+00,0.00E+00,1
-vis_f,A97,LeftMainCoronary,n1,n53,4.90E-03,4.70E-03,4.90E-04,4.70E-04,5.00E-03,7,7.73E+05,0.00E+00,0.00E+00,1
-vis_f,A98,LeftAnteriorDescending,n53,p2,3.80E-03,1.50E-03,3.80E-04,1.50E-04,4.70E-02,15,8.60E+05,0.00E+00,0.00E+00,1
-vis_f,A99,LeftCircumflex,n53,p3,3.50E-03,3.10E-03,3.50E-04,3.10E-04,2.60E-02,7,8.60E+05,0.00E+00,0.00E+00,1
+vis_f,A96,RightCoronary,n1,p1,3.60E-03,2.60E-03,3.60E-04,2.60E-04,5.37E-02,7,8.60E+05,0.00E+00,0.00E+00,2.75,2.e6,-2253.,8.65e4
+vis_f,A97,LeftMainCoronary,n1,n53,4.90E-03,4.70E-03,4.90E-04,4.70E-04,5.00E-03,7,7.73E+05,0.00E+00,0.00E+00,2.75,2.e6,-2253.,8.65e4
+vis_f,A98,LeftAnteriorDescending,n53,p2,3.80E-03,1.50E-03,3.80E-04,1.50E-04,4.70E-02,15,8.60E+05,0.00E+00,0.00E+00,2.75,2.e6,-2253.,8.65e4
+vis_f,A99,LeftCircumflex,n53,p3,3.50E-03,3.10E-03,3.50E-04,3.10E-04,2.60E-02,7,8.60E+05,0.00E+00,0.00E+00,2.75,2.e6,-2253.,8.65e4
 vis_f,A100,Ant. choroidal,n44,p45,0.0015,0.0013,0.00015,0.00013,0.036,5,1.64E+06,0,0,2.75,2.e6,-2253.,8.65e4
 vis_f,A102,Ant. choroidal,n39,p46,0.0015,0.0013,0.00015,0.00013,0.036,5,1.64E+06,0,0,2.75,2.e6,-2253.,8.65e4
 vis_f,A101,ICA distal cnt. chor.–M1 seg.,n44,n43,0.0038,0.0038,0.00038,0.00038,0.002,5,8.87E+05,0,0,2.75,2.e6,-2253.,8.65e4

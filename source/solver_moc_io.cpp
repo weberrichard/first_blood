@@ -49,6 +49,12 @@ void solver_moc::load_model()
 					edges[i]->material_const.push_back(stod(sv[16],0));
 					edges[i]->material_const.push_back(stod(sv[17],0));
 				}
+				else
+				{
+					edges[i]->material_const.push_back(olufsen_def_const[0]);
+					edges[i]->material_const.push_back(olufsen_def_const[1]);
+					edges[i]->material_const.push_back(olufsen_def_const[2]);
+				}
 				i++;
 			}
 			else if(sv[0] == "elag" || sv[0] == "junction" || sv[0] == "node") // nodes

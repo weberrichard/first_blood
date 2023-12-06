@@ -59,7 +59,7 @@ public:
 	double kinematic_viscosity_factor = 1.; // -
 	double atmospheric_pressure; // Pa
 	double poisson_coefficient;
-	int material_type=0; // 0: linear, 1: olufsen
+	int material_type=1; // 0: linear, 1: olufsen
 	vector<double> material_const;
 	double courant_number;
 

@@ -105,8 +105,8 @@ int main(int argc, char* argv[])
       //fb->time_node = "n1";
 
       fb->material_type = 1; // olufsen model
-      vector<double> olufsen_def_const{2.e6,-2253.,8.65e4}; // default constants for olufsen model
-      fb->material_const = olufsen_def_const;
+      //vector<double> olufsen_def_const{2.e6,-2253.,8.65e4}; // default constants for olufsen model
+      //fb->material_const = olufsen_def_const;
     
       // running the simulation
       auto t1 = high_resolution_clock::now();

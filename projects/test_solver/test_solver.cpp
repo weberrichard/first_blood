@@ -46,8 +46,8 @@ int main(int argc, char* argv[])
 
       //fb->time_end = sim_time;
       fb->material_type = 0; // setting to olufsen 1, linear 0
-      vector<double> olufsen_def_const{2.e6,-2253.,8.65e4}; // default constants for olufsen model
-      fb->material_const = olufsen_def_const;
+      //vector<double> olufsen_def_const{2.e6,-2253.,8.65e4}; // default constants for olufsen model
+      //fb->material_const = olufsen_def_const;
       fb->time_period = period_time;
       fb->is_periodic_run = false;
       fb->solver_type = st;
