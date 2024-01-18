@@ -320,7 +320,7 @@ void solver_moc::boundaries(int e_idx, double t_act)
 					}
 					while(abs(dp) >1e-6 && k<100);
 
-					if(k>=10)
+					if(k>=100)
 					{
 						cout << "\n Newton's technique did NOT converge at node " << nodes[node_idx[i]]->name << " and edge " << edges[e_idx]->name << " for special case (Rs,Re=0)" << endl;
 						cout << " k: " << k << " f.norm: " << f << endl;
