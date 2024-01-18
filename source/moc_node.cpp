@@ -7,6 +7,8 @@ moc_node::moc_node(string a_name)
    name = a_name;
 }
 
+
+
 //--------------------------------------------------------------
 moc_node::~moc_node(){}
 
