@@ -348,7 +348,16 @@ void solver_lumped::myogenic_control(double t_act)
 	double FF; 
 	for(int i=0; i<Ridx.size(); i++)
 	{
-		double Rmax = 1.5, Rmin = 0.5;
+		double Rmax, Rmin; // calculated from r_min, r_max from "Regulation of Coronary Microvascular Resistance in Health and Disease" pic 12.2
+		if(x_myo < 0){
+			Rmax = 1.228;
+			Rmin = 0.772;
+		}
+		else{
+			Rmax = 1.773;
+			Rmin = 0.227;
+		}
+
 		double R_ref = edges[Ridx[i]]->par_non_SI[0];
 		double K = (p_ref-atmospheric_pressure/mmHg_to_Pa) * (p_ref-atmospheric_pressure/mmHg_to_Pa) / R_ref;
 		double ff = 8. * (p_ref-atmospheric_pressure/mmHg_to_Pa) / ( K * (Rmax - Rmin) * R_ref );
