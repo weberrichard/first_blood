@@ -359,7 +359,7 @@ void first_blood::solve_lum_newton(int index, double t_act)
 	int k = lum[index]->boundary_indices.size();
 
 	// setting initial conditions for lumped part
-	lum[index]->initialization_newton();
+	lum[index]->initialization_newton(t_act);
 	// setting initial conditions for moc part
 	for(int j=0; j<lum[index]->boundary_indices.size(); j++)
 	{

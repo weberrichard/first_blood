@@ -12,6 +12,7 @@
 #define SOLVER_LUMPED_H
 
 #include	"file_io.h"
+#include    "statistics.h"
 
 #include "/usr/include/eigen3/Eigen/Eigen"
 #include <iostream>
@@ -37,11 +38,15 @@ public:
 	// new nonlinear solver in fb, function fills regarding coefs in Jac and in f
 	void set_newton_size();
 	void coefficients_newton(double t_act);
-	void initialization_newton();
+	void initialization_newton(double t_act);
 	void substitute_newton(double t_act);
 	// variables
 	MatrixXd Jac;
 	VectorXd x, f;
+
+	// control functions
+	void update_parameters(double t_act);
+	void myogenic_control(double t_act);
 
 	// OLD solving the linear equations
 	vector<vector<double> > solve_one_step(double dt, vector<vector<double> > coefs);
@@ -77,6 +82,7 @@ public:
 
 	// time of the simulation
 	vector<double> time;
+	double time_period;
 
 	// setting general constants
 	void set_constants(double g, double rho, double nu, double mmHg, double p0);
@@ -92,6 +98,17 @@ public:
 	// coronary modelling parameters from Reymond2009
 	double alpha_coronary = 0.;
 	double beta_coronary = 0.;
+
+	// constants of myogenic control
+	bool do_myogenic = false;
+	double tao = 20.; // time constant
+	double G = .9; // gain
+	double sat1 = .55; // saturation 1
+	double sat2 = 2.; // saturation 2
+	time_average *q_ave, *p_ave, *C_ave, *R_fact, *x_myo_ts; // time period average values
+	int q_idx=0, p_idx=0, C_idx; // index for average values, which element's average
+	double x_myo; // acting signal
+	double q_ref=0., p_ref=0.;
 
 private:
 	// general constants

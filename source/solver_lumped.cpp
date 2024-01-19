@@ -22,6 +22,7 @@ void solver_lumped::initialization(double hr)
 
 	// heart rate
 	heart_rate = hr; // from Charlton2019
+	time_period = 60./heart_rate;
 
 	// setting the par variables, converting from SI to non-SI for favourable conditioning
 	set_non_SI_parameters();
@@ -63,6 +64,13 @@ void solver_lumped::initialization(double hr)
 
 	// building model
 	build_system();
+
+	// for myogenic control
+	q_ave = new time_average();
+	p_ave = new time_average();
+	C_ave = new time_average();
+	R_fact = new time_average();
+	x_myo_ts = new time_average();
 }
 
 //--------------------------------------------------------------
@@ -225,8 +233,16 @@ void solver_lumped::coefficients_newton(double t_act)
 }
 
 //--------------------------------------------------------------
-void solver_lumped::initialization_newton()
+void solver_lumped::initialization_newton(double t_act)
 {
+
+		// updating parameters: applying control effects
+	if(t_act>3.*time_period)
+	{
+		update_parameters(t_act);
+	}
+
+
 	int i_elas=0;
 	for(int i=0; i<number_of_edges; i++)
 	{
@@ -281,6 +297,67 @@ void solver_lumped::substitute_newton(double t_act)
 			nodes[si]->y = nodes[si]->p/E_act;
 			nodes[ei]->y = nodes[ei]->p/E_act;
 		}
+	}
+
+
+	// saving time averages of myogenic control
+	if(do_myogenic)
+	{
+		double tn = time.back();
+		double vn = edges[0]->vfr;
+		q_ave->update(tn,vn,time_period);
+
+		vn = nodes[5]->p;
+		p_ave->update(tn,vn,time_period);
+		
+		vn = edges[5]->par_non_SI[0];
+		C_ave->update(tn,vn,time_period);
+
+		vn = edges[0]->parameter_factor;
+		R_fact->update(tn,vn,time_period);
+		x_myo_ts->update(tn,x_myo,time_period);
+	}
+
+
+}
+
+
+//--------------------------------------------------------------
+void solver_lumped::update_parameters(double t_act)
+{
+	if(do_myogenic)
+	{
+		myogenic_control(t_act);
+	}
+}
+
+//--------------------------------------------------------------
+void solver_lumped::myogenic_control(double t_act)
+{
+
+	// time step
+	double dt = t_act - time.back();
+
+	double p = p_ave->average.back();
+
+	// actuator signal
+	x_myo = x_myo + dt / tao * (- x_myo + G * (p - p_ref));
+
+	vector<int> Ridx{0,1}; // which resistors are we modifying
+
+	double FF; 
+	for(int i=0; i<Ridx.size(); i++)
+	{
+		double Rmax = 1.5, Rmin = 0.5;
+		double R_ref = edges[Ridx[i]]->par_non_SI[0];
+		double K = (p_ref-atmospheric_pressure/mmHg_to_Pa) * (p_ref-atmospheric_pressure/mmHg_to_Pa) / R_ref;
+		double ff = 8. * (p_ref-atmospheric_pressure/mmHg_to_Pa) / ( K * (Rmax - Rmin) * R_ref );
+		FF = (Rmax + Rmin * exp(-x_myo * ff)) / (1. + exp(-x_myo * ff));
+		
+		cout.precision(10);
+		cout << FF << endl;
+
+		edges[Ridx[i]]->parameter_factor = FF;
 	}
 
 }

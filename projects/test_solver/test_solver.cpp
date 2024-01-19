@@ -29,9 +29,9 @@ int main(int argc, char* argv[])
    // case_names.push_back("p_0D_p37");
    
    // case_names.push_back("Abel");
-   case_names.push_back("Hepa_3");
+   case_names.push_back("Abel_ref3_myogenic");
 
-   int st = 0; // 0, 1
+   int st = 0; // 0 ="MacCormack", 1 = "MoC"
    string sn = "0D"; // "MacCormack", "MoC"
    string sf = "results"; // results_maccormack, "results_moc"
 
@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
       cout << "   + load: OK" << endl;
 
       //fb->time_end = sim_time;
-      fb->material_type = 0; // setting to olufsen 1, linear 0
+      fb->material_type = 1; // setting to olufsen 1, linear 0
       //vector<double> olufsen_def_const{2.e6,-2253.,8.65e4}; // default constants for olufsen model
       //fb->material_const = olufsen_def_const;
       fb->time_period = period_time;

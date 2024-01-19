@@ -112,6 +112,25 @@ void solver_lumped::load_model()
 				nodes[nn]->is_ground = true;
 				nn++;
 			}
+			else if(sv[0] == "myogenic") // setting myogenic control
+			{
+				if(sv[1] == "on")
+				{
+					do_myogenic = true;
+				}
+				if(sv.size()>3)
+				{
+					q_ref = stod(sv[2],0)*1e6; // ref volumetric flow rate, convert to NON SI
+					p_ref = stod(sv[3],0)/mmHg_to_Pa; // ref pressure, convert to NON SI
+				}
+				if(sv.size()>7)
+				{
+					tao   = stod(sv[4],0); // time constant
+					G     = stod(sv[5],0); // gain
+					sat1  = stod(sv[6],0); // saturation 1
+					sat2  = stod(sv[7],0); // saturation 2
+				}
+			}
 		}
 	}
 	else
@@ -193,6 +212,20 @@ void solver_lumped::save_results(string folder_name, vector<string> edge_list, v
 		   }
 		   fclose(out_file);
    	}
+   }
+
+      if(do_myogenic)
+   {
+	   mkdir(fn.c_str(),0777);
+
+		string file_name = fn + "/q_ave.txt";
+		q_ave->save_results(file_name);
+
+		file_name = fn + "/p_ave.txt";
+		p_ave->save_results(file_name);
+
+		file_name = fn + "/C_ave.txt";
+		C_ave->save_results(file_name);
    }
 }
 
@@ -285,6 +318,26 @@ void solver_lumped::save_results(double dt, string folder_name, vector<string> e
 
 	      fclose(out_file);
    	}
+   }
+
+    if(do_myogenic)
+   {
+	   mkdir(fn.c_str(),0777);
+	   
+		string file_name = fn + "/q_ave.txt";
+		q_ave->save_results(dt, file_name);
+
+		file_name = fn + "/p_ave.txt";
+		p_ave->save_results(dt, file_name);
+
+		file_name = fn + "/C_ave.txt";
+		C_ave->save_results(dt, file_name);
+
+		file_name = fn + "/R_fact.txt";
+		R_fact->save_results(dt, file_name);
+
+		file_name = fn + "/x_myo.txt";
+		x_myo_ts->save_results(dt, file_name);
    }
 }
 
