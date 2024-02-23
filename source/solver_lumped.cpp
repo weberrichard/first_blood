@@ -360,11 +360,11 @@ void solver_lumped::myogenic_control(double t_act)
 
 		double R_ref = edges[Ridx[i]]->par_non_SI[0];
 		double K = (p_ref-atmospheric_pressure/mmHg_to_Pa) * (p_ref-atmospheric_pressure/mmHg_to_Pa) / R_ref;
-		double ff = 8. * (p_ref-atmospheric_pressure/mmHg_to_Pa) / ( K * (Rmax - Rmin) * R_ref );
+		double ff = 10*8. * (p_ref-atmospheric_pressure/mmHg_to_Pa) / ( K * (Rmax - Rmin) * R_ref );
 		FF = (Rmax + Rmin * exp(-x_myo * ff)) / (1. + exp(-x_myo * ff));
 		
-		cout.precision(10);
-		cout << FF << endl;
+		//cout.precision(10);
+		//cout << FF << endl;
 
 		edges[Ridx[i]]->parameter_factor = FF;
 	}
