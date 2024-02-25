@@ -16,6 +16,7 @@ solver_lumped_io.o \
 solver_moc.o \
 solver_moc_io.o \
 statistics.o \
+Transport.o \
 
 BIN_OBJS +=\
 $(BIN_FOLDER)file_io.o \
@@ -27,6 +28,7 @@ $(BIN_FOLDER)solver_lumped_io.o \
 $(BIN_FOLDER)solver_moc.o \
 $(BIN_FOLDER)solver_moc_io.o \
 $(BIN_FOLDER)statistics.o \
+$(BIN_FOLDER)Transport.o \
 
 $(MAIN): $(OBJS)
 	$(CXX) $(MAIN).cpp $(BIN_OBJS) -o $(MAIN).out

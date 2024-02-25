@@ -13,6 +13,7 @@
 
 #include	"file_io.h"
 #include    "statistics.h"
+#include    "transport.h"
 
 #include "/usr/include/eigen3/Eigen/Eigen"
 #include <iostream>
@@ -109,6 +110,8 @@ public:
 	int q_idx=0, p_idx=0, C_idx; // index for average values, which element's average
 	double x_myo; // acting signal
 	double q_ref=0., p_ref=0.;
+
+	D0Transport* RBClum;
 
 private:
 	// general constants

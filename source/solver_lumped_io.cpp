@@ -131,6 +131,12 @@ void solver_lumped::load_model()
 					sat2  = stod(sv[7],0); // saturation 2
 				}
 			}
+			//RBC transport
+			else if(sv[0] == "RBCperif") // setting myogenic control for perif (4RLC)
+			{
+				RBClum = new D0Transport(Perif0D, sv);
+				
+			}
 		}
 	}
 	else

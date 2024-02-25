@@ -161,6 +161,12 @@ bool first_blood::load_main_csv()
 				nodes.push_back(sv[1]);
 				nn++;
 			}
+			else if(sv[0] == "RBCtransport"){ //RBC transport
+				if(sv[1] == "on"){
+					do_RBCtransport = true;
+				}
+			}
+
 		}
 		load_ok = true;
 	}
@@ -653,6 +659,9 @@ void first_blood::initialization()
 	// time average stuff
 	map = new time_average();
 	cfr = new time_average();
+
+	//RBC transfer class
+	RBC1D = new Transport1DCl(TRBCType);
 }
 
 //--------------------------------------------------------------

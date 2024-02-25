@@ -77,6 +77,7 @@ public:
 	vector<double> area_start,              area_end; // m2
 	vector<double> volume_flow_rate_start,  volume_flow_rate_end; // m3/s
 	vector<double> mass_flow_rate_start,    mass_flow_rate_end; // kg/s
+	vector<double> RBC_concentration_start, RBC_concentration_end;// SI
 
 	// printing input parameters to console
 	void print_input();

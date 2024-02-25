@@ -18,6 +18,7 @@
 #include "solver_moc.h"
 #include "solver_lumped.h"
 #include "statistics.h"
+#include "transport.h"
 
 #include "/usr/include/eigen3/Eigen/Eigen"
 
@@ -144,6 +145,12 @@ public:
 	void calculate_time_average();
 	void save_time_average(string folder_name);
 	void save_time_average(double dt, string folder_name);
+
+	// RBC transport
+	bool do_RBCtransport = false;
+	Transport1DCl* RBC1D; //class handling the 1D transport stuff
+	TransportType TRBCType = RBC;
+	double fi_init_RBC = 0.;//initial value of RBC concentration
 
 private:
 	// data of boundary for forward, and backward simulation
