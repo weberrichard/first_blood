@@ -13,7 +13,6 @@
 
 #include	"file_io.h"
 #include    "statistics.h"
-#include    "transport.h"
 
 #include "/usr/include/eigen3/Eigen/Eigen"
 #include <iostream>
@@ -22,6 +21,11 @@
 
 using namespace Eigen;
 using namespace std;
+
+
+enum LumpedType { PerifCoronary0D, Perif0D, Heart0D };
+
+class D0Transport;//declaration because solver_lumped needs it
 
 class solver_lumped
 {
@@ -112,6 +116,7 @@ public:
 	double q_ref=0., p_ref=0.;
 
 	D0Transport* RBClum;
+	bool RBCtransport = false;
 
 private:
 	// general constants
@@ -145,6 +150,7 @@ private:
 		// initial condition for pressure
 		double pressure_initial; // Pa
 		double pres_ini_non_SI; // mmHg
+		double RBC_fi0Dn; // RBC concenrtation
 		// whether the pressure is prescribed with a ground, true means p=0
 		bool is_ground;
 		// if the node is an outer boundary, ie connected to an other model
@@ -197,6 +203,38 @@ public:
 
 	// size of vectors
 	int number_of_nodes, number_of_edges, number_of_master, number_of_elastance, number_of_moc;
+};
+
+//determnes the number of divison points for virtual 1D
+int NX(double L,double dx, int maxN);
+
+void Virt1DforLum(vector<double> &fi_old, vector<double> &fi, double v, double dt, double dx, int n, double fiStartNode, double fiEndNode);
+
+// Every lumped model gets one for eash type of transport. This handles the transport of substances in 0D
+class D0Transport {//every 0D model gets one of this class
+public:
+    TransportType TType;
+    //for simple peripherals wirh 4 RLC circuits
+    vector<double> fi_arteriole, fi_capillary, fi_venulare, fi_vein;
+    vector<double> fi_old_arteriole, fi_old_capillary, fi_old_venulare, fi_old_vein;
+    double dx_arteriole,dx_capillary, dx_venulare, dx_vein;
+    double L_arteriole, L_capillary, L_venulare, L_vein;
+    double A_arteriole, A_capillary, A_venulare, A_vein;//from file
+    int nx_arteriole, nx_capillary, nx_venulare, nx_vein;
+    LumpedType LType;
+    double ml_to_m3 = 1.0e-6;
+
+    //for the heart model
+
+    vector<double> fi_RA, fi_RV, fi_LA, fi_LV;//right atrium, right ventricle, left atrium, left ventricle
+    vector<double> fi_old_RA, fi_old_RV, fi_old_LA, fi_old_LV;
+
+    D0Transport(LumpedType LType, vector<string> sv, TransportType TType);
+
+    void UpdateFi(int LumIndex, double dt, double masterFi, vector<solver_lumped*> lum);
+
+    void UpdatePerifLumNodes(int LumNodeIndex, int LumIndex, double fiLeft, double fiRight, vector<solver_lumped*> lum);
+
 };
 
 #endif // SOLVER_LUMPED_H

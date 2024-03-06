@@ -134,8 +134,8 @@ void solver_lumped::load_model()
 			//RBC transport
 			else if(sv[0] == "RBCperif") // setting myogenic control for perif (4RLC)
 			{
-				RBClum = new D0Transport(Perif0D, sv);
-				
+				RBClum = new D0Transport(Perif0D, sv, RBC);
+				RBCtransport = true;
 			}
 		}
 	}

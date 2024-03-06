@@ -143,6 +143,7 @@ bool first_blood::load_main_csv()
 					k+=2;
 				}
 				nm++;
+				moc.back()->RBCnodeTransport = new TransportNodeCl(RBC);
 			}
 			else if(sv[0] == "lumped" || sv[0] == "lum") // 0D lumed models
 			{
@@ -284,6 +285,31 @@ bool first_blood::run()
 
 				// postproc: interpolate, save
 				moc[moc_idx]->edges[e_idx]->update();
+
+				if(do_RBCtransport){
+					//RBC transport in nodes
+					moc[moc_idx]->RBCnodeTransport->UpdateFi(si, moc[moc_idx]->nodes[si]->RBC_fi, moc[moc_idx]->nodes, moc[moc_idx]->edges);
+					moc[moc_idx]->RBCnodeTransport->UpdateFi(ei, moc[moc_idx]->nodes[ei]->RBC_fi, moc[moc_idx]->nodes, moc[moc_idx]->edges);
+					if(moc[moc_idx]->nodes[si]->is_master_node){
+						//RBC transport
+						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+						if (lum[lum_idx]-> RBCtransport){ lum[lum_idx]->RBClum->UpdateFi(lum_idx, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_fi, lum); }
+					}
+					if(moc[moc_idx]->nodes[ei]->is_master_node){
+						//RBC transport
+						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+						//cout << lum[30]->number_of_edges;
+						if (lum[lum_idx]-> RBCtransport){ lum[lum_idx]->RBClum->UpdateFi(lum_idx, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_fi, lum); }
+					}
+
+					//transport 1D update (actual edge)
+					int nodeStart = moc[moc_idx]->edges[e_idx]->node_index_start;
+					int nodeEnd = moc[moc_idx]->edges[e_idx]->node_index_end;
+					RBC1D->UpdateFi(moc[moc_idx]->edges[e_idx]->getVelocity(), moc[moc_idx]->edges[e_idx]->RBCfi, moc[moc_idx]->edges[e_idx]->RBCfinew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[nodeStart]->RBC_fi, moc[moc_idx]->nodes[nodeEnd]->RBC_fi);
+				}
+
+
+
 				//moc[moc_idx]->edges[e_idx]->update_variables();
 				if(moc[moc_idx]->edges[e_idx]->do_save_memory)
 				{
@@ -1010,6 +1036,49 @@ void first_blood::load_initials()
 		lum[i]->load_initials();
 	}
 }
+
+
+//transport stuff
+//-------------------------------------------
+void Transport1DCl::UpdateFi(vector<double> v, vector<double>& fi_old, vector<double>& fi, double l, double dt, double fiStart, double fiEnd){
+    int n = (int)v.size();
+    double dx = l / (n - 1);
+    vector<double> fi_tmp = fi; //this will be the new fi_old
+
+    for (int i = 1; i < n - 1; i++) {
+        if (v[i] > 0 ) {
+            fi[i] = fi_old[i] - v[i] * dt / dx * (fi_old[i] - fi_old[i - 1]);
+        }
+        else {
+            fi[i] = fi_old[i] - v[i] * dt / dx * (fi_old[i + 1] - fi_old[i]);
+        }
+    }
+ 
+    // downstream BC
+    if (v[n - 1] > 0) {
+        fi[n - 1] = fi_old[n - 1] - v[n - 1] * dt / dx * (fi_old[n - 1] - fi_old[n - 2]);
+    }
+    else {
+        fi[n - 1] = fiEnd; // fom node
+    }
+
+    // upstream BC
+    if (v[0] > 0) {
+        fi[0] = fiStart;  // from node
+    }
+    else{
+        fi[0] = fi_old[0] - v[0] * dt / dx * (fi_old[1] - fi_old[0]);
+    }
+
+    fi_old = fi_tmp;
+}
+
+//-----------------------------------------------------------------
+Transport1DCl::Transport1DCl(TransportType TType):TType(TType){};
+
+
+
+
 
 //--------------------------------------------------------------
 /*void first_blood::solve_lum(int index, double dt)

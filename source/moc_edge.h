@@ -153,6 +153,12 @@ public:
 	double f_flowrate_start(double pp, double q_in, double dt, double &v_s);
 	double f_flowrate_end(double pp, double q_in, double dt, double &v_e);
 
+	//get function(s) for transport
+	vector<double> getVelocity();
+	vector<double> getArea();
+
+	vector<double> RBCfi, RBCfinew; //RBC concentration SI
+
 private:
 	// changing diameter along the vessel
 	double nominal_area(double xp, double &dn_dx);

@@ -7,6 +7,8 @@
 
 using namespace std;
 
+enum TransportType { RBC };
+
 // separating string to vector<string>, comma
 vector<string> separate_line(string line);
 

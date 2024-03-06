@@ -631,6 +631,54 @@ void solver_moc::set_save_memory(vector<string> edge_list, vector<string> node_l
 	}
 }
 
+//transport stuff
+//--------------------------------------------
+TransportNodeCl::TransportNodeCl(TransportType TType) : TType(TType) {};
+
+//--------------------------------------------
+void TransportNodeCl::UpdateFi(int NodeIndex, double& fiNode, vector<moc_node*> nodes, vector<moc_edge*> edges){
+
+    if (nodes[NodeIndex]->is_master_node == true) {
+        //cout << "Call function -- in class --";
+        //return;
+        };
+    if (nodes[NodeIndex]->upstream_boundary > -1) {} // no idea about this
+
+    else if (nodes[NodeIndex]->type_code == 1) {} //periphery
+
+    else if (nodes[NodeIndex]->type_code == 0) { // junction
+
+        int n1 = nodes[NodeIndex]->edge_in.size();
+        int n2 = nodes[NodeIndex]->edge_out.size();
+
+        double q_sum = 0.; //vfr sum of the incoming edges only
+        double fiNodeOld = fiNode;
+        fiNode = 0;
+
+       for (int j = 0; j < n1; j++)
+       {
+           if (edges[nodes[NodeIndex]->edge_in[j]]->getVelocity().back() > 0.)
+           {
+            q_sum += edges[nodes[NodeIndex]->edge_in[j]]->getVelocity().back() * edges[nodes[NodeIndex]->edge_in[j]]->getArea().back();
+            fiNode += edges[nodes[NodeIndex]->edge_in[j]]->getVelocity().back() * edges[nodes[NodeIndex]->edge_in[j]]->getArea().back() * edges[nodes[NodeIndex]->edge_in[j]]->RBCfi.back();
+           }
+        }
+        for (int j = 0; j < n2; j++)
+        {
+            if (edges[nodes[NodeIndex]->edge_out[j]]->getVelocity()[0] < 0.){
+            q_sum -= edges[nodes[NodeIndex]->edge_out[j]]->getVelocity()[0] * edges[nodes[NodeIndex]->edge_out[j]]->getArea()[0]; //not sure about the sign tho...
+            fiNode -= edges[nodes[NodeIndex]->edge_out[j]]->getVelocity()[0] * edges[nodes[NodeIndex]->edge_out[j]]->getArea()[0] * edges[nodes[NodeIndex]->edge_out[j]]->RBCfi[0];
+            }
+        }
+        if (q_sum != 0) {
+            fiNode /= q_sum;
+        }
+        else { fiNode = fiNodeOld; }//if nothing flows in it stays the old
+    }
+};
+
+
+
 /*//--------------------------------------------------------------
 void solver_moc::post_process()
 {

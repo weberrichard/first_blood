@@ -33,6 +33,8 @@ void moc_edge::initialization(double pressure_initial, int mat_type)
    volume_flow_rate_end.clear();
    mass_flow_rate_start.clear();
    mass_flow_rate_end.clear();
+   RBC_concentration_start.clear();
+   RBC_concentration_end.clear();
    time.clear();
    time.push_back(0.);
 
@@ -53,6 +55,8 @@ void moc_edge::initialization(double pressure_initial, int mat_type)
 	A.clear();     A.resize(nx);
 	Anew.clear();  Anew.resize(nx);
 	x.clear();     x.resize(nx);
+	RBCfi.clear(); RBCfi.resize(nx);
+	RBCfinew.clear(); RBCfinew.resize(nx);
 
 	// calculating the space coordinates and dx
 	dx = l/(nx-1);
@@ -454,6 +458,10 @@ void moc_edge::save_field_variables()
 	double vf_e = v[nx-1] * A[nx-1];
 	volume_flow_rate_start.push_back(vf_s);
 	volume_flow_rate_end.push_back(vf_e);
+
+	//RBC transport
+	RBC_concentration_start.push_back(RBCfi[0]);
+	RBC_concentration_end.push_back(RBCfi[nx-1]);
 
 	// debug TODO: del
 	/*if(time.back()>-1.)
@@ -1074,3 +1082,9 @@ double moc_edge::boundary_velocity_end(double dt, double v_in, double &q_in)
 
 	return p_in;
 }
+
+//--------------------------------------------------------------
+//get functions for the transport
+vector<double> moc_edge::getVelocity(){return this-> v;}
+vector<double> moc_edge::getArea(){return this-> A;}
+

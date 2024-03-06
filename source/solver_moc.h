@@ -22,6 +22,8 @@
 
 using namespace Eigen;
 
+class TransportNodeCl; //declared
+
 class solver_moc
 {
 public:
@@ -126,6 +128,9 @@ public:
 	// finding all correspondning nodes to edges
 	vector<int> edge_to_node(vector<int> edge_idx);
 
+	//RBC transport for nodes
+	TransportNodeCl* RBCnodeTransport;
+
 private:
 
 	const double pi=3.14159265359;
@@ -142,6 +147,20 @@ private:
 	vector<string> pt_file_name;
 	
 };
+
+//handles transport for moc_nodes----------------------------------
+//one class for RBC transport...
+class TransportNodeCl {//for 1D 
+public:
+    TransportType TType;
+
+    TransportNodeCl(TransportType TType);
+
+    void UpdateFi(int NodeIndex, double& fiNode, vector<moc_node*> nodes, vector<moc_edge*> edges);
+};
+
+
+
 
 #endif // SOLVER_MOC_H
 

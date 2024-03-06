@@ -18,7 +18,7 @@
 #include "solver_moc.h"
 #include "solver_lumped.h"
 #include "statistics.h"
-#include "transport.h"
+
 
 #include "/usr/include/eigen3/Eigen/Eigen"
 
@@ -33,6 +33,18 @@
 #include <stdio.h>
 
 using namespace Eigen;
+
+//transport stuff
+//a first_blood object gets one of this class. This handles 1D transport for the moc edges
+class Transport1DCl {
+public:
+    TransportType TType;
+
+    Transport1DCl(TransportType TType);
+
+    void UpdateFi(vector<double> v, vector<double>& fi_old, vector<double>& fi, double l, double dt, double fiStart, double fiEnd);
+};
+
 
 class first_blood
 {
