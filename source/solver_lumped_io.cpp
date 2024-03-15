@@ -134,8 +134,8 @@ void solver_lumped::load_model()
 			//RBC transport
 			else if(sv[0] == "RBCperif") // setting myogenic control for perif (4RLC)
 			{
-				RBClum = new D0Transport(Perif0D, sv, RBC);
-				RBCtransport = true;
+				RBClum = new D0_transport(Perif0D, sv, RBC);
+				do_lum_RBC_transport = true;
 			}
 		}
 	}
@@ -233,6 +233,13 @@ void solver_lumped::save_results(string folder_name, vector<string> edge_list, v
 		file_name = fn + "/C_ave.txt";
 		C_ave->save_results(file_name);
    }
+
+   //if(do_lum_RBC_transport)
+   //{
+	//   mkdir(fn.c_str(),0777);
+	//   RBClum->save_results(fn, time);
+   //}
+
 }
 
 //--------------------------------------------------------------

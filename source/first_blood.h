@@ -42,7 +42,7 @@ public:
 
     Transport1DCl(TransportType TType);
 
-    void UpdateFi(vector<double> v, vector<double>& fi_old, vector<double>& fi, double l, double dt, double fiStart, double fiEnd);
+    void update_fi(vector<double> v, vector<double>& fi_old, vector<double>& fi, double l, double dt, double fiStart, double fiEnd);
 };
 
 
@@ -159,7 +159,7 @@ public:
 	void save_time_average(double dt, string folder_name);
 
 	// RBC transport
-	bool do_RBCtransport = false;
+	bool do_RBC_transport = false;
 	Transport1DCl* RBC1D; //class handling the 1D transport stuff
 	TransportType TRBCType = RBC;
 	double fi_init_RBC = 0.;//initial value of RBC concentration

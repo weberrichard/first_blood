@@ -143,7 +143,7 @@ bool first_blood::load_main_csv()
 					k+=2;
 				}
 				nm++;
-				moc.back()->RBCnodeTransport = new TransportNodeCl(RBC);
+				moc.back()->RBC_node_transport = new TransportNodeCl(RBC);
 			}
 			else if(sv[0] == "lumped" || sv[0] == "lum") // 0D lumed models
 			{
@@ -164,7 +164,7 @@ bool first_blood::load_main_csv()
 			}
 			else if(sv[0] == "RBCtransport"){ //RBC transport
 				if(sv[1] == "on"){
-					do_RBCtransport = true;
+					do_RBC_transport = true;
 				}
 			}
 
@@ -286,26 +286,38 @@ bool first_blood::run()
 				// postproc: interpolate, save
 				moc[moc_idx]->edges[e_idx]->update();
 
-				if(do_RBCtransport){
+				//cout<<t_act<<endl;
+				if(do_RBC_transport){
 					//RBC transport in nodes
-					moc[moc_idx]->RBCnodeTransport->UpdateFi(si, moc[moc_idx]->nodes[si]->RBC_fi, moc[moc_idx]->nodes, moc[moc_idx]->edges);
-					moc[moc_idx]->RBCnodeTransport->UpdateFi(ei, moc[moc_idx]->nodes[ei]->RBC_fi, moc[moc_idx]->nodes, moc[moc_idx]->edges);
+					moc[moc_idx]->nodes[0]->RBC_node_fi = 1.;
+
+					moc[moc_idx]->RBC_node_transport->update_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+					moc[moc_idx]->RBC_node_transport->update_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
 					if(moc[moc_idx]->nodes[si]->is_master_node){
-						//RBC transport
+						//RBC transport for lum
 						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
-						if (lum[lum_idx]-> RBCtransport){ lum[lum_idx]->RBClum->UpdateFi(lum_idx, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_fi, lum); }
+
+						if (lum[lum_idx]->do_lum_RBC_transport){
+							moc[moc_idx]->RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx]);
+							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_node_fi, *lum[lum_idx]);
+						}
+
 					}
 					if(moc[moc_idx]->nodes[ei]->is_master_node){
-						//RBC transport
+						//RBC transport for lum
 						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-						//cout << lum[30]->number_of_edges;
-						if (lum[lum_idx]-> RBCtransport){ lum[lum_idx]->RBClum->UpdateFi(lum_idx, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_fi, lum); }
+
+						if (lum[lum_idx]->do_lum_RBC_transport){
+							moc[moc_idx]->RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx]);
+							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[ei]->RBC_node_fi, *lum[lum_idx]);
+						}
+
 					}
 
 					//transport 1D update (actual edge)
 					int nodeStart = moc[moc_idx]->edges[e_idx]->node_index_start;
 					int nodeEnd = moc[moc_idx]->edges[e_idx]->node_index_end;
-					RBC1D->UpdateFi(moc[moc_idx]->edges[e_idx]->getVelocity(), moc[moc_idx]->edges[e_idx]->RBCfi, moc[moc_idx]->edges[e_idx]->RBCfinew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[nodeStart]->RBC_fi, moc[moc_idx]->nodes[nodeEnd]->RBC_fi);
+					RBC1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->RBC_edge_fi, moc[moc_idx]->edges[e_idx]->RBC_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[nodeStart]->RBC_node_fi, moc[moc_idx]->nodes[nodeEnd]->RBC_node_fi);
 				}
 
 
@@ -850,6 +862,16 @@ void first_blood::save_results(string folder_name, string model_name, string mod
 			}
 		}
 	}
+	else if(model_type == "RBC_transport")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name)
+			{
+				lum[i]->RBClum->save_results(folder_name, lum[i]->time, model_name);		
+			}
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -982,6 +1004,17 @@ void first_blood::set_save_memory(string model_name, string model_type, vector<s
 			}
 		}
 	}
+
+	if(model_type == "RBC_transport")
+	{
+		for(int i=0; i<number_of_lum; i++)
+		{
+			if(lum[i]->name == model_name)
+			{
+				lum[i]->RBClum->set_save_memory();
+			}
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -1040,7 +1073,7 @@ void first_blood::load_initials()
 
 //transport stuff
 //-------------------------------------------
-void Transport1DCl::UpdateFi(vector<double> v, vector<double>& fi_old, vector<double>& fi, double l, double dt, double fiStart, double fiEnd){
+void Transport1DCl::update_fi(vector<double> v, vector<double>& fi_old, vector<double>& fi, double l, double dt, double fiStart, double fiEnd){
     int n = (int)v.size();
     double dx = l / (n - 1);
     vector<double> fi_tmp = fi; //this will be the new fi_old

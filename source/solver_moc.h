@@ -14,6 +14,7 @@
 #include "moc_edge.h"
 #include "moc_node.h"
 #include "statistics.h"
+#include "solver_lumped.h"
 
 #include "/usr/include/eigen3/Eigen/Eigen"
 
@@ -129,7 +130,7 @@ public:
 	vector<int> edge_to_node(vector<int> edge_idx);
 
 	//RBC transport for nodes
-	TransportNodeCl* RBCnodeTransport;
+	TransportNodeCl* RBC_node_transport;
 
 private:
 
@@ -156,7 +157,8 @@ public:
 
     TransportNodeCl(TransportType TType);
 
-    void UpdateFi(int NodeIndex, double& fiNode, vector<moc_node*> nodes, vector<moc_edge*> edges);
+    void update_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges);
+    void update_master_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges, solver_lumped& lum_mod);
 };
 
 

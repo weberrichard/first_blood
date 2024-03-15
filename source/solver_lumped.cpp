@@ -616,6 +616,7 @@ void Virt1DforLum(vector<double> &fi_old, vector<double> &fi, double v, double d
     }
 
     //BC
+    
     if (v > 0) {
 
         fi[n - 1] = fi_old[n - 1] - v * dt / dx * (fi_old[n - 1] - fi_old[n - 2]);
@@ -632,12 +633,14 @@ void Virt1DforLum(vector<double> &fi_old, vector<double> &fi, double v, double d
 
 
 //--------------------------------
-D0Transport::D0Transport(LumpedType LType, vector<string> sv, TransportType TType):LType(LType), TType(TType) {
+D0_transport::D0_transport(LumpedType LType, vector<string> sv, TransportType TType):LType(LType), TType(TType) {
     switch (LType) {
     case PerifCoronary0D:
     //no idea
         break;
     case Perif0D:
+
+    	initialization();
 
         L_arteriole = stod(sv[1],0);
         L_capillary = stod(sv[2],0);
@@ -657,21 +660,23 @@ D0Transport::D0Transport(LumpedType LType, vector<string> sv, TransportType TTyp
         //capillary
         nx_capillary = NX(L_capillary, stod(sv[10],0), 5);
         dx_capillary = L_capillary / (nx_capillary - 1);
-        fi_capillary.assign(nx_arteriole, 0.);
-        fi_old_capillary.assign(nx_arteriole, 0.);
+        fi_capillary.assign(nx_capillary, 0.);
+        fi_old_capillary.assign(nx_capillary, 0.);
 
         //venulare
         nx_venulare = NX(L_venulare, stod(sv[11],0), 5);
         dx_venulare = L_venulare / (nx_venulare - 1);
-        fi_venulare.assign(nx_arteriole, 0.);
-        fi_old_venulare.assign(nx_arteriole, 0.);
+        fi_venulare.assign(nx_venulare, 0.);
+        fi_old_venulare.assign(nx_venulare, 0.);
 
         //vein
         nx_vein = NX(L_vein, stod(sv[12],0), 30);
         dx_vein = L_vein / (nx_vein - 1);
-        fi_vein.assign(nx_arteriole, 0.);
-        fi_old_vein.assign(nx_arteriole, 0.);
+        fi_vein.assign(nx_vein, 0.);
+        fi_old_vein.assign(nx_vein, 0.);
 
+        
+        save_variables();
 
         break;
     case Heart0D:
@@ -685,13 +690,13 @@ D0Transport::D0Transport(LumpedType LType, vector<string> sv, TransportType TTyp
 
 
 //-----------------------------------
-void D0Transport::UpdateFi(int LumIndex, double dt, double masterFi, vector<solver_lumped*> lum) {
+void D0_transport::update_fi(double dt, double masterFi, solver_lumped& lum_mod) {
 	//index of the heart model
-	int heartIndex = -1;// this could be done only at the initialization i guess...
-        for (int i=0;i<lum.size(); i++){
-        	if (lum[i]->name == "heart_kim_lit"){ heartIndex = i;}
-        }
-        if(heartIndex == -1){ cout<<"???"; return; }
+	//int heartIndex = -1;// this could be done only at the initialization i guess...
+    //    for (int i=0;i<lum.size(); i++){
+    //    	if (lum[i]->name == "heart_kim_lit"){ heartIndex = i;}
+    //    }
+    //    if(heartIndex == -1){ cout<<"???"; return; }
 
 
     switch (this-> LType) {
@@ -700,19 +705,22 @@ void D0Transport::UpdateFi(int LumIndex, double dt, double masterFi, vector<solv
         break;
     case Perif0D:
       
-        Virt1DforLum(fi_old_arteriole, fi_arteriole, lum[LumIndex]->edges[1]->vfr * ml_to_m3 / A_arteriole, dt, dx_arteriole, nx_arteriole, lum[LumIndex]->nodes[1]->RBC_fi0Dn, lum[LumIndex]->nodes[2]->RBC_fi0Dn);
-        Virt1DforLum(fi_old_capillary, fi_capillary, lum[LumIndex]->edges[2]->vfr * ml_to_m3 / A_capillary, dt, dx_capillary, nx_capillary, lum[LumIndex]->nodes[2]->RBC_fi0Dn, lum[LumIndex]->nodes[3]->RBC_fi0Dn);
-        Virt1DforLum(fi_old_venulare, fi_venulare, lum[LumIndex]->edges[3]->vfr * ml_to_m3 / A_venulare, dt, dx_venulare, nx_venulare, lum[LumIndex]->nodes[3]->RBC_fi0Dn, lum[LumIndex]->nodes[4]->RBC_fi0Dn);
-        Virt1DforLum(fi_old_vein, fi_vein, lum[LumIndex]->edges[4]->vfr * ml_to_m3 / A_vein, dt, dx_vein, nx_vein, lum[LumIndex]->nodes[4]->RBC_fi0Dn, lum[heartIndex]->nodes[0]->RBC_fi0Dn); // n1 is the master node
-            
-        //nodes
-        // not sure if the virtual 1D or the nodes should be updated first
-        UpdatePerifLumNodes(1, LumIndex, masterFi , fi_arteriole[0], lum);// masterFi is the master node's fi
-        UpdatePerifLumNodes(2, LumIndex, fi_arteriole.back(), fi_capillary[0], lum);
-        UpdatePerifLumNodes(3, LumIndex, fi_capillary.back(), fi_venulare[0], lum);
-        UpdatePerifLumNodes(4, LumIndex, fi_venulare.back(), fi_vein[0], lum);
+        Virt1DforLum(fi_old_arteriole, fi_arteriole, lum_mod.edges[1]->vfr * ml_to_m3 / A_arteriole, dt, dx_arteriole, nx_arteriole, masterFi , lum_mod.nodes[2]->RBC_fi0Dn);
+        Virt1DforLum(fi_old_capillary, fi_capillary, lum_mod.edges[2]->vfr * ml_to_m3 / A_capillary, dt, dx_capillary, nx_capillary, lum_mod.nodes[2]->RBC_fi0Dn, lum_mod.nodes[3]->RBC_fi0Dn);
+        Virt1DforLum(fi_old_venulare, fi_venulare, lum_mod.edges[3]->vfr * ml_to_m3 / A_venulare, dt, dx_venulare, nx_venulare, lum_mod.nodes[3]->RBC_fi0Dn, lum_mod.nodes[4]->RBC_fi0Dn);
+        Virt1DforLum(fi_old_vein, fi_vein, lum_mod.edges[4]->vfr * ml_to_m3 / A_vein, dt, dx_vein, nx_vein, lum_mod.nodes[4]->RBC_fi0Dn, 0.);//not ready, heart
+        //Virt1DforLum(fi_old_vein, fi_vein, lum_mod.edges[4]->vfr * ml_to_m3 / A_vein, dt, dx_vein, nx_vein, lum_mod.nodes[4]->RBC_fi0Dn, lum[heartIndex]->nodes[0]->RBC_fi0Dn); // n1 is the master node
 
-        //master node
+        //nodes
+        //not sure if the virtual 1D or the nodes should be updated first
+        UpdatePerifLumNode(2, fi_arteriole.back(), fi_capillary[0], lum_mod);
+        UpdatePerifLumNode(3, fi_capillary.back(), fi_venulare[0], lum_mod);
+        UpdatePerifLumNode(4, fi_venulare.back(), fi_vein[0], lum_mod);
+        
+        if(do_save_results){
+        save_variables(); //not sure about it...
+        }
+
         //node connecting heart and perifs
 
 
@@ -730,45 +738,133 @@ void D0Transport::UpdateFi(int LumIndex, double dt, double masterFi, vector<solv
 
 //------------------------------------
 //updates fi parameters of perif nodes
-void D0Transport::UpdatePerifLumNodes(int LumNodeIndex, int LumIndex, double fiLeft, double fiRight, vector<solver_lumped*> lum) {
-    int a, b, c;
+void D0_transport::UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fiRight, solver_lumped& lum_mod) {
+    int a=0, b=0, c=0;
 
     //1 if q flows towards the node
-    if (lum[LumIndex]->edges[LumNodeIndex]->vfr < 0) { a = 1; } //Resistance edge
-    if (lum[LumIndex]->edges[LumNodeIndex - 1]->vfr > 0) { b = 1; } //Inductance edge
-    if (lum[LumIndex]->edges[LumNodeIndex + 4]->vfr < 0) { c = 1; } //Capacitance edge
+    if (lum_mod.edges[LumNodeIndex]->vfr < 0.) { a = 1; } //Resistance edge
+    if (lum_mod.edges[LumNodeIndex + 8]->vfr > 0.) { b = 1; } //Inductance edge
+    if (lum_mod.edges[LumNodeIndex + 4]->vfr < 0.) { c = 1; } //Capacitance edge
 
     double qLeft, qRight, qDown;
+    //cout<<a*4 + b*2 + c<<endl;
 
     switch (a*4 + b*2 + c) {
     case 1:
-        lum[LumIndex]->nodes[LumNodeIndex]->RBC_fi0Dn = fiRight;
+        lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn = fiRight;
         break;
 
     case 2:
-        lum[LumIndex]->nodes[LumNodeIndex]->RBC_fi0Dn = fiLeft;
+        lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn = fiLeft;
         break;
 
     case 3:
-        qLeft = lum[LumIndex]->edges[LumNodeIndex - 1]->vfr;
-        qDown = lum[LumIndex]->edges[LumNodeIndex - 4]->vfr;
-        lum[LumIndex]->nodes[LumNodeIndex]->RBC_fi0Dn = (qLeft*fiLeft + qDown *fiRight)/(qDown + qLeft);
+        qLeft = lum_mod.edges[LumNodeIndex + 8]->vfr;
+        qDown = lum_mod.edges[LumNodeIndex + 4]->vfr;
+        lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn = (qLeft*fiLeft + qDown *fiRight)/(qDown + qLeft);
         break;
 
     case 4:
-        lum[LumIndex]->nodes[LumNodeIndex]->RBC_fi0Dn = fiRight; //same az case 1
+        lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn = fiRight; //same az case 1
         break;
 
     case 5:
-        lum[LumIndex]->nodes[LumNodeIndex]->RBC_fi0Dn = fiRight; //both has the same fi
+        lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn = fiRight; //both has the same fi
         break;
 
     case 6:
-        qLeft = lum[LumIndex]->edges[LumNodeIndex - 1]->vfr; // in ml/s, the dimension does not matter
-        qRight = lum[LumIndex]->edges[LumNodeIndex]->vfr;
-        lum[LumIndex]->nodes[LumNodeIndex]->RBC_fi0Dn = (qLeft * fiLeft + qRight * fiRight) / (qRight + qLeft);
+        qLeft = lum_mod.edges[LumNodeIndex - 1]->vfr;
+        qRight = lum_mod.edges[LumNodeIndex]->vfr;
+        lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn = (qLeft * fiLeft + qRight * fiRight) / (qRight + qLeft);
         break;
     }
 }
 
+//--------------------------------------------------------------
+void D0_transport::initialization(){
 
+    fi_arteriole_start.clear();
+    fi_arteriole_end.clear();
+    fi_capillary_start.clear();
+    fi_capillary_end.clear();
+    fi_venulare_start.clear();
+    fi_venulare_end.clear();
+    fi_vein_start.clear();
+    fi_vein_end.clear();
+
+    fi_arteriole.clear();
+    fi_capillary.clear();
+    fi_venulare.clear();
+    fi_vein.clear();
+    fi_old_arteriole.clear();
+    fi_old_capillary.clear();
+    fi_old_venulare.clear();
+    fi_old_vein.clear();
+
+
+}
+
+
+//--------------------------------------------------------------
+void D0_transport::save_variables(){
+
+    switch (this-> LType){
+    case Perif0D:
+		fi_arteriole_start.push_back(fi_arteriole[0]);
+        fi_arteriole_end.push_back(fi_arteriole.back());
+        fi_capillary_start.push_back(fi_capillary[0]);
+        fi_capillary_end.push_back(fi_capillary.back());
+        fi_venulare_start.push_back(fi_venulare[0]);
+        fi_venulare_end.push_back(fi_venulare.back());
+        fi_vein_start.push_back(fi_vein[0]);
+        fi_vein_end.push_back(fi_vein.back());
+
+		break;
+	}
+
+}
+
+
+//--------------------------------------------------------------
+void D0_transport::save_results(string fn, const vector<double>& time, string model_name){
+	switch (this-> LType){
+    case Perif0D:
+    	mkdir(("results/" + fn + "/" + model_name).c_str(),0777);
+    	string file_name = "results/" + fn + "/" + model_name + "/arteriole.txt";
+    	//cout<<file_name;
+		save_vector(file_name, fi_arteriole_start, fi_arteriole_end, time);
+
+		file_name = "results/" + fn + "/" + model_name + "/capillary.txt";
+		save_vector(file_name, fi_capillary_start, fi_capillary_end, time);
+
+		file_name = "results/" + fn + "/" + model_name + "/venulare.txt";
+		save_vector(file_name, fi_venulare_start, fi_venulare_end, time);
+
+		file_name = "results/" + fn + "/" + model_name + "/vein.txt";
+		save_vector(file_name, fi_vein_start, fi_vein_end, time);
+
+		break;
+	}
+}
+
+
+//--------------------------------------------------------------
+void D0_transport::save_vector(string folder_name, const vector<double>& st, const vector<double>& en, const vector<double>& time){
+    FILE *out_file = fopen(folder_name.c_str(),"w");
+    //if(!out_file){cout<<"alma";}
+
+	for(unsigned int j=0; j<st.size(); j++)
+	{
+		double t = time[j];
+		double fi_start = st[j];
+		double fi_end = en[j];
+		fprintf(out_file, "%9.7e, %9.7e, %9.7e\n", t, fi_start, fi_end);
+	}
+    fclose(out_file);
+
+}
+
+//--------------------------------------------------------------
+void D0_transport::set_save_memory(){
+    do_save_results = true;	
+};

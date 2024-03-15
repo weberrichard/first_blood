@@ -25,7 +25,7 @@ using namespace std;
 
 enum LumpedType { PerifCoronary0D, Perif0D, Heart0D };
 
-class D0Transport;//declaration because solver_lumped needs it
+class D0_transport;//declaration because solver_lumped needs it
 
 class solver_lumped
 {
@@ -115,8 +115,8 @@ public:
 	double x_myo; // acting signal
 	double q_ref=0., p_ref=0.;
 
-	D0Transport* RBClum;
-	bool RBCtransport = false;
+	D0_transport* RBClum;
+	bool do_lum_RBC_transport = false;
 
 private:
 	// general constants
@@ -211,9 +211,10 @@ int NX(double L,double dx, int maxN);
 void Virt1DforLum(vector<double> &fi_old, vector<double> &fi, double v, double dt, double dx, int n, double fiStartNode, double fiEndNode);
 
 // Every lumped model gets one for eash type of transport. This handles the transport of substances in 0D
-class D0Transport {//every 0D model gets one of this class
+class D0_transport {//every 0D model gets one of this class
 public:
     TransportType TType;
+    bool do_save_results = false;
     //for simple peripherals wirh 4 RLC circuits
     vector<double> fi_arteriole, fi_capillary, fi_venulare, fi_vein;
     vector<double> fi_old_arteriole, fi_old_capillary, fi_old_venulare, fi_old_vein;
@@ -222,6 +223,16 @@ public:
     double A_arteriole, A_capillary, A_venulare, A_vein;//from file
     int nx_arteriole, nx_capillary, nx_venulare, nx_vein;
     LumpedType LType;
+
+    //for sawing concenrtation in time
+
+    //Perif0D
+    vector<double> fi_arteriole_start, fi_arteriole_end;
+    vector<double> fi_capillary_start, fi_capillary_end;
+    vector<double> fi_venulare_start, fi_venulare_end;
+    vector<double> fi_vein_start, fi_vein_end;
+
+
     double ml_to_m3 = 1.0e-6;
 
     //for the heart model
@@ -229,11 +240,17 @@ public:
     vector<double> fi_RA, fi_RV, fi_LA, fi_LV;//right atrium, right ventricle, left atrium, left ventricle
     vector<double> fi_old_RA, fi_old_RV, fi_old_LA, fi_old_LV;
 
-    D0Transport(LumpedType LType, vector<string> sv, TransportType TType);
+    D0_transport(LumpedType LType, vector<string> sv, TransportType TType);
 
-    void UpdateFi(int LumIndex, double dt, double masterFi, vector<solver_lumped*> lum);
+    void update_fi(double dt, double masterFi, solver_lumped& lum_mod);
 
-    void UpdatePerifLumNodes(int LumNodeIndex, int LumIndex, double fiLeft, double fiRight, vector<solver_lumped*> lum);
+    void UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fiRight, solver_lumped& lum_mod);
+
+    void initialization();
+    void save_variables();
+    void save_results(string fn, const vector<double>& time, string model_name);
+    void save_vector(string fname, const vector<double>& st, const vector<double>& en, const vector<double>& time);
+    void set_save_memory();
 
 };
 

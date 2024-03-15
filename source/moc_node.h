@@ -52,7 +52,7 @@ public:
 	double is_resistance; // if there is "leakage" this is 1, otherwise 0 and will eliminate this term
 	double pressure_out; // outside pressure 
 	double density; // density of the fluid (blood)
-	double RBC_fi; // concenrtation of RBC
+	double RBC_node_fi; // concenrtation of RBC
 
 	// bool is_upstream_boundary = false;
 	int upstream_boundary = -1; // for heart or upper boundary it is true
