@@ -42,9 +42,18 @@ public:
 
     Transport1DCl(TransportType TType);
 
-    void update_fi(vector<double> v, vector<double>& fi_old, vector<double>& fi, double l, double dt, double fiStart, double fiEnd);
+    void update_fi(vector<double> v, vector<double>& fi, vector<double>& fi_new, double l, double dt, double fiStart, double fiEnd);
 };
 
+class TransportNodeCl {//for 1D nodes
+public:
+    TransportType TType;
+
+    TransportNodeCl(TransportType TType);
+
+    void update_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges);
+    void update_master_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges, solver_lumped& lum_mod);
+};
 
 class first_blood
 {
@@ -162,6 +171,7 @@ public:
 	bool do_RBC_transport = false;
 	Transport1DCl* RBC1D; //class handling the 1D transport stuff
 	TransportType TRBCType = RBC;
+	TransportNodeCl* RBC_node_transport;
 	double fi_init_RBC = 0.;//initial value of RBC concentration
 
 private:

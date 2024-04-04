@@ -590,13 +590,22 @@ void solver_lumped::set_save_memory(vector<string> edge_list, vector<string> nod
 	}
 }
 
+
+
+//--------------------------------------------------------------
+double solver_lumped::delta_V(int edge_index, int node_index){
+	double C_ref = edges[edge_index]->parameter[0]; //everything is in SI
+	double dp = nodes[node_index]->p*mmHg_to_Pa - atmospheric_pressure;
+	return C_ref * dp;
+}
+
 //--------------------------------------------------------------
 int NX(double L,double dx, int N) {
-    if (floor(L / dx) > N) {
+    if (floor(L / dx) + 1 > N) {
         return N;
     }
     else {
-        return floor(L / dx);
+        return floor(L / dx) + 1;
     }
 }
 
@@ -698,18 +707,26 @@ void D0_transport::update_fi(double dt, double masterFi, solver_lumped& lum_mod)
     //    }
     //    if(heartIndex == -1){ cout<<"???"; return; }
 
+	double AA; //changing cross-section if needed
 
     switch (this-> LType) {
     case PerifCoronary0D:
         //no idea
         break;
     case Perif0D:
-      
-        Virt1DforLum(fi_old_arteriole, fi_arteriole, lum_mod.edges[1]->vfr * ml_to_m3 / A_arteriole, dt, dx_arteriole, nx_arteriole, masterFi , lum_mod.nodes[2]->RBC_fi0Dn);
-        Virt1DforLum(fi_old_capillary, fi_capillary, lum_mod.edges[2]->vfr * ml_to_m3 / A_capillary, dt, dx_capillary, nx_capillary, lum_mod.nodes[2]->RBC_fi0Dn, lum_mod.nodes[3]->RBC_fi0Dn);
-        Virt1DforLum(fi_old_venulare, fi_venulare, lum_mod.edges[3]->vfr * ml_to_m3 / A_venulare, dt, dx_venulare, nx_venulare, lum_mod.nodes[3]->RBC_fi0Dn, lum_mod.nodes[4]->RBC_fi0Dn);
-        Virt1DforLum(fi_old_vein, fi_vein, lum_mod.edges[4]->vfr * ml_to_m3 / A_vein, dt, dx_vein, nx_vein, lum_mod.nodes[4]->RBC_fi0Dn, 0.);//not ready, heart
-        //Virt1DforLum(fi_old_vein, fi_vein, lum_mod.edges[4]->vfr * ml_to_m3 / A_vein, dt, dx_vein, nx_vein, lum_mod.nodes[4]->RBC_fi0Dn, lum[heartIndex]->nodes[0]->RBC_fi0Dn); // n1 is the master node
+        
+        AA = A_arteriole + lum_mod.delta_V( 5, 1)/L_arteriole;
+        Virt1DforLum(fi_old_arteriole, fi_arteriole, lum_mod.edges[1]->vfr * ml_to_m3 / AA, dt, dx_arteriole, nx_arteriole, masterFi , lum_mod.nodes[2]->RBC_fi0Dn);
+
+        AA = A_capillary + lum_mod.delta_V( 6, 2)/L_capillary;
+        Virt1DforLum(fi_old_capillary, fi_capillary, lum_mod.edges[2]->vfr * ml_to_m3 / AA, dt, dx_capillary, nx_capillary, lum_mod.nodes[2]->RBC_fi0Dn, lum_mod.nodes[3]->RBC_fi0Dn);
+
+        AA = A_venulare + lum_mod.delta_V( 7, 3)/L_venulare;
+        Virt1DforLum(fi_old_venulare, fi_venulare, lum_mod.edges[3]->vfr * ml_to_m3 / AA, dt, dx_venulare, nx_venulare, lum_mod.nodes[3]->RBC_fi0Dn, lum_mod.nodes[4]->RBC_fi0Dn);
+
+        AA = A_vein + lum_mod.delta_V( 8, 4)/L_vein;
+        Virt1DforLum(fi_old_vein, fi_vein, lum_mod.edges[4]->vfr * ml_to_m3 / AA, dt, dx_vein, nx_vein, lum_mod.nodes[4]->RBC_fi0Dn, 0.);//not ready, heart
+        
 
         //nodes
         //not sure if the virtual 1D or the nodes should be updated first
@@ -742,8 +759,8 @@ void D0_transport::UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fi
     int a=0, b=0, c=0;
 
     //1 if q flows towards the node
-    if (lum_mod.edges[LumNodeIndex]->vfr < 0.) { a = 1; } //Resistance edge
-    if (lum_mod.edges[LumNodeIndex + 8]->vfr > 0.) { b = 1; } //Inductance edge
+    if (lum_mod.edges[LumNodeIndex]->vfr < 0.) { a = 1; } //Resistance edge right
+    if (lum_mod.edges[LumNodeIndex + 7]->vfr > 0.) { b = 1; } //Inductance edge left
     if (lum_mod.edges[LumNodeIndex + 4]->vfr < 0.) { c = 1; } //Capacitance edge
 
     double qLeft, qRight, qDown;
@@ -759,8 +776,8 @@ void D0_transport::UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fi
         break;
 
     case 3:
-        qLeft = lum_mod.edges[LumNodeIndex + 8]->vfr;
-        qDown = lum_mod.edges[LumNodeIndex + 4]->vfr;
+        qLeft = lum_mod.edges[LumNodeIndex + 7]->vfr;
+        qDown = -1.* lum_mod.edges[LumNodeIndex + 4]->vfr;
         lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn = (qLeft*fiLeft + qDown *fiRight)/(qDown + qLeft);
         break;
 
@@ -773,8 +790,8 @@ void D0_transport::UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fi
         break;
 
     case 6:
-        qLeft = lum_mod.edges[LumNodeIndex - 1]->vfr;
-        qRight = lum_mod.edges[LumNodeIndex]->vfr;
+        qLeft = lum_mod.edges[LumNodeIndex + 7]->vfr;
+        qRight = -1.* lum_mod.edges[LumNodeIndex]->vfr;
         lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn = (qLeft * fiLeft + qRight * fiRight) / (qRight + qLeft);
         break;
     }

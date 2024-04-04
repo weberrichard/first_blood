@@ -203,9 +203,12 @@ public:
 
 	// size of vectors
 	int number_of_nodes, number_of_edges, number_of_master, number_of_elastance, number_of_moc;
+
+	//changing cross-section for the rtansport in 0D ("virtual 1D")
+	double delta_V(int edge_index, int node_index);
 };
 
-//determnes the number of divison points for virtual 1D
+//determines the number of divison points for virtual 1D
 int NX(double L,double dx, int maxN);
 
 void Virt1DforLum(vector<double> &fi_old, vector<double> &fi, double v, double dt, double dx, int n, double fiStartNode, double fiEndNode);
@@ -220,7 +223,7 @@ public:
     vector<double> fi_old_arteriole, fi_old_capillary, fi_old_venulare, fi_old_vein;
     double dx_arteriole,dx_capillary, dx_venulare, dx_vein;
     double L_arteriole, L_capillary, L_venulare, L_vein;
-    double A_arteriole, A_capillary, A_venulare, A_vein;//from file
+    double A_arteriole, A_capillary, A_venulare, A_vein;//from file, it is A_average-dA_average because of the changing cross-section
     int nx_arteriole, nx_capillary, nx_venulare, nx_vein;
     LumpedType LType;
 

@@ -143,7 +143,6 @@ bool first_blood::load_main_csv()
 					k+=2;
 				}
 				nm++;
-				moc.back()->RBC_node_transport = new TransportNodeCl(RBC);
 			}
 			else if(sv[0] == "lumped" || sv[0] == "lum") // 0D lumed models
 			{
@@ -165,6 +164,7 @@ bool first_blood::load_main_csv()
 			else if(sv[0] == "RBCtransport"){ //RBC transport
 				if(sv[1] == "on"){
 					do_RBC_transport = true;
+					RBC_node_transport = new TransportNodeCl(RBC); 
 				}
 			}
 
@@ -289,16 +289,17 @@ bool first_blood::run()
 				//cout<<t_act<<endl;
 				if(do_RBC_transport){
 					//RBC transport in nodes
-					moc[moc_idx]->nodes[0]->RBC_node_fi = 1.;
 
-					moc[moc_idx]->RBC_node_transport->update_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
-					moc[moc_idx]->RBC_node_transport->update_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+					RBC_node_transport->update_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+					RBC_node_transport->update_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+					moc[moc_idx]->nodes[0]->RBC_node_fi = 1.;
 					if(moc[moc_idx]->nodes[si]->is_master_node){
 						//RBC transport for lum
 						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
 
 						if (lum[lum_idx]->do_lum_RBC_transport){
-							moc[moc_idx]->RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx]);
+							RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx]);
 							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_node_fi, *lum[lum_idx]);
 						}
 
@@ -308,16 +309,14 @@ bool first_blood::run()
 						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
 
 						if (lum[lum_idx]->do_lum_RBC_transport){
-							moc[moc_idx]->RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx]);
+							RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx]);
 							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[ei]->RBC_node_fi, *lum[lum_idx]);
 						}
 
 					}
 
 					//transport 1D update (actual edge)
-					int nodeStart = moc[moc_idx]->edges[e_idx]->node_index_start;
-					int nodeEnd = moc[moc_idx]->edges[e_idx]->node_index_end;
-					RBC1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->RBC_edge_fi, moc[moc_idx]->edges[e_idx]->RBC_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[nodeStart]->RBC_node_fi, moc[moc_idx]->nodes[nodeEnd]->RBC_node_fi);
+					RBC1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->RBC_edge_fi, moc[moc_idx]->edges[e_idx]->RBC_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[ei]->RBC_node_fi);
 				}
 
 
@@ -1073,42 +1072,139 @@ void first_blood::load_initials()
 
 //transport stuff
 //-------------------------------------------
-void Transport1DCl::update_fi(vector<double> v, vector<double>& fi_old, vector<double>& fi, double l, double dt, double fiStart, double fiEnd){
-    int n = (int)v.size();
+void Transport1DCl::update_fi(vector<double> v, vector<double>& fi, vector<double>& fi_new, double l, double dt, double fiStart, double fiEnd){
+    int n = v.size();
     double dx = l / (n - 1);
-    vector<double> fi_tmp = fi; //this will be the new fi_old
+    vector<double> fi_tmp = fi_new; //this will be the new fi
 
     for (int i = 1; i < n - 1; i++) {
         if (v[i] > 0 ) {
-            fi[i] = fi_old[i] - v[i] * dt / dx * (fi_old[i] - fi_old[i - 1]);
+            fi_new[i] = fi[i] - v[i] * dt / dx * (fi[i] - fi[i - 1]);
         }
         else {
-            fi[i] = fi_old[i] - v[i] * dt / dx * (fi_old[i + 1] - fi_old[i]);
+            fi_new[i] = fi[i] - v[i] * dt / dx * (fi[i + 1] - fi[i]);
         }
     }
  
     // downstream BC
     if (v[n - 1] > 0) {
-        fi[n - 1] = fi_old[n - 1] - v[n - 1] * dt / dx * (fi_old[n - 1] - fi_old[n - 2]);
+        fi_new[n - 1] = fi[n - 1] - v[n - 1] * dt / dx * (fi[n - 1] - fi[n - 2]);
     }
     else {
-        fi[n - 1] = fiEnd; // fom node
+        fi_new[n - 1] = fiEnd; // fom node
     }
 
     // upstream BC
     if (v[0] > 0) {
-        fi[0] = fiStart;  // from node
+        fi_new[0] = fiStart;  // from node
     }
     else{
-        fi[0] = fi_old[0] - v[0] * dt / dx * (fi_old[1] - fi_old[0]);
+        fi_new[0] = fi[0] - v[0] * dt / dx * (fi[1] - fi[0]);
     }
 
-    fi_old = fi_tmp;
+    fi = fi_tmp;
 }
 
 //-----------------------------------------------------------------
 Transport1DCl::Transport1DCl(TransportType TType):TType(TType){};
 
+
+
+//transport stuff for 1D nodes
+//separate class is needed for each type of transport. eg.: RBC...
+//--------------------------------------------
+TransportNodeCl::TransportNodeCl(TransportType TType) : TType(TType) {};
+
+//--------------------------------------------
+void TransportNodeCl::update_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges){
+    if (node->is_master_node == true) {
+        return;
+        };
+
+    if (node->upstream_boundary > -1) {} // no idea about this, TODO
+
+    else if (node->type_code == 1) {} //periphery
+
+    else if (node->type_code == 0) { // junction
+
+        int n1 = node->edge_in.size();
+        int n2 = node->edge_out.size();
+
+        double q_sum = 0.; //vfr sum of the incoming edges only
+        double q;
+        double fiNodeOld = fiNode;
+        fiNode = 0.;
+
+       for (int j = 0; j < n1; j++)
+       {
+           if (edges[node->edge_in[j]]->get_velocity().back() > 0.)
+           {
+           	q = edges[node->edge_in[j]]->get_velocity().back() * edges[node->edge_in[j]]->get_area().back();
+            q_sum += q;
+            fiNode += q * edges[node->edge_in[j]]->RBC_edge_fi.back();
+           }
+        }
+        for (int j = 0; j < n2; j++)
+        {
+            if (edges[node->edge_out[j]]->get_velocity()[0] < 0.)
+            {
+            q = edges[node->edge_out[j]]->get_velocity()[0] * edges[node->edge_out[j]]->get_area()[0];
+            q_sum -= q; //not sure about the sign tho...
+            fiNode -= q * edges[node->edge_out[j]]->RBC_edge_fi[0];
+            }
+        }
+        if (q_sum != 0.) {
+            fiNode /= q_sum;
+        }
+        else { fiNode = fiNodeOld; }//if nothing flows in it stays the old
+    }
+};
+
+//----------------------------------------------------------------
+
+void TransportNodeCl::update_master_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges, solver_lumped& lum_mod){
+    int n1 = node->edge_in.size();
+    int n2 = node->edge_out.size();
+
+    double fiNodeOld = fiNode;
+    fiNode = 0.;
+
+    double q_sum = 0.;
+    double q;
+
+    //outgoing edges
+    for (int j = 0; j < n2; j++)
+    {
+        if (edges[node->edge_in[j]]->get_velocity()[0] < 0.){
+   	       q = edges[node->edge_out[j]]->get_velocity()[0] * edges[node->edge_out[j]]->get_area()[0];
+           q_sum -= q;
+           fiNode -= q * edges[node->edge_out[j]]->RBC_edge_fi[0];
+        }
+    } 
+
+    //incoming edges
+    for (int j = 0; j < n1; j++)
+    {
+        if (edges[node->edge_in[j]]->get_velocity().back() > 0.){
+   	        q = edges[node->edge_in[j]]->get_velocity().back() * edges[node->edge_in[j]]->get_area().back();
+            q_sum += q;
+            fiNode += q * edges[node->edge_in[j]]->RBC_edge_fi.back();
+        }
+    }
+    
+    if( lum_mod.RBClum->LType == Perif0D){//arteriole
+        q = lum_mod.edges[0]->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * lum_mod.RBClum->fi_arteriole[0];
+        }
+    }
+
+    if (q_sum != 0.) {
+       fiNode /= q_sum;
+    }
+    else { fiNode = fiNodeOld; }//if nothing flows in it stays the old
+}
 
 
 
