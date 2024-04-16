@@ -112,6 +112,7 @@ int main(int argc, char* argv[])
 
    // print to console
    cout << " Base model: " << case_name << endl;
+   cout << "  idx: " << idx_cons << endl;
    cout << "  sex: " << sex << endl;
    cout << "  age: " << age << endl;
 
@@ -249,8 +250,10 @@ int main(int argc, char* argv[])
    fb->clear_save_memory();
    string model_name = "arterial";
    string model_type = "moc";
-   vector<string> el{"A1","A2","A3","A5","A8","A12","A14","A18","A20","A27","A28","A35","A37","A39","A41","A43","A44","A46","A48","A95"};
-   vector<string> nl{"H","n8","n1","n32"};
+   //vector<string> el{"A1","A2","A3","A5","A8","A12","A14","A18","A20","A27","A28","A35","A37","A39","A41","A43","A44","A46","A48","A95"};
+   //vector<string> nl{"H","n8","n1","n32"};
+   vector<string> el;
+   vector<string> nl{"n8"};
    fb->set_save_memory(model_name,model_type,el,nl);
 
    // running the simulation
@@ -266,6 +269,7 @@ int main(int argc, char* argv[])
       //fb->save_initials("Reymond_99_heart_ref","models");
 
       // calculating fitness function
+      /*
       int n8idx = fb->moc[0]->node_id_to_index("n8");
       int n1idx = fb->moc[0]->node_id_to_index("n1");
       int n32idx = fb->moc[0]->node_id_to_index("n32");
@@ -311,8 +315,10 @@ int main(int argc, char* argv[])
          }
          fitness_function[12+i] /= lsum;
       }
+      */
    }
 
+   /*
    file_name = "results/" + out_file_name + "/output.txt";
    FILE *out_file;
    out_file = fopen(file_name.c_str(),"w");
@@ -321,6 +327,7 @@ int main(int argc, char* argv[])
       fprintf(out_file, "%9.7e\n", fitness_function[i]);
    }
    fclose(out_file);
+   */
 
    return 0;
 }
