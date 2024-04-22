@@ -183,6 +183,8 @@ private:
 		// initial condition for volume flow rate
 		double volume_flow_rate_initial; // m3/s
 		double vfr_ini_non_SI; // ml/s
+
+		bool is_open = false;//for diodes only, needed for transport
 	};
 
 	// building the network, finding indicies
@@ -227,7 +229,20 @@ public:
     int nx_arteriole, nx_capillary, nx_venulare, nx_vein;
     LumpedType LType;
 
-    //for sawing concenrtation in time
+
+    //for the heart model
+    double fi_RA, fi_RV, fi_LA, fi_LV;//right atrium, right ventricle, left atrium, left ventricle, only nodes
+    double fi_old_RA, fi_old_RV, fi_old_LA, fi_old_LV;
+    //pulmonary circulation (together with heart model)
+    vector<double> fi_pul_art, fi_pul_vein;//pulmonary circulation, 2 virtual 1D and three nodes
+    vector<double> fi_old_pul_art, fi_old_pul_vein;
+    double L_pul_art, L_pul_vein;
+    double A_pul_art, A_pul_vein;
+    double fi_lung;
+    int nx_pul_art, nx_pul_vein;
+    double dx_pul_art, dx_pul_vein;
+
+    //for sawing concentration in time
 
     //Perif0D
     vector<double> fi_arteriole_start, fi_arteriole_end;
@@ -235,24 +250,29 @@ public:
     vector<double> fi_venulare_start, fi_venulare_end;
     vector<double> fi_vein_start, fi_vein_end;
 
+    //heart, pulmanory circualtion
+    vector<double> fi_RA_save, fi_RV_save, fi_LA_save, fi_LV_save;
+    vector<double> fi_pul_art_start, fi_pul_art_end, fi_pul_vein_start, fi_pul_vein_end;
+
+
 
     double ml_to_m3 = 1.0e-6;
 
-    //for the heart model
-
-    vector<double> fi_RA, fi_RV, fi_LA, fi_LV;//right atrium, right ventricle, left atrium, left ventricle
-    vector<double> fi_old_RA, fi_old_RV, fi_old_LA, fi_old_LV;
+        
 
     D0_transport(LumpedType LType, vector<string> sv, TransportType TType);
 
-    void update_fi(double dt, double masterFi, solver_lumped& lum_mod);
+    void update_fi(double dt, double& masterFi, solver_lumped& lum_mod, double fi_vena_cava);
 
     void UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fiRight, solver_lumped& lum_mod);
+    void update_lung_fi(double& fi_lung, double fiLeft, double fiRight, solver_lumped& lum_mod);
+    void prescribe_lung_fi(solver_lumped& lum_mod);
 
     void initialization();
     void save_variables();
     void save_results(string fn, const vector<double>& time, string model_name);
     void save_vector(string fname, const vector<double>& st, const vector<double>& en, const vector<double>& time);
+    void save_vector(string folder_name, const vector<double>& vect, const vector<double>& time);
     void set_save_memory();
 
 };

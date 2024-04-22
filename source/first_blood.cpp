@@ -293,24 +293,27 @@ bool first_blood::run()
 					RBC_node_transport->update_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
 					RBC_node_transport->update_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
 
-					moc[moc_idx]->nodes[0]->RBC_node_fi = 1.;
+					//moc[moc_idx]->nodes[0]->RBC_node_fi = 1.;
 					if(moc[moc_idx]->nodes[si]->is_master_node){
 						//RBC transport for lum
 						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
 
 						if (lum[lum_idx]->do_lum_RBC_transport){
+							update_fi_vena_cava(RBC);
 							RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx]);
-							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_node_fi, *lum[lum_idx]);
+							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_node_fi, *lum[lum_idx], fi_vena_cava_RBC);
 						}
 
 					}
+					
 					if(moc[moc_idx]->nodes[ei]->is_master_node){
 						//RBC transport for lum
 						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
 
 						if (lum[lum_idx]->do_lum_RBC_transport){
+							update_fi_vena_cava(RBC);
 							RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx]);
-							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[ei]->RBC_node_fi, *lum[lum_idx]);
+							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[ei]->RBC_node_fi, *lum[lum_idx], fi_vena_cava_RBC);
 						}
 
 					}
@@ -1175,7 +1178,7 @@ void TransportNodeCl::update_master_fi(double& fiNode, moc_node* node, const vec
     //outgoing edges
     for (int j = 0; j < n2; j++)
     {
-        if (edges[node->edge_in[j]]->get_velocity()[0] < 0.){
+        if (edges[node->edge_out[j]]->get_velocity()[0] < 0.){
    	       q = edges[node->edge_out[j]]->get_velocity()[0] * edges[node->edge_out[j]]->get_area()[0];
            q_sum -= q;
            fiNode -= q * edges[node->edge_out[j]]->RBC_edge_fi[0];
@@ -1200,14 +1203,51 @@ void TransportNodeCl::update_master_fi(double& fiNode, moc_node* node, const vec
         }
     }
 
+    if( lum_mod.RBClum->LType == Heart0D){//LV
+        q = lum_mod.edges[13]->vfr; 
+        if(q > 0.){ //the diode is open
+        q_sum += q;
+        fiNode += q * lum_mod.RBClum->fi_LV;
+        }
+    }
+
     if (q_sum != 0.) {
        fiNode /= q_sum;
     }
     else { fiNode = fiNodeOld; }//if nothing flows in it stays the old
 }
 
+//--------------------------------------------------------------
+void first_blood::update_fi_vena_cava(TransportType T){
+	double q_sum, q;
+	q_sum = q = 0.;
+	double fi_old;
+
+	switch(T){
+	case RBC:
+		fi_old = fi_vena_cava_RBC;
+		fi_vena_cava_RBC = 0.;
+
+		for(int i = 0; i < number_of_lum; i++){
+		if(lum[i]->do_lum_RBC_transport && lum[i]->RBClum->LType == Perif0D){
+			q = lum[i]->edges[4]->vfr;
+			if(q > 0.){
+			    q_sum += q;
+			    fi_vena_cava_RBC += q * lum[i] -> RBClum -> fi_vein.back();
+		    }
+		    }
+	    }
+
+	    if (q_sum != 0.) {
+		fi_vena_cava_RBC /= q_sum;
+	    }
+	    else { fi_vena_cava_RBC = fi_old; }//if nothing flows in it stays the old
+
+	    break;
+	}
 
 
+}
 
 //--------------------------------------------------------------
 /*void first_blood::solve_lum(int index, double dt)

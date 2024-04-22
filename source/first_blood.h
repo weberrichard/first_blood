@@ -173,6 +173,8 @@ public:
 	TransportType TRBCType = RBC;
 	TransportNodeCl* RBC_node_transport;
 	double fi_init_RBC = 0.;//initial value of RBC concentration
+	double fi_vena_cava_RBC = 0.;
+	void update_fi_vena_cava(TransportType T);
 
 private:
 	// data of boundary for forward, and backward simulation
