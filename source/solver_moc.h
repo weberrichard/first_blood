@@ -64,7 +64,7 @@ public:
 	vector<double> olufsen_def_const{2.e6,-2253.,8.65e4}; // default constants for olufsen model
 
 	// giving initial conditions
-	void initialization(double pressure_initial,int mat_type);
+	void initialization(double pressure_initial,int mat_type, double RBC_init);
 	// initialazing Newton's method for 1D/0D boundaries
 	void initialization_newton(VectorXd &x, int N, int moc_edge_index, int edge_end);
 	// substituting the results back to field variables

@@ -19,7 +19,7 @@ void moc_node::print_input()
 }
 
 //--------------------------------------------------------------
-void moc_node::initialization(double p_init)
+void moc_node::initialization(double p_init, double RBC_init)
 {
 	// clearing time variables
    pressure.clear();
@@ -43,6 +43,8 @@ void moc_node::initialization(double p_init)
 
    //upstream_boundary = -1;
    is_master_node = false;
+
+   RBC_node_fi = RBC_init;
 }
 
 //--------------------------------------------------------------

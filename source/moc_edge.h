@@ -84,7 +84,7 @@ public:
 	void print_vars();
 
 	// setting initial condition to field variables and setting short parameters
-	void initialization(double p_init, int mat_type);
+	void initialization(double p_init, int mat_type, double RBC_init);
 	// setting upstream pressure p[0], only in the case of upstream_boundary
 	void set_pressure_upstream(double p_in);
 

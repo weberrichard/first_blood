@@ -34,6 +34,7 @@ void solver_lumped::initialization(double hr)
 		nodes[i]->pressure.push_back(nodes[i]->pressure_initial);
 		nodes[i]->p = nodes[i]->pres_ini_non_SI;
 		nodes[i]->y = nodes[i]->p/E;
+		nodes[i]->RBC_fi0Dn = fi_init_RBC_lum;
 	}
 
 	number_of_elastance = 0;
@@ -644,7 +645,7 @@ void Virt1DforLum(vector<double> &fi_old, vector<double> &fi, double v, double d
 
 
 //----------------------------------------
-D0_transport::D0_transport(LumpedType LType, vector<string> sv, TransportType TType):LType(LType), TType(TType) {
+D0_transport::D0_transport(LumpedType LType, vector<string> sv, TransportType TType, double concentration_init):LType(LType), TType(TType) {
     switch (LType) {
     case PerifCoronary0D:
     //no idea
@@ -665,26 +666,26 @@ D0_transport::D0_transport(LumpedType LType, vector<string> sv, TransportType TT
         //arteriole
         nx_arteriole = NX( L_arteriole, stod(sv[9],0) , 10); 
         dx_arteriole = L_arteriole / (nx_arteriole - 1);
-        fi_arteriole.assign(nx_arteriole, 0.);
-        fi_old_arteriole.assign(nx_arteriole, 0.);
+        fi_arteriole.assign(nx_arteriole, concentration_init);
+        fi_old_arteriole.assign(nx_arteriole, concentration_init);
 
         //capillary
         nx_capillary = NX(L_capillary, stod(sv[10],0), 5);
         dx_capillary = L_capillary / (nx_capillary - 1);
-        fi_capillary.assign(nx_capillary, 0.);
-        fi_old_capillary.assign(nx_capillary, 0.);
+        fi_capillary.assign(nx_capillary, concentration_init);
+        fi_old_capillary.assign(nx_capillary, concentration_init);
 
         //venulare
         nx_venulare = NX(L_venulare, stod(sv[11],0), 5);
         dx_venulare = L_venulare / (nx_venulare - 1);
-        fi_venulare.assign(nx_venulare, 0.);
-        fi_old_venulare.assign(nx_venulare, 0.);
+        fi_venulare.assign(nx_venulare, concentration_init);
+        fi_old_venulare.assign(nx_venulare, concentration_init);
 
         //vein
         nx_vein = NX(L_vein, stod(sv[12],0), 60);
         dx_vein = L_vein / (nx_vein - 1);
-        fi_vein.assign(nx_vein, 0.);
-        fi_old_vein.assign(nx_vein, 0.);
+        fi_vein.assign(nx_vein, concentration_init);
+        fi_old_vein.assign(nx_vein, concentration_init);
 
         
         save_variables();
@@ -702,15 +703,21 @@ D0_transport::D0_transport(LumpedType LType, vector<string> sv, TransportType TT
     	dx_pul_vein = L_pul_vein / (nx_pul_vein - 1);
 
     	//nodes
-    	fi_RA, fi_RV, fi_LA, fi_LV = 0.;
-        fi_old_RA, fi_old_RV, fi_old_LA, fi_old_LV = 0.;
-        fi_lung = 0.;
+    	fi_RA = concentration_init;
+    	fi_RV = concentration_init;
+    	fi_LA = concentration_init;
+    	fi_LV = concentration_init;
+        fi_old_RA = concentration_init;
+        fi_old_RV = concentration_init;
+        fi_old_LA = concentration_init;
+        fi_old_LV = concentration_init;
+        fi_lung = concentration_init;
 
         //virtual 1D
-        fi_pul_art.assign(nx_pul_art, 0.);
-        fi_pul_vein.assign(nx_pul_vein, 0.);
-        fi_old_pul_art.assign(nx_pul_art, 0.);
-        fi_old_pul_vein.assign(nx_pul_vein, 0.);
+        fi_pul_art.assign(nx_pul_art, concentration_init);
+        fi_pul_vein.assign(nx_pul_vein, concentration_init);
+        fi_old_pul_art.assign(nx_pul_art, concentration_init);
+        fi_old_pul_vein.assign(nx_pul_vein, concentration_init);
 
         save_variables();
 

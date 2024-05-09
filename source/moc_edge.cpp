@@ -18,7 +18,7 @@ void moc_edge::print_input()
 }
 
 //--------------------------------------------------------------
-void moc_edge::initialization(double pressure_initial, int mat_type)
+void moc_edge::initialization(double pressure_initial, int mat_type, double RBC_init)
 {
 	// clearing time variables
 	pressure_start.clear();
@@ -68,6 +68,9 @@ void moc_edge::initialization(double pressure_initial, int mat_type)
 	// giving initial conditions
 	p.assign(nx,pressure_initial);
 	v.assign(nx,0.);
+	RBC_edge_fi.assign(nx,RBC_init);
+	RBC_edge_finew.assign(nx,RBC_init);
+
 	for(int i=0; i<nx; i++)
 	{	
 		double d;

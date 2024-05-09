@@ -155,6 +155,8 @@ bool first_blood::load_main_csv()
 					k+=2;
 				}
 				nl++;
+				//RBC init
+				lum.back()->fi_init_RBC_lum = fi_init_RBC;
 			}
 			else if(sv[0] == "node") // main nodes between models
 			{
@@ -167,6 +169,12 @@ bool first_blood::load_main_csv()
 					RBC_node_transport = new TransportNodeCl(RBC); 
 				}
 			}
+			else if(sv[0] == "initRBC") // concentretion initialization BEFORE lumped declaration
+			{
+				fi_init_RBC = stod(sv[1],0);
+				fi_vena_cava_RBC = stod(sv[1],0);
+			}
+
 
 		}
 		load_ok = true;
@@ -658,7 +666,7 @@ void first_blood::initialization()
 	// setting initial conditions
 	for(int i=0; i<number_of_moc; i++)
 	{
-		moc[i]->initialization(pressure_initial,material_type);
+		moc[i]->initialization(pressure_initial,material_type,fi_init_RBC);
 		time_counter += moc[i]->number_of_edges;
 	}
 	for(int i=0; i<number_of_lum; i++)
@@ -1166,8 +1174,6 @@ void TransportNodeCl::update_fi(double& fiNode, moc_node* node, const vector<moc
                 fiNode -= q * edges[node->edge_out[j]]->RBC_edge_fi[0];
                 break;
             }
-
-
             }
         }
         if (q_sum != 0.) {

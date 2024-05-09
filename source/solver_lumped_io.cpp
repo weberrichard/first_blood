@@ -134,12 +134,12 @@ void solver_lumped::load_model()
 			//RBC perif transport
 			else if(sv[0] == "RBCperif")
 			{
-				RBClum = new D0_transport(Perif0D, sv, RBC);
+				RBClum = new D0_transport(Perif0D, sv, RBC, fi_init_RBC_lum);
 				do_lum_RBC_transport = true;
 			}
 			//RBC heart transport
 			else if(sv[0] == "RBCheart"){
-				RBClum = new D0_transport(Heart0D, sv, RBC);
+				RBClum = new D0_transport(Heart0D, sv, RBC, fi_init_RBC_lum);
 				do_lum_RBC_transport = true;
 			}
 		}

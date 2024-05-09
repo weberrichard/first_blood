@@ -70,7 +70,7 @@ public:
 	void print_input();
 
 	// setting initial condition to field variables
-	void initialization(double p_init);
+	void initialization(double p_init, double RBC_init);
 
 private:
 	double R, Ri, p0, rho;

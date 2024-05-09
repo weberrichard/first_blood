@@ -117,6 +117,7 @@ public:
 
 	D0_transport* RBClum;
 	bool do_lum_RBC_transport = false;
+	double fi_init_RBC_lum = 0.;
 
 private:
 	// general constants
@@ -260,7 +261,7 @@ public:
 
         
 
-    D0_transport(LumpedType LType, vector<string> sv, TransportType TType);
+    D0_transport(LumpedType LType, vector<string> sv, TransportType TType, double concentration_init);
 
     void update_fi(double dt, double& masterFi, solver_lumped& lum_mod, double fi_vena_cava);
 
