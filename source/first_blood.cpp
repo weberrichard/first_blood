@@ -1144,7 +1144,14 @@ void TransportNodeCl::update_fi(double& fiNode, moc_node* node, const vector<moc
            {
            	q = edges[node->edge_in[j]]->get_velocity().back() * edges[node->edge_in[j]]->get_area().back();
             q_sum += q;
-            fiNode += q * edges[node->edge_in[j]]->RBC_edge_fi.back();
+
+            switch(TType){
+            case RBC:
+            	fiNode += q * edges[node->edge_in[j]]->RBC_edge_fi.back();
+            	break;
+            }
+
+
            }
         }
         for (int j = 0; j < n2; j++)
@@ -1153,7 +1160,14 @@ void TransportNodeCl::update_fi(double& fiNode, moc_node* node, const vector<moc
             {
             q = edges[node->edge_out[j]]->get_velocity()[0] * edges[node->edge_out[j]]->get_area()[0];
             q_sum -= q; //not sure about the sign tho...
-            fiNode -= q * edges[node->edge_out[j]]->RBC_edge_fi[0];
+
+            switch(TType){
+            case RBC:
+                fiNode -= q * edges[node->edge_out[j]]->RBC_edge_fi[0];
+                break;
+            }
+
+
             }
         }
         if (q_sum != 0.) {
@@ -1181,7 +1195,14 @@ void TransportNodeCl::update_master_fi(double& fiNode, moc_node* node, const vec
         if (edges[node->edge_out[j]]->get_velocity()[0] < 0.){
    	       q = edges[node->edge_out[j]]->get_velocity()[0] * edges[node->edge_out[j]]->get_area()[0];
            q_sum -= q;
-           fiNode -= q * edges[node->edge_out[j]]->RBC_edge_fi[0];
+
+            switch(TType){
+                case RBC:
+                fiNode -= q * edges[node->edge_out[j]]->RBC_edge_fi[0];
+                break;
+            }
+
+
         }
     } 
 
@@ -1191,10 +1212,19 @@ void TransportNodeCl::update_master_fi(double& fiNode, moc_node* node, const vec
         if (edges[node->edge_in[j]]->get_velocity().back() > 0.){
    	        q = edges[node->edge_in[j]]->get_velocity().back() * edges[node->edge_in[j]]->get_area().back();
             q_sum += q;
-            fiNode += q * edges[node->edge_in[j]]->RBC_edge_fi.back();
+
+            switch(TType){
+                case RBC:
+                fiNode += q * edges[node->edge_in[j]]->RBC_edge_fi.back();
+                break;
+            }
+
+
         }
     }
     
+    switch(TType){
+    case RBC:
     if( lum_mod.RBClum->LType == Perif0D){//arteriole
         q = lum_mod.edges[0]->vfr;
         if(q < 0){
@@ -1210,6 +1240,12 @@ void TransportNodeCl::update_master_fi(double& fiNode, moc_node* node, const vec
         fiNode += q * lum_mod.RBClum->fi_LV;
         }
     }
+    break;
+    }
+
+
+
+
 
     if (q_sum != 0.) {
        fiNode /= q_sum;

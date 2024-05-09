@@ -730,6 +730,9 @@ void D0_transport::update_fi(double dt, double& masterFi, solver_lumped& lum_mod
         //no idea
         break;
     case Perif0D:
+
+    	switch(TType){
+    	case RBC:
         
         AA = A_arteriole + lum_mod.delta_V( 5, 1)/L_arteriole;
         Virt1DforLum(fi_old_arteriole, fi_arteriole, lum_mod.edges[1]->vfr * ml_to_m3 / AA, dt, dx_arteriole, nx_arteriole, masterFi , lum_mod.nodes[2]->RBC_fi0Dn);
@@ -742,6 +745,8 @@ void D0_transport::update_fi(double dt, double& masterFi, solver_lumped& lum_mod
 
         AA = A_vein + lum_mod.delta_V( 8, 4)/L_vein;
         Virt1DforLum(fi_old_vein, fi_vein, lum_mod.edges[4]->vfr * ml_to_m3 / AA, dt, dx_vein, nx_vein, lum_mod.nodes[4]->RBC_fi0Dn, fi_vena_cava);
+        break;
+        }
         
 
         //nodes
@@ -813,7 +818,9 @@ void D0_transport::UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fi
     if (lum_mod.edges[LumNodeIndex + 4]->vfr < 0.) { c = 1; } //Capacitance edge
 
     double qLeft, qRight, qDown;
-    //cout<<a*4 + b*2 + c<<endl;
+    
+    switch(TType){
+    case RBC:
 
     switch (a*4 + b*2 + c) { // in case 0 nothing changes
     case 1:
@@ -844,6 +851,14 @@ void D0_transport::UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fi
         lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn = (qLeft * fiLeft + qRight * fiRight) / (qRight + qLeft);
         break;
     }
+
+    break;
+    }
+
+
+
+
+
 }
 
 //-----------------------------------------------------------
