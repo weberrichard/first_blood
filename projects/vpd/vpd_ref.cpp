@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
 {
    // basic stuff
    string case_folder = "../../models/";
-   string case_name = "Abel_ref1";
+   string case_name = "Abel_ref2";
    double save_dt = 1e-3;
    bool init_from_file = false;
 
