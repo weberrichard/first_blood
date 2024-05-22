@@ -1,6 +1,0 @@
-type,ID,name,start_node,end_node,start_diameter[SI],end_diameter[SI],start_thickness[SI],end_thickness[SI],length[SI],division_points,elasticity[SI],res_start[SI],res_end[SI]
-vis,A1,Ascending aorta 1,n1,n2,0.1,0.1,0.01,0.01,100,41,1E+10,0,0
-
-type,ID,name,valami,parameter,file name
-heart,n1,0,V,ger_v
-perif,n2,0,
