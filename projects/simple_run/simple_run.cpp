@@ -37,12 +37,12 @@ int main(int argc, char* argv[])
 
    // fielad variable for saving to memory / files
    // variables from moc
-   fb->clear_save_memory();
-   string model_name = "arterial";
-   string model_type = "moc";
-   vector<string> el{"A1","A5","A7","A8","A12","A52","A49","A16"};
-   vector<string> nl{};
-   fb->set_save_memory(model_name,model_type,el,nl);
+   //fb->clear_save_memory();
+   //string model_name = "arterial";
+   //string model_type = "moc";
+   //vector<string> el{"A1","A5","A7","A8","A12","A52","A49","A16"};
+   //vector<string> nl{};
+   //fb->set_save_memory(model_name,model_type,el,nl);
 
    // save from heart model
    //string model_name2 = "heart_kim";
@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
    if(is_run_ok)
    {
       // saving stuff to file
-      //fb->save_results(save_dt);
-      fb->save_results(save_dt,case_name,model_name,model_type,el,nl);
+      fb->save_results(save_dt);
+      //fb->save_results(save_dt,case_name,model_name,model_type,el,nl);
       //fb->save_results(save_dt,case_name,model_name2,model_type2,el2,nl2);
       //fb->save_model("Reymond_99_heart_ref2","models");
       //fb->save_initials("Reymond_99_heart_ref","models");

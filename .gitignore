@@ -41,7 +41,7 @@ projects/*/plots/*
 projects/simple_run/literature_results/*
 
 # models
-models/archive
+models/archieve/*
 
 # pilot code
 pilot_matlab/*

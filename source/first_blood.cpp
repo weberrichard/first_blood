@@ -767,7 +767,7 @@ void first_blood::save_results(double dt)
 	}
 
 	// saving time averages, e.g. map, cfr
-	save_time_average(dt, "results/" + folder_name);
+	// save_time_average(dt, "results/" + folder_name);
 }
 
 //--------------------------------------------------------------
