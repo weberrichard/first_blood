@@ -876,7 +876,7 @@ void first_blood::save_results(string folder_name, string model_name, string mod
 	{
 		for(int i=0; i<lum.size(); i++)
 		{
-			if(model_name == lum[i]->name)
+			if(model_name == lum[i]->name && do_RBC_transport && lum[i]->RBClum->do_save_results)
 			{
 				lum[i]->RBClum->save_results(folder_name, lum[i]->time, model_name);		
 			}
@@ -1015,7 +1015,7 @@ void first_blood::set_save_memory(string model_name, string model_type, vector<s
 		}
 	}
 
-	if(model_type == "RBC_transport")
+	if(model_type == "RBC_transport" && do_RBC_transport)
 	{
 		for(int i=0; i<number_of_lum; i++)
 		{
