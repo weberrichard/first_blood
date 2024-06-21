@@ -131,18 +131,55 @@ void solver_lumped::load_model()
 					sat2  = stod(sv[7],0); // saturation 2
 				}
 			}
-			//RBC perif transport
+
+			//RBC, HBsaturation, PlasmaO2C perif transport
 			else if(sv[0] == "RBCperif")
-			{
+			{//RBC
+				do_lum_RBC_transport = true;
 				RBClum = new D0_transport(Perif0D, sv, RBC, fi_init_RBC_lum);
-				do_lum_RBC_transport = true;
+				
+
+			 //HBsaturation
+				if (sv[13] == "1"){
+					do_lum_HB_sat_transport = true;
+					HBsatlum = new D0_transport(Perif0D, sv, HB_O2_saturation, init_HB_sat_lum);
+					
+				}
+
+			 //PlasmaO2C
+				if (sv[14] == "1"){
+					do_lum_PlasmaO2_transport = true;
+					PlasmaO2lum = new D0_transport(Perif0D, sv, C_Plasma_O2, init_PlasmaO2);
+					
+				}
 			}
-			//RBC heart transport
-			else if(sv[0] == "RBCheart"){
+
+			//RBC, HBsaturation, PlasmaO2C heart transport
+			else if(sv[0] == "RBCheart")
+			{//RBC
+				do_lum_RBC_transport = true;
 				RBClum = new D0_transport(Heart0D, sv, RBC, fi_init_RBC_lum);
-				do_lum_RBC_transport = true;
+				
+			 //HBsauration
+				if (sv[7] == "1"){
+					do_lum_HB_sat_transport = true;
+					HBsatlum = new D0_transport(Heart0D, sv, HB_O2_saturation, init_HB_sat_lum);
+				}
+
+			 //PlasmaO2C
+				if (sv[8] == "1"){
+					do_lum_PlasmaO2_transport = true;
+					PlasmaO2lum = new D0_transport(Heart0D, sv, C_Plasma_O2, init_PlasmaO2);
+				}
 			}
+
+
 		}
+
+		if(do_lum_PlasmaO2_transport&&do_lum_HB_sat_transport&&do_lum_RBC_transport){
+			init_lum_tissueO2();
+		}
+
 	}
 	else
 	{

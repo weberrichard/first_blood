@@ -53,6 +53,8 @@ public:
 	double pressure_out; // outside pressure 
 	double density; // density of the fluid (blood)
 	double RBC_node_fi; // concenrtation of RBC
+	double HBsat_node; //Haemoglobin saturation [1]
+	double PlasmaO2_node; //O2 concentration in plasma [m3/m3]
 
 	// bool is_upstream_boundary = false;
 	int upstream_boundary = -1; // for heart or upper boundary it is true
@@ -70,7 +72,7 @@ public:
 	void print_input();
 
 	// setting initial condition to field variables
-	void initialization(double p_init, double RBC_init);
+	void initialization(double p_init, double RBC_init, double HBsat_init, double PlasmaO2_C_init);
 
 private:
 	double R, Ri, p0, rho;

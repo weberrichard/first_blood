@@ -115,9 +115,58 @@ public:
 	double x_myo; // acting signal
 	double q_ref=0., p_ref=0.;
 
+
+	// RBC transport in 0D
 	D0_transport* RBClum;
 	bool do_lum_RBC_transport = false;
 	double fi_init_RBC_lum = 0.;
+
+	// Haemoglobin saturation transport in 0D
+	D0_transport* HBsatlum;
+	bool do_lum_HB_sat_transport = false;
+	double init_HB_sat_lum = 0.;
+
+	// Plasma O2 concentration transport in 0D
+	D0_transport* PlasmaO2lum;
+	bool do_lum_PlasmaO2_transport = false;
+	double init_PlasmaO2 = 0.;
+
+	//O2 transport function
+    void O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma);
+    double dCO2_plasma(double PO2, double CO2_plasma, double HBsat_old, double C_RBC);
+    double HBsat_equilibrium(double PO2);
+
+    //tissue O2 concentration vector and scalar
+    vector<double> tissueO2v;
+    vector<double> tissueO2v_old;
+    double tissueO2s;
+    double tissueO2s_old;
+    
+    //tissue O2 concentration initial condition
+    double init_tissueO2 = 0.;
+    //init function for tissue O2
+    void init_lum_tissueO2();
+
+    //constant parameters of O2 transport, literature: Bing dissertation and article
+    double Dc = 1.6e-9; // [m2/s] O2 diffusion coefficient in plasma/blood
+    double fi_c = 0.0142; // porosity (capillaries) [-]
+    double fi_t = 0.9858; // porosity (tissue) =1-fi_c [-]
+    double alpha_b = 3.11e-5; // [1/mmHg] solubility of oxygen in blood
+    double alpha_t = 2.6e-5; // [1/mmHg] solubility of oxygen in tissue
+    double hc = 0.309e-6; // [m] wall thickness of capillary walls
+    double S_V_c = 6.16e5; // [1/m] surface to voulme ratio in capillaries
+    double kc = 5.0e-14; // [m2/mmHg/s]
+    double Mmax = 2.0e-4; // [1/s] ????
+    double C50 = 2.6e-5; // [m3/m3]
+
+    //parameters of the haemoglobin saturetion curve
+    double L_HBsat = 1.251; // [-]
+    double k_HBsat = 0.0676; // [1/mmHg]
+    double b_HBsat = -0.274; // [-]
+    double m_HBsat = 17.71; // [mmHg]
+
+    // a parameter for converting the numner of O2 molecules/m3 to m3/m3
+    double Z = 3.73e17; // m3/1
 
 private:
 	// general constants
@@ -152,6 +201,9 @@ private:
 		double pressure_initial; // Pa
 		double pres_ini_non_SI; // mmHg
 		double RBC_fi0Dn; // RBC concenrtation
+		double HBsat_0Dn; //haemodlobid saturation [1]
+		double PlasmaO2_0Dn; //plasma O2 concentration [m3/m3]
+
 		// whether the pressure is prescribed with a ground, true means p=0
 		bool is_ground;
 		// if the node is an outer boundary, ie connected to an other model
@@ -267,7 +319,7 @@ public:
 
     void UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fiRight, solver_lumped& lum_mod);
     void update_lung_fi(double& fi_lung, double fiLeft, double fiRight, solver_lumped& lum_mod);
-    void prescribe_lung_fi(solver_lumped& lum_mod);
+    void prescribe_lung_fi(solver_lumped& lum_mod, TransportType TType);
 
     void initialization();
     void save_variables();

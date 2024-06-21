@@ -295,3 +295,14 @@ void time_average::save_results(double dt, string file_name)
    }
 	fclose(out_file);
 }
+
+//--------------------------------------------------
+double average(const vector<double> &x){
+	int n = x.size();
+
+	double sum = 0;
+	for (int i=0; i<n; i++){
+		sum += x[i];
+	}
+	return sum/n;
+}

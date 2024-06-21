@@ -10,7 +10,7 @@ solver_moc::solver_moc(string a_name, string a_folder)
 solver_moc::~solver_moc(){}
 
 //--------------------------------------------------------------
-void solver_moc::initialization(double p_init, int material_type, double RBC_init)
+void solver_moc::initialization(double p_init, int material_type, double RBC_init, double HBsat_init, double PlasmaO2_C_init)
 {
 	// setting the size of nodes and edges
 	number_of_nodes = nodes.size();
@@ -18,11 +18,11 @@ void solver_moc::initialization(double p_init, int material_type, double RBC_ini
 
 	for(unsigned int i=0; i<number_of_nodes; i++)
 	{
-		nodes[i]->initialization(p_init, RBC_init);
+		nodes[i]->initialization(p_init, RBC_init, HBsat_init, PlasmaO2_C_init);
 	}
 	for(unsigned int i=0; i<number_of_edges; i++)
 	{
-		edges[i]->initialization(p_init,material_type, RBC_init);
+		edges[i]->initialization(p_init,material_type, RBC_init, HBsat_init, PlasmaO2_C_init);
 	}
 
 	// setting back the pressure_upstream interpolation index to 0

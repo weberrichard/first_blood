@@ -18,7 +18,7 @@ void moc_edge::print_input()
 }
 
 //--------------------------------------------------------------
-void moc_edge::initialization(double pressure_initial, int mat_type, double RBC_init)
+void moc_edge::initialization(double pressure_initial, int mat_type, double RBC_init, double HBsat_init, double PlasmaO2_C_init )
 {
 	// clearing time variables
 	pressure_start.clear();
@@ -70,6 +70,10 @@ void moc_edge::initialization(double pressure_initial, int mat_type, double RBC_
 	v.assign(nx,0.);
 	RBC_edge_fi.assign(nx,RBC_init);
 	RBC_edge_finew.assign(nx,RBC_init);
+	HBsat_edge.assign(nx,HBsat_init);
+	HBsat_edge_new.assign(nx,HBsat_init);
+	PlasmaO2_edge.assign(nx,PlasmaO2_C_init);
+	PlasmaO2_edge_new.assign(nx,PlasmaO2_C_init);
 
 	for(int i=0; i<nx; i++)
 	{	

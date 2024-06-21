@@ -19,7 +19,7 @@ void moc_node::print_input()
 }
 
 //--------------------------------------------------------------
-void moc_node::initialization(double p_init, double RBC_init)
+void moc_node::initialization(double p_init, double RBC_init, double HBsat_init, double PlasmaO2_C_init)
 {
 	// clearing time variables
    pressure.clear();
@@ -45,6 +45,8 @@ void moc_node::initialization(double p_init, double RBC_init)
    is_master_node = false;
 
    RBC_node_fi = RBC_init;
+  	HBsat_node = HBsat_init; 
+	PlasmaO2_node = PlasmaO2_C_init; 
 }
 
 //--------------------------------------------------------------

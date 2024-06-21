@@ -174,7 +174,24 @@ public:
 	TransportNodeCl* RBC_node_transport;
 	double fi_init_RBC = 0.;//initial value of RBC concentration
 	double fi_vena_cava_RBC = 0.;
-	void update_fi_vena_cava(TransportType T);
+	void update_fi_vena_cava(TransportType TType);
+
+	// Haemoglobin saturation
+	bool do_HBsat_transport = false;
+	Transport1DCl* HBsat1D; //class handling the 1D transport stuff
+	TransportType THBType = HB_O2_saturation;
+	TransportNodeCl* HB_O2_node_transport;
+	double HBsat_init = 0.;//initial value of HB saturation
+	double HBsat_vena_cava = 0.;
+
+	// Plasma O2 concentration
+	bool do_Plasma_O2_transport = false;
+	Transport1DCl* Plasma_O21D; //class handling the 1D transport stuff
+	TransportType TPlasmaO2 = C_Plasma_O2;
+	TransportNodeCl* PlasmaO2_node_transport;
+	double PlasmaO2_C_init = 0.;//initial value of Plasma O2 concentration
+	double PlasmaO2_C_vena_cava = 0.;
+
 
 private:
 	// data of boundary for forward, and backward simulation

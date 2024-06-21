@@ -29,6 +29,7 @@ double time_delay_max(const vector<double> &x, const vector<double> &y, const ve
 double pearson_correlation(const vector<double> &x, const vector<double> &y);
 vector<double> cross_correlation(const vector<double> &x, const vector<double> &y);
 double time_delay_correl(const vector<double> &x, const vector<double> &y, const vector<double> &t, double T);
+double average(const vector<double> &x);
 
 class time_average
 {

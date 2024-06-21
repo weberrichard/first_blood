@@ -78,13 +78,15 @@ public:
 	vector<double> volume_flow_rate_start,  volume_flow_rate_end; // m3/s
 	vector<double> mass_flow_rate_start,    mass_flow_rate_end; // kg/s
 	vector<double> RBC_concentration_start, RBC_concentration_end;// SI
+	vector<double> HBsat_start, HBsat_end; // [1]
+	vector<double> PlasmaO2_start, PlasmaO2_end; // [m3/m3]
 
 	// printing input parameters to console
 	void print_input();
 	void print_vars();
 
 	// setting initial condition to field variables and setting short parameters
-	void initialization(double p_init, int mat_type, double RBC_init);
+	void initialization(double p_init, int mat_type, double RBC_init, double HBsat_init, double PlasmaO2_C_init  );
 	// setting upstream pressure p[0], only in the case of upstream_boundary
 	void set_pressure_upstream(double p_in);
 
@@ -158,6 +160,8 @@ public:
 	vector<double> get_area();
 
 	vector<double> RBC_edge_fi, RBC_edge_finew; //RBC concentration SI
+	vector<double> HBsat_edge, HBsat_edge_new; //Haemoglobin saturation [1]
+	vector<double> PlasmaO2_edge, PlasmaO2_edge_new; //O2 concentration in plasma [m3/m3]
 
 private:
 	// changing diameter along the vessel
