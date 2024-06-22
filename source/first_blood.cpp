@@ -356,7 +356,7 @@ bool first_blood::run()
 
 				// HB saturation transport
 				if(do_HBsat_transport){
-					//RBC transport in nodes
+					//HB saturation transport
 
 					HB_O2_node_transport->update_fi(moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
 					HB_O2_node_transport->update_fi(moc[moc_idx]->nodes[ei]->HBsat_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
@@ -388,6 +388,44 @@ bool first_blood::run()
 
 					//transport 1D update (actual edge)
 					HBsat1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->HBsat_edge, moc[moc_idx]->edges[e_idx]->HBsat_edge_new, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[ei]->HBsat_node);
+				}
+
+
+
+				// Plasma O2 concentration
+				if(do_Plasma_O2_transport){
+					//Plasma O2 concentration
+
+					PlasmaO2_node_transport->update_fi(moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+					PlasmaO2_node_transport->update_fi(moc[moc_idx]->nodes[ei]->PlasmaO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+					
+					if(moc[moc_idx]->nodes[si]->is_master_node){
+						//Plasma O2 concentration for lum
+						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+						if (lum[lum_idx]->do_lum_PlasmaO2_transport){
+							update_fi_vena_cava(C_Plasma_O2);
+							PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx]);
+							lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->PlasmaO2_node, *lum[lum_idx], PlasmaO2_C_vena_cava);
+						}
+
+					}
+					
+					if(moc[moc_idx]->nodes[ei]->is_master_node){
+						//Plasma O2 concentration for lum
+						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+						if (lum[lum_idx]->do_lum_PlasmaO2_transport){
+							update_fi_vena_cava(C_Plasma_O2);
+							PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->PlasmaO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx]);
+							lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[ei]->PlasmaO2_node, *lum[lum_idx], PlasmaO2_C_vena_cava);
+						}
+
+					}
+
+					//transport 1D update (actual edge)
+					Plasma_O21D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->PlasmaO2_edge, moc[moc_idx]->edges[e_idx]->PlasmaO2_edge_new, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[ei]->PlasmaO2_node);
 				}
 
 
@@ -770,6 +808,10 @@ void first_blood::initialization()
 
 	//RBC transfer class
 	RBC1D = new Transport1DCl(TRBCType);
+	HBsat1D = new Transport1DCl(HB_O2_saturation);
+	Plasma_O21D = new Transport1DCl(C_Plasma_O2);
+
+
 }
 
 //--------------------------------------------------------------
@@ -942,6 +984,26 @@ void first_blood::save_results(string folder_name, string model_name, string mod
 			}
 		}
 	}
+	else if(model_type == "HBsat_transport")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name && do_HBsat_transport && lum[i]->HBsatlum->do_save_results)
+			{
+				lum[i]->HBsatlum->save_results(folder_name, lum[i]->time, model_name);		
+			}
+		}
+	}
+	else if(model_type == "PlasmaO2_transport")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name && do_Plasma_O2_transport && lum[i]->PlasmaO2lum->do_save_results)
+			{
+				lum[i]->PlasmaO2lum->save_results(folder_name, lum[i]->time, model_name);		
+			}
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -1082,6 +1144,28 @@ void first_blood::set_save_memory(string model_name, string model_type, vector<s
 			if(lum[i]->name == model_name)
 			{
 				lum[i]->RBClum->set_save_memory();
+			}
+		}
+	}
+
+	if(model_type == "HBsat_transport" && do_HBsat_transport)
+	{
+		for(int i=0; i<number_of_lum; i++)
+		{
+			if(lum[i]->name == model_name)
+			{
+				lum[i]->HBsatlum->set_save_memory();
+			}
+		}
+	}
+
+	if(model_type == "PlasmaO2_transport" && do_Plasma_O2_transport)
+	{
+		for(int i=0; i<number_of_lum; i++)
+		{
+			if(lum[i]->name == model_name)
+			{
+				lum[i]->PlasmaO2lum->set_save_memory();
 			}
 		}
 	}

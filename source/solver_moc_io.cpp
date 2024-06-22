@@ -280,13 +280,28 @@ void solver_moc::save_results(string folder_name, vector<string> edge_list, vect
 		         double ae = edges[idx]->wave_speed_end[j];
 		         double RBC_s = 0.;
 		         double RBC_e = 0.;
+		         double HBsat_s = 0.;
+		         double HBsat_e = 0.;
+		         double PlasmaO2_s = 0.;
+		         double PlasmaO2_e = 0.;
+
 
 		         if(edges[idx]->RBC_concentration_start.size()>1){
 		         RBC_s = edges[idx]->RBC_concentration_start[j];
 		         RBC_e = edges[idx]->RBC_concentration_end[j];
 		         }
 
-		         fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",t,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,As,Ae,as,ae,RBC_s,RBC_e);
+		         if(edges[idx]->HBsat_start.size()>1){
+		         HBsat_s = edges[idx]->HBsat_start[j];
+		         HBsat_e = edges[idx]->HBsat_end[j];
+		         }
+
+		         if(edges[idx]->PlasmaO2_start.size()>1){
+		         PlasmaO2_s = edges[idx]->PlasmaO2_start[j];
+		         PlasmaO2_e = edges[idx]->PlasmaO2_end[j];
+		         }
+
+		         fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",t,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,As,Ae,as,ae,RBC_s,RBC_e,HBsat_s,HBsat_e,PlasmaO2_s,PlasmaO2_e);
 		      }
 		      fclose(out_file);
    		}
@@ -390,12 +405,24 @@ void solver_moc::save_results(double dt, string folder_name, vector<string> edge
 			         double ae = edges[idx]->wave_speed_end[j]*a0 + edges[idx]->wave_speed_end[j+1]*a1;
 			         double RBC_s = 0.;
 			         double RBC_e = 0.;
+			         double HBsat_s = 0.;
+		            double HBsat_e = 0.;
+		            double PlasmaO2_s = 0.;
+		            double PlasmaO2_e = 0.;
 
 			         if(edges[idx]->RBC_concentration_start.size()>1){
-			         double RBC_s = edges[idx]->RBC_concentration_start[j]*a0 + edges[idx]->RBC_concentration_start[j+1]*a1;
-		         	double RBC_e = edges[idx]->RBC_concentration_end[j]*a0 + edges[idx]->RBC_concentration_end[j+1]*a1;}
+			         RBC_s = edges[idx]->RBC_concentration_start[j]*a0 + edges[idx]->RBC_concentration_start[j+1]*a1;
+		         	RBC_e = edges[idx]->RBC_concentration_end[j]*a0 + edges[idx]->RBC_concentration_end[j+1]*a1;}
 
-		         	fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",ts,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,As,Ae,as,ae,RBC_s,RBC_e);
+		         	if(edges[idx]->HBsat_start.size()>1){
+			         HBsat_s = edges[idx]->HBsat_start[j]*a0 + edges[idx]->HBsat_start[j+1]*a1;
+		         	HBsat_e = edges[idx]->HBsat_end[j]*a0 + edges[idx]->HBsat_end[j+1]*a1;}
+
+		         	if(edges[idx]->PlasmaO2_start.size()>1){
+			         PlasmaO2_s = edges[idx]->PlasmaO2_start[j]*a0 + edges[idx]->PlasmaO2_start[j+1]*a1;
+		         	PlasmaO2_e = edges[idx]->PlasmaO2_end[j]*a0 + edges[idx]->PlasmaO2_end[j+1]*a1;}
+
+		         	fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",ts,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,As,Ae,as,ae,RBC_s,RBC_e,HBsat_s,HBsat_e,PlasmaO2_s,PlasmaO2_e);
 		         	ts += dt;
 					}
 					else

@@ -851,50 +851,50 @@ void D0_transport::UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fi
     if (lum_mod.edges[LumNodeIndex + 4]->vfr < 0.) { c = 1; } //Capacitance edge
 
     double qLeft, qRight, qDown;
-    double& fi0Dn = lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn;
+    double* fi0Dn;
     
     switch(TType){
     case RBC:
-    fi0Dn = lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn;
+    fi0Dn = &lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn;
     break;
 
 	case HB_O2_saturation:
-	fi0Dn = lum_mod.nodes[LumNodeIndex]->HBsat_0Dn;
+	fi0Dn = &lum_mod.nodes[LumNodeIndex]->HBsat_0Dn;
 	break;
 
 	case C_Plasma_O2:
-	fi0Dn = lum_mod.nodes[LumNodeIndex]->PlasmaO2_0Dn;
+	fi0Dn = &lum_mod.nodes[LumNodeIndex]->PlasmaO2_0Dn;
 	break;
     }
 
 
     switch (a*4 + b*2 + c) { // in case 0 nothing changes
     case 1:
-        fi0Dn = fiRight;
+        *fi0Dn = fiRight;
         break;
 
     case 2:
-        fi0Dn = fiLeft;
+        *fi0Dn = fiLeft;
         break;
 
     case 3:
         qLeft = lum_mod.edges[LumNodeIndex + 7]->vfr;
         qDown = -1.* lum_mod.edges[LumNodeIndex + 4]->vfr;
-        fi0Dn = (qLeft*fiLeft + qDown *fiRight)/(qDown + qLeft);
+        *fi0Dn = (qLeft*fiLeft + qDown *fiRight)/(qDown + qLeft);
         break;
 
     case 4:
-        fi0Dn = fiRight; //same az case 1
+        *fi0Dn = fiRight; //same az case 1
         break;
 
     case 5:
-        fi0Dn = fiRight; //both has the same fi
+        *fi0Dn = fiRight; //both has the same fi
         break;
 
     case 6:
         qLeft = lum_mod.edges[LumNodeIndex + 7]->vfr;
         qRight = -1.* lum_mod.edges[LumNodeIndex]->vfr;
-        fi0Dn = (qLeft * fiLeft + qRight * fiRight) / (qRight + qLeft);
+        *fi0Dn = (qLeft * fiLeft + qRight * fiRight) / (qRight + qLeft);
         break;
     }
 
@@ -1032,42 +1032,57 @@ void D0_transport::save_variables(){
 
 //--------------------------------------------------------------
 void D0_transport::save_results(string fn, const vector<double>& time, string model_name){
-	string file_name;
+	string file_name, tname;
+	switch(this->TType){
+	case RBC:
+		tname = "RBC";
+		break;
+
+	case HB_O2_saturation:
+		tname = "HB_O2";
+		break;
+
+	case C_Plasma_O2:
+		tname = "C_Plasma_O2";
+		break;
+	}
+
 	mkdir(("results/" + fn + "/" + model_name).c_str(),0777);
+	mkdir(("results/" + fn + "/" + model_name + "/" + tname).c_str(),0777);
 
 	switch (this-> LType){
     case Perif0D:
-    	file_name = "results/" + fn + "/" + model_name + "/arteriole.txt";
-    	//cout<<file_name;
+    	file_name = "results/" + fn + "/" + model_name + "/" + tname + "/arteriole.txt";
+    	cout<<file_name;
 		save_vector(file_name, fi_arteriole_start, fi_arteriole_end, time);
 
-		file_name = "results/" + fn + "/" + model_name + "/capillary.txt";
+		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/capillary.txt";
 		save_vector(file_name, fi_capillary_start, fi_capillary_end, time);
 
-		file_name = "results/" + fn + "/" + model_name + "/venulare.txt";
+		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/venulare.txt";
 		save_vector(file_name, fi_venulare_start, fi_venulare_end, time);
 
-		file_name = "results/" + fn + "/" + model_name + "/vein.txt";
+		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/vein.txt";
 		save_vector(file_name, fi_vein_start, fi_vein_end, time);
 		break;
 
 	case Heart0D:
-		file_name = "results/" + fn + "/" + model_name + "/RA.txt";
+		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/RA.txt";
 		save_vector(file_name, fi_RA_save, time);
 
-		file_name = "results/" + fn + "/" + model_name + "/RV.txt";
+		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/RV.txt";
 		save_vector(file_name, fi_RV_save, time);
 
-		file_name = "results/" + fn + "/" + model_name + "/LA.txt";
+		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/LA.txt";
 		save_vector(file_name, fi_LA_save, time);
 
-		file_name = "results/" + fn + "/" + model_name + "/LV.txt";
+		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/LV.txt";
 		save_vector(file_name, fi_LV_save, time);
 
-		file_name = "results/" + fn + "/" + model_name + "/pul_art.txt";
+		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/pul_art.txt";
 		save_vector(file_name, fi_pul_art_start, fi_pul_art_end, time);
 
-		file_name = "results/" + fn + "/" + model_name + "/pul_vein.txt";
+		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/pul_vein.txt";
 		save_vector(file_name, fi_pul_vein_start, fi_pul_vein_end, time);
 		break;
 	}

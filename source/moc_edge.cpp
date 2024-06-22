@@ -470,6 +470,12 @@ void moc_edge::save_field_variables()
 	RBC_concentration_start.push_back(RBC_edge_fi[0]);
 	RBC_concentration_end.push_back(RBC_edge_fi[nx-1]);
 
+	HBsat_start.push_back(HBsat_edge[0]);
+	HBsat_end.push_back(HBsat_edge[nx-1]);
+
+	PlasmaO2_start.push_back(PlasmaO2_edge[0]);
+	PlasmaO2_end.push_back(PlasmaO2_edge[nx-1]);
+
 	// debug TODO: del
 	/*if(time.back()>-1.)
 	{
