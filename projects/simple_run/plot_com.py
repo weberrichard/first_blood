@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-cases = ['Carotis_2_WK3','Carotis_2_WK3']
-models = ['carotis1','carotis2']
+cases = ['Alessia','Alessia']
+models = ['arterial','arterial']
 
-elements = ['A5','A12']
+elements = ['A1','A45']
 
 mmHg_to_Pa = 133.3616
 
