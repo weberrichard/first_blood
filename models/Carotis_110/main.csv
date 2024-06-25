@@ -1,0 +1,15 @@
+run,forward
+time,5
+material,olufsen
+solver,maccormack
+
+type,name,main node,model node,main node,model node,...
+moc,carotis1,N33p,p33,N1p,n32x
+moc,carotis2,N46p,p46,N2p,n32y
+
+lumped,r2,N1p,n1,N2p,n2
+
+node,N1p
+node,N2p
+
+

@@ -1,0 +1,7 @@
+type,ID,name,start_node,end_node,start_diameter[SI],end_diameter[SI],start_thickness[SI],end_thickness[SI],length[SI],division_points,elastance_1[SI],elastance_2[SI],eta[SI],res_start[SI],res_end[SI]
+
+vis,A12,Internal carotid,n32y,p46,0.0044526,0.0044526,0.00044526,0.00044526,0.0522,35,1.392e+06,0,0,2.75,2.e6,-2253.,8.65e4
+
+type,ID,name,valami,parameter,file name
+perif,n32y,0,,
+heart,p46,0,Q,qICA
