@@ -129,21 +129,24 @@ public:
 	// Plasma O2 concentration transport in 0D
 	D0_transport* PlasmaO2lum;
 	bool do_lum_PlasmaO2_transport = false;
-	double init_PlasmaO2 = 0.;
+	double init_PlasmaO2_lum = 0.;
 
 	//O2 transport function
-    void O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma);
-    double dCO2_plasma(double PO2, double CO2_plasma, double HBsat_old, double C_RBC);
+    void O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma, double fiStartNodeHB, double fiEndNodeHB);
+    double dCO2_plasma(double CO2_plasma_old, double HBsat_old, double C_RBC);
     double HBsat_equilibrium(double PO2);
+    double turn_source(double t);
+    void save_tissueO2(string folder_name, const vector<double>& st, const vector<double>& time);
 
     //tissue O2 concentration vector and scalar
     vector<double> tissueO2v;
     vector<double> tissueO2v_old;
+    vector<double> tissueO2_save;
     double tissueO2s;
     double tissueO2s_old;
     
     //tissue O2 concentration initial condition
-    double init_tissueO2 = 0.;
+    double init_tissueO2 = 2.466237942122186e-3;
     //init function for tissue O2
     void init_lum_tissueO2();
 
@@ -156,8 +159,10 @@ public:
     double hc = 0.309e-6; // [m] wall thickness of capillary walls
     double S_V_c = 6.16e5; // [1/m] surface to voulme ratio in capillaries
     double kc = 5.0e-14; // [m2/mmHg/s]
-    double Mmax = 2.0e-4; // [1/s] ????
-    double C50 = 2.6e-5; // [m3/m3]
+    double Mmax = 4.0e-4; // [1/s] ????
+    //double C50 = 2.6e-5; // [m3/m3]
+    double C50 = 0.078e-5; // [m3/m3]
+    double taoO2 = 0.007;//s
 
     //parameters of the haemoglobin saturetion curve
     double L_HBsat = 1.251; // [-]
@@ -166,7 +171,7 @@ public:
     double m_HBsat = 17.71; // [mmHg]
 
     // a parameter for converting the numner of O2 molecules/m3 to m3/m3
-    double Z = 3.73e17; // m3/1
+    double Z = 3.73e-17; // m3/1
 
 private:
 	// general constants
@@ -327,6 +332,7 @@ public:
     void save_vector(string fname, const vector<double>& st, const vector<double>& en, const vector<double>& time);
     void save_vector(string folder_name, const vector<double>& vect, const vector<double>& time);
     void set_save_memory();
+    vector<double> linear_dist(double avg, double dist, int len);
 
 };
 

@@ -149,7 +149,7 @@ void solver_lumped::load_model()
 			 //PlasmaO2C
 				if (sv[14] == "1"){
 					do_lum_PlasmaO2_transport = true;
-					PlasmaO2lum = new D0_transport(Perif0D, sv, C_Plasma_O2, init_PlasmaO2);
+					PlasmaO2lum = new D0_transport(Perif0D, sv, C_Plasma_O2, init_PlasmaO2_lum);
 					
 				}
 			}
@@ -169,7 +169,7 @@ void solver_lumped::load_model()
 			 //PlasmaO2C
 				if (sv[8] == "1"){
 					do_lum_PlasmaO2_transport = true;
-					PlasmaO2lum = new D0_transport(Heart0D, sv, C_Plasma_O2, init_PlasmaO2);
+					PlasmaO2lum = new D0_transport(Heart0D, sv, C_Plasma_O2, init_PlasmaO2_lum);
 				}
 			}
 

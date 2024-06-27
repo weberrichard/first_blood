@@ -157,6 +157,8 @@ bool first_blood::load_main_csv()
 				nl++;
 				//RBC init
 				lum.back()->fi_init_RBC_lum = fi_init_RBC;
+				lum.back()->init_HB_sat_lum = HBsat_init;
+				lum.back()->init_PlasmaO2_lum = PlasmaO2_C_init;
 			}
 			else if(sv[0] == "node") // main nodes between models
 			{
