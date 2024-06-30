@@ -144,6 +144,8 @@ public:
     vector<double> tissueO2_save;
     double tissueO2s;
     double tissueO2s_old;
+
+    vector<double> dPlasmaO2;
     
     //tissue O2 concentration initial condition
     double init_tissueO2 = 2.466237942122186e-3;
@@ -154,15 +156,15 @@ public:
     double Dc = 1.6e-9; // [m2/s] O2 diffusion coefficient in plasma/blood
     double fi_c = 0.0142; // porosity (capillaries) [-]
     double fi_t = 0.9858; // porosity (tissue) =1-fi_c [-]
-    double alpha_b = 3.11e-5; // [1/mmHg] solubility of oxygen in blood
-    double alpha_t = 2.6e-5; // [1/mmHg] solubility of oxygen in tissue
+    double alpha_b = 2.86e-5; // [1/mmHg] solubility of oxygen in blood
+    double alpha_t = 3.95e-5; // [1/mmHg] solubility of oxygen in tissue
     double hc = 0.309e-6; // [m] wall thickness of capillary walls
     double S_V_c = 6.16e5; // [1/m] surface to voulme ratio in capillaries
     double kc = 5.0e-14; // [m2/mmHg/s]
-    double Mmax = 4.0e-4; // [1/s] ????
+    double Mmax = 2.0e-4; // [1/s] ????
     //double C50 = 2.6e-5; // [m3/m3]
-    double C50 = 0.078e-5; // [m3/m3]
-    double taoO2 = 0.007;//s
+    double C50 = 2.6e-5; // [m3/m3]
+    double taoO2 = 0.03;//s
 
     //parameters of the haemoglobin saturetion curve
     double L_HBsat = 1.251; // [-]

@@ -1152,9 +1152,13 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
 	vector<double> HBold = HBsatlum ->  fi_capillary;
 	vector<double> plasmaO2old = PlasmaO2lum -> fi_capillary;
 	vector<double> plasmaO2 = PlasmaO2lum -> fi_capillary;
-	vector<double> tissueO2vold =  HBsatlum ->linear_dist(tissueO2s, tissueO2s*0.3, PlasmaO2lum -> nx_capillary);
+	//vector<double> tissueO2vold =  HBsatlum ->linear_dist(tissueO2s, tissueO2s*0., PlasmaO2lum -> nx_capillary);
+	vector<double> tissueO2vold;
+	tissueO2vold.assign(PlasmaO2lum -> nx_capillary, tissueO2s);
+	//taoO2 = dt*4.33;
+	//taoO2 = dt*4.;
+	//taoO2 = dt*10.;
 
-	taoO2 = dt*4.33;
 
 	//capillary plasma concentration
     for (int i = 1; i < n - 1; i++) {
@@ -1167,9 +1171,10 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
             Cc1der = (plasmaO2old[i+1] - plasmaO2old[i])/dx;
         }
         double DCO2 = dCO2_plasma(plasmaO2old[i], HBold[i] , RBClum -> fi_capillary[i]);
-        plasmaO2[i] = plasmaO2old[i] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t)/10. + DCO2/taoO2);
+        plasmaO2[i] = plasmaO2old[i] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t)/5. + DCO2/taoO2);
         //plasmaO2[i] = plasmaO2old[i] + dt * (-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t)) + DCO2;
         HBsatlum ->  fi_capillary[i] = (1-dt/taoO2)*HBold[i] + dt/taoO2*HBsat_equilibrium(plasmaO2old[i] / alpha_b);
+        //HBsatlum ->  fi_capillary[i] = (1-dt/taoO2)*HBold[i] + dt/taoO2*HBsat_equilibrium(plasmaO2old[i] / alpha_b);
 
         //HBsatlum ->  fi_capillary[i] = HBsat_equilibrium(plasmaO2old[i] / alpha_b);
     }
@@ -1178,7 +1183,7 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
     if (v > 0.) {
         double Cc1der = (plasmaO2old[n - 1] - plasmaO2old[n - 2])/dx;
         double DCO2 = dCO2_plasma(plasmaO2old[n - 1], HBold[n - 1] , RBClum -> fi_capillary[n - 1]);
-        plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[n-1]/alpha_b - tissueO2vold[n-1]/alpha_t)/10. + DCO2 / taoO2);
+        plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[n-1]/alpha_b - tissueO2vold[n-1]/alpha_t)/5. + DCO2 / taoO2);
         //plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[n-1]/alpha_b - tissueO2vold[n-1]/alpha_t)) + DCO2 ;
         plasmaO2[0] = fiStartNodePlasma;
         HBsatlum ->  fi_capillary[n-1] = (1-dt/taoO2)*HBold[n-1] + dt/taoO2*HBsat_equilibrium(plasmaO2old[n-1] / alpha_b);
@@ -1189,7 +1194,7 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
     	double Cc1der = (plasmaO2old[1] - plasmaO2old[0])/dx;
     	double DCO2 = dCO2_plasma(plasmaO2old[0], HBold[0] , RBClum -> fi_capillary[0]);
         plasmaO2[n - 1] = fiEndNodePlasma; 
-        plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[0]/alpha_b - tissueO2vold[0]/alpha_t)/10. + DCO2/taoO2);
+        plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[0]/alpha_b - tissueO2vold[0]/alpha_t)/5. + DCO2/taoO2);
         //plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[0]/alpha_b - tissueO2vold[0]/alpha_t)) + DCO2;
         HBsatlum ->  fi_capillary[n-1] = fiEndNodeHB;
         HBsatlum ->  fi_capillary[0] = (1-dt/taoO2)*HBold[0] + dt/taoO2*HBsat_equilibrium(plasmaO2old[0] / alpha_b);
@@ -1207,6 +1212,7 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
 };
 
 
+
 double solver_lumped::dCO2_plasma(double CO2_plasma_old, double HBsat_old, double C_RBC){
     double HBsat_eq = HBsat_equilibrium(CO2_plasma_old/alpha_b);
     double dHBsat = HBsat_old - HBsat_eq;
@@ -1222,12 +1228,13 @@ void solver_lumped::init_lum_tissueO2(){
     tissueO2v.clear();
     tissueO2v_old.clear();
     tissueO2_save.clear();
+    dPlasmaO2.clear();
 
     //O2 transport initialization
     tissueO2s = init_tissueO2;
     tissueO2v.assign( PlasmaO2lum->nx_capillary , init_tissueO2);
     tissueO2v_old.assign( PlasmaO2lum->nx_capillary , init_tissueO2);
-    
+    dPlasmaO2.assign(PlasmaO2lum->nx_capillary, 0.);
 }
 
 double solver_lumped::turn_source(double t){
