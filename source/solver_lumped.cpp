@@ -1152,13 +1152,8 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
 	vector<double> HBold = HBsatlum ->  fi_capillary;
 	vector<double> plasmaO2old = PlasmaO2lum -> fi_capillary;
 	vector<double> plasmaO2 = PlasmaO2lum -> fi_capillary;
-	//vector<double> tissueO2vold =  HBsatlum ->linear_dist(tissueO2s, tissueO2s*0., PlasmaO2lum -> nx_capillary);
-	vector<double> tissueO2vold;
-	tissueO2vold.assign(PlasmaO2lum -> nx_capillary, tissueO2s);
-	//taoO2 = dt*4.33;
-	//taoO2 = dt*4.;
-	//taoO2 = dt*10.;
-
+	vector<double> tissueO2vold = HBsatlum ->linear_dist(tissueO2s, tissueO2s*0.3, PlasmaO2lum -> nx_capillary);
+	//vector<double> tissueO2vold = tissueO2v;
 
 	//capillary plasma concentration
     for (int i = 1; i < n - 1; i++) {
@@ -1171,41 +1166,36 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
             Cc1der = (plasmaO2old[i+1] - plasmaO2old[i])/dx;
         }
         double DCO2 = dCO2_plasma(plasmaO2old[i], HBold[i] , RBClum -> fi_capillary[i]);
-        plasmaO2[i] = plasmaO2old[i] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t)/5. + DCO2/taoO2);
-        //plasmaO2[i] = plasmaO2old[i] + dt * (-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t)) + DCO2;
+        plasmaO2[i] = plasmaO2old[i] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t) + DCO2/taoO2);
         HBsatlum ->  fi_capillary[i] = (1-dt/taoO2)*HBold[i] + dt/taoO2*HBsat_equilibrium(plasmaO2old[i] / alpha_b);
-        //HBsatlum ->  fi_capillary[i] = (1-dt/taoO2)*HBold[i] + dt/taoO2*HBsat_equilibrium(plasmaO2old[i] / alpha_b);
-
-        //HBsatlum ->  fi_capillary[i] = HBsat_equilibrium(plasmaO2old[i] / alpha_b);
     }
 
-    // plasma BC
+    // plasma and HBsat BC
     if (v > 0.) {
         double Cc1der = (plasmaO2old[n - 1] - plasmaO2old[n - 2])/dx;
         double DCO2 = dCO2_plasma(plasmaO2old[n - 1], HBold[n - 1] , RBClum -> fi_capillary[n - 1]);
-        plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[n-1]/alpha_b - tissueO2vold[n-1]/alpha_t)/5. + DCO2 / taoO2);
-        //plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[n-1]/alpha_b - tissueO2vold[n-1]/alpha_t)) + DCO2 ;
+        plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[n-1]/alpha_b - tissueO2vold[n-1]/alpha_t) + DCO2 / taoO2);
         plasmaO2[0] = fiStartNodePlasma;
         HBsatlum ->  fi_capillary[n-1] = (1-dt/taoO2)*HBold[n-1] + dt/taoO2*HBsat_equilibrium(plasmaO2old[n-1] / alpha_b);
-        //HBsatlum ->  fi_capillary[n-1] = HBsat_equilibrium(plasmaO2old[n-1] / alpha_b);
         HBsatlum ->  fi_capillary[0] = fiStartNodeHB;
     }
     else {
     	double Cc1der = (plasmaO2old[1] - plasmaO2old[0])/dx;
     	double DCO2 = dCO2_plasma(plasmaO2old[0], HBold[0] , RBClum -> fi_capillary[0]);
         plasmaO2[n - 1] = fiEndNodePlasma; 
-        plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[0]/alpha_b - tissueO2vold[0]/alpha_t)/5. + DCO2/taoO2);
-        //plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[0]/alpha_b - tissueO2vold[0]/alpha_t)) + DCO2;
+        plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[0]/alpha_b - tissueO2vold[0]/alpha_t) + DCO2/taoO2);
         HBsatlum ->  fi_capillary[n-1] = fiEndNodeHB;
         HBsatlum ->  fi_capillary[0] = (1-dt/taoO2)*HBold[0] + dt/taoO2*HBsat_equilibrium(plasmaO2old[0] / alpha_b);
-        //HBsatlum ->  fi_capillary[0] = HBsat_equilibrium(plasmaO2old[0] / alpha_b);
     }
 
     //tissue concentration
     for(int i=0; i<n; i++){
-    tissueO2v[i] = tissueO2v_old[i] + dt*( kc/hc*S_V_c*fi_c/fi_t*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t) - Mmax*tissueO2vold[i]/(tissueO2vold[i] + C50 ));
-    //tissueO2v[i] = tissueO2v_old[i] + dt*( kc/hc*S_V_c*fi_c/fi_t*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t) - Mmax*tissueO2vold[i]/(tissueO2vold[i] + C50 ));
+    tissueO2v[i] = tissueO2vold[i] + dt*( kc/hc*S_V_c*fi_c/fi_t*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t) - 4.5*Mmax*tissueO2vold[i]/(tissueO2vold[i] + C50 ));
+
     }
+
+    if(HBsatlum ->  fi_capillary[n-1]<0.7){
+    cout<<HBsatlum ->  fi_capillary[n-1]<<endl<<name<<endl<<endl;}
 
     tissueO2s = average(tissueO2v);
     PlasmaO2lum -> fi_capillary = plasmaO2;

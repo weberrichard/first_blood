@@ -154,17 +154,17 @@ public:
 
     //constant parameters of O2 transport, literature: Bing dissertation and article
     double Dc = 1.6e-9; // [m2/s] O2 diffusion coefficient in plasma/blood
-    double fi_c = 0.0142; // porosity (capillaries) [-]
-    double fi_t = 0.9858; // porosity (tissue) =1-fi_c [-]
-    double alpha_b = 2.86e-5; // [1/mmHg] solubility of oxygen in blood
+    double fi_c = 0.011303; // porosity (capillaries) [-]
+    double fi_t = 0.988697; // porosity (tissue) =1-fi_c [-]
+    double alpha_b = 3.11e-5; // [1/mmHg] solubility of oxygen in blood
     double alpha_t = 3.95e-5; // [1/mmHg] solubility of oxygen in tissue
-    double hc = 0.309e-6; // [m] wall thickness of capillary walls
-    double S_V_c = 6.16e5; // [1/m] surface to voulme ratio in capillaries
-    double kc = 5.0e-14; // [m2/mmHg/s]
+    double hc = 1.0e-6; // [m] wall thickness of capillary walls
+    double S_V_c = 4.74e5; // [1/m] surface to voulme ratio in capillaries
+    double kc = 4.2e-14; // [m2/mmHg/s]
     double Mmax = 2.0e-4; // [1/s] ????
     //double C50 = 2.6e-5; // [m3/m3]
     double C50 = 2.6e-5; // [m3/m3]
-    double taoO2 = 0.03;//s
+    double taoO2 = 0.08;//s
 
     //parameters of the haemoglobin saturetion curve
     double L_HBsat = 1.251; // [-]
