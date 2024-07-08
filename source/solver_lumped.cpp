@@ -948,7 +948,7 @@ void D0_transport::update_lung_fi(double& fi_lung, double fiLeft, double fiRight
 
     case 5:
         qLeft = lum_mod.edges[5]->vfr;
-        qRight = lum_mod.edges[6]->vfr;//no negative sign, think it through...
+        qRight = lum_mod.edges[6]->vfr;
         qDown = lum_mod.edges[7]->vfr;
         fiDown = (qLeft * fiLeft + qRight * fiRight) / (qRight + qLeft);
 
@@ -1200,8 +1200,8 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
 
     }
 
-    if(HBsatlum ->  fi_capillary[n-1]<0.7){
-    cout<<HBsatlum ->  fi_capillary[n-1]<<endl<<name<<endl<<endl;}
+    //if(HBsatlum ->  fi_capillary[n-1]<0.7){
+    //cout<<HBsatlum ->  fi_capillary[n-1]<<endl<<name<<endl<<endl;}
 
     tissueO2s = average(tissueO2v);
     PlasmaO2lum -> fi_capillary = plasmaO2;
@@ -1209,7 +1209,7 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
     HBsatlum ->  fi_capillary = HB;
 
     //for(int i=0; i<n; i++){
-    //	cout<<tissueO2v[i];
+    //	cout<<plasmaO2[i];
     //}
     //cout<<endl;
 };
@@ -1227,17 +1227,12 @@ double solver_lumped::HBsat_equilibrium(double PO2){
 }
 
 void solver_lumped::init_lum_tissueO2(){
-	// for O2 transport
     tissueO2v.clear();
-    tissueO2v_old.clear();
     tissueO2_save.clear();
-    dPlasmaO2.clear();
 
     //O2 transport initialization
     tissueO2s = init_tissueO2;
     tissueO2v.assign( PlasmaO2lum->nx_capillary , init_tissueO2);
-    tissueO2v_old.assign( PlasmaO2lum->nx_capillary , init_tissueO2);
-    dPlasmaO2.assign(PlasmaO2lum->nx_capillary, 0.);
 }
 
 double solver_lumped::turn_source(double t){

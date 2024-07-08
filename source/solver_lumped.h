@@ -140,12 +140,9 @@ public:
 
     //tissue O2 concentration vector and scalar
     vector<double> tissueO2v;
-    vector<double> tissueO2v_old;
     vector<double> tissueO2_save;
     double tissueO2s;
-    double tissueO2s_old;
 
-    vector<double> dPlasmaO2;
     
     //tissue O2 concentration initial condition
     double init_tissueO2 = 2.2e-3;
