@@ -155,19 +155,21 @@ void solver_lumped::load_model()
 			}
 
 			//RBC, HBsaturation, PlasmaO2C heart transport
-			else if(sv[0] == "RBCheart")
+			else if(sv[0] == "transport")
 			{//RBC
+				if (sv[7] == "1"){
 				do_lum_RBC_transport = true;
 				RBClum = new D0_transport(Heart0D, sv, RBC, fi_init_RBC_lum);
+			   }
 				
 			 //HBsauration
-				if (sv[7] == "1"){
+				if (sv[8] == "1"){
 					do_lum_HB_sat_transport = true;
 					HBsatlum = new D0_transport(Heart0D, sv, HB_O2_saturation, init_HB_sat_lum);
 				}
 
 			 //PlasmaO2C
-				if (sv[8] == "1"){
+				if (sv[9] == "1"){
 					do_lum_PlasmaO2_transport = true;
 					PlasmaO2lum = new D0_transport(Heart0D, sv, C_Plasma_O2, init_PlasmaO2_lum);
 				}

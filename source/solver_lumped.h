@@ -133,10 +133,12 @@ public:
 
 	//O2 transport function
     void O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma, double fiStartNodeHB, double fiEndNodeHB);
+    void pulmonary_O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma, double fiStartNodeHB, double fiEndNodeHB, double dV);
     double dCO2_plasma(double CO2_plasma_old, double HBsat_old, double C_RBC);
     double HBsat_equilibrium(double PO2);
     double turn_source(double t);
     void save_tissueO2(string folder_name, const vector<double>& st, const vector<double>& time);
+    vector<double> sin_2(double scale, int nx);
 
     //tissue O2 concentration vector and scalar
     vector<double> tissueO2v;
@@ -145,8 +147,8 @@ public:
 
     
     //tissue O2 concentration initial condition
-    double init_tissueO2 = 2.2e-3;
-    //double init_tissueO2 = 2.466237942122186e-3;
+    double init_tissueO2 = 3.7525e-3;
+    //double init_tissueO2 = 2.2e-3;
     //init function for tissue O2
     void init_lum_tissueO2();
 
@@ -173,6 +175,13 @@ public:
     // a parameter for converting the numner of O2 molecules/m3 to m3/m3
     double Z = 3.73e-17; // m3/1
 
+    //partial pressure of O2 in alveolars
+    double PO2_alveolar = 100.; // [mmHg]
+    double K_pul_O2 = 1.33e-7; // [m3/s/mmHg]
+    double taoO2_p = 0.08;//s
+    //double K_pul_O2 = 3.33e-7; // [m3/s/mmHg]
+    double K_pul_scale = 2.7e-8;
+
 private:
 	// general constants
 	double gravity; // [m/s2]
@@ -180,6 +189,7 @@ private:
 	double kinematic_viscosity; // [m2/s]
 	double mmHg_to_Pa = 133.3616; // [Pa/mmHg] for converting inputs from mmHg to Pa
 	double atmospheric_pressure; // Pa
+	const double pi = 3.14159265359;
 
 	// Eigen vars for linear solver
 	MatrixXd A;
@@ -271,7 +281,7 @@ public:
 //determines the number of divison points for virtual 1D
 int NX(double L,double dx, int maxN);
 
-void Virt1DforLum(vector<double> &fi_old, vector<double> &fi, double v, double dt, double dx, int n, double fiStartNode, double fiEndNode);
+void Virt1DforLum(vector<double> &fi, double v, double dt, double dx, int n, double fiStartNode, double fiEndNode);
 
 // Every lumped model gets one for eash type of transport. This handles the transport of substances in 0D
 class D0_transport {//every 0D model gets one of this class
@@ -280,7 +290,6 @@ public:
     bool do_save_results = false;
     //for simple peripherals wirh 4 RLC circuits
     vector<double> fi_arteriole, fi_capillary, fi_venulare, fi_vein;
-    vector<double> fi_old_arteriole, fi_old_capillary, fi_old_venulare, fi_old_vein;
     double dx_arteriole,dx_capillary, dx_venulare, dx_vein;
     double L_arteriole, L_capillary, L_venulare, L_vein;
     double A_arteriole, A_capillary, A_venulare, A_vein;//from file, it is A_average-dA_average because of the changing cross-section
@@ -289,18 +298,20 @@ public:
 
 
     //for the heart model
-    double fi_RA, fi_RV, fi_LA, fi_LV;//right atrium, right ventricle, left atrium, left ventricle, only nodes
-    double fi_old_RA, fi_old_RV, fi_old_LA, fi_old_LV;
+    double fi_RA, fi_RV, fi_LA, fi_LV, fi_PCS;//right atrium, right ventricle, left atrium, left ventricle, only nodes, strart node of pulmonary capillaries
     //pulmonary circulation (together with heart model)
     vector<double> fi_pul_art, fi_pul_vein;//pulmonary circulation, 2 virtual 1D and three nodes
-    vector<double> fi_old_pul_art, fi_old_pul_vein;
     double L_pul_art, L_pul_vein;
     double A_pul_art, A_pul_vein;
     double fi_lung;
     int nx_pul_art, nx_pul_vein;
     double dx_pul_art, dx_pul_vein;
 
-    //for sawing concentration in time
+    double L_pul_cap;
+    double A_pul_cap;
+    int nx_pul_cap;
+    double dx_pul_cap;
+    vector<double> fi_pul_cap;
 
     //Perif0D
     vector<double> fi_arteriole_start, fi_arteriole_end;
@@ -312,6 +323,8 @@ public:
     vector<double> fi_RA_save, fi_RV_save, fi_LA_save, fi_LV_save;
     vector<double> fi_pul_art_start, fi_pul_art_end, fi_pul_vein_start, fi_pul_vein_end;
 
+    vector<double> fi_pul_cap_start;
+    vector<double> fi_pul_cap_end;
 
 
     double ml_to_m3 = 1.0e-6;
