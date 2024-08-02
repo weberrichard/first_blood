@@ -78,6 +78,9 @@ void solver_lumped::initialization(double hr)
 	C_ave = new time_average();
 	R_fact = new time_average();
 	x_myo_ts = new time_average();
+
+	//for metabolic response
+	Ct_ave = new time_average();
 }
 
 //--------------------------------------------------------------
@@ -333,15 +336,30 @@ void solver_lumped::substitute_newton(double t_act)
         tissueO2_save.push_back(tissueO2s);
     }
 
+    //update for metabolic response
+    if(do_metabolic_res){
+    	double tn = time.back();
+    	Ct_ave->update(tn, tissueO2s, time_period);
+    }
+
 }
 
 
 //--------------------------------------------------------------
 void solver_lumped::update_parameters(double t_act)
 {
+	//edges[Ridx[i]]->parameter_factor should be reseted in each round. Edges 0 and 1 are modified
+	edges[0]->parameter_factor = 1.;
+	edges[1]->parameter_factor = 1.;
+
+
 	if(do_myogenic)
 	{
 		myogenic_control(t_act);
+	}
+
+	if(do_metabolic_res){
+		metabolic_response(t_act);
 	}
 }
 
@@ -377,10 +395,8 @@ void solver_lumped::myogenic_control(double t_act)
 		double ff = 10*8. * (p_ref-atmospheric_pressure/mmHg_to_Pa) / ( K * (Rmax - Rmin) * R_ref );
 		FF = (Rmax + Rmin * exp(-x_myo * ff)) / (1. + exp(-x_myo * ff));
 		
-		//cout.precision(10);
-		//cout << FF << endl;
 
-		edges[Ridx[i]]->parameter_factor = FF;
+		edges[Ridx[i]]->parameter_factor *= FF;
 	}
 
 }
@@ -830,9 +846,9 @@ void D0_transport::update_fi(double dt, double& masterFi, solver_lumped& lum_mod
         //O2 diffusion in pulmonary cappillaries
         AA = A_pul_cap + lum_mod.delta_V( 7, 8)/ (L_pul_vein + L_pul_art + L_pul_cap);
         if(do_tissue_transport && TType == RBC){ //only once
-            lum_mod.pulmonary_O2transport(lum_mod.edges[5]->vfr * ml_to_m3 / AA , dt, dx_pul_cap, nx_pul_cap, lum_mod.PlasmaO2lum -> fi_PCS, lum_mod.PlasmaO2lum -> fi_lung, lum_mod.HBsatlum -> fi_PCS, lum_mod.HBsatlum -> fi_lung, AA*dx_pul_cap);
+            lum_mod.pulmonary_O2transport(lum_mod.edges[5]->vfr * ml_to_m3 / AA , dt, dx_pul_cap, nx_pul_cap, lum_mod.PlasmaO2lum -> fi_PCS, lum_mod.PlasmaO2lum -> fi_lung, lum_mod.HBsatlum -> fi_PCS, lum_mod.HBsatlum -> fi_lung);
 			Virt1DforLum(fi_pul_cap, lum_mod.edges[5]->vfr * ml_to_m3 / AA, dt, dx_pul_cap, nx_pul_cap, fi_PCS, fi_lung); // RBC transport
-			//cout<<lum_mod.edges[5]->vfr * ml_to_m3 / AA<<endl;
+			//cout<< AA*dx_pul_cap <<endl;
         }
         else if(!do_tissue_transport){ //only convective transport
         	Virt1DforLum(fi_pul_cap, lum_mod.edges[5]->vfr * ml_to_m3 / AA, dt, dx_pul_cap, nx_pul_cap, fi_PCS, fi_lung);
@@ -1183,6 +1199,8 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
 	vector<double> plasmaO2 = PlasmaO2lum -> fi_capillary;
 	vector<double> tissueO2vold = tissueO2v;
 
+	//Mmax = 2.4e-4*2.0;
+
 	//capillary plasma concentration
     for (int i = 1; i < n - 1; i++) {
         double Cc1der;
@@ -1223,7 +1241,7 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
 
     //tissue concentration
     for(int i=0; i<n; i++){
-    tissueO2v[i] = tissueO2vold[i] + dt*( kc/hc*S_V_c*fi_c/fi_t*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t) - Mmax*tissueO2vold[i]/(tissueO2vold[i] + C50 ));
+    tissueO2v[i] = tissueO2vold[i] + dt*( vessel_dilation(1) * kc/hc*S_V_c*fi_c/fi_t*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t) - Mmax*tissueO2vold[i]/(tissueO2vold[i] + C50 ));
 
     }
 
@@ -1243,7 +1261,7 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
 
 
 //--------------------------------------------------------------
-void solver_lumped::pulmonary_O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma, double fiStartNodeHB, double fiEndNodeHB, double dV){
+void solver_lumped::pulmonary_O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma, double fiStartNodeHB, double fiEndNodeHB){
 	vector<double> HBold = HBsatlum ->  fi_pul_cap;
 	vector<double> HB = HBsatlum ->  fi_pul_cap;
 	vector<double> plasmaO2old = PlasmaO2lum -> fi_pul_cap;
@@ -1268,7 +1286,7 @@ void solver_lumped::pulmonary_O2transport(double v, double dt, double dx, int n,
             HB1der = (HBold[i+1] - HBold[i])/dx;
         }
         double DCO2 = dCO2_plasma(plasmaO2old[i], HBold[i] , RBClum -> fi_pul_cap[i]);
-        plasmaO2[i] = plasmaO2old[i] + dt*(-v*Cc1der - K_pul_v[i] /dV*(plasmaO2old[i]/alpha_b - PO2_alveolar) + DCO2/taoO2_p);
+        plasmaO2[i] = plasmaO2old[i] + dt*(-v*Cc1der - K_pul_v[i] *(plasmaO2old[i]/alpha_b - PO2_alveolar) + DCO2/taoO2_p);
         //plasmaO2[i] = plasmaO2old[i] + dt*(-v*Cc1der - K_pul_O2/(n-1)/dV*(plasmaO2old[i]/alpha_b - PO2_alveolar) + DCO2/taoO2_p);
         HB[i] = (1-dt/taoO2_p)*HBold[i] + dt/taoO2_p*HBsat_equilibrium(plasmaO2old[i] / alpha_b) - dt*v*HB1der;
     }
@@ -1278,7 +1296,7 @@ void solver_lumped::pulmonary_O2transport(double v, double dt, double dx, int n,
         double Cc1der = (plasmaO2old[n - 1] - plasmaO2old[n - 2])/dx;
         double HB1der = (HBold[n - 1] - HBold[n - 2])/dx;
         double DCO2 = dCO2_plasma(plasmaO2old[n - 1], HBold[n - 1] , RBClum -> fi_pul_cap[n - 1]);
-        plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - K_pul_v[n-1] /dV*2*(plasmaO2old[n-1]/alpha_b - PO2_alveolar) + DCO2 / taoO2_p);
+        plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - K_pul_v[n-1] *(plasmaO2old[n-1]/alpha_b - PO2_alveolar) + DCO2 / taoO2_p);
         //plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - K_pul_O2/(n-1)/dV*2*(plasmaO2old[n-1]/alpha_b - PO2_alveolar) + DCO2 / taoO2_p);
         plasmaO2[0] = fiStartNodePlasma;
         HB[n-1] = (1-dt/taoO2_p)*HBold[n-1] + dt/taoO2_p*HBsat_equilibrium(plasmaO2old[n-1] / alpha_b) - dt*v*HB1der;
@@ -1289,7 +1307,7 @@ void solver_lumped::pulmonary_O2transport(double v, double dt, double dx, int n,
     	double HB1der = (HBold[1] - HBold[0])/dx;
     	double DCO2 = dCO2_plasma(plasmaO2old[0], HBold[0] , RBClum -> fi_pul_cap[0]);
         plasmaO2[n - 1] = fiEndNodePlasma; 
-        plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - K_pul_v[0] /dV*2*(plasmaO2old[0]/alpha_b - PO2_alveolar) + DCO2/taoO2_p);
+        plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - K_pul_v[0] *(plasmaO2old[0]/alpha_b - PO2_alveolar) + DCO2/taoO2_p);
         //plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - K_pul_O2[0] /(n-1)/dV*2*(plasmaO2old[0]/alpha_b - PO2_alveolar) + DCO2/taoO2_p);
         HB[n-1] = fiEndNodeHB;
         HB[0] = (1-dt/taoO2_p)*HBold[0] + dt/taoO2_p*HBsat_equilibrium(plasmaO2old[0] / alpha_b)- dt*v*HB1der;
@@ -1376,4 +1394,85 @@ vector<double> solver_lumped::sin_2(double scale, int nx){
 		r[i] = sin( i*pi/(nx-1) )*sin( i*pi/(nx-1) )*scale;
 	}
 	return r;
+}
+
+
+//--------------------------------------------------------------
+void solver_lumped::assign_perif_O2_params(vector<string> sv){
+    fi_c = stod(sv[1],0);
+    fi_t = stod(sv[2],0);
+    alpha_b = stod(sv[3],0);
+    alpha_t = stod(sv[4],0);
+    hc = stod(sv[5],0);
+    S_V_c = stod(sv[6],0);
+    kc = stod(sv[7],0);
+    Mmax = stod(sv[8],0);
+    C50 = stod(sv[9],0);
+    taoO2 = stod(sv[10],0);
+    Z = stod(sv[11],0);
+}
+
+
+//--------------------------------------------------------------
+void solver_lumped::assign_haemogobin_sat_params(vector<string> sv){
+	L_HBsat = stod(sv[1],0);
+	k_HBsat = stod(sv[2],0);
+	b_HBsat = stod(sv[3],0);
+	m_HBsat = stod(sv[4],0);
+}
+
+
+//--------------------------------------------------------------
+void solver_lumped::assign_pulmonary_O2_params(vector<string> sv){
+	PO2_alveolar = stod(sv[1],0);
+	K_pul_O2 = stod(sv[2],0);
+	taoO2_p = stod(sv[3],0);
+	K_pul_scale =stod(sv[4],0) ;
+}
+
+
+//--------------------------------------------------------------
+void solver_lumped::metabolic_response(double t_act)
+{
+
+	// time step
+	double dt = t_act - time.back();
+
+	double Ct = Ct_ave->average.back();//p_ave->average.back();
+
+	// actuator signal
+	x_met = x_met + dt / tao_met * (- x_met + G_met * (Ct - Ct_ref));
+
+	vector<int> Ridx{0,1}; // which resistors are we modifying
+
+	double FF; 
+	for(int i=0; i<Ridx.size(); i++)
+	{
+		double Rmax, Rmin; // calculated from r_min, r_max from "Regulation of Coronary Microvascular Resistance in Health and Disease" pic 12.2
+		if(x_met < 0){
+			Rmin = sat1_met;
+			Rmax = 2. - Rmin;
+		}
+		else{
+			Rmax = sat2_met;
+			Rmin = 2. - sat2_met;
+		}
+
+		//double R_ref = edges[Ridx[i]]->par_non_SI[0];
+		double K = Ct_ref * Ct_ref;
+		double ff = 10 *8. * Ct_ref / ( K * (Rmax - Rmin) );
+		FF = (Rmax + Rmin * exp(-x_met * ff)) / (1. + exp(-x_met * ff));
+		
+		//cout.precision(10);
+		//cout << FF << endl;
+
+		edges[Ridx[i]]->parameter_factor *= FF;
+	}
+
+}
+
+
+double solver_lumped::vessel_dilation(int edgeindex){
+	//return 1.;
+	return pow( edges[edgeindex]->parameter_factor ,-0.5);
 }

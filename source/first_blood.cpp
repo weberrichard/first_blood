@@ -168,19 +168,19 @@ bool first_blood::load_main_csv()
 			else if(sv[0] == "RBCtransport"){ //RBC transport
 				if(sv[1] == "on"){
 					do_RBC_transport = true;
-					RBC_node_transport = new TransportNodeCl(RBC); 
+					RBC_node_transport = new Transport_node(RBC); 
 				}
 			}
 			else if(sv[0] == "HBsat_transport"){
 				if(sv[1] == "on"){
 					do_HBsat_transport = true;
-					HB_O2_node_transport = new TransportNodeCl(HB_O2_saturation);
+					HB_O2_node_transport = new Transport_node(HB_O2_saturation);
 				}
 			}
 			else if(sv[0] == "PlasmaO2C_transport"){
 				if(sv[1] == "on"){
 					do_Plasma_O2_transport = true;
-					PlasmaO2_node_transport = new TransportNodeCl(C_Plasma_O2);
+					PlasmaO2_node_transport = new Transport_node(C_Plasma_O2);
 				}
 			}
 			else if(sv[0] == "initRBC") // concentretion initialization BEFORE lumped declaration
@@ -809,9 +809,9 @@ void first_blood::initialization()
 	cfr = new time_average();
 
 	//RBC transfer class
-	RBC1D = new Transport1DCl(TRBCType);
-	HBsat1D = new Transport1DCl(HB_O2_saturation);
-	Plasma_O21D = new Transport1DCl(C_Plasma_O2);
+	RBC1D = new Transport_1D(TRBCType);
+	HBsat1D = new Transport_1D(HB_O2_saturation);
+	Plasma_O21D = new Transport_1D(C_Plasma_O2);
 
 
 }
@@ -1229,7 +1229,7 @@ void first_blood::load_initials()
 
 //transport stuff
 //-------------------------------------------
-void Transport1DCl::update_fi(vector<double> v, vector<double>& fi, vector<double>& fi_new, double l, double dt, double fiStart, double fiEnd){
+void Transport_1D::update_fi(vector<double> v, vector<double>& fi, vector<double>& fi_new, double l, double dt, double fiStart, double fiEnd){
     int n = v.size();
     double dx = l / (n - 1);
     //vector<double> fi_tmp = fi_new; //this will be the new fi
@@ -1263,17 +1263,17 @@ void Transport1DCl::update_fi(vector<double> v, vector<double>& fi, vector<doubl
 }
 
 //-----------------------------------------------------------------
-Transport1DCl::Transport1DCl(TransportType TType):TType(TType){};
+Transport_1D::Transport_1D(TransportType TType):TType(TType){};
 
 
 
 //transport stuff for 1D nodes
 //separate class is needed for each type of transport. eg.: RBC...
 //--------------------------------------------
-TransportNodeCl::TransportNodeCl(TransportType TType) : TType(TType) {};
+Transport_node::Transport_node(TransportType TType) : TType(TType) {};
 
 //--------------------------------------------
-void TransportNodeCl::update_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges){
+void Transport_node::update_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges){
     if (node->is_master_node == true) {
         return;
         };
@@ -1347,7 +1347,7 @@ void TransportNodeCl::update_fi(double& fiNode, moc_node* node, const vector<moc
 
 //----------------------------------------------------------------
 
-void TransportNodeCl::update_master_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges, solver_lumped& lum_mod){
+void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges, solver_lumped& lum_mod){
     int n1 = node->edge_in.size();
     int n2 = node->edge_out.size();
 

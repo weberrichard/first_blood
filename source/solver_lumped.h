@@ -133,12 +133,15 @@ public:
 
 	//O2 transport function
     void O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma, double fiStartNodeHB, double fiEndNodeHB);
-    void pulmonary_O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma, double fiStartNodeHB, double fiEndNodeHB, double dV);
+    void pulmonary_O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma, double fiStartNodeHB, double fiEndNodeHB);
     double dCO2_plasma(double CO2_plasma_old, double HBsat_old, double C_RBC);
     double HBsat_equilibrium(double PO2);
     double turn_source(double t);
     void save_tissueO2(string folder_name, const vector<double>& st, const vector<double>& time);
     vector<double> sin_2(double scale, int nx);
+    void assign_perif_O2_params(vector<string> sv);
+    void assign_haemogobin_sat_params(vector<string> sv);
+    void assign_pulmonary_O2_params(vector<string> sv);
 
     //tissue O2 concentration vector and scalar
     vector<double> tissueO2v;
@@ -180,7 +183,19 @@ public:
     double K_pul_O2 = 1.33e-7; // [m3/s/mmHg]
     double taoO2_p = 0.08;//s
     //double K_pul_O2 = 3.33e-7; // [m3/s/mmHg]
-    double K_pul_scale = 2.7e-8;
+    //double K_pul_scale = 2.7e-8;
+    double K_pul_scale = 6.479e-4;
+
+    //paramteres for metabolic response
+    double x_met;
+    double Ct_ref;
+    double tao_met;
+    double G_met;
+    time_average *Ct_ave;
+    bool do_metabolic_res = false;
+    double sat1_met, sat2_met;
+    void metabolic_response(double t_act);
+    double vessel_dilation(int edgeindex);
 
 private:
 	// general constants

@@ -14,7 +14,7 @@
 #include "moc_edge.h"
 #include "moc_node.h"
 #include "statistics.h"
-#include "solver_lumped.h"
+//#include "solver_lumped.h"
 
 #include "/usr/include/eigen3/Eigen/Eigen"
 

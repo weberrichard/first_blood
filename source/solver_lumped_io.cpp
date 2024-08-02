@@ -175,6 +175,20 @@ void solver_lumped::load_model()
 				}
 			}
 
+			//metabolic response
+			else if(sv[0] == "metabolic")
+			{
+				if(sv[1]=="on"){
+					    Ct_ref = stod(sv[2],0);
+    					 tao_met = stod(sv[3],0);
+                   G_met = stod(sv[4],0);
+                   sat1_met = stod(sv[5],0);
+                   sat2_met = stod(sv[6],0);
+    					 //Ct_ave;
+    					 do_metabolic_res = true;
+				}
+			}
+
 
 		}
 
@@ -194,6 +208,29 @@ void solver_lumped::load_model()
 	number_of_edges = edges.size();
 
 	file_in.close();
+
+   //O2 transport parameters reading from file
+   file_name = input_folder_path + '/' + "O2_parameters" + ".txt";
+	file_in.open(file_name);
+	if(file_in.is_open()){
+		while(getline(file_in,line))
+		{	
+			// cleaning unnecessary characters
+			line.erase(remove(line.begin(), line.end(), ' '), line.end());
+			line.erase(remove(line.begin(), line.end(), '\n'), line.end());
+			line.erase(remove(line.begin(), line.end(), '\r'), line.end());
+			vector<string> sv = separate_line(line);
+			
+			if (sv[0] == "peripheries"){ assign_perif_O2_params(sv); }
+			else if(sv[0] == "haemoglobin"){ assign_haemogobin_sat_params(sv); }
+			else if(sv[0] == "pulmonary"){ assign_pulmonary_O2_params(sv); }
+
+		}
+	}
+	else{
+		cout<<"O2_parameter default values"<<endl;
+	}
+
 }
 
 //--------------------------------------------------------------

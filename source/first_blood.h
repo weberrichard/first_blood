@@ -36,20 +36,20 @@ using namespace Eigen;
 
 //transport stuff
 //a first_blood object gets one of this class. This handles 1D transport for the moc edges
-class Transport1DCl {
+class Transport_1D {
 public:
     TransportType TType;
 
-    Transport1DCl(TransportType TType);
+    Transport_1D(TransportType TType);
 
     void update_fi(vector<double> v, vector<double>& fi, vector<double>& fi_new, double l, double dt, double fiStart, double fiEnd);
 };
 
-class TransportNodeCl {//for 1D nodes
+class Transport_node {//for 1D nodes
 public:
     TransportType TType;
 
-    TransportNodeCl(TransportType TType);
+    Transport_node(TransportType TType);
 
     void update_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges);
     void update_master_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges, solver_lumped& lum_mod);
@@ -169,26 +169,26 @@ public:
 
 	// RBC transport
 	bool do_RBC_transport = false;
-	Transport1DCl* RBC1D; //class handling the 1D transport stuff
+	Transport_1D* RBC1D; //class handling the 1D transport stuff
 	TransportType TRBCType = RBC;
-	TransportNodeCl* RBC_node_transport;
+	Transport_node* RBC_node_transport;
 	double fi_init_RBC = 0.;//initial value of RBC concentration
 	double fi_vena_cava_RBC = 0.;
 	void update_fi_vena_cava(TransportType TType);
 
 	// Haemoglobin saturation
 	bool do_HBsat_transport = false;
-	Transport1DCl* HBsat1D; //class handling the 1D transport stuff
+	Transport_1D* HBsat1D; //class handling the 1D transport stuff
 	TransportType THBType = HB_O2_saturation;
-	TransportNodeCl* HB_O2_node_transport;
+	Transport_node* HB_O2_node_transport;
 	double HBsat_init = 0.;//initial value of HB saturation
 	double HBsat_vena_cava = 0.;
 
 	// Plasma O2 concentration
 	bool do_Plasma_O2_transport = false;
-	Transport1DCl* Plasma_O21D; //class handling the 1D transport stuff
+	Transport_1D* Plasma_O21D; //class handling the 1D transport stuff
 	TransportType TPlasmaO2 = C_Plasma_O2;
-	TransportNodeCl* PlasmaO2_node_transport;
+	Transport_node* PlasmaO2_node_transport;
 	double PlasmaO2_C_init = 0.;//initial value of Plasma O2 concentration
 	double PlasmaO2_C_vena_cava = 0.;
 
