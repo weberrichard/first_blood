@@ -360,6 +360,7 @@ void solver_lumped::update_parameters(double t_act)
 
 	if(do_metabolic_res){
 		metabolic_response(t_act);
+		//cout<<name;
 	}
 }
 
@@ -695,12 +696,12 @@ D0_transport::D0_transport(LumpedType LType, vector<string> sv, TransportType TT
         fi_arteriole.assign(nx_arteriole, concentration_init);
 
         //capillary
-        nx_capillary = NX(L_capillary, stod(sv[10],0), 10);
+        nx_capillary = NX(L_capillary, stod(sv[10],0), 80);
         dx_capillary = L_capillary / (nx_capillary - 1);
         fi_capillary.assign(nx_capillary, concentration_init);
 
         //venulare
-        nx_venulare = NX(L_venulare, stod(sv[11],0), 5);
+        nx_venulare = NX(L_venulare, stod(sv[11],0), 10);
         dx_venulare = L_venulare / (nx_venulare - 1);
         fi_venulare.assign(nx_venulare, concentration_init);
 
@@ -726,7 +727,8 @@ D0_transport::D0_transport(LumpedType LType, vector<string> sv, TransportType TT
 
     	L_pul_cap = stod(sv[10],0);
     	A_pul_cap = stod(sv[11],0);
-    	nx_pul_cap = stod(sv[12],0);
+    	nx_pul_cap = stod(sv[12],0);//40 nominal
+    	//nx_pul_cap = 320;
     	dx_pul_cap = L_pul_cap / (nx_pul_cap - 1);
 
     	//nodes
@@ -1199,7 +1201,9 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
 	vector<double> plasmaO2 = PlasmaO2lum -> fi_capillary;
 	vector<double> tissueO2vold = tissueO2v;
 
-	//Mmax = 2.4e-4*2.0;
+//	if(name=="p10"){
+//	Mmax = 2.7e-4*2.0;
+//}
 
 	//capillary plasma concentration
     for (int i = 1; i < n - 1; i++) {

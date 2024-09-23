@@ -164,7 +164,7 @@ public:
     double hc = 1.0e-6; // [m] wall thickness of capillary walls
     double S_V_c = 4.74e5; // [1/m] surface to voulme ratio in capillaries
     double kc = 4.2e-14; // [m2/mmHg/s]
-    double Mmax = 2.4e-4; // [1/s] ????
+    double Mmax = 2.7e-4; // [1/s] ????
     //double C50 = 2.6e-5; // [m3/m3]
     double C50 = 2.6e-5; // [m3/m3]
     double taoO2 = 0.08;//s
