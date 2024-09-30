@@ -33,6 +33,7 @@ public:
 	// 0: junction (with or without resistance), 1: periferia, 2: heart
 	string type;
 	int type_code;
+	bool is_diode = false;
 
 	// containing the INgoing and OUTgoing edges
 	vector<int> edge_in;

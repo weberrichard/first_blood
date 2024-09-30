@@ -81,6 +81,14 @@ void solver_moc::load_model()
 				}
 				nodes[j]->type = "node";
 				nodes[j]->type_code = 0;
+
+				if(sv.size()>=6){// vein diodes
+					if(sv[6]=="diode"){
+						nodes[j]->is_diode = true;
+						//cout<<j<<endl;
+					}
+				}
+
 				j++;
 			}
 			else if(sv[0] == "perif" || sv[0] == "periferia") // nodes

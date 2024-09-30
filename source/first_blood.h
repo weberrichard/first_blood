@@ -192,6 +192,8 @@ public:
 	double PlasmaO2_C_init = 0.;//initial value of Plasma O2 concentration
 	double PlasmaO2_C_vena_cava = 0.;
 
+	void check_valves();
+
 
 private:
 	// data of boundary for forward, and backward simulation

@@ -158,6 +158,7 @@ public:
 	//get function(s) for transport
 	vector<double> get_velocity();
 	vector<double> get_area();
+	vector<double> get_new_velocity();
 
 	vector<double> RBC_edge_fi, RBC_edge_finew; //RBC concentration SI
 	vector<double> HBsat_edge, HBsat_edge_new; //Haemoglobin saturation [1]

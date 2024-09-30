@@ -247,6 +247,8 @@ bool first_blood::run()
 		load_initials();
 	}
 
+	check_valves(); //checking thw numer of in and outgoing edges. 1+1 is the only valid option
+
 	if(run_type == "forward") // simple forward calculation
 	{
 		is_run_ok = true;
@@ -1533,6 +1535,20 @@ void first_blood::update_fi_vena_cava(TransportType TType){
 
 
 
+}
+
+
+void first_blood::check_valves(){
+	for(int j=0;j<moc.size();j++){
+	for(int i=0;i<moc[j]->nodes.size();i++){
+		if(moc[j]->nodes[i]->is_diode){
+			if(moc[j]->nodes[i]->edge_in.size()!=1 || moc[j]->nodes[i]->edge_out.size() !=1){
+				cout<<"Diode definition between edges is not valid. More than one incoming or more than one outgoing edge.";
+				exit(-1);
+			}
+		}
+	}
+}
 }
 
 //--------------------------------------------------------------

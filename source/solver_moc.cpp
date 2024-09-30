@@ -146,8 +146,7 @@ void solver_moc::boundaries(int e_idx, double t_act)
 
 	for(unsigned int i=0; i<node_idx.size(); i++)
 	{
-		if(nodes[node_idx[i]]->is_master_node == false)
-		{
+		if(nodes[node_idx[i]]->is_master_node == false){
 			if(nodes[node_idx[i]]->upstream_boundary>-1) // handling the upstream boundary
 			{
 				int up_idx = nodes[node_idx[i]]->upstream_boundary;
@@ -481,6 +480,25 @@ void solver_moc::boundaries(int e_idx, double t_act)
 						edges[e_idx]->boundary_substitute_start(t_act,pp,q);
 					}
 				}
+			}
+
+			if(nodes[node_idx[i]]->is_diode){//diode 
+				double p_in;
+				int ei = nodes[node_idx[i]]->edge_in[0];
+				double dt = edges[ei]->dt_act;
+				if(edges[ei]->get_new_velocity().back()<0.){
+					double q=0.;
+					p_in = edges[ei]->boundary_velocity_end(dt, 0., q);
+				}
+				//cout<<edges[ei]->get_new_velocity().back()<<endl;
+
+				ei = nodes[node_idx[i]]->edge_out[0];
+				dt = edges[ei]->dt_act;
+				if(edges[ei]->get_new_velocity()[0]<0.){
+					double q=0.;
+					p_in = edges[ei]->boundary_velocity_start(dt, 0., q);
+				}
+				//cout<<edges[ei]->get_new_velocity()[0]<<endl;
 			}
 		}
 	}

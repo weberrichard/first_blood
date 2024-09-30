@@ -1100,4 +1100,4 @@ double moc_edge::boundary_velocity_end(double dt, double v_in, double &q_in)
 //get functions for the transport
 vector<double> moc_edge::get_velocity(){return this-> v;}
 vector<double> moc_edge::get_area(){return this-> A;}
-
+vector<double> moc_edge::get_new_velocity(){return this-> vnew;}
