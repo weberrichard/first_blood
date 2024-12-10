@@ -35,6 +35,10 @@ void moc_edge::initialization(double pressure_initial, int mat_type, double RBC_
    mass_flow_rate_end.clear();
    RBC_concentration_start.clear();
    RBC_concentration_end.clear();
+   PlasmaO2_start.clear();
+   PlasmaO2_end.clear();
+   HBsat_start.clear();
+   HBsat_end.clear();
    time.clear();
    time.push_back(0.);
 
@@ -57,6 +61,10 @@ void moc_edge::initialization(double pressure_initial, int mat_type, double RBC_
 	x.clear();     x.resize(nx);
 	RBC_edge_fi.clear(); RBC_edge_fi.resize(nx);
 	RBC_edge_finew.clear(); RBC_edge_finew.resize(nx);
+	HBsat_edge.clear(); HBsat_edge.resize(nx);
+	HBsat_edge_new.clear(); HBsat_edge_new.resize(nx);
+	PlasmaO2_edge.clear(); PlasmaO2_edge.resize(nx);
+	PlasmaO2_edge_new.clear(); PlasmaO2_edge_new.resize(nx);
 
 	// calculating the space coordinates and dx
 	dx = l/(nx-1);
