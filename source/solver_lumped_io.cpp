@@ -133,47 +133,31 @@ void solver_lumped::load_model()
 			}
 
 			//RBC, HBsaturation, PlasmaO2C perif transport
-			else if(sv[0] == "RBCperif")
-			{//RBC
+			else if(sv[0] == "RBC_on" && sv[1] == "1"){
+			//RBC
 				do_lum_RBC_transport = true;
-				RBClum = new D0_transport(Perif0D, sv, RBC, fi_init_RBC_lum);
-				
-
-			 //HBsaturation
-				if (sv[13] == "1"){
-					do_lum_HB_sat_transport = true;
-					HBsatlum = new D0_transport(Perif0D, sv, HB_O2_saturation, init_HB_sat_lum);
-					
+				RBClum = new D0_transport(RBC);
 				}
 
-			 //PlasmaO2C
-				if (sv[14] == "1"){
-					do_lum_PlasmaO2_transport = true;
-					PlasmaO2lum = new D0_transport(Perif0D, sv, C_Plasma_O2, init_PlasmaO2_lum);
-					
+			//HBsaturation
+			else if (sv[0] == "HBsaturation_on" && sv[1] == "1"){
+				do_lum_HB_sat_transport = true;
+				HBsatlum = new D0_transport(HB_O2_saturation);
 				}
+
+			//PlasmaO2C
+			else if (sv[0] == "PlasmaO2_on" && sv[1] == "1"){
+				do_lum_PlasmaO2_transport = true;
+				PlasmaO2lum = new D0_transport(C_Plasma_O2);
+				}
+
+			else if(sv[0]=="O2transport_init" && sv.size() > 3 ){
+				fi_init_RBC_lum = stod(sv[1],0);
+				init_PlasmaO2_lum = stod(sv[2],0);
+				init_HB_sat_lum = stod(sv[3],0);
 			}
+			
 
-			//RBC, HBsaturation, PlasmaO2C heart transport
-			else if(sv[0] == "transport")
-			{//RBC
-				if (sv[7] == "1"){
-				do_lum_RBC_transport = true;
-				RBClum = new D0_transport(Heart0D, sv, RBC, fi_init_RBC_lum);
-			   }
-				
-			 //HBsauration
-				if (sv[8] == "1"){
-					do_lum_HB_sat_transport = true;
-					HBsatlum = new D0_transport(Heart0D, sv, HB_O2_saturation, init_HB_sat_lum);
-				}
-
-			 //PlasmaO2C
-				if (sv[9] == "1"){
-					do_lum_PlasmaO2_transport = true;
-					PlasmaO2lum = new D0_transport(Heart0D, sv, C_Plasma_O2, init_PlasmaO2_lum);
-				}
-			}
 
 			//metabolic response
 			else if(sv[0] == "metabolic")
@@ -189,11 +173,96 @@ void solver_lumped::load_model()
 				}
 			}
 
+			//virtual 1D edges
+			else if(sv[0] == "v1D"){
+
+				if(do_lum_RBC_transport&&sv.size()>9){//string name, double L, double A, int  nx, TransportType TType, double init, string node_start_name, string node_end_name, string diode_name
+				RBClum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), RBC, fi_init_RBC_lum, sv[2], sv[3], "",sv[9]));
+				if(sv[7] == "1" ){RBClum->D0_edges.back()->is_per_capillary = true;}
+				if(sv[8] == "1" ){RBClum->D0_edges.back()->is_pul_capillary = true;}
+				}
+
+				if(do_lum_HB_sat_transport&&sv.size()>9){
+				HBsatlum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), HB_O2_saturation, init_HB_sat_lum, sv[2], sv[3], "",sv[9]));
+				if(sv[7] == "1" ){HBsatlum->D0_edges.back()->is_per_capillary = true;}
+				if(sv[8] == "1" ){HBsatlum->D0_edges.back()->is_pul_capillary = true;}
+				}
+				
+				if(do_lum_PlasmaO2_transport&&sv.size()>9){
+				PlasmaO2lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), C_Plasma_O2, init_PlasmaO2_lum, sv[2], sv[3], "",sv[9]));
+				if(sv[7] == "1" ){PlasmaO2lum->D0_edges.back()->is_per_capillary = true;}
+				if(sv[8] == "1" ){PlasmaO2lum->D0_edges.back()->is_pul_capillary = true;}
+				}
+
+			}
+
+			//virtual 1D diodes
+			else if(sv[0] == "t_diode"){//string name, double L, double A, int  nx, TransportType TType, double init, string node_start_name, string node_end_name
+				if(do_lum_RBC_transport){
+				RBClum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 2, RBC, fi_init_RBC_lum, sv[2], sv[3], sv[4], ""));
+				RBClum->D0_edges.back()->is_diode = true;
+				RBClum->D0_edges.back()->diode_name = sv[4];
+				}
+
+				if(do_lum_HB_sat_transport){
+				HBsatlum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 2, HB_O2_saturation, init_HB_sat_lum, sv[2], sv[3], sv[4], ""));
+				HBsatlum->D0_edges.back()->is_diode = true;
+				HBsatlum->D0_edges.back()->diode_name = sv[4];
+				}
+				
+				if(do_lum_PlasmaO2_transport){
+				PlasmaO2lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 2, C_Plasma_O2, init_PlasmaO2_lum, sv[2], sv[3], sv[4], ""));
+				PlasmaO2lum->D0_edges.back()->is_diode = true;
+				PlasmaO2lum->D0_edges.back()->diode_name = sv[4];
+				}
+
+			}
+
 
 		}
 
 		if(do_lum_PlasmaO2_transport&&do_lum_HB_sat_transport&&do_lum_RBC_transport){
 			init_lum_tissueO2();
+			RBClum->do_tissue_transport = true;
+			HBsatlum->do_tissue_transport = true;
+			PlasmaO2lum->do_tissue_transport = true;
+
+			//if we calculate PlasmaO2, HB_sat and RBC and there is a pul or per capillary in the model
+			int n_pul_cap = 0;
+			int n_per_cap = 0;
+
+			for(int zz=0; zz<HBsatlum->D0_edges.size(); zz++){
+				if(HBsatlum->D0_edges[zz] ->is_pul_capillary){
+					do_pul_O2_rtansport=true;
+					n_pul_cap++;
+					pul_cap_BH = HBsatlum->D0_edges[zz];
+					}
+				else if(HBsatlum->D0_edges[zz]->is_per_capillary){
+					do_per_O2_rtansport=true;
+					n_per_cap++;
+					per_cap_BH = HBsatlum->D0_edges[zz];}
+			}
+
+			for(int zz=0; zz<PlasmaO2lum->D0_edges.size(); zz++){
+				if(PlasmaO2lum->D0_edges[zz] ->is_pul_capillary){
+					pul_cap_PO2 = PlasmaO2lum->D0_edges[zz];
+					}
+				else if(PlasmaO2lum->D0_edges[zz]->is_per_capillary){
+					per_cap_PO2 = PlasmaO2lum->D0_edges[zz];}
+			}
+
+			for(int zz=0; zz<RBClum->D0_edges.size(); zz++){
+				if(RBClum->D0_edges[zz] ->is_pul_capillary){
+					pul_cap_RBC = RBClum->D0_edges[zz];
+					}
+				else if(RBClum->D0_edges[zz]->is_per_capillary){
+					per_cap_RBC = RBClum->D0_edges[zz];}
+			}
+
+			if(n_pul_cap > 1 || n_per_cap > 1){
+				std::cout << "! ERROR !" << endl << "Max one pulmonary or peripheral capillary in a lumped models: " << name << endl;
+				exit(-1); }
+
 		}
 
 	}
@@ -227,7 +296,7 @@ void solver_lumped::load_model()
 
 		}
 	}
-	else{
+	else if(do_lum_PlasmaO2_transport&&do_lum_HB_sat_transport&&do_lum_RBC_transport){
 		cout<<"O2_parameter default values"<<endl;
 	}
 

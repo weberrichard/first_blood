@@ -64,7 +64,7 @@ public:
 	vector<double> olufsen_def_const{2.e6,-2253.,8.65e4}; // default constants for olufsen model
 
 	// giving initial conditions
-	void initialization(double p_init, int material_type, double RBC_init, double HBsat_init, double PlasmaO2_C_init);
+	void initialization(double p_init, int material_type);
 	// initialazing Newton's method for 1D/0D boundaries
 	void initialization_newton(VectorXd &x, int N, int moc_edge_index, int edge_end);
 	// substituting the results back to field variables
@@ -128,6 +128,10 @@ public:
 	// finding all correspondning nodes to edges
 	vector<int> edge_to_node(vector<int> edge_idx);
 
+	//if init values are given for first_blood
+	double RBC_moc_init = 0.;
+	double PlasmaO2_moc_init = 0.;
+	double HBsat_moc_init = 0.;
 
 private:
 

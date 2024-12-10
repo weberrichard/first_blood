@@ -155,10 +155,6 @@ bool first_blood::load_main_csv()
 					k+=2;
 				}
 				nl++;
-				//RBC init
-				lum.back()->fi_init_RBC_lum = fi_init_RBC;
-				lum.back()->init_HB_sat_lum = HBsat_init;
-				lum.back()->init_PlasmaO2_lum = PlasmaO2_C_init;
 			}
 			else if(sv[0] == "node") // main nodes between models
 			{
@@ -183,21 +179,7 @@ bool first_blood::load_main_csv()
 					PlasmaO2_node_transport = new Transport_node(C_Plasma_O2);
 				}
 			}
-			else if(sv[0] == "initRBC") // concentretion initialization BEFORE lumped declaration
-			{
-				fi_init_RBC = stod(sv[1],0);
-				fi_vena_cava_RBC = stod(sv[1],0);
-			}
-			else if(sv[0] == "initHBsat") // HB O2 saturation init
-			{
-				HBsat_init = stod(sv[1],0);
-				HBsat_vena_cava = stod(sv[1],0);
-			}
-			else if(sv[0] == "initPlasmaO2C")
-			{
-				PlasmaO2_C_init = stod(sv[1],0); // initial value of Plasma O2 concentration
-				PlasmaO2_C_vena_cava = stod(sv[1],0);
-			}
+
 
 
 
@@ -247,7 +229,9 @@ bool first_blood::run()
 		load_initials();
 	}
 
-	check_valves(); //checking thw numer of in and outgoing edges. 1+1 is the only valid option
+	check_valves();//checking thw numer of in and outgoing edges. 1+1 is the only valid option
+
+	connect_0D_edges();
 
 	if(run_type == "forward") // simple forward calculation
 	{
@@ -334,9 +318,8 @@ bool first_blood::run()
 						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
 
 						if (lum[lum_idx]->do_lum_RBC_transport){
-							update_fi_vena_cava(RBC);
-							RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx]);
-							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_node_fi, *lum[lum_idx], fi_vena_cava_RBC);
+							RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx]);
 						}
 
 					}
@@ -346,9 +329,8 @@ bool first_blood::run()
 						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
 
 						if (lum[lum_idx]->do_lum_RBC_transport){
-							update_fi_vena_cava(RBC);
-							RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx]);
-							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[ei]->RBC_node_fi, *lum[lum_idx], fi_vena_cava_RBC);
+							RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx]);
 						}
 
 					}
@@ -371,9 +353,8 @@ bool first_blood::run()
 						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
 
 						if (lum[lum_idx]->do_lum_HB_sat_transport){
-							update_fi_vena_cava(HB_O2_saturation);
-							HB_O2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx]);
-							lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->HBsat_node, *lum[lum_idx], HBsat_vena_cava);
+							HB_O2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+							lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx]);
 						}
 
 					}
@@ -383,9 +364,8 @@ bool first_blood::run()
 						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
 
 						if (lum[lum_idx]->do_lum_HB_sat_transport){
-							update_fi_vena_cava(HB_O2_saturation);
-							HB_O2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->HBsat_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx]);
-							lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[ei]->HBsat_node, *lum[lum_idx], HBsat_vena_cava);
+							HB_O2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->HBsat_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+							lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx]);
 						}
 
 					}
@@ -409,9 +389,11 @@ bool first_blood::run()
 						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
 
 						if (lum[lum_idx]->do_lum_PlasmaO2_transport){
-							update_fi_vena_cava(C_Plasma_O2);
-							PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx]);
-							lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->PlasmaO2_node, *lum[lum_idx], PlasmaO2_C_vena_cava);
+							PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+							lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx]);
+
+							//capillary is only updated here
+							lum[lum_idx]->capillary_O2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
 						}
 
 					}
@@ -421,15 +403,47 @@ bool first_blood::run()
 						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
 
 						if (lum[lum_idx]->do_lum_PlasmaO2_transport){
-							update_fi_vena_cava(C_Plasma_O2);
-							PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->PlasmaO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx]);
-							lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[ei]->PlasmaO2_node, *lum[lum_idx], PlasmaO2_C_vena_cava);
+							PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->PlasmaO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+							lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx]);
+
+							//capillary is only updated here
+							lum[lum_idx]->capillary_O2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
 						}
 
 					}
 
 					//transport 1D update (actual edge)
 					Plasma_O21D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->PlasmaO2_edge, moc[moc_idx]->edges[e_idx]->PlasmaO2_edge_new, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[ei]->PlasmaO2_node);
+				}
+
+				if(moc[moc_idx]->nodes[ei]->is_master_node){
+					int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+					if (lum[lum_idx]->do_lum_PlasmaO2_transport){
+						lum[lum_idx]->PlasmaO2lum->save_variables();
+					}
+
+					if (lum[lum_idx]->do_lum_HB_sat_transport){
+						lum[lum_idx]->HBsatlum->save_variables();
+					}
+
+					if (lum[lum_idx]->do_lum_RBC_transport){
+						lum[lum_idx]->RBClum->save_variables();
+					}
+				}
+
+				if(moc[moc_idx]->nodes[si]->is_master_node){
+					int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+					if (lum[lum_idx]->do_lum_PlasmaO2_transport){
+						lum[lum_idx]->PlasmaO2lum->save_variables();
+					}
+
+					if (lum[lum_idx]->do_lum_HB_sat_transport){
+						lum[lum_idx]->HBsatlum->save_variables();
+					}
+
+					if (lum[lum_idx]->do_lum_RBC_transport){
+						lum[lum_idx]->RBClum->save_variables();
+					}
 				}
 
 
@@ -768,7 +782,7 @@ void first_blood::initialization()
 	// setting initial conditions
 	for(int i=0; i<number_of_moc; i++)
 	{
-		moc[i]->initialization(pressure_initial,material_type,fi_init_RBC, HBsat_init, PlasmaO2_C_init);
+		moc[i]->initialization(pressure_initial,material_type);
 		time_counter += moc[i]->number_of_edges;
 	}
 	for(int i=0; i<number_of_lum; i++)
@@ -1349,7 +1363,7 @@ void Transport_node::update_fi(double& fiNode, moc_node* node, const vector<moc_
 
 //----------------------------------------------------------------
 
-void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges, solver_lumped& lum_mod){
+void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges, solver_lumped& lum_mod, solver_moc& moc_mod){
     int n1 = node->edge_in.size();
     int n2 = node->edge_out.size();
 
@@ -1409,58 +1423,101 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
         }
     }
     
-    switch(TType){
-    case HB_O2_saturation:
-    if( lum_mod.HBsatlum->LType == Perif0D){//arteriole
-        q = lum_mod.edges[0]->vfr;
-        if(q < 0){
-        q_sum -= q;
-        fiNode -= q * lum_mod.HBsatlum->fi_arteriole[0];
-        }
+
+    //0D transport part
+    //finding the node corresponding to the given moc model
+    int indexof_node = -1;
+    string lumpMaster;
+    for(int i=0; i< moc_mod.boundary_model_node.size();i++ ){
+    	//cout << node->name<<endl;
+    	if(node->name == moc_mod.boundary_model_node[i] ){
+    		lumpMaster = moc_mod.boundary_main_node[i] ;
+    		//cout<<lumpMaster<<endl<<endl;
+    	}
     }
 
-    if( lum_mod.HBsatlum->LType == Heart0D){//LV
-        q = lum_mod.edges[13]->vfr; 
-        if(q > 0.){ //the diode is open
+
+    for(int i=0; i< lum_mod.boundary_main_node.size() ; i++){
+    	if (lum_mod.boundary_main_node[i] == lumpMaster){
+    		for(int j=0; j<lum_mod.nodes.size(); j++){
+    			if(lum_mod.nodes[j]->name == lum_mod.boundary_model_node[i]){
+    				indexof_node = j;
+    			}
+    		}
+    	}
+	}
+    //cout<<lum_mod.name << "   " << moc_mod.name << "   "<<indexof_node<<endl;
+
+    switch(TType){
+    case HB_O2_saturation:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_HBsat.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_HBsat[i];
+        q = is->vfr_edge->vfr;
+        if(q > 0){
         q_sum += q;
-        fiNode += q * lum_mod.HBsatlum->fi_LV;
+        fiNode += q * is->fi.back();
         }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_HBsat.size(); i++){//arteriole
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_HBsat[i] ;
+        q = is->vfr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
     }
     break;
 
     case C_Plasma_O2:
-    if( lum_mod.PlasmaO2lum->LType == Perif0D){//arteriole
-        q = lum_mod.edges[0]->vfr;
-        if(q < 0){
-        q_sum -= q;
-        fiNode -= q * lum_mod.PlasmaO2lum->fi_arteriole[0];
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_PlasmaO2.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_PlasmaO2[i];
+        q = is->vfr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
         }
+
+        is++;
     }
 
-    if( lum_mod.PlasmaO2lum->LType == Heart0D){//LV
-        q = lum_mod.edges[13]->vfr; 
-        if(q > 0.){ //the diode is open
-        q_sum += q;
-        fiNode += q * lum_mod.PlasmaO2lum->fi_LV;
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_PlasmaO2.size(); i++){//arteriole
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_PlasmaO2[i] ;
+        q = is->vfr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
         }
+
+        is++;
     }
     break;
 
     case RBC:
-    if( lum_mod.RBClum->LType == Perif0D){//arteriole
-        q = lum_mod.edges[0]->vfr;
-        if(q < 0){
-        q_sum -= q;
-        fiNode -= q * lum_mod.RBClum->fi_arteriole[0];
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_RBC.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_RBC[i];
+        q = is->vfr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
         }
+
+        is++;
     }
 
-    if( lum_mod.RBClum->LType == Heart0D){//LV
-        q = lum_mod.edges[13]->vfr; 
-        if(q > 0.){ //the diode is open
-        q_sum += q;
-        fiNode += q * lum_mod.RBClum->fi_LV;
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_RBC.size(); i++){//arteriole
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_RBC[i] ;
+        q = is->vfr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
         }
+
+        is++;
     }
     break;
     }
@@ -1470,74 +1527,27 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
        fiNode /= q_sum;
     }
     else { fiNode = fiNodeOld; }//if nothing flows in it stays the old
+
+    //node concentration must be updated as well
+    switch(TType){
+       case HB_O2_saturation:
+       lum_mod.nodes[indexof_node]->HBsat_0Dn = fiNode;
+       break;
+
+       case C_Plasma_O2:
+       lum_mod.nodes[indexof_node]->PlasmaO2_0Dn = fiNode;
+       break;
+
+       case RBC:
+       lum_mod.nodes[indexof_node]->RBC_fi0Dn = fiNode;
+       break;
+   }
+
+
 }
+
 
 //--------------------------------------------------------------
-void first_blood::update_fi_vena_cava(TransportType TType){
-	double q_sum, q;
-	q_sum = q = 0.;
-	double fi_old;
-	double* fi_vena_cava;
-	vector<bool> V;
-	V.assign(lum.size(), false);
-	vector<double> fi;
-	fi.assign(lum.size(), 0.);
-
-	switch(TType){
-	case RBC:
-		fi_old = fi_vena_cava_RBC;
-		fi_vena_cava = &fi_vena_cava_RBC;
-		for(int i=0;i<lum.size();i++){
-			if(lum[i]->do_lum_RBC_transport && lum[i]->RBClum->LType == Perif0D) {
-				V[i] = true;
-				fi[i] = lum[i] -> RBClum -> fi_vein.back();}
-		}
-	break;
-
-	case HB_O2_saturation:
-		fi_old = HBsat_vena_cava;
-		fi_vena_cava = &HBsat_vena_cava;
-		for(int i=0;i<lum.size();i++){
-			if(lum[i]->do_lum_HB_sat_transport && lum[i]->HBsatlum->LType == Perif0D) {
-				V[i] = true;
-				fi[i] = lum[i] -> HBsatlum -> fi_vein.back();}
-		}
-	break;
-
-	case C_Plasma_O2:
-		fi_old = PlasmaO2_C_vena_cava;
-		fi_vena_cava = &PlasmaO2_C_vena_cava;
-		for(int i=0;i<lum.size();i++){
-			if(lum[i]->do_lum_PlasmaO2_transport && lum[i]->PlasmaO2lum->LType == Perif0D) {
-				V[i] = true;
-				fi[i] = lum[i] -> PlasmaO2lum -> fi_vein.back();}
-		}
-	break;
-	}
-
-	*fi_vena_cava = 0.;
-
-	for(int i = 0; i < number_of_lum; i++){
-	if(V[i]){
-		q = lum[i]->edges[4]->vfr;
-		if(q > 0.){
-		    q_sum += q;
-		    *fi_vena_cava += q * fi[i];
-	    }
-	    }
-	   }
-
-	   if (q_sum != 0.) {
-	*fi_vena_cava /= q_sum;
-	   }
-	   else { *fi_vena_cava = fi_old; }//if nothing flows in it stays the old
-
-
-
-
-}
-
-
 void first_blood::check_valves(){
 	for(int j=0;j<moc.size();j++){
 	for(int i=0;i<moc[j]->nodes.size();i++){
@@ -1549,6 +1559,32 @@ void first_blood::check_valves(){
 		}
 	}
 }
+}
+
+
+//--------------------------------------------------------------
+void first_blood::connect_0D_edges(){
+	if(do_Plasma_O2_transport){
+	for(int i=0; i< lum.size(); i++){
+		if(lum[i]->do_lum_PlasmaO2_transport){
+			lum[i]->PlasmaO2lum->connect_0D_edges(*lum[i]);
+		}
+	}}
+
+	if(do_RBC_transport){
+	for(int i=0; i< lum.size(); i++){
+		if(lum[i]->do_lum_RBC_transport){
+			lum[i]->RBClum->connect_0D_edges(*lum[i]);
+		}
+	}}
+
+	if(do_HBsat_transport){
+	for(int i=0; i< lum.size(); i++){
+		if(lum[i]->do_lum_HB_sat_transport){
+			lum[i]->HBsatlum->connect_0D_edges(*lum[i]);
+		}
+	}}
+
 }
 
 //--------------------------------------------------------------

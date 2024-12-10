@@ -161,6 +161,13 @@ void solver_moc::load_model()
 
 				j++;
 			}
+
+			else if(sv[0]=="O2transport_init" && sv.size() > 3 ){
+				RBC_moc_init = stod(sv[1],0);
+				PlasmaO2_moc_init = stod(sv[2],0);
+				HBsat_moc_init = stod(sv[3],0);
+			}
+
 		}
 	}
 	else

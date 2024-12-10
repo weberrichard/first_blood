@@ -39,6 +39,9 @@ void solver_lumped::initialization(double hr)
 		nodes[i]->PlasmaO2_0Dn = init_PlasmaO2_lum;
 	}
 
+	// building model
+	build_system();
+
 	number_of_elastance = 0;
 	for(int i=0; i<number_of_edges; i++)
 	{
@@ -69,8 +72,6 @@ void solver_lumped::initialization(double hr)
 	A = MatrixXd::Zero(nm,nm);
 	b = VectorXd::Zero(nm);
 
-	// building model
-	build_system();
 
 	// for myogenic control
 	q_ave = new time_average();
@@ -397,7 +398,7 @@ void solver_lumped::myogenic_control(double t_act)
 		FF = (Rmax + Rmin * exp(-x_myo * ff)) / (1. + exp(-x_myo * ff));
 		
 
-		edges[Ridx[i]]->parameter_factor *= FF;
+		//edges[Ridx[i]]->parameter_factor *= FF;
 	}
 
 }
@@ -492,6 +493,9 @@ void solver_lumped::build_system()
 		nodes[node_start]->edge_out.push_back(i);
 		nodes[node_end]->edge_in.push_back(i);
 	}
+
+	set_0D_pointers();
+
 }
 
 //--------------------------------------------------------------
@@ -622,13 +626,13 @@ void solver_lumped::set_save_memory(vector<string> edge_list, vector<string> nod
 }
 
 
-
 //--------------------------------------------------------------
 double solver_lumped::delta_V(int edge_index, int node_index){
 	double C_ref = edges[edge_index]->parameter[0]; //everything is in SI
 	double dp = nodes[node_index]->p*mmHg_to_Pa - atmospheric_pressure;
 	return C_ref * dp;
 }
+
 
 //--------------------------------------------------------------
 int NX(double L,double dx, int N) {
@@ -641,457 +645,44 @@ int NX(double L,double dx, int N) {
 }
 
 
-//-----------------------------------------
-void Virt1DforLum(vector<double> &fi, double v, double dt, double dx, int n, double fiStartNode, double fiEndNode) {
-    vector<double> fi_old = fi;
-
-    for (int i = 1; i < n - 1; i++) {
-
-        if (v > 0.) {
-            fi[i] = fi_old[i] - v * dt / dx * (fi_old[i] - fi_old[i - 1]);
-        }
-        else {
-            fi[i] = fi_old[i] - v * dt / dx * (fi_old[i + 1] - fi_old[i]);
-        }
-    }
-
-    //BC
-    if (v > 0.) {
-
-        fi[n - 1] = fi_old[n - 1] - v * dt / dx * (fi_old[n - 1] - fi_old[n - 2]);
-        fi[0] = fiStartNode;
-    }
-    else {
-        fi[n - 1] = fiEndNode; 
-        fi[0] = fi_old[0] - v * dt / dx * (fi_old[1] - fi_old[0]);
-    }
-
-
-
+//------------------------------------------------------------
+D0_transport::D0_transport(TransportType TType): TType(TType) {
+	D0_edges.clear();
 }
 
-
-//----------------------------------------
-D0_transport::D0_transport(LumpedType LType, vector<string> sv, TransportType TType, double concentration_init):LType(LType), TType(TType) {
-    switch (LType) {
-    case PerifCoronary0D:
-    //no idea
-        break;
-    case Perif0D:
-
-    	initialization();
-
-        L_arteriole = stod(sv[1],0);
-        L_capillary = stod(sv[2],0);
-        L_venulare = stod(sv[3],0);
-        L_vein = stod(sv[4],0);
-        A_arteriole = stod(sv[5],0);
-        A_capillary = stod(sv[6],0);
-        A_venulare = stod(sv[7],0);
-        A_vein = stod(sv[8],0);
-
-        //arteriole
-        nx_arteriole = NX( L_arteriole, stod(sv[9],0) , 10); 
-        dx_arteriole = L_arteriole / (nx_arteriole - 1);
-        fi_arteriole.assign(nx_arteriole, concentration_init);
-
-        //capillary
-        nx_capillary = NX(L_capillary, stod(sv[10],0), 80);
-        dx_capillary = L_capillary / (nx_capillary - 1);
-        fi_capillary.assign(nx_capillary, concentration_init);
-
-        //venulare
-        nx_venulare = NX(L_venulare, stod(sv[11],0), 10);
-        dx_venulare = L_venulare / (nx_venulare - 1);
-        fi_venulare.assign(nx_venulare, concentration_init);
-
-        //vein
-        nx_vein = NX(L_vein, stod(sv[12],0), 60);
-        dx_vein = L_vein / (nx_vein - 1);
-        fi_vein.assign(nx_vein, concentration_init);
-
-        
-        save_variables();
-
-        break;
-    case Heart0D:
-    	//L, A, nx
-    	L_pul_art = stod(sv[1],0);
-    	L_pul_vein = stod(sv[2],0);
-    	A_pul_art = stod(sv[3],0);
-    	A_pul_vein = stod(sv[4],0);
-    	nx_pul_art = stod(sv[5],0);
-    	nx_pul_vein = stod(sv[6],0);
-    	dx_pul_art = L_pul_art / (nx_pul_art - 1);
-    	dx_pul_vein = L_pul_vein / (nx_pul_vein - 1);
-
-    	L_pul_cap = stod(sv[10],0);
-    	A_pul_cap = stod(sv[11],0);
-    	nx_pul_cap = stod(sv[12],0);//40 nominal
-    	//nx_pul_cap = 320;
-    	dx_pul_cap = L_pul_cap / (nx_pul_cap - 1);
-
-    	//nodes
-    	fi_RA = concentration_init;
-    	fi_RV = concentration_init;
-    	fi_LA = concentration_init;
-    	fi_LV = concentration_init;
-        fi_lung = concentration_init;
-        fi_PCS = concentration_init;
-
-        //virtual 1D
-        fi_pul_art.assign(nx_pul_art, concentration_init);
-        fi_pul_vein.assign(nx_pul_vein, concentration_init);
-
-        fi_pul_cap.assign(nx_pul_cap, concentration_init);
-
-        save_variables();
-
-        break;
-    default:
-        cout << "Unknown 0D type for transport.";
-    }
-}
-
-
-//-----------------------------------
-void D0_transport::update_fi(double dt, double& masterFi, solver_lumped& lum_mod, double fi_vena_cava) {
-	double AA; //changing cross-section if needed
-	bool do_tissue_transport = false;
-
-	if(lum_mod.do_lum_PlasmaO2_transport && lum_mod.do_lum_HB_sat_transport && lum_mod.do_lum_RBC_transport){
-		do_tissue_transport = true;
-	}
-
-    switch (this-> LType) {
-    case PerifCoronary0D:
-        //no idea
-        break;
-    case Perif0D:
-
-    	switch(TType){
-    	case C_Plasma_O2:
-    	AA = A_arteriole + lum_mod.delta_V( 5, 1)/L_arteriole;
-        Virt1DforLum(fi_arteriole, lum_mod.edges[1]->vfr * ml_to_m3 / AA, dt, dx_arteriole, nx_arteriole, masterFi , lum_mod.nodes[2]->PlasmaO2_0Dn);
-
-        if(!do_tissue_transport){
-        AA = A_capillary + lum_mod.delta_V( 6, 2)/L_capillary;
-        Virt1DforLum(fi_capillary, lum_mod.edges[2]->vfr * ml_to_m3 / AA, dt, dx_capillary, nx_capillary, lum_mod.nodes[2]->PlasmaO2_0Dn, lum_mod.nodes[3]->PlasmaO2_0Dn);}
-
-        AA = A_venulare + lum_mod.delta_V( 7, 3)/L_venulare;
-        Virt1DforLum(fi_venulare, lum_mod.edges[3]->vfr * ml_to_m3 / AA, dt, dx_venulare, nx_venulare, lum_mod.nodes[3]->PlasmaO2_0Dn, lum_mod.nodes[4]->PlasmaO2_0Dn);
-
-        AA = A_vein + lum_mod.delta_V( 8, 4)/L_vein;
-        Virt1DforLum(fi_vein, lum_mod.edges[4]->vfr * ml_to_m3 / AA, dt, dx_vein, nx_vein, lum_mod.nodes[4]->PlasmaO2_0Dn, fi_vena_cava);
-    	break;
-
-    	case HB_O2_saturation:
-    	AA = A_arteriole + lum_mod.delta_V( 5, 1)/L_arteriole;
-        Virt1DforLum(fi_arteriole, lum_mod.edges[1]->vfr * ml_to_m3 / AA, dt, dx_arteriole, nx_arteriole, masterFi , lum_mod.nodes[2]->HBsat_0Dn);
-
-        if(!do_tissue_transport){
-        AA = A_capillary + lum_mod.delta_V( 6, 2)/L_capillary;
-        Virt1DforLum(fi_capillary, lum_mod.edges[2]->vfr * ml_to_m3 / AA, dt, dx_capillary, nx_capillary, lum_mod.nodes[2]->HBsat_0Dn, lum_mod.nodes[3]->HBsat_0Dn);}
-
-        AA = A_venulare + lum_mod.delta_V( 7, 3)/L_venulare;
-        Virt1DforLum(fi_venulare, lum_mod.edges[3]->vfr * ml_to_m3 / AA, dt, dx_venulare, nx_venulare, lum_mod.nodes[3]->HBsat_0Dn, lum_mod.nodes[4]->HBsat_0Dn);
-
-        AA = A_vein + lum_mod.delta_V( 8, 4)/L_vein;
-        Virt1DforLum(fi_vein, lum_mod.edges[4]->vfr * ml_to_m3 / AA, dt, dx_vein, nx_vein, lum_mod.nodes[4]->HBsat_0Dn, fi_vena_cava);
-    	break;
-
-    	case RBC:
-        AA = A_arteriole + lum_mod.delta_V( 5, 1)/L_arteriole;
-        Virt1DforLum(fi_arteriole, lum_mod.edges[1]->vfr * ml_to_m3 / AA, dt, dx_arteriole, nx_arteriole, masterFi , lum_mod.nodes[2]->RBC_fi0Dn);
-
-        // the RBC concentration is not affected by the O2 transport
-        AA = A_capillary + lum_mod.delta_V( 6, 2)/L_capillary;
-        Virt1DforLum(fi_capillary, lum_mod.edges[2]->vfr * ml_to_m3 / AA, dt, dx_capillary, nx_capillary, lum_mod.nodes[2]->RBC_fi0Dn, lum_mod.nodes[3]->RBC_fi0Dn);
-
-        AA = A_venulare + lum_mod.delta_V( 7, 3)/L_venulare;
-        Virt1DforLum(fi_venulare, lum_mod.edges[3]->vfr * ml_to_m3 / AA, dt, dx_venulare, nx_venulare, lum_mod.nodes[3]->RBC_fi0Dn, lum_mod.nodes[4]->RBC_fi0Dn);
-
-        AA = A_vein + lum_mod.delta_V( 8, 4)/L_vein;
-        Virt1DforLum(fi_vein, lum_mod.edges[4]->vfr * ml_to_m3 / AA, dt, dx_vein, nx_vein, lum_mod.nodes[4]->RBC_fi0Dn, fi_vena_cava);
-        break;
-        }
-
-        if(do_tissue_transport && TType == HB_O2_saturation){ //only once
-        	AA = A_capillary + lum_mod.delta_V( 6, 2)/L_capillary;
-        	lum_mod.O2transport(lum_mod.edges[2]->vfr * ml_to_m3 / AA, dt, dx_capillary, nx_capillary, lum_mod.nodes[2]->PlasmaO2_0Dn, lum_mod.nodes[3]->PlasmaO2_0Dn, lum_mod.nodes[2]->HBsat_0Dn, lum_mod.nodes[3]->HBsat_0Dn);
-        }
-        
-
-        //nodes
-        //not sure if the virtual 1D or the nodes should be updated first
-        UpdatePerifLumNode(2, fi_arteriole.back(), fi_capillary[0], lum_mod);
-        UpdatePerifLumNode(3, fi_capillary.back(), fi_venulare[0], lum_mod);
-        UpdatePerifLumNode(4, fi_venulare.back(), fi_vein[0], lum_mod);
-
-        break;
-    case Heart0D:// that will be fun...
-
-        //virt 1D for lungs...
-        //pul arteries
-    	AA = A_pul_art + lum_mod.delta_V( 7, 8)/ (L_pul_vein + L_pul_art + L_pul_cap);
-    	if(lum_mod.edges[5]->is_open){
-    		Virt1DforLum(fi_pul_art, lum_mod.edges[5]->vfr * ml_to_m3 / AA, dt, dx_pul_art, nx_pul_art, fi_RV, fi_PCS);
-        }
-        else{
-        	Virt1DforLum(fi_pul_art, lum_mod.edges[5]->vfr * ml_to_m3 / AA, dt, dx_pul_art, nx_pul_art, fi_pul_art[0] , fi_PCS);
-        }
-
-        //pul vein
-        AA = A_pul_vein + lum_mod.delta_V( 7, 8)/ (L_pul_vein + L_pul_art + L_pul_cap);
-        Virt1DforLum(fi_pul_vein, lum_mod.edges[6]->vfr * ml_to_m3 / AA, dt, dx_pul_vein, nx_pul_vein, fi_lung, fi_LA);
-
-        //O2 diffusion in pulmonary cappillaries
-        AA = A_pul_cap + lum_mod.delta_V( 7, 8)/ (L_pul_vein + L_pul_art + L_pul_cap);
-        if(do_tissue_transport && TType == RBC){ //only once
-            lum_mod.pulmonary_O2transport(lum_mod.edges[5]->vfr * ml_to_m3 / AA , dt, dx_pul_cap, nx_pul_cap, lum_mod.PlasmaO2lum -> fi_PCS, lum_mod.PlasmaO2lum -> fi_lung, lum_mod.HBsatlum -> fi_PCS, lum_mod.HBsatlum -> fi_lung);
-			Virt1DforLum(fi_pul_cap, lum_mod.edges[5]->vfr * ml_to_m3 / AA, dt, dx_pul_cap, nx_pul_cap, fi_PCS, fi_lung); // RBC transport
-			//cout<< AA*dx_pul_cap <<endl;
-        }
-        else if(!do_tissue_transport){ //only convective transport
-        	Virt1DforLum(fi_pul_cap, lum_mod.edges[5]->vfr * ml_to_m3 / AA, dt, dx_pul_cap, nx_pul_cap, fi_PCS, fi_lung);
-        }
-
-
-        //nodes
-        //right atrium
-        fi_RA = fi_vena_cava;
-        //right ventricle
-        if (lum_mod.edges[2]->is_open){
-            fi_RV = fi_RA;
-        }
-
-        if(lum_mod.edges[5]->is_open){
-        	fi_pul_art[0] = fi_RV;
-        }
-
-        update_lung_fi(fi_lung, fi_pul_cap.back(), fi_pul_vein[0], lum_mod);
-        //prescribe_lung_fi(lum_mod, TType);
-
-        //left atrium
-        fi_LA = fi_pul_vein.back(); //can't flow in the other direction, must be the same
-        //left ventricle
-        if(lum_mod.edges[10]->is_open){
-            fi_LV = fi_LA;
-        }
-
-        //before the pulmonary capillaries
-        if(lum_mod.edges[5]->vfr > 0.){
-        	fi_PCS = fi_pul_art.back();
-        }
-        else{
-        	fi_PCS = fi_pul_cap[0];
-        }
-
-        //master_node is updated in TransportNodeCl::update_master_fi
-
-        break;
-    default:
-        cout << "Unknown 0D type for transport.";
-    }
-
-    if(do_save_results){
-        save_variables(); //not sure about it...
-        }
-
-    return;
-}
-
-//------------------------------------
-//updates fi parameters of perif nodes
-void D0_transport::UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fiRight, solver_lumped& lum_mod) {
-    int a=0, b=0, c=0;
-
-    //1 if q flows towards the node
-    if (lum_mod.edges[LumNodeIndex]->vfr < 0.) { a = 1; } //Resistance edge right
-    if (lum_mod.edges[LumNodeIndex + 7]->vfr > 0.) { b = 1; } //Inductance edge left
-    if (lum_mod.edges[LumNodeIndex + 4]->vfr < 0.) { c = 1; } //Capacitance edge
-
-    double qLeft, qRight, qDown;
-    double* fi0Dn;
-    
-    switch(TType){
-    case RBC:
-    fi0Dn = &lum_mod.nodes[LumNodeIndex]->RBC_fi0Dn;
-    break;
-
-	case HB_O2_saturation:
-	fi0Dn = &lum_mod.nodes[LumNodeIndex]->HBsat_0Dn;
-	break;
-
-	case C_Plasma_O2:
-	fi0Dn = &lum_mod.nodes[LumNodeIndex]->PlasmaO2_0Dn;
-	break;
-    }
-
-
-    switch (a*4 + b*2 + c) { // in case 0 nothing changes
-    case 1:
-        *fi0Dn = fiRight;
-        break;
-
-    case 2:
-        *fi0Dn = fiLeft;
-        break;
-
-    case 3:
-        qLeft = lum_mod.edges[LumNodeIndex + 7]->vfr;
-        qDown = -1.* lum_mod.edges[LumNodeIndex + 4]->vfr;
-        *fi0Dn = (qLeft*fiLeft + qDown *fiRight)/(qDown + qLeft);
-        break;
-
-    case 4:
-        *fi0Dn = fiRight; //same az case 1
-        break;
-
-    case 5:
-        *fi0Dn = fiRight; //both has the same fi
-        break;
-
-    case 6:
-        qLeft = lum_mod.edges[LumNodeIndex + 7]->vfr;
-        qRight = -1.* lum_mod.edges[LumNodeIndex]->vfr;
-        *fi0Dn = (qLeft * fiLeft + qRight * fiRight) / (qRight + qLeft);
-        break;
-    }
-
-
-
-
-
-
-}
-
-//-----------------------------------------------------------
-void D0_transport::update_lung_fi(double& fi_lung, double fiLeft, double fiRight, solver_lumped& lum_mod){
-	int a=0, b=0, c=0;
-
-    //1 if q flows towards the node
-    if (lum_mod.edges[5]->vfr > 0.) { a = 1; } //diode R
-    if (lum_mod.edges[6]->vfr < 0.) { b = 1; } //Rp
-    if (lum_mod.edges[7]->vfr > 0.) { c = 1; } //Cp
-
-    double qLeft, qRight, qDown, fiDown;
-    //cout<<a*4 + b*2 + c<<endl;
-
-    switch (a*4 + b*2 + c) {
-    case 4:
-        fi_lung = fiRight;
-        break;
-
-    case 5:
-        qLeft = lum_mod.edges[5]->vfr;
-        qRight = lum_mod.edges[6]->vfr;
-        qDown = lum_mod.edges[7]->vfr;
-        fiDown = (qLeft * fiLeft + qRight * fiRight) / (qRight + qLeft);
-
-        fi_lung = (qLeft * fiLeft + qDown * fiDown) / (qDown + qLeft);
-        break;
-
-    case 6:
-        qLeft = lum_mod.edges[5]->vfr;
-        qRight = -1.* lum_mod.edges[6]->vfr;
-
-        fi_lung = (qLeft * fiLeft + qRight * fiRight) / (qRight + qLeft);
-        break;
-    }
-
-}
 
 //------------------------------------------------------------
-void D0_transport::prescribe_lung_fi(solver_lumped& lum_mod, TransportType TType){
+void D0_transport::update_fi(double dt,solver_lumped& lum_mod){
+	update_nodes( lum_mod);
+	update_edges( dt);
+}
+
+
+//------------------------------------------------------------
+void D0_transport::prescribe_node_fi(TransportType TType, double& finode){
 	switch(TType){
 	case RBC:
-	lum_mod.RBClum->fi_lung = 4.9e15; // [cell/m3]
+	finode = 4.9e15; // [cell/m3]
 	break;
 
 	case C_Plasma_O2:
-	lum_mod.PlasmaO2lum->fi_lung = 2.9545e-3; // [m3/m3]
+	finode = 2.9545e-3; // [m3/m3]
 	break;
 
 	case HB_O2_saturation:
-	lum_mod.HBsatlum->fi_lung = 0.97; // [1]
+	finode = 0.97; // [1]
 	break;
-}
-}
-
-//--------------------------------------------------------------
-void D0_transport::initialization(){
-    switch(this-> LType){
-    case Perif0D:
-        fi_arteriole_start.clear();
-        fi_arteriole_end.clear();
-        fi_capillary_start.clear();
-        fi_capillary_end.clear();
-        fi_venulare_start.clear();
-        fi_venulare_end.clear();
-        fi_vein_start.clear();
-        fi_vein_end.clear();
-
-        fi_arteriole.clear();
-        fi_capillary.clear();
-        fi_venulare.clear();
-        fi_vein.clear();
-        break;
-
-    case Heart0D:
-        fi_RA_save.clear();
-        fi_RV_save.clear();
-        fi_LA_save.clear();
-        fi_LV_save.clear();
-        fi_pul_art_start.clear();
-        fi_pul_art_end.clear();
-        fi_pul_vein_start.clear();
-        fi_pul_vein_end.clear();
-        fi_pul_art.clear();
-        fi_pul_vein.clear();
-
-        fi_pul_cap.clear();
-        fi_pul_cap_start.clear();
-        fi_pul_cap_end.clear();
-	    break;
-
+	}
 }
 
-}
 
 
 //--------------------------------------------------------------
 void D0_transport::save_variables(){
 
-    switch (this-> LType){
-    case Perif0D:
-		fi_arteriole_start.push_back(fi_arteriole[0]);
-        fi_arteriole_end.push_back(fi_arteriole.back());
-        fi_capillary_start.push_back(fi_capillary[0]);
-        fi_capillary_end.push_back(fi_capillary.back());
-        fi_venulare_start.push_back(fi_venulare[0]);
-        fi_venulare_end.push_back(fi_venulare.back());
-        fi_vein_start.push_back(fi_vein[0]);
-        fi_vein_end.push_back(fi_vein.back());
-		break;
+	for(int i=0;i<D0_edges.size();i++){
 
-	case Heart0D:
-		//nodes
-		fi_RA_save.push_back(fi_RA);
-		fi_RV_save.push_back(fi_RV);
-		fi_LA_save.push_back(fi_LA);
-		fi_LV_save.push_back(fi_LV);
-
-		//virtual 1D
-		fi_pul_art_start.push_back(fi_pul_art[0]);
-		fi_pul_art_end.push_back(fi_pul_art.back());
-		fi_pul_vein_start.push_back(fi_pul_vein[0]);
-		fi_pul_vein_end.push_back(fi_pul_vein.back());
-
-		//
-		fi_pul_cap_start.push_back(fi_pul_cap[0]);
-		fi_pul_cap_end.push_back(fi_pul_cap[nx_pul_cap-2]);
-		break;
+		D0_edges[i]->save();
 	}
 
 }
@@ -1117,52 +708,16 @@ void D0_transport::save_results(string fn, const vector<double>& time, string mo
 	mkdir(("results/" + fn + "/" + model_name).c_str(),0777);
 	mkdir(("results/" + fn + "/" + model_name + "/" + tname).c_str(),0777);
 
-	switch (this-> LType){
-    case Perif0D:
-    	file_name = "results/" + fn + "/" + model_name + "/" + tname + "/arteriole.txt";
-
-		save_vector(file_name, fi_arteriole_start, fi_arteriole_end, time);
-
-		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/capillary.txt";
-		save_vector(file_name, fi_capillary_start, fi_capillary_end, time);
-
-		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/venulare.txt";
-		save_vector(file_name, fi_venulare_start, fi_venulare_end, time);
-
-		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/vein.txt";
-		save_vector(file_name, fi_vein_start, fi_vein_end, time);
-		break;
-
-	case Heart0D:
-		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/RA.txt";
-		save_vector(file_name, fi_RA_save, time);
-
-		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/RV.txt";
-		save_vector(file_name, fi_RV_save, time);
-
-		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/LA.txt";
-		save_vector(file_name, fi_LA_save, time);
-
-		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/LV.txt";
-		save_vector(file_name, fi_LV_save, time);
-
-		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/pul_art.txt";
-		save_vector(file_name, fi_pul_art_start, fi_pul_art_end, time);
-
-		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/pul_vein.txt";
-		save_vector(file_name, fi_pul_vein_start, fi_pul_vein_end, time);
-
-		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/pul_cap.txt";
-		save_vector(file_name, fi_pul_cap_start, fi_pul_cap_end, time);
-		break;
+	for(int i=0;i< D0_edges.size();i++){
+		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/" + D0_edges[i]->D0_name + ".txt";
+		save_vector(file_name, D0_edges[i]->fi_start, D0_edges[i]->fi_end, time);
 	}
+	
 }
-
 
 //--------------------------------------------------------------
 void D0_transport::save_vector(string folder_name, const vector<double>& st, const vector<double>& en, const vector<double>& time){
     FILE *out_file = fopen(folder_name.c_str(),"w");
-    //if(!out_file){cout<<"alma";}
 
 	for(unsigned int j=0; j<st.size(); j++)
 	{
@@ -1177,7 +732,6 @@ void D0_transport::save_vector(string folder_name, const vector<double>& st, con
 //--------------------------------------------------------------
 void D0_transport::save_vector(string folder_name, const vector<double>& vect, const vector<double>& time){
     FILE *out_file = fopen(folder_name.c_str(),"w");
-    //if(!out_file){cout<<"alma";}
 
 	for(unsigned int j=0; j < time.size(); j++)
 	{
@@ -1190,20 +744,40 @@ void D0_transport::save_vector(string folder_name, const vector<double>& vect, c
 
 //--------------------------------------------------------------
 void D0_transport::set_save_memory(){
-    do_save_results = true;	
+    do_save_results = true;
+    for(int i=0;i<D0_edges.size();i++){
+    	D0_edges[i]->do_save_memory=true;
+    }
 };
 
 //--------------------------------------------------------------
-void solver_lumped::O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma, double fiStartNodeHB, double fiEndNodeHB){
-	vector<double> HBold = HBsatlum ->  fi_capillary;
-	vector<double> HB = HBsatlum ->  fi_capillary;
-	vector<double> plasmaO2old = PlasmaO2lum -> fi_capillary;
-	vector<double> plasmaO2 = PlasmaO2lum -> fi_capillary;
+void solver_lumped::O2transport(double dt){
+
+	
+	//only one capillary is allowed per 0D model.
+	vector<double> HBold = per_cap_BH->fi;
+	vector<double>& HB = per_cap_BH->fi;
+
+	vector<double>& plasmaO2 = per_cap_PO2->fi;
+	vector<double> plasmaO2old = per_cap_PO2->fi;
+
+	vector<double> RBC = per_cap_RBC->fi;
 	vector<double> tissueO2vold = tissueO2v;
 
 //	if(name=="p10"){
 //	Mmax = 2.7e-4*2.0;
 //}
+
+	//vfr_edge, A, nx are the same for these D0_edges
+	int n = per_cap_RBC-> nx;
+	double dx = per_cap_RBC-> dx;
+	double v = per_cap_RBC->vfr_edge->vfr/per_cap_RBC->A*ml_to_m3;
+
+	//BCs
+	double fiStartNodePlasma = per_cap_PO2->node_start->PlasmaO2_0Dn;
+	double fiStartNodeHB = per_cap_BH->node_start->HBsat_0Dn;
+	double fiEndNodePlasma = per_cap_PO2->node_end->PlasmaO2_0Dn;
+	double fiEndNodeHB = per_cap_BH->node_end->HBsat_0Dn;
 
 	//capillary plasma concentration
     for (int i = 1; i < n - 1; i++) {
@@ -1218,7 +792,7 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
             Cc1der = (plasmaO2old[i+1] - plasmaO2old[i])/dx;
             HB1der = (HBold[i+1] - HBold[i])/dx;
         }
-        double DCO2 = dCO2_plasma(plasmaO2old[i], HBold[i] , RBClum -> fi_capillary[i]);
+        double DCO2 = dCO2_plasma(plasmaO2old[i], HBold[i] , RBC[i]);
         plasmaO2[i] = plasmaO2old[i] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t) + DCO2/taoO2);
         HB[i] = (1-dt/taoO2)*HBold[i] + dt/taoO2*HBsat_equilibrium(plasmaO2old[i] / alpha_b) - dt*v*HB1der;
     }
@@ -1227,7 +801,7 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
     if (v > 0.) {
         double Cc1der = (plasmaO2old[n - 1] - plasmaO2old[n - 2])/dx;
         double HB1der = (HBold[n - 1] - HBold[n - 2])/dx;
-        double DCO2 = dCO2_plasma(plasmaO2old[n - 1], HBold[n - 1] , RBClum -> fi_capillary[n - 1]);
+        double DCO2 = dCO2_plasma(plasmaO2old[n - 1], HBold[n - 1] , RBC[n - 1]);
         plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[n-1]/alpha_b - tissueO2vold[n-1]/alpha_t) + DCO2 / taoO2);
         plasmaO2[0] = fiStartNodePlasma;
         HB[n-1] = (1-dt/taoO2)*HBold[n-1] + dt/taoO2*HBsat_equilibrium(plasmaO2old[n-1] / alpha_b) - dt*v*HB1der;
@@ -1236,7 +810,7 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
     else {
     	double Cc1der = (plasmaO2old[1] - plasmaO2old[0])/dx;
     	double HB1der = (HBold[1] - HBold[0])/dx;
-    	double DCO2 = dCO2_plasma(plasmaO2old[0], HBold[0] , RBClum -> fi_capillary[0]);
+    	double DCO2 = dCO2_plasma(plasmaO2old[0], HBold[0] , RBC[0]);
         plasmaO2[n - 1] = fiEndNodePlasma; 
         plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[0]/alpha_b - tissueO2vold[0]/alpha_t) + DCO2/taoO2);
         HB[n-1] = fiEndNodeHB;
@@ -1249,33 +823,34 @@ void solver_lumped::O2transport(double v, double dt, double dx, int n, double fi
 
     }
 
-    //if(HBsatlum ->  fi_capillary[n-1]<0.7){
-    //cout<<HBsatlum ->  fi_capillary[n-1]<<endl<<name<<endl<<endl;}
-
     tissueO2s = average(tissueO2v);
-    PlasmaO2lum -> fi_capillary = plasmaO2;
-
-    HBsatlum ->  fi_capillary = HB;
-
-    //for(int i=0; i<n; i++){
-    //	cout<<plasmaO2[i];
-    //}
-    //cout<<endl;
 };
 
 
 //--------------------------------------------------------------
-void solver_lumped::pulmonary_O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma, double fiStartNodeHB, double fiEndNodeHB){
-	vector<double> HBold = HBsatlum ->  fi_pul_cap;
-	vector<double> HB = HBsatlum ->  fi_pul_cap;
-	vector<double> plasmaO2old = PlasmaO2lum -> fi_pul_cap;
-	vector<double> plasmaO2 = PlasmaO2lum -> fi_pul_cap;
-
-	//capillary plasma concentration
+void solver_lumped::pulmonary_O2transport(double dt){
+	double v = pul_cap_BH->vfr_edge->vfr/pul_cap_BH->A * ml_to_m3;
 	//cout<<v<<endl;
 
+	vector<double> HBold = pul_cap_BH-> fi;
+	vector<double>& HB = pul_cap_BH-> fi;
+
+	vector<double>& plasmaO2 = pul_cap_PO2-> fi;
+	vector<double> plasmaO2old = pul_cap_PO2-> fi;
+
+	vector<double> RBC = pul_cap_RBC-> fi;
+
+	int n = pul_cap_RBC-> nx;
 	vector<double> K_pul_v = sin_2(K_pul_scale, n);
 
+	//vfr_edge, A, nx are the same for these D0_edges
+	double dx = pul_cap_RBC-> dx;
+
+	//BCs
+	double fiStartNodePlasma = pul_cap_PO2->node_start->PlasmaO2_0Dn;
+	double fiStartNodeHB = pul_cap_BH->node_start->HBsat_0Dn;
+	double fiEndNodePlasma = pul_cap_PO2->node_end->PlasmaO2_0Dn;
+	double fiEndNodeHB = pul_cap_BH->node_end->HBsat_0Dn;
 
     for (int i = 1; i < n - 1; i++) {
         double Cc1der;
@@ -1289,9 +864,8 @@ void solver_lumped::pulmonary_O2transport(double v, double dt, double dx, int n,
             Cc1der = (plasmaO2old[i+1] - plasmaO2old[i])/dx;
             HB1der = (HBold[i+1] - HBold[i])/dx;
         }
-        double DCO2 = dCO2_plasma(plasmaO2old[i], HBold[i] , RBClum -> fi_pul_cap[i]);
+        double DCO2 = dCO2_plasma(plasmaO2old[i], HBold[i] , RBC[i]);
         plasmaO2[i] = plasmaO2old[i] + dt*(-v*Cc1der - K_pul_v[i] *(plasmaO2old[i]/alpha_b - PO2_alveolar) + DCO2/taoO2_p);
-        //plasmaO2[i] = plasmaO2old[i] + dt*(-v*Cc1der - K_pul_O2/(n-1)/dV*(plasmaO2old[i]/alpha_b - PO2_alveolar) + DCO2/taoO2_p);
         HB[i] = (1-dt/taoO2_p)*HBold[i] + dt/taoO2_p*HBsat_equilibrium(plasmaO2old[i] / alpha_b) - dt*v*HB1der;
     }
 
@@ -1299,9 +873,8 @@ void solver_lumped::pulmonary_O2transport(double v, double dt, double dx, int n,
     if (v > 0.) {
         double Cc1der = (plasmaO2old[n - 1] - plasmaO2old[n - 2])/dx;
         double HB1der = (HBold[n - 1] - HBold[n - 2])/dx;
-        double DCO2 = dCO2_plasma(plasmaO2old[n - 1], HBold[n - 1] , RBClum -> fi_pul_cap[n - 1]);
+        double DCO2 = dCO2_plasma(plasmaO2old[n - 1], HBold[n - 1] , RBC[n - 1]);
         plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - K_pul_v[n-1] *(plasmaO2old[n-1]/alpha_b - PO2_alveolar) + DCO2 / taoO2_p);
-        //plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - K_pul_O2/(n-1)/dV*2*(plasmaO2old[n-1]/alpha_b - PO2_alveolar) + DCO2 / taoO2_p);
         plasmaO2[0] = fiStartNodePlasma;
         HB[n-1] = (1-dt/taoO2_p)*HBold[n-1] + dt/taoO2_p*HBsat_equilibrium(plasmaO2old[n-1] / alpha_b) - dt*v*HB1der;
         HB[0] = fiStartNodeHB;
@@ -1309,21 +882,19 @@ void solver_lumped::pulmonary_O2transport(double v, double dt, double dx, int n,
     else {
     	double Cc1der = (plasmaO2old[1] - plasmaO2old[0])/dx;
     	double HB1der = (HBold[1] - HBold[0])/dx;
-    	double DCO2 = dCO2_plasma(plasmaO2old[0], HBold[0] , RBClum -> fi_pul_cap[0]);
+    	double DCO2 = dCO2_plasma(plasmaO2old[0], HBold[0] , RBC[0]);
         plasmaO2[n - 1] = fiEndNodePlasma; 
         plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - K_pul_v[0] *(plasmaO2old[0]/alpha_b - PO2_alveolar) + DCO2/taoO2_p);
-        //plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - K_pul_O2[0] /(n-1)/dV*2*(plasmaO2old[0]/alpha_b - PO2_alveolar) + DCO2/taoO2_p);
         HB[n-1] = fiEndNodeHB;
         HB[0] = (1-dt/taoO2_p)*HBold[0] + dt/taoO2_p*HBsat_equilibrium(plasmaO2old[0] / alpha_b)- dt*v*HB1der;
     }
+    //cout<<HB[0]<<endl;
 
     //for(int i=0; i<n; i++){
-    //	cout<<plasmaO2[i]<<" ";
+    //	cout<<HB[i]<<" ";
     //}
-    //cout<<endl;
+    //cout<<endl<<endl;
 
-    PlasmaO2lum -> fi_pul_cap = plasmaO2;
-    HBsatlum ->  fi_pul_cap = HB;
 };
 
 
@@ -1346,9 +917,23 @@ void solver_lumped::init_lum_tissueO2(){
     tissueO2v.clear();
     tissueO2_save.clear();
 
+    //only one pulmonary capillary is allowed in a lumped model but noth both
+    int t;
+	for(int i=0;i<HBsatlum ->D0_edges.size();i++){
+		if(HBsatlum ->D0_edges[i]->is_pul_capillary){
+			t=HBsatlum ->D0_edges[i]->nx;
+		}
+	}
+
+	for(int i=0;i<HBsatlum ->D0_edges.size();i++){
+		if(HBsatlum ->D0_edges[i]->is_per_capillary){
+			t=HBsatlum ->D0_edges[i]->nx;
+		}
+	}
+
     //O2 transport initialization
     tissueO2s = init_tissueO2;
-    tissueO2v.assign( PlasmaO2lum->nx_capillary , init_tissueO2);
+    tissueO2v.assign( t , init_tissueO2);
 }
 
 
@@ -1480,3 +1065,348 @@ double solver_lumped::vessel_dilation(int edgeindex){
 	//return 1.;
 	return pow( edges[edgeindex]->parameter_factor ,-0.5);
 }
+
+
+//--------------------------------------------------------------------------------------------------
+D0_edge::D0_edge(string D0_name, double L, double A, int  nx, TransportType TType, double init, string node_s_name, string node_e_name, string diode_name, string vfr_edge_name):D0_name(D0_name),L(L),A(A),nx(nx),TType(TType),init(init),node_s_name(node_s_name),node_e_name(node_e_name),vfr_edge_name(vfr_edge_name),diode_name(diode_name){
+
+	dx = L/(nx-1);
+	fi_start.clear();
+	fi_end.clear();
+	fi.clear();
+
+	fi.assign(nx, init);
+	if(do_save_memory){
+		save();}
+
+}
+
+
+//--------------------------------------------------------------------------------------------------
+void D0_transport::update_nodes(solver_lumped& lum_mod){
+	for(int i=0; i<lum_mod.nodes.size() ;i++){
+		double q=0.;
+		double c=0.; //concantration
+
+		if(!lum_mod.nodes[i]->is_master_node){ //master nodes are handled separately in a different function
+			switch(TType){
+				case RBC:
+					//incoming edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_RBC.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_RBC[j];
+						double Q = d->vfr_edge->vfr;
+						if(Q > 0.){
+							q += Q;
+							c += Q * d->fi.back();
+						}
+					}
+
+					//outgoing edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_RBC.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_RBC[j];
+						double Q = d->vfr_edge->vfr;
+						if(Q < 0.){
+							q -= Q;
+							c -= Q * d->fi[0];
+						}
+					}
+					if(q !=0. ){lum_mod.nodes[i]->RBC_fi0Dn = c/q;}
+				break;
+
+				case C_Plasma_O2:
+					//incoming edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_PlasmaO2.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_PlasmaO2[j];
+						double Q = d->vfr_edge->vfr;
+						if(Q > 0.){
+							q += Q;
+							c += Q * d->fi.back();
+						}
+					}
+
+					//outgoing edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_PlasmaO2.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_PlasmaO2[j];
+						double Q = d->vfr_edge->vfr;
+						if(Q < 0.){
+							q -= Q;
+							c -= Q * d->fi[0];
+						}
+					}
+					if(q !=0. ){lum_mod.nodes[i]->PlasmaO2_0Dn = c/q;}
+				break;
+
+				case HB_O2_saturation:
+					//incoming edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_HBsat.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_HBsat[j];
+						double Q = d->vfr_edge->vfr;
+						if(Q > 0.){
+							q += Q;
+							c += Q * d->fi.back();
+						}
+					}
+
+					//outgoing edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_HBsat.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_HBsat[j];
+						double Q = d->vfr_edge->vfr;
+						if(Q < 0.){
+							q -= Q;
+							c -= Q * d->fi[0];
+						}
+					}
+					if(q !=0. ){lum_mod.nodes[i]->HBsat_0Dn = c/q;}
+				break;
+			}
+		}
+		//capacitances modelling dilation and contraction
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------
+void D0_transport::update_edges( double dt){
+//capillary edges are updates from solver_lumped
+	for(int i=0; i< D0_edges.size(); i++ ){
+
+		if((!D0_edges[i]->is_per_capillary && !D0_edges[i]->is_pul_capillary) || !do_tissue_transport){
+			if(D0_edges[i]->is_diode){
+				D0_edges[i]->update_diode();
+			}
+			else{
+				D0_edges[i]->virt1D(dt);
+			}
+		}
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------
+void D0_edge::virt1D(double dt){
+	double v = vfr_edge->vfr/A * ml_to_m3;
+	
+	vector<double> fi_old = fi;
+
+    for (int i = 1; i < nx - 1; i++) {
+
+        if (v > 0.) {
+            fi[i] = fi_old[i] - v * dt / dx * (fi_old[i] - fi_old[i - 1]);
+        }
+        else {
+            fi[i] = fi_old[i] - v * dt / dx * (fi_old[i + 1] - fi_old[i]);
+        }
+    }
+
+    //BC
+    
+    if (v > 0.) {
+
+        fi[nx - 1] = fi_old[nx - 1] - v * dt / dx * (fi_old[nx - 1] - fi_old[nx - 2]);
+
+        double fiStartNode;
+        switch(TType){
+    case RBC:
+    	fiStartNode = node_start->RBC_fi0Dn;
+    	break;
+
+    case C_Plasma_O2:
+    	fiStartNode = node_start->PlasmaO2_0Dn;
+    	break;
+
+    case HB_O2_saturation:
+    	fiStartNode = node_start->HBsat_0Dn;
+    	break;}
+
+
+        fi[0] = fiStartNode;
+    }
+    else {
+
+    	double fiEndNode;
+        switch(TType){
+    case RBC:
+    	fiEndNode = node_end->RBC_fi0Dn;
+    	break;
+
+    case C_Plasma_O2:
+    	fiEndNode = node_end->PlasmaO2_0Dn;
+    	break;
+
+    case HB_O2_saturation:
+    	fiEndNode = node_end->HBsat_0Dn;
+    	break;}
+
+        fi[nx - 1] = fiEndNode; 
+        fi[0] = fi_old[0] - v * dt / dx * (fi_old[1] - fi_old[0]);
+    }
+
+}
+
+
+void D0_edge::save(){
+
+	fi_start.push_back(fi[0]);
+	fi_end.push_back(fi.back());
+}
+
+void D0_edge::update_diode(){
+
+	if(D0_diode->is_open){
+		switch(TType){
+		case RBC:
+		fi[1] = node_start->RBC_fi0Dn;
+		fi[0] = fi[1];
+		node_end->RBC_fi0Dn = fi[1];
+		break;
+
+		case HB_O2_saturation:
+		fi[1] = node_start->HBsat_0Dn;
+		fi[0] = fi[1];
+		node_end->HBsat_0Dn = fi[1];
+		break;
+
+		case C_Plasma_O2:
+		fi[1] = node_start->PlasmaO2_0Dn;
+		fi[0] = fi[1];
+		node_end->PlasmaO2_0Dn = fi[1];
+		break;
+		}
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------
+void D0_transport::connect_0D_edges(solver_lumped& lum_mod){
+	for(int i=0; i<D0_edges.size(); i++){
+		string ns = D0_edges[i]->node_s_name;
+		string ne = D0_edges[i]->node_e_name;
+
+		int index_start = -1;
+		int index_end = -1;
+		for(int j=0;j<lum_mod.nodes.size();j++){
+			if (ns == lum_mod.nodes[j]->name){
+				index_start=j;
+
+				switch(TType){
+				case RBC:
+				lum_mod.nodes[j]->D0_edges_out_RBC.push_back(D0_edges[i]);
+				break;
+
+				case HB_O2_saturation:
+				lum_mod.nodes[j]->D0_edges_out_HBsat.push_back(D0_edges[i]);
+				break;
+
+				case C_Plasma_O2:
+				lum_mod.nodes[j]->D0_edges_out_PlasmaO2.push_back(D0_edges[i]);
+				break;
+				}
+
+			}
+			if (ne == lum_mod.nodes[j]->name){
+				index_end=j;
+
+				switch(TType){
+				case RBC:
+				lum_mod.nodes[j]->D0_edges_in_RBC.push_back(D0_edges[i]);
+				break;
+
+				case HB_O2_saturation:
+				lum_mod.nodes[j]->D0_edges_in_HBsat.push_back(D0_edges[i]);
+				break;
+
+				case C_Plasma_O2:
+				lum_mod.nodes[j]->D0_edges_in_PlasmaO2.push_back(D0_edges[i]);
+				break;}
+			}
+		}
+
+		if(index_start<0 || index_end<0){
+			cout<<"Transport node " <<ns<< " or " <<ne<<" does not exist in the lumped model."<<endl;
+			exit(-1);
+		}
+
+		D0_edges[i]->node_start = lum_mod.nodes[index_start];
+		D0_edges[i]->node_end = lum_mod.nodes[index_end];
+
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------
+void solver_lumped::set_0D_pointers(){
+
+	if(do_lum_RBC_transport){
+		for(int i=0; i<RBClum->D0_edges.size(); i++){
+			if(RBClum->D0_edges[i]->is_diode){
+				for(int j=0; j<edges.size();j++){
+					if(RBClum->D0_edges[i]->diode_name == edges[j]->name ){
+						RBClum->D0_edges[i]->D0_diode = edges[j];
+						RBClum->D0_edges[i]->vfr_edge = edges[j];
+					}
+				}
+			}
+
+			else{
+				for(int j=0; j<edges.size();j++){
+					if(RBClum->D0_edges[i]->vfr_edge_name == edges[j]->name ){RBClum->D0_edges[i]->vfr_edge = edges[j];}
+				}
+			}
+		}
+	}
+
+
+	if(do_lum_PlasmaO2_transport){
+		for(int i=0; i<PlasmaO2lum->D0_edges.size(); i++){
+			if(PlasmaO2lum->D0_edges[i]->is_diode){
+				for(int j=0; j<edges.size();j++){
+					if(PlasmaO2lum->D0_edges[i]->diode_name == edges[j]->name ){
+						PlasmaO2lum->D0_edges[i]->D0_diode = edges[j];
+						PlasmaO2lum->D0_edges[i]->vfr_edge = edges[j];
+					}
+				}
+		
+			}
+			else{
+				for(int j=0; j<edges.size();j++){
+					if(PlasmaO2lum->D0_edges[i]->vfr_edge_name == edges[j]->name ){PlasmaO2lum->D0_edges[i]->vfr_edge = edges[j];}
+				}
+			}
+		}
+	}
+
+	if(do_lum_HB_sat_transport){
+		for(int i=0; i<HBsatlum->D0_edges.size(); i++){
+			if(HBsatlum->D0_edges[i]->is_diode){
+				for(int j=0; j<edges.size();j++){
+					if(HBsatlum->D0_edges[i]->diode_name == edges[j]->name ){
+						HBsatlum->D0_edges[i]->D0_diode = edges[j];
+						HBsatlum->D0_edges[i]->vfr_edge = edges[j];
+					}
+				}
+		
+			}
+			else{
+				for(int j=0; j<edges.size();j++){
+					if(HBsatlum->D0_edges[i]->vfr_edge_name == edges[j]->name ){HBsatlum->D0_edges[i]->vfr_edge = edges[j];}
+				}
+			}
+		}
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------
+void solver_lumped::capillary_O2_transport(double dt){
+
+	if(do_pul_O2_rtansport){
+
+		pulmonary_O2transport( dt);
+	}
+
+    if(do_per_O2_rtansport){
+
+    	O2transport( dt);
+    }
+
+};

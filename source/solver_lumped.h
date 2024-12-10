@@ -26,6 +26,7 @@ using namespace std;
 enum LumpedType { PerifCoronary0D, Perif0D, Heart0D };
 
 class D0_transport;//declaration because solver_lumped needs it
+class D0_edge;
 
 class solver_lumped
 {
@@ -132,8 +133,8 @@ public:
 	double init_PlasmaO2_lum = 0.;
 
 	//O2 transport function
-    void O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma, double fiStartNodeHB, double fiEndNodeHB);
-    void pulmonary_O2transport(double v, double dt, double dx, int n, double fiStartNodePlasma, double fiEndNodePlasma, double fiStartNodeHB, double fiEndNodeHB);
+    void O2transport(double dt);
+    void pulmonary_O2transport(double dt);
     double dCO2_plasma(double CO2_plasma_old, double HBsat_old, double C_RBC);
     double HBsat_equilibrium(double PO2);
     double turn_source(double t);
@@ -164,10 +165,10 @@ public:
     double hc = 1.0e-6; // [m] wall thickness of capillary walls
     double S_V_c = 4.74e5; // [1/m] surface to voulme ratio in capillaries
     double kc = 4.2e-14; // [m2/mmHg/s]
-    double Mmax = 2.7e-4; // [1/s] ????
+    double Mmax = 2.5e-4; // [1/s] ????
     //double C50 = 2.6e-5; // [m3/m3]
     double C50 = 2.6e-5; // [m3/m3]
-    double taoO2 = 0.08;//s
+    double taoO2 = 0.5;//s
 
     //parameters of the haemoglobin saturetion curve
     double L_HBsat = 1.251; // [-]
@@ -181,10 +182,8 @@ public:
     //partial pressure of O2 in alveolars
     double PO2_alveolar = 100.; // [mmHg]
     double K_pul_O2 = 1.33e-7; // [m3/s/mmHg]
-    double taoO2_p = 0.08;//s
-    //double K_pul_O2 = 3.33e-7; // [m3/s/mmHg]
-    //double K_pul_scale = 2.7e-8;
-    double K_pul_scale = 6.479e-4;
+    double taoO2_p = 0.4;//s
+    double K_pul_scale = 4.479e-4;
 
     //paramteres for metabolic response
     double x_met;
@@ -196,6 +195,20 @@ public:
     double sat1_met, sat2_met;
     void metabolic_response(double t_act);
     double vessel_dilation(int edgeindex);
+    void set_0D_pointers();
+
+    bool do_pul_O2_rtansport = false;
+    bool do_per_O2_rtansport = false;
+
+
+    //stored D0 capillary edges for oxygenation
+    D0_edge* pul_cap_BH;
+    D0_edge* pul_cap_RBC;
+    D0_edge* pul_cap_PO2;
+
+    D0_edge* per_cap_BH;
+    D0_edge* per_cap_RBC;
+    D0_edge* per_cap_PO2;
 
 private:
 	// general constants
@@ -205,6 +218,7 @@ private:
 	double mmHg_to_Pa = 133.3616; // [Pa/mmHg] for converting inputs from mmHg to Pa
 	double atmospheric_pressure; // Pa
 	const double pi = 3.14159265359;
+	const double ml_to_m3 = 1.0e-6;
 
 	// Eigen vars for linear solver
 	MatrixXd A;
@@ -238,6 +252,17 @@ private:
 		bool is_ground;
 		// if the node is an outer boundary, ie connected to an other model
 		bool is_master_node = false;
+
+		//transport edges
+		vector<D0_edge*> D0_edges_in_RBC = {};
+		vector<D0_edge*> D0_edges_out_RBC = {};
+
+		vector<D0_edge*> D0_edges_in_HBsat = {};
+		vector<D0_edge*> D0_edges_out_HBsat = {};
+
+		vector<D0_edge*> D0_edges_in_PlasmaO2 = {};
+		vector<D0_edge*> D0_edges_out_PlasmaO2 = {};
+
 	};
 
 	class edge
@@ -291,6 +316,10 @@ public:
 
 	//changing cross-section for the rtansport in 0D ("virtual 1D")
 	double delta_V(int edge_index, int node_index);
+
+	friend class D0_edge;
+	void capillary_O2_transport(double dt);
+
 };
 
 //determines the number of divison points for virtual 1D
@@ -298,63 +327,68 @@ int NX(double L,double dx, int maxN);
 
 void Virt1DforLum(vector<double> &fi, double v, double dt, double dx, int n, double fiStartNode, double fiEndNode);
 
+//class for virtual 1D transport
+class D0_edge{
+public:
+	bool is_diode = false;
+	/*for a diode fi has two elements only
+	if the diode is open fi[1]=fi[0] */
+	solver_lumped::edge* D0_diode;
+	string diode_name;
+
+	D0_edge(string D0_name, double L, double A, int  nx, TransportType TType, double init, string node_s_name, string node_e_name, string diode_name, string vfr_edge_name);
+	string D0_name;
+	double dx, L, A;
+	int nx;
+	bool is_per_capillary = false;//peripheral systemic capillary
+	bool is_pul_capillary = false;//pulmonary capillary
+	vector<double> fi;
+	double init=0.;
+
+	solver_lumped::node* node_start;
+	solver_lumped::node* node_end;
+
+	string node_s_name;
+	string node_e_name;
+
+	vector<double> fi_start;
+	vector<double> fi_end;
+
+	void update_edge();
+	void save();
+
+	TransportType TType;
+
+	bool do_save_memory=false;
+
+	//original edge, usually a resistor
+	solver_lumped::edge* vfr_edge;
+	string vfr_edge_name;
+	void virt1D(double dt);
+	const double ml_to_m3 = 1.0e-6;
+
+	void update_diode();
+};
+
+
 // Every lumped model gets one for eash type of transport. This handles the transport of substances in 0D
 class D0_transport {//every 0D model gets one of this class
 public:
     TransportType TType;
     bool do_save_results = false;
-    //for simple peripherals wirh 4 RLC circuits
-    vector<double> fi_arteriole, fi_capillary, fi_venulare, fi_vein;
-    double dx_arteriole,dx_capillary, dx_venulare, dx_vein;
-    double L_arteriole, L_capillary, L_venulare, L_vein;
-    double A_arteriole, A_capillary, A_venulare, A_vein;//from file, it is A_average-dA_average because of the changing cross-section
-    int nx_arteriole, nx_capillary, nx_venulare, nx_vein;
-    LumpedType LType;
-
-
-    //for the heart model
-    double fi_RA, fi_RV, fi_LA, fi_LV, fi_PCS;//right atrium, right ventricle, left atrium, left ventricle, only nodes, strart node of pulmonary capillaries
-    //pulmonary circulation (together with heart model)
-    vector<double> fi_pul_art, fi_pul_vein;//pulmonary circulation, 2 virtual 1D and three nodes
-    double L_pul_art, L_pul_vein;
-    double A_pul_art, A_pul_vein;
-    double fi_lung;
-    int nx_pul_art, nx_pul_vein;
-    double dx_pul_art, dx_pul_vein;
-
-    double L_pul_cap;
-    double A_pul_cap;
-    int nx_pul_cap;
-    double dx_pul_cap;
-    vector<double> fi_pul_cap;
-
-    //Perif0D
-    vector<double> fi_arteriole_start, fi_arteriole_end;
-    vector<double> fi_capillary_start, fi_capillary_end;
-    vector<double> fi_venulare_start, fi_venulare_end;
-    vector<double> fi_vein_start, fi_vein_end;
-
-    //heart, pulmanory circualtion
-    vector<double> fi_RA_save, fi_RV_save, fi_LA_save, fi_LV_save;
-    vector<double> fi_pul_art_start, fi_pul_art_end, fi_pul_vein_start, fi_pul_vein_end;
-
-    vector<double> fi_pul_cap_start;
-    vector<double> fi_pul_cap_end;
-
-
+ 
     double ml_to_m3 = 1.0e-6;
+    bool do_tissue_transport = false;
 
-        
 
-    D0_transport(LumpedType LType, vector<string> sv, TransportType TType, double concentration_init);
 
-    void update_fi(double dt, double& masterFi, solver_lumped& lum_mod, double fi_vena_cava);
+    D0_transport( TransportType TType);
 
-    void UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fiRight, solver_lumped& lum_mod);
-    void update_lung_fi(double& fi_lung, double fiLeft, double fiRight, solver_lumped& lum_mod);
-    void prescribe_lung_fi(solver_lumped& lum_mod, TransportType TType);
+    void update_fi(double dt, solver_lumped& lum_mod);
 
-    void initialization();
+    //void UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fiRight, solver_lumped& lum_mod);
+    void prescribe_node_fi(TransportType TType, double& finode);
+
     void save_variables();
     void save_results(string fn, const vector<double>& time, string model_name);
     void save_vector(string fname, const vector<double>& st, const vector<double>& en, const vector<double>& time);
@@ -362,6 +396,12 @@ public:
     void set_save_memory();
     vector<double> linear_dist(double avg, double dist, int len);
 
+
+	void update_nodes(solver_lumped& lum_mod);
+	void update_edges(double dt);
+	void connect_0D_edges(solver_lumped& lum_mod);
+
+    vector<D0_edge*> D0_edges;//virtual 1D elements
 };
 
 #endif // SOLVER_LUMPED_H
