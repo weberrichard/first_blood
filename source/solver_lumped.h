@@ -113,7 +113,7 @@ public:
 	double sat2 = 2.; // saturation 2
 	time_average *q_ave, *p_ave, *C_ave, *R_fact, *x_myo_ts; // time period average values
 	int q_idx=0, p_idx=0, C_idx; // index for average values, which element's average
-	double x_myo; // acting signal
+	double x_myo=0.; // acting signal
 	double q_ref=0., p_ref=0.;
 
 
@@ -186,7 +186,7 @@ public:
     double K_pul_scale = 4.479e-4;
 
     //paramteres for metabolic response
-    double x_met;
+    double x_met = 0.;
     double Ct_ref;
     double tao_met;
     double G_met;
@@ -319,6 +319,9 @@ public:
 
 	friend class D0_edge;
 	void capillary_O2_transport(double dt);
+
+	void autoregulation(double t_act);
+	void update_R_fact();
 
 };
 

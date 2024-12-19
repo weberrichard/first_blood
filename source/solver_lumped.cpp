@@ -349,20 +349,7 @@ void solver_lumped::substitute_newton(double t_act)
 //--------------------------------------------------------------
 void solver_lumped::update_parameters(double t_act)
 {
-	//edges[Ridx[i]]->parameter_factor should be reseted in each round. Edges 0 and 1 are modified
-	edges[0]->parameter_factor = 1.;
-	edges[1]->parameter_factor = 1.;
-
-
-	if(do_myogenic)
-	{
-		myogenic_control(t_act);
-	}
-
-	if(do_metabolic_res){
-		metabolic_response(t_act);
-		//cout<<name;
-	}
+	autoregulation(t_act);
 }
 
 //--------------------------------------------------------------
@@ -375,32 +362,7 @@ void solver_lumped::myogenic_control(double t_act)
 	double p = p_ave->average.back();
 
 	// actuator signal
-	x_myo = x_myo + dt / tao * (- x_myo + G * (p - p_ref));
-
-	vector<int> Ridx{0,1}; // which resistors are we modifying
-
-	double FF; 
-	for(int i=0; i<Ridx.size(); i++)
-	{
-		double Rmax, Rmin; // calculated from r_min, r_max from "Regulation of Coronary Microvascular Resistance in Health and Disease" pic 12.2
-		if(x_myo < 0){
-			Rmax = 1.228;
-			Rmin = 0.772;
-		}
-		else{
-			Rmax = 1.773;
-			Rmin = 0.227;
-		}
-
-		double R_ref = edges[Ridx[i]]->par_non_SI[0];
-		double K = (p_ref-atmospheric_pressure/mmHg_to_Pa) * (p_ref-atmospheric_pressure/mmHg_to_Pa) / R_ref;
-		double ff = 10*8. * (p_ref-atmospheric_pressure/mmHg_to_Pa) / ( K * (Rmax - Rmin) * R_ref );
-		FF = (Rmax + Rmin * exp(-x_myo * ff)) / (1. + exp(-x_myo * ff));
-		
-
-		//edges[Ridx[i]]->parameter_factor *= FF;
-	}
-
+	x_myo = x_myo + dt / tao * (- x_myo + G * (p - p_ref)/(p_ref - atmospheric_pressure/mmHg_to_Pa));
 }
 
 //--------------------------------------------------------------
@@ -1030,33 +992,7 @@ void solver_lumped::metabolic_response(double t_act)
 	double Ct = Ct_ave->average.back();//p_ave->average.back();
 
 	// actuator signal
-	x_met = x_met + dt / tao_met * (- x_met + G_met * (Ct - Ct_ref));
-
-	vector<int> Ridx{0,1}; // which resistors are we modifying
-
-	double FF; 
-	for(int i=0; i<Ridx.size(); i++)
-	{
-		double Rmax, Rmin; // calculated from r_min, r_max from "Regulation of Coronary Microvascular Resistance in Health and Disease" pic 12.2
-		if(x_met < 0){
-			Rmin = sat1_met;
-			Rmax = 2. - Rmin;
-		}
-		else{
-			Rmax = sat2_met;
-			Rmin = 2. - sat2_met;
-		}
-
-		//double R_ref = edges[Ridx[i]]->par_non_SI[0];
-		double K = Ct_ref * Ct_ref;
-		double ff = 10 *8. * Ct_ref / ( K * (Rmax - Rmin) );
-		FF = (Rmax + Rmin * exp(-x_met * ff)) / (1. + exp(-x_met * ff));
-		
-		//cout.precision(10);
-		//cout << FF << endl;
-
-		edges[Ridx[i]]->parameter_factor *= FF;
-	}
+	x_met = x_met + dt / tao_met * (- x_met + G_met * (Ct - Ct_ref)/Ct_ref);
 
 }
 
@@ -1410,3 +1346,53 @@ void solver_lumped::capillary_O2_transport(double dt){
     }
 
 };
+
+
+//--------------------------------------------------------------------------------------------------
+void solver_lumped::autoregulation(double t_act){
+	if(do_myogenic)
+	{
+		//updates x_myo
+		myogenic_control(t_act);
+	}
+
+	if(do_metabolic_res){
+		//updates x_met
+		metabolic_response(t_act);
+	}
+
+	//updates the parameter factor of the resistance
+	update_R_fact();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+void solver_lumped::update_R_fact(){
+
+	vector<int> Ridx{0,1}; // which resistors are we modifying
+
+	double FF; 
+	for(int i=0; i<Ridx.size(); i++)
+	{
+		double Rmax, Rmin; // calculated from r_min, r_max from "Regulation of Coronary Microvascular Resistance in Health and Disease" pic 12.2
+		if((x_met + x_myo) < 0){
+			//the sigmoid curve is the same for the two responses
+			Rmin = sat1_met;
+			Rmax = 2. - Rmin;
+		}
+		else{
+			Rmax = sat2_met;
+			Rmin = 2. - sat2_met;
+		}
+
+		double ff = 80. / (Rmax - Rmin) ;
+		FF = (Rmax + Rmin * exp(- (x_met + x_myo) * ff)) / (1. + exp(-(x_met + x_myo) * ff));
+		
+		//cout.precision(10);
+		//cout << FF << endl;
+
+		edges[Ridx[i]]->parameter_factor = FF;
+	}
+
+
+}
