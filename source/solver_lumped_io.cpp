@@ -176,20 +176,20 @@ void solver_lumped::load_model()
 			//virtual 1D edges
 			else if(sv[0] == "v1D"){
 
-				if(do_lum_RBC_transport&&sv.size()>9){//string name, double L, double A, int  nx, TransportType TType, double init, string node_start_name, string node_end_name, string diode_name
-				RBClum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), RBC, fi_init_RBC_lum, sv[2], sv[3], "",sv[9]));
+				if(do_lum_RBC_transport&&sv.size()>9){
+				RBClum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), RBC, fi_init_RBC_lum, sv[2], sv[3], sv[9]));
 				if(sv[7] == "1" ){RBClum->D0_edges.back()->is_per_capillary = true;}
 				if(sv[8] == "1" ){RBClum->D0_edges.back()->is_pul_capillary = true;}
 				}
 
 				if(do_lum_HB_sat_transport&&sv.size()>9){
-				HBsatlum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), HB_O2_saturation, init_HB_sat_lum, sv[2], sv[3], "",sv[9]));
+				HBsatlum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), HB_O2_saturation, init_HB_sat_lum, sv[2], sv[3], sv[9]));
 				if(sv[7] == "1" ){HBsatlum->D0_edges.back()->is_per_capillary = true;}
 				if(sv[8] == "1" ){HBsatlum->D0_edges.back()->is_pul_capillary = true;}
 				}
 				
 				if(do_lum_PlasmaO2_transport&&sv.size()>9){
-				PlasmaO2lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), C_Plasma_O2, init_PlasmaO2_lum, sv[2], sv[3], "",sv[9]));
+				PlasmaO2lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), C_Plasma_O2, init_PlasmaO2_lum, sv[2], sv[3], sv[9]));
 				if(sv[7] == "1" ){PlasmaO2lum->D0_edges.back()->is_per_capillary = true;}
 				if(sv[8] == "1" ){PlasmaO2lum->D0_edges.back()->is_pul_capillary = true;}
 				}
@@ -197,23 +197,60 @@ void solver_lumped::load_model()
 			}
 
 			//virtual 1D diodes
-			else if(sv[0] == "t_diode"){//string name, double L, double A, int  nx, TransportType TType, double init, string node_start_name, string node_end_name
+			else if(sv[0] == "t_diode"){
 				if(do_lum_RBC_transport){
-				RBClum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 2, RBC, fi_init_RBC_lum, sv[2], sv[3], sv[4], ""));
-				RBClum->D0_edges.back()->is_diode = true;
-				RBClum->D0_edges.back()->diode_name = sv[4];
+				RBClum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, RBC, fi_init_RBC_lum, sv[2], sv[3], sv[4]));
+				RBClum->D0_edges.back()->is_diode = true;	
 				}
 
 				if(do_lum_HB_sat_transport){
-				HBsatlum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 2, HB_O2_saturation, init_HB_sat_lum, sv[2], sv[3], sv[4], ""));
+				HBsatlum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, HB_O2_saturation, init_HB_sat_lum, sv[2], sv[3], sv[4]));
 				HBsatlum->D0_edges.back()->is_diode = true;
-				HBsatlum->D0_edges.back()->diode_name = sv[4];
 				}
 				
 				if(do_lum_PlasmaO2_transport){
-				PlasmaO2lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 2, C_Plasma_O2, init_PlasmaO2_lum, sv[2], sv[3], sv[4], ""));
-				PlasmaO2lum->D0_edges.back()->is_diode = true;
-				PlasmaO2lum->D0_edges.back()->diode_name = sv[4];
+				PlasmaO2lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, C_Plasma_O2, init_PlasmaO2_lum, sv[2], sv[3], sv[4]));
+				PlasmaO2lum->D0_edges.back()->is_diode = true;			
+				}
+
+			}
+
+			else if(sv[0] == "0Dcapacitor"){
+				if(do_lum_RBC_transport){
+				RBClum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, RBC, fi_init_RBC_lum, sv[2], sv[3], sv[4]));
+				RBClum->D0_edges.back()->is_capacitor = true;
+				}
+
+				if(do_lum_HB_sat_transport){
+				HBsatlum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, HB_O2_saturation, init_HB_sat_lum, sv[2], sv[3], sv[4]));
+				HBsatlum->D0_edges.back()->is_capacitor = true;
+				}
+				
+				if(do_lum_PlasmaO2_transport){
+				PlasmaO2lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, C_Plasma_O2, init_PlasmaO2_lum, sv[2], sv[3], sv[4]));
+				PlasmaO2lum->D0_edges.back()->is_capacitor = true;
+				}
+
+			}
+
+
+			else if(sv[0] == "0Delastance"){
+				if(do_lum_RBC_transport){
+				RBClum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, RBC, fi_init_RBC_lum, sv[2], sv[3], sv[4]));
+				RBClum->D0_edges.back()->is_elastance = true;
+				RBClum->D0_edges.back()->V0 = stod(sv[5],0);
+				}
+
+				if(do_lum_HB_sat_transport){
+				HBsatlum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, HB_O2_saturation, init_HB_sat_lum, sv[2], sv[3], sv[4]));
+				HBsatlum->D0_edges.back()->is_elastance = true;
+				HBsatlum->D0_edges.back()->V0 = stod(sv[5],0);
+				}
+				
+				if(do_lum_PlasmaO2_transport){
+				PlasmaO2lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, C_Plasma_O2, init_PlasmaO2_lum, sv[2], sv[3], sv[4]));
+				PlasmaO2lum->D0_edges.back()->is_elastance = true;
+				PlasmaO2lum->D0_edges.back()->V0 = stod(sv[5],0);
 				}
 
 			}

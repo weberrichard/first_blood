@@ -138,7 +138,7 @@ public:
     double dCO2_plasma(double CO2_plasma_old, double HBsat_old, double C_RBC);
     double HBsat_equilibrium(double PO2);
     double turn_source(double t);
-    void save_tissueO2(string folder_name, const vector<double>& st, const vector<double>& time);
+    void save_tissueO2(string folder_name, const vector<double>& time);
     vector<double> sin_2(double scale, int nx);
     void assign_perif_O2_params(vector<string> sv);
     void assign_haemogobin_sat_params(vector<string> sv);
@@ -244,6 +244,7 @@ private:
 		// initial condition for pressure
 		double pressure_initial; // Pa
 		double pres_ini_non_SI; // mmHg
+
 		double RBC_fi0Dn; // RBC concenrtation
 		double HBsat_0Dn; //haemodlobid saturation [1]
 		double PlasmaO2_0Dn; //plasma O2 concentration [m3/m3]
@@ -292,7 +293,7 @@ private:
 		double volume_flow_rate_initial; // m3/s
 		double vfr_ini_non_SI; // ml/s
 
-		bool is_open = false;//for diodes only, needed for transport
+		bool is_open = true;//for diodes only, needed for transport
 	};
 
 	// building the network, finding indicies
@@ -314,14 +315,13 @@ public:
 	// size of vectors
 	int number_of_nodes, number_of_edges, number_of_master, number_of_elastance, number_of_moc;
 
-	//changing cross-section for the rtansport in 0D ("virtual 1D")
-	double delta_V(int edge_index, int node_index);
-
 	friend class D0_edge;
 	void capillary_O2_transport(double dt);
 
 	void autoregulation(double t_act);
 	void update_R_fact();
+
+	friend D0_transport;
 
 };
 
@@ -334,12 +334,13 @@ void Virt1DforLum(vector<double> &fi, double v, double dt, double dx, int n, dou
 class D0_edge{
 public:
 	bool is_diode = false;
-	/*for a diode fi has two elements only
-	if the diode is open fi[1]=fi[0] */
-	solver_lumped::edge* D0_diode;
-	string diode_name;
+	bool is_capacitor = false;
+	bool is_elastance = false;
 
-	D0_edge(string D0_name, double L, double A, int  nx, TransportType TType, double init, string node_s_name, string node_e_name, string diode_name, string vfr_edge_name);
+
+	double V0 = 0.;// heart chamber volume if p=0 for elastances or capacitances.
+
+	D0_edge(string D0_name, double L, double A, int  nx, TransportType TType, double init, string node_s_name, string node_e_name, string corr_edge_name);
 	string D0_name;
 	double dx, L, A;
 	int nx;
@@ -364,13 +365,18 @@ public:
 
 	bool do_save_memory=false;
 
-	//original edge, usually a resistor
-	solver_lumped::edge* vfr_edge;
-	string vfr_edge_name;
+	//original edge, usually a resisto
+	solver_lumped::edge* corr_edge;
+	string corr_edge_name;
+
+
 	void virt1D(double dt);
 	const double ml_to_m3 = 1.0e-6;
+	const double mmHg_to_Pa = 133.3616;
 
 	void update_diode();
+	void update_capacitor(double dt);
+	void update_elastance(double dt, double E);
 };
 
 
@@ -387,7 +393,7 @@ public:
 
     D0_transport( TransportType TType);
 
-    void update_fi(double dt, solver_lumped& lum_mod);
+    void update_fi(double dt, solver_lumped& lum_mod, double t_act);
 
     //void UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fiRight, solver_lumped& lum_mod);
     void prescribe_node_fi(TransportType TType, double& finode);
@@ -401,10 +407,11 @@ public:
 
 
 	void update_nodes(solver_lumped& lum_mod);
-	void update_edges(double dt);
+	void update_edges(double dt, solver_lumped& lum_mod, double t_act);
 	void connect_0D_edges(solver_lumped& lum_mod);
 
     vector<D0_edge*> D0_edges;//virtual 1D elements
+    const double mmHg_to_Pa = 133.3616;
 };
 
 #endif // SOLVER_LUMPED_H

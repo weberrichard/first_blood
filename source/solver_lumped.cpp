@@ -363,6 +363,7 @@ void solver_lumped::myogenic_control(double t_act)
 
 	// actuator signal
 	x_myo = x_myo + dt / tao * (- x_myo + G * (p - p_ref)/(p_ref - atmospheric_pressure/mmHg_to_Pa));
+	x_myo=0.;
 }
 
 //--------------------------------------------------------------
@@ -589,14 +590,6 @@ void solver_lumped::set_save_memory(vector<string> edge_list, vector<string> nod
 
 
 //--------------------------------------------------------------
-double solver_lumped::delta_V(int edge_index, int node_index){
-	double C_ref = edges[edge_index]->parameter[0]; //everything is in SI
-	double dp = nodes[node_index]->p*mmHg_to_Pa - atmospheric_pressure;
-	return C_ref * dp;
-}
-
-
-//--------------------------------------------------------------
 int NX(double L,double dx, int N) {
     if (floor(L / dx) + 1 > N) {
         return N;
@@ -614,9 +607,9 @@ D0_transport::D0_transport(TransportType TType): TType(TType) {
 
 
 //------------------------------------------------------------
-void D0_transport::update_fi(double dt,solver_lumped& lum_mod){
+void D0_transport::update_fi(double dt, solver_lumped& lum_mod, double t_act){
 	update_nodes( lum_mod);
-	update_edges( dt);
+	update_edges( dt, lum_mod, t_act);
 }
 
 
@@ -726,14 +719,14 @@ void solver_lumped::O2transport(double dt){
 	vector<double> RBC = per_cap_RBC->fi;
 	vector<double> tissueO2vold = tissueO2v;
 
-//	if(name=="p10"){
-//	Mmax = 2.7e-4*2.0;
+	//if(name=="p10"){
+	//Mmax = 2.5e-4*2.0;
 //}
 
 	//vfr_edge, A, nx are the same for these D0_edges
 	int n = per_cap_RBC-> nx;
 	double dx = per_cap_RBC-> dx;
-	double v = per_cap_RBC->vfr_edge->vfr/per_cap_RBC->A*ml_to_m3;
+	double v = per_cap_RBC->corr_edge->vfr/per_cap_RBC->A*ml_to_m3;
 
 	//BCs
 	double fiStartNodePlasma = per_cap_PO2->node_start->PlasmaO2_0Dn;
@@ -791,7 +784,7 @@ void solver_lumped::O2transport(double dt){
 
 //--------------------------------------------------------------
 void solver_lumped::pulmonary_O2transport(double dt){
-	double v = pul_cap_BH->vfr_edge->vfr/pul_cap_BH->A * ml_to_m3;
+	double v = pul_cap_BH->corr_edge->vfr/pul_cap_BH->A * ml_to_m3;
 	//cout<<v<<endl;
 
 	vector<double> HBold = pul_cap_BH-> fi;
@@ -906,7 +899,7 @@ double solver_lumped::turn_source(double t){
 
 
 //--------------------------------------------------------------
-void solver_lumped::save_tissueO2(string folder_name, const vector<double>& st, const vector<double>& time){
+void solver_lumped::save_tissueO2(string folder_name, const vector<double>& time){
 	   if (do_lum_PlasmaO2_transport&&do_lum_HB_sat_transport&&do_lum_RBC_transport){
 
 		string file_name = folder_name;
@@ -1004,7 +997,7 @@ double solver_lumped::vessel_dilation(int edgeindex){
 
 
 //--------------------------------------------------------------------------------------------------
-D0_edge::D0_edge(string D0_name, double L, double A, int  nx, TransportType TType, double init, string node_s_name, string node_e_name, string diode_name, string vfr_edge_name):D0_name(D0_name),L(L),A(A),nx(nx),TType(TType),init(init),node_s_name(node_s_name),node_e_name(node_e_name),vfr_edge_name(vfr_edge_name),diode_name(diode_name){
+D0_edge::D0_edge(string D0_name, double L, double A, int  nx, TransportType TType, double init, string node_s_name, string node_e_name, string corr_edge_name):D0_name(D0_name),L(L),A(A),nx(nx),TType(TType),init(init),node_s_name(node_s_name),node_e_name(node_e_name),corr_edge_name(corr_edge_name){
 
 	dx = L/(nx-1);
 	fi_start.clear();
@@ -1030,7 +1023,7 @@ void D0_transport::update_nodes(solver_lumped& lum_mod){
 					//incoming edges
 					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_RBC.size() ; j++ ){
 						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_RBC[j];
-						double Q = d->vfr_edge->vfr;
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
 						if(Q > 0.){
 							q += Q;
 							c += Q * d->fi.back();
@@ -1040,7 +1033,7 @@ void D0_transport::update_nodes(solver_lumped& lum_mod){
 					//outgoing edges
 					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_RBC.size() ; j++ ){
 						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_RBC[j];
-						double Q = d->vfr_edge->vfr;
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
 						if(Q < 0.){
 							q -= Q;
 							c -= Q * d->fi[0];
@@ -1053,7 +1046,7 @@ void D0_transport::update_nodes(solver_lumped& lum_mod){
 					//incoming edges
 					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_PlasmaO2.size() ; j++ ){
 						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_PlasmaO2[j];
-						double Q = d->vfr_edge->vfr;
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
 						if(Q > 0.){
 							q += Q;
 							c += Q * d->fi.back();
@@ -1063,7 +1056,7 @@ void D0_transport::update_nodes(solver_lumped& lum_mod){
 					//outgoing edges
 					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_PlasmaO2.size() ; j++ ){
 						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_PlasmaO2[j];
-						double Q = d->vfr_edge->vfr;
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
 						if(Q < 0.){
 							q -= Q;
 							c -= Q * d->fi[0];
@@ -1076,7 +1069,7 @@ void D0_transport::update_nodes(solver_lumped& lum_mod){
 					//incoming edges
 					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_HBsat.size() ; j++ ){
 						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_HBsat[j];
-						double Q = d->vfr_edge->vfr;
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
 						if(Q > 0.){
 							q += Q;
 							c += Q * d->fi.back();
@@ -1086,7 +1079,7 @@ void D0_transport::update_nodes(solver_lumped& lum_mod){
 					//outgoing edges
 					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_HBsat.size() ; j++ ){
 						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_HBsat[j];
-						double Q = d->vfr_edge->vfr;
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
 						if(Q < 0.){
 							q -= Q;
 							c -= Q * d->fi[0];
@@ -1102,13 +1095,21 @@ void D0_transport::update_nodes(solver_lumped& lum_mod){
 
 
 //--------------------------------------------------------------------------------------------------
-void D0_transport::update_edges( double dt){
+void D0_transport::update_edges( double dt, solver_lumped& lum_mod, double t_act){
 //capillary edges are updates from solver_lumped
 	for(int i=0; i< D0_edges.size(); i++ ){
 
 		if((!D0_edges[i]->is_per_capillary && !D0_edges[i]->is_pul_capillary) || !do_tissue_transport){
 			if(D0_edges[i]->is_diode){
-				D0_edges[i]->update_diode();
+				//D0_edges[i]->update_diode();
+			}
+			else if(D0_edges[i]->is_capacitor){
+				D0_edges[i]->update_capacitor(dt);
+			}
+			else if(D0_edges[i]->is_elastance){
+				double E = lum_mod.elastance(t_act, D0_edges[i]->corr_edge->parameter);
+				E = E*mmHg_to_Pa*1.e6; // mmHg/ml to SI: Pa/m3
+				D0_edges[i]->update_elastance(dt, E);
 			}
 			else{
 				D0_edges[i]->virt1D(dt);
@@ -1120,7 +1121,7 @@ void D0_transport::update_edges( double dt){
 
 //--------------------------------------------------------------------------------------------------
 void D0_edge::virt1D(double dt){
-	double v = vfr_edge->vfr/A * ml_to_m3;
+	double v = corr_edge->vfr/A * ml_to_m3;
 	
 	vector<double> fi_old = fi;
 
@@ -1188,24 +1189,18 @@ void D0_edge::save(){
 
 void D0_edge::update_diode(){
 
-	if(D0_diode->is_open){
+	if(corr_edge->is_open){
 		switch(TType){
 		case RBC:
-		fi[1] = node_start->RBC_fi0Dn;
-		fi[0] = fi[1];
-		node_end->RBC_fi0Dn = fi[1];
+		fi[0] = node_start->RBC_fi0Dn;
 		break;
 
 		case HB_O2_saturation:
-		fi[1] = node_start->HBsat_0Dn;
-		fi[0] = fi[1];
-		node_end->HBsat_0Dn = fi[1];
+		fi[0] = node_start->HBsat_0Dn;
 		break;
 
 		case C_Plasma_O2:
-		fi[1] = node_start->PlasmaO2_0Dn;
-		fi[0] = fi[1];
-		node_end->PlasmaO2_0Dn = fi[1];
+		fi[0] = node_start->PlasmaO2_0Dn;
 		break;
 		}
 	}
@@ -1274,19 +1269,8 @@ void solver_lumped::set_0D_pointers(){
 
 	if(do_lum_RBC_transport){
 		for(int i=0; i<RBClum->D0_edges.size(); i++){
-			if(RBClum->D0_edges[i]->is_diode){
-				for(int j=0; j<edges.size();j++){
-					if(RBClum->D0_edges[i]->diode_name == edges[j]->name ){
-						RBClum->D0_edges[i]->D0_diode = edges[j];
-						RBClum->D0_edges[i]->vfr_edge = edges[j];
-					}
-				}
-			}
-
-			else{
-				for(int j=0; j<edges.size();j++){
-					if(RBClum->D0_edges[i]->vfr_edge_name == edges[j]->name ){RBClum->D0_edges[i]->vfr_edge = edges[j];}
-				}
+			for(int j=0; j<edges.size();j++){
+				if(RBClum->D0_edges[i]->corr_edge_name == edges[j]->name ){RBClum->D0_edges[i]->corr_edge = edges[j];}
 			}
 		}
 	}
@@ -1294,38 +1278,16 @@ void solver_lumped::set_0D_pointers(){
 
 	if(do_lum_PlasmaO2_transport){
 		for(int i=0; i<PlasmaO2lum->D0_edges.size(); i++){
-			if(PlasmaO2lum->D0_edges[i]->is_diode){
-				for(int j=0; j<edges.size();j++){
-					if(PlasmaO2lum->D0_edges[i]->diode_name == edges[j]->name ){
-						PlasmaO2lum->D0_edges[i]->D0_diode = edges[j];
-						PlasmaO2lum->D0_edges[i]->vfr_edge = edges[j];
-					}
-				}
-		
-			}
-			else{
-				for(int j=0; j<edges.size();j++){
-					if(PlasmaO2lum->D0_edges[i]->vfr_edge_name == edges[j]->name ){PlasmaO2lum->D0_edges[i]->vfr_edge = edges[j];}
-				}
+			for(int j=0; j<edges.size();j++){
+				if(PlasmaO2lum->D0_edges[i]->corr_edge_name == edges[j]->name ){PlasmaO2lum->D0_edges[i]->corr_edge = edges[j];}
 			}
 		}
 	}
 
 	if(do_lum_HB_sat_transport){
 		for(int i=0; i<HBsatlum->D0_edges.size(); i++){
-			if(HBsatlum->D0_edges[i]->is_diode){
-				for(int j=0; j<edges.size();j++){
-					if(HBsatlum->D0_edges[i]->diode_name == edges[j]->name ){
-						HBsatlum->D0_edges[i]->D0_diode = edges[j];
-						HBsatlum->D0_edges[i]->vfr_edge = edges[j];
-					}
-				}
-		
-			}
-			else{
-				for(int j=0; j<edges.size();j++){
-					if(HBsatlum->D0_edges[i]->vfr_edge_name == edges[j]->name ){HBsatlum->D0_edges[i]->vfr_edge = edges[j];}
-				}
+			for(int j=0; j<edges.size();j++){
+				if(HBsatlum->D0_edges[i]->corr_edge_name == edges[j]->name ){HBsatlum->D0_edges[i]->corr_edge = edges[j];}
 			}
 		}
 	}
@@ -1392,6 +1354,108 @@ void solver_lumped::update_R_fact(){
 		//cout << FF << endl;
 
 		edges[Ridx[i]]->parameter_factor = FF;
+	}
+
+}
+
+
+//--------------------------------------------------------------------------------------------------
+void D0_edge::update_capacitor(double dt){
+	double V = corr_edge->parameter[0] * abs( node_start->p - node_end->p  )/mmHg_to_Pa; // SI
+	double fi_old = fi[0];
+	//cout<<( node_start->p - node_end->p  )<<endl;
+
+	//cout<<fi[0]<<endl;
+
+	double Q = corr_edge->vfr;
+	if(Q>0){
+		double f;
+		switch(TType){
+			case RBC:
+				f=node_start->RBC_fi0Dn;
+			break;
+
+			case HB_O2_saturation:
+				f=node_start->HBsat_0Dn;
+			break;
+
+			case C_Plasma_O2:
+				f=node_start->PlasmaO2_0Dn;
+			break;
+		}
+		if(V+Q*dt*ml_to_m3 != 0.){
+		fi[0] = (fi_old*V + Q*dt*f*ml_to_m3)/(V+Q*dt*ml_to_m3);}
+
+	}
+	else{
+		double f;
+		switch(TType){
+			case RBC:
+				f=node_end->RBC_fi0Dn;
+			break;
+
+			case HB_O2_saturation:
+				f=node_end->HBsat_0Dn;
+			break;
+
+			case C_Plasma_O2:
+				f=node_end->PlasmaO2_0Dn;
+			break;
+		}
+
+		if(V-Q*dt*ml_to_m3 !=0. ){
+		fi[0] = (fi_old*V - Q*dt*f*ml_to_m3)/(V-Q*dt*ml_to_m3);}
+		//cout<<V-Q*dt*ml_to_m3<<endl;
+	}
+
+
+}
+
+
+//--------------------------------------------------------------------------------------------------
+void D0_edge::update_elastance(double dt, double E){
+	double V = V0 + abs( node_start->p - node_end->p  )/E/mmHg_to_Pa; //SI
+	double fi_old = fi[0];
+
+	double Q = corr_edge->vfr;
+	//cout<<node_start->p - node_end->p<< "  " << Q<<endl;
+	//cout<<fi[0]<<endl;
+
+	if(Q>0){
+		double f;
+		switch(TType){
+			case RBC:
+				f=node_start->RBC_fi0Dn;
+			break;
+
+			case HB_O2_saturation:
+				f=node_start->HBsat_0Dn;
+			break;
+
+			case C_Plasma_O2:
+				f=node_start->PlasmaO2_0Dn;
+			break;
+		}
+
+		fi[0] = (fi_old*V + Q*dt*f*ml_to_m3)/(V+Q*dt*ml_to_m3);
+	}
+	else{
+		double f;
+		switch(TType){
+			case RBC:
+				f=node_end->RBC_fi0Dn;
+			break;
+
+			case HB_O2_saturation:
+				f=node_end->HBsat_0Dn;
+			break;
+
+			case C_Plasma_O2:
+				f=node_end->PlasmaO2_0Dn;
+			break;
+		}
+
+		fi[0] = (fi_old*V - Q*dt*f*ml_to_m3)/(V-Q*dt*ml_to_m3);
 	}
 
 

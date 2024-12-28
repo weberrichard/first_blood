@@ -319,7 +319,7 @@ bool first_blood::run()
 
 						if (lum[lum_idx]->do_lum_RBC_transport){
 							RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx]);
+							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
 						}
 
 					}
@@ -330,7 +330,7 @@ bool first_blood::run()
 
 						if (lum[lum_idx]->do_lum_RBC_transport){
 							RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx]);
+							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
 						}
 
 					}
@@ -354,7 +354,7 @@ bool first_blood::run()
 
 						if (lum[lum_idx]->do_lum_HB_sat_transport){
 							HB_O2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx]);
+							lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
 						}
 
 					}
@@ -365,7 +365,7 @@ bool first_blood::run()
 
 						if (lum[lum_idx]->do_lum_HB_sat_transport){
 							HB_O2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->HBsat_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx]);
+							lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
 						}
 
 					}
@@ -390,7 +390,7 @@ bool first_blood::run()
 
 						if (lum[lum_idx]->do_lum_PlasmaO2_transport){
 							PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx]);
+							lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
 
 							//capillary is only updated here
 							lum[lum_idx]->capillary_O2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
@@ -404,7 +404,7 @@ bool first_blood::run()
 
 						if (lum[lum_idx]->do_lum_PlasmaO2_transport){
 							PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->PlasmaO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx]);
+							lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
 
 							//capillary is only updated here
 							lum[lum_idx]->capillary_O2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
@@ -1452,7 +1452,7 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
     case HB_O2_saturation:
     for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_HBsat.size(); i++){
     	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_HBsat[i];
-        q = is->vfr_edge->vfr;
+        q = is->corr_edge->vfr;
         if(q > 0){
         q_sum += q;
         fiNode += q * is->fi.back();
@@ -1463,7 +1463,7 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
 
     for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_HBsat.size(); i++){//arteriole
     	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_HBsat[i] ;
-        q = is->vfr_edge->vfr;
+        q = is->corr_edge->vfr;
         if(q < 0){
         q_sum -= q;
         fiNode -= q * is->fi.back();
@@ -1476,7 +1476,7 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
     case C_Plasma_O2:
     for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_PlasmaO2.size(); i++){
     	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_PlasmaO2[i];
-        q = is->vfr_edge->vfr;
+        q = is->corr_edge->vfr;
         if(q > 0){
         q_sum += q;
         fiNode += q * is->fi.back();
@@ -1487,7 +1487,7 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
 
     for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_PlasmaO2.size(); i++){//arteriole
     	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_PlasmaO2[i] ;
-        q = is->vfr_edge->vfr;
+        q = is->corr_edge->vfr;
         if(q < 0){
         q_sum -= q;
         fiNode -= q * is->fi.back();
@@ -1500,7 +1500,7 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
     case RBC:
     for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_RBC.size(); i++){
     	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_RBC[i];
-        q = is->vfr_edge->vfr;
+        q = is->corr_edge->vfr;
         if(q > 0){
         q_sum += q;
         fiNode += q * is->fi.back();
@@ -1511,7 +1511,7 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
 
     for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_RBC.size(); i++){//arteriole
     	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_RBC[i] ;
-        q = is->vfr_edge->vfr;
+        q = is->corr_edge->vfr;
         if(q < 0){
         q_sum -= q;
         fiNode -= q * is->fi.back();
