@@ -36,7 +36,7 @@ public:
 
 	// general functions
 	// giving initial conditions
-	void initialization(double hr);
+	void initialization(double time_period);
 
 	// loading the CSV file
 	void load_model();
@@ -111,7 +111,7 @@ public:
 	double G = .9; // gain
 	double sat1 = .55; // saturation 1
 	double sat2 = 2.; // saturation 2
-	time_average *q_ave, *p_ave, *C_ave, *R_fact, *x_myo_ts; // time period average values
+	time_average  *p_ave; // time period average values
 	int q_idx=0, p_idx=0, C_idx; // index for average values, which element's average
 	double x_myo=0.; // acting signal
 	double q_ref=0., p_ref=0.;
@@ -149,9 +149,18 @@ public:
     vector<double> tissueO2_save;
     double tissueO2s;
 
+
+    //CO2 transport
+    void CO2transport(double dt);
+
+    //tissue CO2 concentration vector and scalar
+    vector<double> tissueCO2v;
+    vector<double> tissueCO2_save;
+    double tissueCO2s;
+
     
     //tissue O2 concentration initial condition
-    double init_tissueO2 = 3.7525e-3;
+    double init_tissueO2 = 0.0266;
     //double init_tissueO2 = 2.2e-3;
     //init function for tissue O2
     void init_lum_tissueO2();
@@ -166,7 +175,6 @@ public:
     double S_V_c = 4.74e5; // [1/m] surface to voulme ratio in capillaries
     double kc = 4.2e-14; // [m2/mmHg/s]
     double Mmax = 2.5e-4; // [1/s] ????
-    //double C50 = 2.6e-5; // [m3/m3]
     double C50 = 2.6e-5; // [m3/m3]
     double taoO2 = 0.5;//s
 
@@ -210,6 +218,79 @@ public:
     D0_edge* per_cap_RBC;
     D0_edge* per_cap_PO2;
 
+    //Baroreflex
+    bool check_whole_period(double t_act);
+    void update_period_time(double T_act_new);
+
+
+    double T_act; //actual time period
+    double T_last; //last time period
+    double T_sum; //end of the last cycle
+    int period = 0;
+
+
+    //CO2 transport modelling
+    //plasma CO2
+    bool do_per_CO2_transport = false;
+    
+    D0_transport* CO2_pla_lum;
+    bool do_lum_pla_CO2_transport = false;
+    double fi_init_CO2_pla = 0.;
+
+    //RBC cytoplasm CO2
+    D0_transport* CO2_rbc_lum;
+    bool do_lum_rbc_CO2_transport = false;
+    double fi_init_CO2_rbc = 0.;
+
+    //plasma HCO3
+    D0_transport* HCO3_pla_lum;
+    bool do_lum_pla_HCO3_transport = false;
+    double fi_init_HCO3_pla = 0.;
+
+    //RBC cytoplasm HCO3
+    D0_transport* HCO3_rbc_lum;
+    bool do_lum_rbc_HCO3_transport = false;
+    double fi_init_HCO3_rbc = 0.;
+
+    //CO2 with haemoglobin
+    D0_transport* HbCO2_lum;
+    bool do_lum_HbCO2_transport = false;
+    double fi_init_HbCO2 = 0.;
+
+    //capillary edges
+ 	D0_edge* per_cap_CO2_pla;
+ 	D0_edge* per_cap_CO2_rbc;
+ 	D0_edge* per_cap_HCO3_pla;
+ 	D0_edge* per_cap_HCO3_rbc;
+ 	D0_edge* per_cap_HbCO2;
+
+ 	//parameters
+ 	double tao_hco3_rbc_pla;
+ 	double tao_hco3_pla_rbc;
+ 	double tao_co2_pla_tis;
+ 	double tao_co2_tis_pla;
+ 	double tao_co2_rbc_pla;
+ 	double tao_co2_pla_rbc;
+
+ 	double tao_hco3;
+ 	double tao_hbco2;
+
+ 	double RQ;//respiratory quotient
+
+ 	double alpha_co2_rbc, alpha_co2_pla, alpha_hco3_rbc, alpha_hco3_pla, alpha_co2_tis;
+ 	double ksi_pla, ksi_rbc, ksi_c;
+ 	double fi_rbc, fi_pla;
+
+ 	//balance functions
+ 	double eta_hco3(double HCO3_rbc, double HCO3_pla, double CO2_pla, double CO2_rbc);
+ 	double eta_hb(double HbCO2, double CO2_pla, double CO2_rbc);
+
+ 	void assign_perif_CO2_params(vector<string> sv);
+ 	void init_lum_tissueCO2();
+
+ 	double init_tissueCO2 = 0.0266; //m3/m3
+
+
 private:
 	// general constants
 	double gravity; // [m/s2]
@@ -249,6 +330,12 @@ private:
 		double HBsat_0Dn; //haemodlobid saturation [1]
 		double PlasmaO2_0Dn; //plasma O2 concentration [m3/m3]
 
+		double CO2_pla_n; //CO2 concentration in plasma [m3/m3]
+		double CO2_rbc_n; //CO2 concentration in RBC cytoplasm [m3/m3]
+		double HCO3_pla_n; //HCO3 concentration in plasma [m3/m3]
+		double HCO3_rbc_n; //HCO3 concentration in RBC cytoplasm [m3/m3]
+		double HbCO2_n; //HbCO2 in concentration form [m3/m3]
+
 		// whether the pressure is prescribed with a ground, true means p=0
 		bool is_ground;
 		// if the node is an outer boundary, ie connected to an other model
@@ -263,6 +350,22 @@ private:
 
 		vector<D0_edge*> D0_edges_in_PlasmaO2 = {};
 		vector<D0_edge*> D0_edges_out_PlasmaO2 = {};
+
+		//for CO2 transport
+		vector<D0_edge*> D0_edges_in_CO2_pla = {};
+		vector<D0_edge*> D0_edges_out_CO2_pla = {};
+
+		vector<D0_edge*> D0_edges_in_CO2_rbc = {};
+		vector<D0_edge*> D0_edges_out_CO2_rbc = {};
+
+		vector<D0_edge*> D0_edges_in_HCO3_pla = {};
+		vector<D0_edge*> D0_edges_out_HCO3_pla = {};
+
+		vector<D0_edge*> D0_edges_in_HCO3_rbc = {};
+		vector<D0_edge*> D0_edges_out_HCO3_rbc = {};
+
+		vector<D0_edge*> D0_edges_in_HbCO2 = {};
+		vector<D0_edge*> D0_edges_out_HbCO2 = {};
 
 	};
 
@@ -388,6 +491,7 @@ public:
  
     double ml_to_m3 = 1.0e-6;
     bool do_tissue_transport = false;
+    bool do_tissue_CO2_transport = false;
 
 
 

@@ -81,6 +81,13 @@ public:
 	vector<double> HBsat_start, HBsat_end; // [1]
 	vector<double> PlasmaO2_start, PlasmaO2_end; // [m3/m3]
 
+	vector<double> CO2_pla_start, CO2_pla_end;
+	vector<double> CO2_rbc_start, CO2_rbc_end;
+	vector<double> HCO3_pla_start, HCO3_pla_end;
+	vector<double> HCO3_rbc_start, HCO3_rbc_end;
+	vector<double> HbCO2_start, HbCO2_end;
+
+
 	// printing input parameters to console
 	void print_input();
 	void print_vars();
@@ -163,6 +170,13 @@ public:
 	vector<double> RBC_edge_fi, RBC_edge_finew; //RBC concentration SI
 	vector<double> HBsat_edge, HBsat_edge_new; //Haemoglobin saturation [1]
 	vector<double> PlasmaO2_edge, PlasmaO2_edge_new; //O2 concentration in plasma [m3/m3]
+
+	//CO2 stuff
+	vector<double> CO2_pla_edge_fi, CO2_pla_edge_finew;
+	vector<double> CO2_rbc_edge_fi, CO2_rbc_edge_finew;
+	vector<double> HCO3_pla_edge_fi, HCO3_pla_edge_finew;
+	vector<double> HCO3_rbc_edge_fi, HCO3_rbc_edge_finew;
+	vector<double> HbCO2_edge_fi, HbCO2_edge_finew;
 
 private:
 	// changing diameter along the vessel

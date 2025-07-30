@@ -57,6 +57,9 @@ public:
 	double HBsat_node; //Haemoglobin saturation [1]
 	double PlasmaO2_node; //O2 concentration in plasma [m3/m3]
 
+	//concentrations for CO2
+	double CO2_pla_node, CO2_rbc_node, HCO3_pla_node, HCO3_rbc_node, HbCO2_node;
+
 	// bool is_upstream_boundary = false;
 	int upstream_boundary = -1; // for heart or upper boundary it is true
 	bool is_master_node = false; // if it is connected to an other model, e.g lumped model
@@ -73,7 +76,7 @@ public:
 	void print_input();
 
 	// setting initial condition to field variables
-	void initialization(double p_init, double RBC_init, double HBsat_init, double PlasmaO2_C_init);
+	void initialization(double p_init, double RBC_init, double HBsat_init, double PlasmaO2_C_init, double CO2_pla_init, double CO2_rbc_init, double HCO3_pla_init, double HCO3_rbc_init, double HbCO2_init);
 
 private:
 	double R, Ri, p0, rho;

@@ -133,6 +133,12 @@ public:
 	double PlasmaO2_moc_init = 0.;
 	double HBsat_moc_init = 0.;
 
+	double CO2_pla_moc_init = 0.;
+	double CO2_rbc_moc_init = 0.;
+	double HCO3_pla_moc_init = 0.;
+	double HCO3_rbc_moc_init = 0.;
+	double HbCO2_moc_init = 0.;
+
 private:
 
 	const double pi=3.14159265359;

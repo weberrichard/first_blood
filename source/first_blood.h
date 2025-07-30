@@ -153,15 +153,35 @@ public:
 	string case_name;
 
 	int period=0; // saving which period the calculation is
-	double heart_rate = 75.6; // from Charlton2019
-	double time_period = 60./heart_rate;
+	//double heart_rate = 75.6; // from Charlton2019
+
+	//for baroreflex
+	 double L_B = 0.5936; //s
+    double k_B = 0.1086; //1/mmHg
+    double b_B = 0.6274; //s
+    double x_B0 = 114.33; //mmHg
+    //double x_B0 = 114.33; //mmHg
+	double time_period;// = 60./heart_rate;
+	string sys_moc;
+	string sys_edge_name; // systole pressure of this edge
+	moc_edge* sys_edge;
+	bool do_baroreflex = false;
+	double T_sum = 0.; //sum of completed cycles
+	double T_last = 0.;
+	void set_sys_edge_pointer();
+	void init_time_periods_for_lum(double T);
+
+	double baroreflex(double sys);
+	int period_of_first_lum = 0;// which period the furthest lumped model is in
+
 
 	// autoregulation stuff
 	bool do_autoregulation = false;
 	void autoregulation();
 	
 	// time averaged series
-	time_average *map, *cfr;
+	time_average *map;
+
 
 	void calculate_time_average();
 	void save_time_average(string folder_name);
@@ -184,6 +204,27 @@ public:
 	Transport_1D* Plasma_O21D; //class handling the 1D transport stuff
 	TransportType TPlasmaO2 = C_Plasma_O2;
 	Transport_node* PlasmaO2_node_transport;
+
+	//CO2 transport
+	bool do_pla_CO2_transport = false;
+    bool do_rbc_CO2_transport = false;
+    bool do_pla_HCO3_transport = false;
+    bool do_rbc_HCO3_transport = false;
+    bool do_HbCO2_transport = false;
+
+    Transport_node* transport_node_CO2_pla;
+    Transport_node* transport_node_CO2_rbc;
+    Transport_node* transport_node_HCO3_pla;
+    Transport_node* transport_node_HCO3_rbc;
+    Transport_node* transport_node_HbCO2;
+
+    Transport_1D* CO2_pla_1D;
+    Transport_1D* CO2_rbc_1D;
+    Transport_1D* HCO3_pla_1D;
+    Transport_1D* HCO3_rbc_1D;
+    Transport_1D* HbCO2_1D;
+
+
 
 	void check_valves();
 	void connect_0D_edges();

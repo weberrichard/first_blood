@@ -1,4 +1,5 @@
 #include "solver_lumped.h"
+#include <iomanip>
 
 //--------------------------------------------------------------
 solver_lumped::solver_lumped(string a_name, string a_folder)
@@ -10,7 +11,7 @@ solver_lumped::solver_lumped(string a_name, string a_folder)
 solver_lumped::~solver_lumped(){}
 
 //--------------------------------------------------------------
-void solver_lumped::initialization(double hr)
+void solver_lumped::initialization(double time_period)
 {
 	// setting sizes
 	number_of_nodes = nodes.size();
@@ -21,8 +22,8 @@ void solver_lumped::initialization(double hr)
 	boundary_indices.clear();
 
 	// heart rate
-	heart_rate = hr; // from Charlton2019
-	time_period = 60./heart_rate;
+	//heart_rate = hr; // from Charlton2019
+	//time_period = 60./heart_rate;
 
 	// setting the par variables, converting from SI to non-SI for favourable conditioning
 	set_non_SI_parameters();
@@ -37,6 +38,12 @@ void solver_lumped::initialization(double hr)
 		nodes[i]->RBC_fi0Dn = fi_init_RBC_lum;
 		nodes[i]->HBsat_0Dn = init_HB_sat_lum;
 		nodes[i]->PlasmaO2_0Dn = init_PlasmaO2_lum;
+		//CO2 stuff
+		nodes[i]->CO2_pla_n = fi_init_CO2_pla;
+		nodes[i]->CO2_rbc_n = fi_init_CO2_rbc;
+		nodes[i]->HCO3_pla_n = fi_init_HCO3_pla;
+		nodes[i]->HCO3_rbc_n = fi_init_HCO3_rbc;
+		nodes[i]->HbCO2_n = fi_init_HbCO2;
 	}
 
 	// building model
@@ -74,11 +81,8 @@ void solver_lumped::initialization(double hr)
 
 
 	// for myogenic control
-	q_ave = new time_average();
 	p_ave = new time_average();
-	C_ave = new time_average();
-	R_fact = new time_average();
-	x_myo_ts = new time_average();
+
 
 	//for metabolic response
 	Ct_ave = new time_average();
@@ -318,17 +322,9 @@ void solver_lumped::substitute_newton(double t_act)
 	{
 		double tn = time.back();
 		double vn = edges[0]->vfr;
-		q_ave->update(tn,vn,time_period);
 
 		vn = nodes[5]->p;
-		p_ave->update(tn,vn,time_period);
-		
-		vn = edges[5]->par_non_SI[0];
-		C_ave->update(tn,vn,time_period);
-
-		vn = edges[0]->parameter_factor;
-		R_fact->update(tn,vn,time_period);
-		x_myo_ts->update(tn,x_myo,time_period);
+		p_ave->update(tn, vn, T_act, T_last, T_sum);
 	}
 
 
@@ -340,7 +336,7 @@ void solver_lumped::substitute_newton(double t_act)
     //update for metabolic response
     if(do_metabolic_res){
     	double tn = time.back();
-    	Ct_ave->update(tn, tissueO2s, time_period);
+    	Ct_ave->update(tn, tissueO2s, T_act, T_last, T_sum);
     }
 
 }
@@ -363,7 +359,6 @@ void solver_lumped::myogenic_control(double t_act)
 
 	// actuator signal
 	x_myo = x_myo + dt / tao * (- x_myo + G * (p - p_ref)/(p_ref - atmospheric_pressure/mmHg_to_Pa));
-	x_myo=0.;
 }
 
 //--------------------------------------------------------------
@@ -512,7 +507,7 @@ double solver_lumped::elastance(double t)
 
 //--------------------------------------------------------------
 double solver_lumped::elastance(double t, vector<double> par)
-{	
+{	/*
 	// normalized version
 	double tn = t * heart_rate/60.;
 
@@ -520,7 +515,10 @@ double solver_lumped::elastance(double t, vector<double> par)
 	while(tn>1.)
 	{
 		tn -= 1.;
-	}
+	}*/
+
+	//changing heart rate
+	double tn = (t - T_sum)*heart_rate/60.;
 
 	double En = 17.4073 * pow(tn,1.9) / (1.+11.2305*pow(tn,1.9)) * 1. / (1.+1.6658e7*pow(tn,21.9));
 
@@ -536,6 +534,7 @@ double solver_lumped::elastance(double t, vector<double> par)
 //--------------------------------------------------------------
 double solver_lumped::elastance_derived(double t, vector<double> par)
 {
+	/*
 	// normalized version
 	double tn = t * heart_rate/60.;
 
@@ -543,7 +542,10 @@ double solver_lumped::elastance_derived(double t, vector<double> par)
 	while(tn>1.)
 	{
 		tn -= 1.;
-	}
+	}*/
+
+	//changing heart rate
+	double tn = (t - T_sum)*heart_rate/60.;
 
 	double Enp = (9.450202509727443e-16*pow(tn,0.9) - 1.6570681411267346e-7*pow(tn,22.8) - 2.037762561602155e-6*pow(tn,24.7))/(pow(0.0890432 + pow(tn,1.9),2.)*pow(6.003121623244087e-8 + pow(tn,21.9),2.));
 
@@ -627,7 +629,7 @@ void D0_transport::prescribe_node_fi(TransportType TType, double& finode){
 	case HB_O2_saturation:
 	finode = 0.97; // [1]
 	break;
-	}
+	} 
 }
 
 
@@ -657,6 +659,26 @@ void D0_transport::save_results(string fn, const vector<double>& time, string mo
 
 	case C_Plasma_O2:
 		tname = "C_Plasma_O2";
+		break;
+
+	case CO2_pla:
+		tname = "CO2_pla";
+		break;
+
+	case CO2_rbc:
+		tname = "CO2_rbc";
+		break;
+
+	case HCO3_pla:
+		tname = "HCO3_pla";
+		break;
+
+	case HCO3_rbc:
+		tname = "HCO3_rbc";
+		break;
+
+	case HbCO2:
+		tname = "HbCO2";
 		break;
 	}
 
@@ -887,8 +909,8 @@ void solver_lumped::init_lum_tissueO2(){
 	}
 
     //O2 transport initialization
-    tissueO2s = init_tissueO2;
-    tissueO2v.assign( t , init_tissueO2);
+    tissueO2s = init_tissueCO2;
+    tissueO2v.assign( t , init_tissueCO2);
 }
 
 
@@ -982,7 +1004,7 @@ void solver_lumped::metabolic_response(double t_act)
 	// time step
 	double dt = t_act - time.back();
 
-	double Ct = Ct_ave->average.back();//p_ave->average.back();
+	double Ct = Ct_ave->average.back();
 
 	// actuator signal
 	x_met = x_met + dt / tao_met * (- x_met + G_met * (Ct - Ct_ref)/Ct_ref);
@@ -1087,6 +1109,126 @@ void D0_transport::update_nodes(solver_lumped& lum_mod){
 					}
 					if(q !=0. ){lum_mod.nodes[i]->HBsat_0Dn = c/q;}
 				break;
+
+
+
+				//CO2 transport
+				case CO2_pla:
+					//incoming edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_CO2_pla.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_CO2_pla[j];
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
+						if(Q > 0.){
+							q += Q;
+							c += Q * d->fi.back();
+						}
+					}
+
+					//outgoing edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_CO2_pla.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_CO2_pla[j];
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
+						if(Q < 0.){
+							q -= Q;
+							c -= Q * d->fi[0];
+						}
+					}
+					if(q !=0. ){lum_mod.nodes[i]->CO2_pla_n = c/q;}
+				break;
+
+				case CO2_rbc:
+					//incoming edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_CO2_rbc.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_CO2_rbc[j];
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
+						if(Q > 0.){
+							q += Q;
+							c += Q * d->fi.back();
+						}
+					}
+
+					//outgoing edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_CO2_rbc.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_CO2_rbc[j];
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
+						if(Q < 0.){
+							q -= Q;
+							c -= Q * d->fi[0];
+						}
+					}
+					if(q !=0. ){lum_mod.nodes[i]->CO2_rbc_n = c/q;}
+				break;
+
+				case HCO3_pla:
+					//incoming edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_HCO3_pla.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_HCO3_pla[j];
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
+						if(Q > 0.){
+							q += Q;
+							c += Q * d->fi.back();
+						}
+					}
+
+					//outgoing edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_HCO3_pla.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_HCO3_pla[j];
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
+						if(Q < 0.){
+							q -= Q;
+							c -= Q * d->fi[0];
+						}
+					}
+					if(q !=0. ){lum_mod.nodes[i]->HCO3_pla_n = c/q;}
+				break;
+
+				case HCO3_rbc:
+					//incoming edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_HCO3_rbc.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_HCO3_rbc[j];
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
+						if(Q > 0.){
+							q += Q;
+							c += Q * d->fi.back();
+						}
+					}
+
+					//outgoing edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_HCO3_rbc.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_HCO3_rbc[j];
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
+						if(Q < 0.){
+							q -= Q;
+							c -= Q * d->fi[0];
+						}
+					}
+					if(q !=0. ){lum_mod.nodes[i]->HCO3_rbc_n = c/q;}
+				break;
+
+			case HbCO2:
+					//incoming edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_HbCO2.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_HbCO2[j];
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
+						if(Q > 0.){
+							q += Q;
+							c += Q * d->fi.back();
+						}
+					}
+
+					//outgoing edges
+					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_HbCO2.size() ; j++ ){
+						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_HbCO2[j];
+						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
+						if(Q < 0.){
+							q -= Q;
+							c -= Q * d->fi[0];
+						}
+					}
+					if(q !=0. ){lum_mod.nodes[i]->HbCO2_n = c/q;}
+				break;
+
+
 			}
 		}
 		//capacitances modelling dilation and contraction
@@ -1153,6 +1295,27 @@ void D0_edge::virt1D(double dt){
 
     case HB_O2_saturation:
     	fiStartNode = node_start->HBsat_0Dn;
+    	break;
+
+    //CO2
+    case CO2_pla:
+    	fiStartNode = node_start->CO2_pla_n;
+    	break;
+
+    case CO2_rbc:
+    	fiStartNode = node_start->CO2_rbc_n;
+    	break;
+
+    case HCO3_pla:
+    	fiStartNode = node_start->HCO3_pla_n;
+    	break;
+
+    case HCO3_rbc:
+    	fiStartNode = node_start->HCO3_rbc_n;
+    	break;
+
+    case HbCO2:
+    	fiStartNode = node_start->HbCO2_n;
     	break;}
 
 
@@ -1172,7 +1335,29 @@ void D0_edge::virt1D(double dt){
 
     case HB_O2_saturation:
     	fiEndNode = node_end->HBsat_0Dn;
-    	break;}
+    	break;
+
+    //CO2
+    case CO2_pla:
+    	fiEndNode = node_start->CO2_pla_n;
+    	break;
+
+    case CO2_rbc:
+    	fiEndNode = node_start->CO2_rbc_n;
+    	break;
+
+    case HCO3_pla:
+    	fiEndNode = node_start->HCO3_pla_n;
+    	break;
+
+    case HCO3_rbc:
+    	fiEndNode = node_start->HCO3_rbc_n;
+    	break;
+
+    case HbCO2:
+    	fiEndNode = node_start->HbCO2_n;
+    	break;
+    }
 
         fi[nx - 1] = fiEndNode; 
         fi[0] = fi_old[0] - v * dt / dx * (fi_old[1] - fi_old[0]);
@@ -1202,6 +1387,29 @@ void D0_edge::update_diode(){
 		case C_Plasma_O2:
 		fi[0] = node_start->PlasmaO2_0Dn;
 		break;
+
+
+		//CO2
+    	case CO2_pla:
+    	fi[0] = node_start->CO2_pla_n;
+    	break;
+
+    	case CO2_rbc:
+    	fi[0] = node_start->CO2_rbc_n;
+    	break;
+
+    	case HCO3_pla:
+    	fi[0] = node_start->HCO3_pla_n;
+    	break;
+
+    	case HCO3_rbc:
+    	fi[0] = node_start->HCO3_rbc_n;
+    	break;
+
+    	case HbCO2:
+    	fi[0] = node_start->HbCO2_n;
+    	break;
+
 		}
 	}
 }
@@ -1231,6 +1439,28 @@ void D0_transport::connect_0D_edges(solver_lumped& lum_mod){
 				case C_Plasma_O2:
 				lum_mod.nodes[j]->D0_edges_out_PlasmaO2.push_back(D0_edges[i]);
 				break;
+
+				//CO2 transport
+				case CO2_pla:
+				lum_mod.nodes[j]->D0_edges_out_CO2_pla.push_back(D0_edges[i]);
+				break;
+
+				case CO2_rbc:
+				lum_mod.nodes[j]->D0_edges_out_CO2_rbc.push_back(D0_edges[i]);
+				break;
+
+				case HCO3_pla:
+				lum_mod.nodes[j]->D0_edges_out_HCO3_pla.push_back(D0_edges[i]);
+				break;
+
+				case HCO3_rbc:
+				lum_mod.nodes[j]->D0_edges_out_HCO3_rbc.push_back(D0_edges[i]);
+				break;
+
+				case HbCO2:
+				lum_mod.nodes[j]->D0_edges_out_HbCO2.push_back(D0_edges[i]);
+				break;
+
 				}
 
 			}
@@ -1248,7 +1478,29 @@ void D0_transport::connect_0D_edges(solver_lumped& lum_mod){
 
 				case C_Plasma_O2:
 				lum_mod.nodes[j]->D0_edges_in_PlasmaO2.push_back(D0_edges[i]);
-				break;}
+				break;
+
+				//CO2 transport
+				case CO2_pla:
+				lum_mod.nodes[j]->D0_edges_in_CO2_pla.push_back(D0_edges[i]);
+				break;
+
+				case CO2_rbc:
+				lum_mod.nodes[j]->D0_edges_in_CO2_rbc.push_back(D0_edges[i]);
+				break;
+
+				case HCO3_pla:
+				lum_mod.nodes[j]->D0_edges_in_HCO3_pla.push_back(D0_edges[i]);
+				break;
+
+				case HCO3_rbc:
+				lum_mod.nodes[j]->D0_edges_in_HCO3_rbc.push_back(D0_edges[i]);
+				break;
+
+				case HbCO2:
+				lum_mod.nodes[j]->D0_edges_in_HbCO2.push_back(D0_edges[i]);
+				break;
+				}
 			}
 		}
 
@@ -1291,6 +1543,49 @@ void solver_lumped::set_0D_pointers(){
 			}
 		}
 	}
+
+	//CO2 transport
+	if(do_lum_pla_CO2_transport){
+		for(int i=0; i<CO2_pla_lum->D0_edges.size(); i++){
+			for(int j=0; j<edges.size();j++){
+				if(CO2_pla_lum->D0_edges[i]->corr_edge_name == edges[j]->name ){CO2_pla_lum->D0_edges[i]->corr_edge = edges[j];}
+			}
+		}
+	}
+
+	if(do_lum_rbc_CO2_transport){
+		for(int i=0; i<CO2_rbc_lum->D0_edges.size(); i++){
+			for(int j=0; j<edges.size();j++){
+				if(CO2_rbc_lum->D0_edges[i]->corr_edge_name == edges[j]->name ){CO2_rbc_lum->D0_edges[i]->corr_edge = edges[j];}
+			}
+		}
+	}
+
+	if(do_lum_pla_HCO3_transport){
+		for(int i=0; i<HCO3_pla_lum->D0_edges.size(); i++){
+			for(int j=0; j<edges.size();j++){
+				if(HCO3_pla_lum->D0_edges[i]->corr_edge_name == edges[j]->name ){HCO3_pla_lum->D0_edges[i]->corr_edge = edges[j];}
+			}
+		}
+	}
+
+	if(do_lum_rbc_HCO3_transport){
+		for(int i=0; i<HCO3_rbc_lum->D0_edges.size(); i++){
+			for(int j=0; j<edges.size();j++){
+				if(HCO3_rbc_lum->D0_edges[i]->corr_edge_name == edges[j]->name ){HCO3_rbc_lum->D0_edges[i]->corr_edge = edges[j];}
+			}
+		}
+	}
+
+	if(do_lum_HbCO2_transport){
+		for(int i=0; i<HbCO2_lum->D0_edges.size(); i++){
+			for(int j=0; j<edges.size();j++){
+				if(HbCO2_lum->D0_edges[i]->corr_edge_name == edges[j]->name ){HbCO2_lum->D0_edges[i]->corr_edge = edges[j];}
+			}
+		}
+	}
+
+
 }
 
 
@@ -1324,7 +1619,7 @@ void solver_lumped::autoregulation(double t_act){
 	}
 
 	//updates the parameter factor of the resistance
-	update_R_fact();
+	//update_R_fact();
 }
 
 
@@ -1382,6 +1677,27 @@ void D0_edge::update_capacitor(double dt){
 			case C_Plasma_O2:
 				f=node_start->PlasmaO2_0Dn;
 			break;
+
+			//CO2
+			case CO2_pla:
+				f=node_start->CO2_pla_n;
+			break;
+
+			case CO2_rbc:
+				f=node_start->CO2_rbc_n;
+			break;
+
+			case HCO3_pla:
+				f=node_start->HCO3_pla_n;
+			break;
+
+			case HCO3_rbc:
+				f=node_start->HCO3_rbc_n;
+			break;
+
+			case HbCO2:
+				f=node_start->HbCO2_n;
+			break;
 		}
 		if(V+Q*dt*ml_to_m3 != 0.){
 		fi[0] = (fi_old*V + Q*dt*f*ml_to_m3)/(V+Q*dt*ml_to_m3);}
@@ -1400,6 +1716,27 @@ void D0_edge::update_capacitor(double dt){
 
 			case C_Plasma_O2:
 				f=node_end->PlasmaO2_0Dn;
+			break;
+
+			//CO2
+			case CO2_pla:
+				f=node_end->CO2_pla_n;
+			break;
+
+			case CO2_rbc:
+				f=node_end->CO2_rbc_n;
+			break;
+
+			case HCO3_pla:
+				f=node_end->HCO3_pla_n;
+			break;
+
+			case HCO3_rbc:
+				f=node_end->HCO3_rbc_n;
+			break;
+
+			case HbCO2:
+				f=node_end->HbCO2_n;
 			break;
 		}
 
@@ -1435,6 +1772,27 @@ void D0_edge::update_elastance(double dt, double E){
 			case C_Plasma_O2:
 				f=node_start->PlasmaO2_0Dn;
 			break;
+
+			//CO2
+			case CO2_pla:
+				f=node_start->CO2_pla_n;
+			break;
+
+			case CO2_rbc:
+				f=node_start->CO2_rbc_n;
+			break;
+
+			case HCO3_pla:
+				f=node_start->HCO3_pla_n;
+			break;
+
+			case HCO3_rbc:
+				f=node_start->HCO3_rbc_n;
+			break;
+
+			case HbCO2:
+				f=node_start->HbCO2_n;
+			break;
 		}
 
 		fi[0] = (fi_old*V + Q*dt*f*ml_to_m3)/(V+Q*dt*ml_to_m3);
@@ -1453,10 +1811,295 @@ void D0_edge::update_elastance(double dt, double E){
 			case C_Plasma_O2:
 				f=node_end->PlasmaO2_0Dn;
 			break;
+
+			//CO2
+			case CO2_pla:
+				f=node_end->CO2_pla_n;
+			break;
+
+			case CO2_rbc:
+				f=node_end->CO2_rbc_n;
+			break;
+
+			case HCO3_pla:
+				f=node_end->HCO3_pla_n;
+			break;
+
+			case HCO3_rbc:
+				f=node_end->HCO3_rbc_n;
+			break;
+
+			case HbCO2:
+				f=node_end->HbCO2_n;
+			break;
+
 		}
 
 		fi[0] = (fi_old*V - Q*dt*f*ml_to_m3)/(V-Q*dt*ml_to_m3);
 	}
 
+}
+
+//--------------------------------------------------------------------------------------------------
+bool solver_lumped::check_whole_period(double t_act){
+	//sum of the previous periods
+	if(T_sum + T_act < t_act){ //passes the end of the next period in this instant
+		return true;
+	}
+
+	return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+void solver_lumped::update_period_time(double T_act_new){
+	T_sum += T_act; // end of the last completed cycle
+	T_last = T_act;
+	T_act = T_act_new;
+	heart_rate = 60./T_act_new;
+	time_period = T_act_new;
+
+	//new period
+	period ++;
+}
+
+/*
+----------------------------------------------------------------------------------------------------
+CO2 transport
+----------------------------------------------------------------------------------------------------
+*/
+
+//--------------------------------------------------------------------------------------------------
+double solver_lumped::eta_hco3(double HCO3_rbc, double HCO3_pla, double CO2_pla, double CO2_rbc){
+	double g3 = CO2_pla*fi_pla + CO2_rbc*fi_rbc;
+	double r_hco3 = (462*exp(6.2255*g3)-340*exp(-66.7556*g3)+0.62)*0.95*1e-3 - g3;
+	//cout<<r_hco3<<endl;
+	//cout<<g3<<endl;
+	return r_hco3 - (HCO3_rbc*fi_rbc+HCO3_pla*fi_pla);
+};
+
+//--------------------------------------------------------------------------------------------------
+double solver_lumped::eta_hb(double HbCO2, double CO2_pla, double CO2_rbc){
+	double g3 = CO2_pla*fi_pla + CO2_rbc*fi_rbc;
+	//cout<<g3<<endl;
+	double r_hb = (462*exp(6.2255*g3*fi_pla)-340*exp(-66.7556*g3*fi_pla)+0.62)*0.05*1e-3;
+ 	return r_hb - HbCO2*fi_rbc;
+};
+
+//--------------------------------------------------------------------------------------------------
+void solver_lumped::CO2transport(double dt){
+	//only one capillary is allowed per 0D model.
+	vector<double> CO2_pla_old = per_cap_CO2_pla->fi;
+	vector<double>& CO2_pla = per_cap_CO2_pla->fi;
+
+	vector<double> CO2_rbc_old = per_cap_CO2_rbc->fi;
+	vector<double>& CO2_rbc = per_cap_CO2_rbc->fi;
+
+	vector<double> HCO3_pla_old = per_cap_HCO3_pla->fi;
+	vector<double>& HCO3_pla = per_cap_HCO3_pla->fi;
+
+	vector<double> HCO3_rbc_old = per_cap_HCO3_rbc->fi;
+	vector<double>& HCO3_rbc = per_cap_HCO3_rbc->fi;
+
+	vector<double> HbCO2_old = per_cap_HbCO2->fi;
+	vector<double>& HbCO2 = per_cap_HbCO2->fi;
+
+	vector<double> tissueCO2vold = tissueCO2v;
+
+	//vfr_edge, A, nx are the same for these D0_edges
+	int n = per_cap_CO2_pla-> nx;
+	double dx = per_cap_CO2_pla-> dx;
+	double v = per_cap_CO2_pla->corr_edge->vfr/per_cap_CO2_pla->A*ml_to_m3;
+
+
+	//BCs
+	double CO2_pla_n_s = per_cap_CO2_pla->node_start->CO2_pla_n; //node start
+	double CO2_pla_n_e = per_cap_CO2_pla->node_end->CO2_pla_n; //node end
+	double CO2_rbc_n_s = per_cap_CO2_rbc->node_start->CO2_rbc_n;
+	double CO2_rbc_n_e = per_cap_CO2_rbc->node_end->CO2_rbc_n;
+	double HCO3_pla_n_s = per_cap_HCO3_pla->node_start->HCO3_pla_n;
+	double HCO3_pla_n_e = per_cap_HCO3_pla->node_end->HCO3_pla_n;
+	double HCO3_rbc_n_s = per_cap_HCO3_rbc->node_start->HCO3_rbc_n;
+	double HCO3_rbc_n_e = per_cap_HCO3_rbc->node_end->HCO3_rbc_n;
+	double HbCO2_n_s = per_cap_HbCO2->node_start->HbCO2_n;
+	double HbCO2_n_e = per_cap_HbCO2->node_end->HbCO2_n;
+
+
+	//capillary
+    for (int i = 1; i < n - 1; i++) {
+        double CO2_pla_der;
+        double CO2_rbc_der;
+        double HCO3_pla_der;
+        double HCO3_rbc_der;
+        double HbCO2_der;
+
+        if (v > 0.) {
+            CO2_pla_der = (CO2_pla_old[i] - CO2_pla_old[i-1])/dx;
+            CO2_rbc_der = (CO2_rbc_old[i] - CO2_rbc_old[i-1])/dx;
+            HCO3_pla_der = (HCO3_pla_old[i] - HCO3_pla_old[i-1])/dx;
+            HCO3_rbc_der = (HCO3_rbc_old[i] - HCO3_rbc_old[i-1])/dx;
+            HbCO2_der = (HbCO2_old[i] - HbCO2_old[i-1])/dx;
+        }
+        else {
+            CO2_pla_der = (CO2_pla_old[i+1] - CO2_pla_old[i])/dx;
+            CO2_rbc_der = (CO2_rbc_old[i+1] - CO2_rbc_old[i])/dx;
+            HCO3_pla_der = (HCO3_pla_old[i+1] - HCO3_pla_old[i])/dx;
+            HCO3_rbc_der = (HCO3_rbc_old[i+1] - HCO3_rbc_old[i])/dx;
+            HbCO2_der = (HbCO2_old[i+1] - HbCO2_old[i])/dx;
+        }
+
+
+        double Eta_hco3 = eta_hco3(HCO3_rbc_old[i], HCO3_pla_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
+        double Eta_hb = eta_hb( HbCO2_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
+
+
+        CO2_pla[i] = CO2_pla_old[i] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[i] - CO2_rbc_old[i]*alpha_co2_pla/alpha_co2_rbc) + dt/tao_co2_pla_tis*(tissueCO2vold[i]*alpha_co2_pla/alpha_co2_tis - CO2_pla_old[i]);
+        CO2_rbc[i] = CO2_rbc_old[i] - dt/fi_rbc*v*CO2_rbc_der*ksi_rbc + dt/tao_co2_rbc_pla*(CO2_pla_old[i]*alpha_co2_rbc/alpha_co2_pla - CO2_rbc_old[i]) - dt/tao_hco3*Eta_hco3 - dt/tao_hbco2*Eta_hb;
+        HCO3_pla[i] = HCO3_pla_old[i] - dt/fi_pla*v*HCO3_pla_der*ksi_pla - dt/tao_hco3_pla_rbc*(HCO3_pla_old[i]-HCO3_rbc_old[i]/alpha_hco3_rbc*alpha_hco3_pla);
+        HCO3_rbc[i] = HCO3_rbc_old[i] - dt/fi_rbc*v*HCO3_rbc_der*ksi_rbc + dt/tao_hco3_rbc_pla*(HCO3_pla_old[i]*alpha_hco3_rbc/alpha_hco3_pla-HCO3_rbc_old[i]) + dt/tao_hco3*Eta_hco3;
+        HbCO2[i] = HbCO2_old[i] - v*dt*HbCO2_der + dt/tao_hbco2*Eta_hb;
+    }
+
+    //BCs
+    if (v > 0.) {
+        double CO2_pla_der = (CO2_pla_old[n - 1] - CO2_pla_old[n - 2])/dx;
+        double CO2_rbc_der = (CO2_rbc_old[n - 1] - CO2_rbc_old[n - 2])/dx;
+        double HCO3_pla_der = (HCO3_pla_old[n - 1] - HCO3_pla_old[n - 2])/dx;
+        double HCO3_rbc_der = (HCO3_rbc_old[n - 1] - HCO3_rbc_old[n - 2])/dx;
+        double HbCO2_der = (HbCO2_old[n - 1] - HbCO2_old[n - 2])/dx;
+
+        double Eta_hco3 = eta_hco3(HCO3_rbc_old[n - 1], HCO3_pla_old[n - 1], CO2_pla_old[n - 1], CO2_rbc_old[n - 1]);
+        double Eta_hb = eta_hb( HbCO2_old[n - 1], CO2_pla_old[n - 1] , CO2_rbc_old[n - 1]);
+
+
+        CO2_pla[n-1] = CO2_pla_old[n-1] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[n-1] - CO2_rbc_old[n-1]*alpha_co2_pla/alpha_co2_rbc) + dt/tao_co2_pla_tis*(tissueCO2vold[n-1]*alpha_co2_pla/alpha_co2_tis - CO2_pla_old[n-1]);
+        CO2_rbc[n-1] = CO2_rbc_old[n-1] - dt/fi_rbc*v*CO2_rbc_der*ksi_rbc + dt/tao_co2_rbc_pla*(CO2_pla_old[n-1]*alpha_co2_rbc/alpha_co2_pla - CO2_rbc_old[n-1]) - dt/tao_hco3*Eta_hco3 - dt/tao_hbco2*Eta_hb;
+        HCO3_pla[n-1] = HCO3_pla_old[n-1] - dt/fi_pla*v*HCO3_pla_der*ksi_pla - dt/tao_hco3_pla_rbc*(HCO3_pla_old[n-1]-HCO3_rbc_old[n-1]/alpha_hco3_rbc*alpha_hco3_pla);
+        HCO3_rbc[n-1] = HCO3_rbc_old[n-1] - dt/fi_rbc*v*HCO3_rbc_der*ksi_rbc + dt/tao_hco3_rbc_pla*(HCO3_pla_old[n-1]*alpha_hco3_rbc/alpha_hco3_pla-HCO3_rbc_old[n-1]) + dt/tao_hco3*Eta_hco3;
+        HbCO2[n-1] = HbCO2_old[n-1] - v*dt*HbCO2_der+dt/tao_hbco2*Eta_hb;
+
+        CO2_pla[0] = CO2_pla_n_s;
+        CO2_rbc[0] = CO2_rbc_n_s;
+        HCO3_pla[0] = HCO3_pla_n_s;
+        HCO3_rbc[0] = HCO3_rbc_n_s;
+        HbCO2[0] = HbCO2_n_s;
+
+
+    }
+    else {
+        double CO2_pla_der = (CO2_pla_old[1] - CO2_pla_old[0])/dx;
+        double CO2_rbc_der = (CO2_rbc_old[1] - CO2_rbc_old[0])/dx;
+        double HCO3_pla_der = (HCO3_pla_old[1] - HCO3_pla_old[0])/dx;
+        double HCO3_rbc_der = (HCO3_rbc_old[1] - HCO3_rbc_old[0])/dx;
+        double HbCO2_der = (HbCO2_old[1] - HbCO2_old[0])/dx;
+
+        double Eta_hco3 = eta_hco3(HCO3_rbc_old[0], HCO3_pla_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
+        double Eta_hb = eta_hb( HbCO2_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
+        
+
+        CO2_pla[0] = CO2_pla_old[0] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[0] - CO2_rbc_old[0]*alpha_co2_pla/alpha_co2_rbc) + dt/tao_co2_pla_tis*(tissueCO2vold[0]*alpha_co2_pla/alpha_co2_tis - CO2_pla_old[0]);//
+        CO2_rbc[0] = CO2_rbc_old[0] - dt/fi_rbc*v*CO2_rbc_der*ksi_rbc + dt/tao_co2_rbc_pla*(CO2_pla_old[0]*alpha_co2_rbc/alpha_co2_pla - CO2_rbc_old[0]) - dt/tao_hco3*Eta_hco3 - dt/tao_hbco2*Eta_hb;
+        HCO3_pla[0] = HCO3_pla_old[0] - dt/fi_pla*v*HCO3_pla_der*ksi_pla - dt/tao_hco3_pla_rbc*(HCO3_pla_old[0]-HCO3_rbc_old[0]/alpha_hco3_rbc*alpha_hco3_pla);
+        HCO3_rbc[0] = HCO3_rbc_old[0] - dt/fi_rbc*v*HCO3_rbc_der*ksi_rbc + dt/tao_hco3_rbc_pla*(HCO3_pla_old[0]*alpha_hco3_rbc/alpha_hco3_pla-HCO3_rbc_old[0]) + dt/tao_hco3*Eta_hco3;
+        HbCO2[0] = HbCO2_old[0] - v*dt*HbCO2_der+dt/tao_hbco2*Eta_hb;
+
+        CO2_pla[n-1] = CO2_pla_n_e;
+        CO2_rbc[n-1] = CO2_rbc_n_e;
+        HCO3_pla[n-1] = HCO3_pla_n_e;
+        HCO3_rbc[n-1] = HCO3_rbc_n_e;
+        HbCO2[n-1] = HbCO2_n_e;
+
+    }
+
+    //tissue concentration
+    for(int i=0; i<n; i++){
+	tissueCO2v[i] =  tissueCO2vold[i] + Mmax*tissueO2v[i]/(tissueO2v[i]+C50)*0.8 - dt/tao_co2_rbc_pla*(tissueCO2vold[i] - CO2_pla_old[i]*alpha_co2_tis/alpha_co2_pla);
+    }
+    tissueCO2s = average(tissueCO2v);
+
+};
+
+
+//--------------------------------------------------------------
+void solver_lumped::assign_perif_CO2_params(vector<string> sv){
+    tao_hco3_rbc_pla = stod(sv[1],0);
+ 	tao_hco3_pla_rbc = stod(sv[2],0);
+ 	tao_co2_pla_tis = stod(sv[3],0);
+ 	tao_co2_tis_pla = stod(sv[4],0);
+ 	tao_co2_rbc_pla = stod(sv[5],0);
+ 	tao_co2_pla_rbc = stod(sv[6],0);
+
+ 	tao_hco3 = stod(sv[7],0);
+ 	tao_hbco2 = stod(sv[8],0);
+
+ 	RQ = stod(sv[9],0);
+
+ 	alpha_co2_rbc = stod(sv[10],0);
+    alpha_co2_pla = stod(sv[11],0);
+    alpha_co2_tis = stod(sv[12],0);
+    alpha_hco3_rbc = stod(sv[13],0);
+    alpha_hco3_pla = stod(sv[14],0);
+
+ 	ksi_pla = stod(sv[15],0);
+ 	ksi_rbc = stod(sv[16],0);
+ 	ksi_c = stod(sv[17],0);
+ 	fi_rbc = stod(sv[18],0);
+ 	fi_pla = stod(sv[19],0);
+
+ 	//double r = tao_co2_rbc_pla/tao_co2_pla_rbc;
+ 	//cout<<r<<endl;
+ 	//r = tao_hco3_rbc_pla/tao_hco3_pla_rbc;
+ 	//cout<<r<<endl;
+
+}
+
+//--------------------------------------------------------------
+void solver_lumped::init_lum_tissueCO2(){
+    tissueCO2v.clear();
+    tissueCO2_save.clear();
+
+    //only one pulmonary capillary is allowed in a lumped model but noth both
+    int t;
+	for(int i=0;i<HBsatlum ->D0_edges.size();i++){
+		if(HBsatlum ->D0_edges[i]->is_pul_capillary){
+			t=HBsatlum ->D0_edges[i]->nx;
+		}
+	}
+
+	for(int i=0;i<HBsatlum ->D0_edges.size();i++){
+		if(HBsatlum ->D0_edges[i]->is_per_capillary){
+			t=HBsatlum ->D0_edges[i]->nx;
+		}
+	}
+
+    //CO2 transport initialization
+    tissueCO2s = init_tissueCO2;
+    tissueCO2v.assign( t , init_tissueCO2);
+}
+
+
+//--------------------------------------------------------------
+void D0_transport::prescribe_node_fi_CO2(TransportType TType, double& finode){
+	switch(TType){
+
+	case CO2_pla:
+		finode = 0.02635920; //m3 O2/ m3 pla
+		break;
+
+	case CO2_rbc:
+		finode = 0.02986472; //m3 O2/ m3 rbc cytoplasm
+		break;
+
+	case HCO3_pla:
+		finode = 0.73471517; //m3 O2/ m3 pla
+		break;
+
+	case HCO3_rbc:
+		finode = 0.08811732; //m3 O2/ m3 rbc cytoplasm
+		break;
+
+	case HbCO2:
+		finode = 0.04748449; //m3 O2/ m3 rbc cytoplasm
+		break;
+	}
 
 }

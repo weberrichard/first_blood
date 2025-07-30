@@ -156,7 +156,40 @@ void solver_lumped::load_model()
 				init_PlasmaO2_lum = stod(sv[2],0);
 				init_HB_sat_lum = stod(sv[3],0);
 			}
-			
+
+			//CO2 transport stuff
+			else if(sv[0]=="co2transport_init" && sv.size() > 3 ){
+				fi_init_CO2_pla = stod(sv[1],0);
+				fi_init_CO2_rbc = stod(sv[2],0);
+				fi_init_HCO3_pla = stod(sv[3],0);
+				fi_init_HCO3_rbc = stod(sv[4],0);
+				fi_init_HbCO2 = stod(sv[5],0);
+			}
+
+			else if (sv[0] == "pla_CO2_on" && sv[1] == "1"){
+				do_lum_pla_CO2_transport = true;
+				CO2_pla_lum = new D0_transport(CO2_pla);
+			}
+
+			else if (sv[0] == "rbc_CO2_on" && sv[1] == "1"){
+				do_lum_rbc_CO2_transport = true;
+				CO2_rbc_lum = new D0_transport(CO2_rbc);
+			}
+
+			else if (sv[0] == "pla_HCO3_on" && sv[1] == "1"){
+				do_lum_pla_HCO3_transport = true;
+				HCO3_pla_lum = new D0_transport(HCO3_pla);
+			}
+
+			else if (sv[0] == "rbc_HCO3_on" && sv[1] == "1"){
+				do_lum_rbc_HCO3_transport = true;
+				HCO3_rbc_lum = new D0_transport(HCO3_rbc);
+			}
+
+			else if (sv[0] == "HbCO2_on" && sv[1] == "1"){
+				do_lum_HbCO2_transport = true;
+				HbCO2_lum = new D0_transport(HbCO2);
+			}
 
 
 			//metabolic response
@@ -194,6 +227,34 @@ void solver_lumped::load_model()
 				if(sv[8] == "1" ){PlasmaO2lum->D0_edges.back()->is_pul_capillary = true;}
 				}
 
+				//CO2 transport
+				if(do_lum_pla_CO2_transport&&sv.size()>9){
+				CO2_pla_lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), CO2_pla, fi_init_CO2_pla, sv[2], sv[3], sv[9]));
+				if(sv[7] == "1" ){CO2_pla_lum->D0_edges.back()->is_per_capillary = true;}
+				}
+
+				if(do_lum_rbc_CO2_transport&&sv.size()>9){
+				CO2_rbc_lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), CO2_rbc, fi_init_CO2_rbc, sv[2], sv[3], sv[9]));
+				if(sv[7] == "1" ){CO2_rbc_lum->D0_edges.back()->is_per_capillary = true;}
+				}
+
+				if(do_lum_pla_HCO3_transport&&sv.size()>9){
+				HCO3_pla_lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), HCO3_pla, fi_init_HCO3_pla, sv[2], sv[3], sv[9]));
+				if(sv[7] == "1" ){HCO3_pla_lum->D0_edges.back()->is_per_capillary = true;}
+				}
+
+				if(do_lum_rbc_HCO3_transport&&sv.size()>9){
+				HCO3_rbc_lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), HCO3_rbc, fi_init_HCO3_rbc, sv[2], sv[3], sv[9]));
+				if(sv[7] == "1" ){HCO3_rbc_lum->D0_edges.back()->is_per_capillary = true;}
+				}
+
+				if(do_lum_HbCO2_transport&&sv.size()>9){
+				HbCO2_lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), HbCO2, fi_init_HbCO2, sv[2], sv[3], sv[9]));
+				if(sv[7] == "1" ){HbCO2_lum->D0_edges.back()->is_per_capillary = true;}
+				}
+
+
+
 			}
 
 			//virtual 1D diodes
@@ -213,7 +274,36 @@ void solver_lumped::load_model()
 				PlasmaO2lum->D0_edges.back()->is_diode = true;			
 				}
 
+
+				//CO2 transport
+				if(do_lum_pla_CO2_transport){
+				CO2_pla_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, CO2_pla, fi_init_CO2_pla, sv[2], sv[3], sv[4]));
+				CO2_pla_lum->D0_edges.back()->is_diode = true;			
+				}
+
+				if(do_lum_rbc_CO2_transport){
+				CO2_rbc_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, CO2_rbc, fi_init_CO2_rbc, sv[2], sv[3], sv[4]));
+				CO2_rbc_lum->D0_edges.back()->is_diode = true;			
+				}
+
+				if(do_lum_pla_HCO3_transport){
+				HCO3_pla_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, HCO3_pla, fi_init_HCO3_pla, sv[2], sv[3], sv[4]));
+				HCO3_pla_lum->D0_edges.back()->is_diode = true;
+				}
+
+				if(do_lum_rbc_HCO3_transport){
+				HCO3_rbc_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, HCO3_rbc, fi_init_HCO3_rbc, sv[2], sv[3], sv[4]));
+				HCO3_rbc_lum->D0_edges.back()->is_diode = true;
+				}
+
+				if(do_lum_HbCO2_transport){
+				HbCO2_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, HbCO2, fi_init_HbCO2, sv[2], sv[3], sv[4]));
+				HbCO2_lum->D0_edges.back()->is_diode = true;
+				}
+
 			}
+
+			
 
 			else if(sv[0] == "0Dcapacitor"){
 				if(do_lum_RBC_transport){
@@ -229,6 +319,32 @@ void solver_lumped::load_model()
 				if(do_lum_PlasmaO2_transport){
 				PlasmaO2lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, C_Plasma_O2, init_PlasmaO2_lum, sv[2], sv[3], sv[4]));
 				PlasmaO2lum->D0_edges.back()->is_capacitor = true;
+				}
+
+				//CO2 transport
+				if(do_lum_pla_CO2_transport){
+				CO2_pla_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, CO2_pla, fi_init_CO2_pla, sv[2], sv[3], sv[4]));
+				CO2_pla_lum->D0_edges.back()->is_capacitor = true;			
+				}
+
+				if(do_lum_rbc_CO2_transport){
+				CO2_rbc_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, CO2_rbc, fi_init_CO2_rbc, sv[2], sv[3], sv[4]));
+				CO2_rbc_lum->D0_edges.back()->is_capacitor = true;			
+				}
+
+				if(do_lum_pla_HCO3_transport){
+				HCO3_pla_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, HCO3_pla, fi_init_HCO3_pla, sv[2], sv[3], sv[4]));
+				HCO3_pla_lum->D0_edges.back()->is_capacitor = true;
+				}
+
+				if(do_lum_rbc_HCO3_transport){
+				HCO3_rbc_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, HCO3_rbc, fi_init_HCO3_rbc, sv[2], sv[3], sv[4]));
+				HCO3_rbc_lum->D0_edges.back()->is_capacitor = true;
+				}
+
+				if(do_lum_HbCO2_transport){
+				HbCO2_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, HbCO2, fi_init_HbCO2, sv[2], sv[3], sv[4]));
+				HbCO2_lum->D0_edges.back()->is_capacitor = true;
 				}
 
 			}
@@ -251,6 +367,38 @@ void solver_lumped::load_model()
 				PlasmaO2lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, C_Plasma_O2, init_PlasmaO2_lum, sv[2], sv[3], sv[4]));
 				PlasmaO2lum->D0_edges.back()->is_elastance = true;
 				PlasmaO2lum->D0_edges.back()->V0 = stod(sv[5],0);
+				}
+
+
+				//CO2 transport
+				if(do_lum_pla_CO2_transport){
+				CO2_pla_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, CO2_pla, fi_init_CO2_pla, sv[2], sv[3], sv[4]));
+				CO2_pla_lum->D0_edges.back()->is_elastance = true;		
+				CO2_pla_lum->D0_edges.back()->V0 = stod(sv[5],0);
+				}
+
+				if(do_lum_rbc_CO2_transport){
+				CO2_rbc_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, CO2_rbc, fi_init_CO2_rbc, sv[2], sv[3], sv[4]));
+				CO2_rbc_lum->D0_edges.back()->is_elastance = true;
+				CO2_rbc_lum->D0_edges.back()->V0 = stod(sv[5],0);
+				}
+
+				if(do_lum_pla_HCO3_transport){
+				HCO3_pla_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, HCO3_pla, fi_init_HCO3_pla, sv[2], sv[3], sv[4]));
+				HCO3_pla_lum->D0_edges.back()->is_elastance = true;
+				HCO3_pla_lum->D0_edges.back()->V0 = stod(sv[5],0);
+				}
+
+				if(do_lum_rbc_HCO3_transport){
+				HCO3_rbc_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, HCO3_rbc, fi_init_HCO3_rbc, sv[2], sv[3], sv[4]));
+				HCO3_rbc_lum->D0_edges.back()->is_elastance = true;
+				HCO3_rbc_lum->D0_edges.back()->V0 = stod(sv[5],0);
+				}
+
+				if(do_lum_HbCO2_transport){
+				HbCO2_lum->D0_edges.push_back(new D0_edge(sv[1], 0., 0., 1, HbCO2, fi_init_HbCO2, sv[2], sv[3], sv[4]));
+				HbCO2_lum->D0_edges.back()->is_elastance = true;
+				HbCO2_lum->D0_edges.back()->V0 = stod(sv[5],0);
 				}
 
 			}
@@ -302,6 +450,55 @@ void solver_lumped::load_model()
 
 		}
 
+
+		//CO2 stuff
+		if(do_lum_pla_CO2_transport&&do_lum_rbc_CO2_transport&&do_lum_pla_HCO3_transport&&do_lum_rbc_HCO3_transport&&do_lum_HbCO2_transport){
+			init_lum_tissueCO2();
+			CO2_pla_lum->do_tissue_CO2_transport = true;
+			CO2_rbc_lum->do_tissue_CO2_transport = true;
+			HCO3_pla_lum->do_tissue_CO2_transport = true;
+			HCO3_rbc_lum->do_tissue_CO2_transport = true;
+			HbCO2_lum->do_tissue_CO2_transport = true;
+
+			//if we calculate PlasmaO2, HB_sat and RBC and there is a pul or per capillary in the model
+			int n_pul_cap = 0;
+			int n_per_cap = 0;
+
+			for(int zz=0; zz<CO2_pla_lum->D0_edges.size(); zz++){
+				if(CO2_pla_lum->D0_edges[zz]->is_per_capillary){
+					do_per_CO2_transport=true;
+					n_per_cap++;
+					per_cap_CO2_pla = CO2_pla_lum->D0_edges[zz];}
+			}
+
+			for(int zz=0; zz<CO2_rbc_lum->D0_edges.size(); zz++){
+				if(CO2_rbc_lum->D0_edges[zz]->is_per_capillary){
+					n_per_cap++;
+					per_cap_CO2_rbc = CO2_rbc_lum->D0_edges[zz];}
+			}
+
+			for(int zz=0; zz<HCO3_pla_lum->D0_edges.size(); zz++){
+				if(HCO3_pla_lum->D0_edges[zz]->is_per_capillary){
+					n_per_cap++;
+					per_cap_HCO3_pla = HCO3_pla_lum->D0_edges[zz];}
+			}
+
+			for(int zz=0; zz<HCO3_rbc_lum->D0_edges.size(); zz++){
+				if(HCO3_rbc_lum->D0_edges[zz]->is_per_capillary){
+					n_per_cap++;
+					per_cap_HCO3_rbc = HCO3_rbc_lum->D0_edges[zz];}
+			}
+
+			for(int zz=0; zz<HbCO2_lum->D0_edges.size(); zz++){
+				if(HbCO2_lum->D0_edges[zz]->is_per_capillary){
+					n_per_cap++;
+					per_cap_HbCO2 = HbCO2_lum->D0_edges[zz];}
+			}
+
+
+
+
+		}
 	}
 	else
 	{
@@ -336,6 +533,29 @@ void solver_lumped::load_model()
 	else if(do_lum_PlasmaO2_transport&&do_lum_HB_sat_transport&&do_lum_RBC_transport){
 		cout<<"O2_parameter default values"<<endl;
 	}
+	file_in.close();
+
+	file_name = input_folder_path + '/' + "CO2_parameters" + ".txt";
+	file_in.open(file_name);
+	if(file_in.is_open()){
+		while(getline(file_in,line))
+		{	
+			// cleaning unnecessary characters
+			line.erase(remove(line.begin(), line.end(), ' '), line.end());
+			line.erase(remove(line.begin(), line.end(), '\n'), line.end());
+			line.erase(remove(line.begin(), line.end(), '\r'), line.end());
+			vector<string> sv = separate_line(line);
+			
+			if (sv[0] == "perifco2"){ assign_perif_CO2_params(sv);}
+
+		}
+		
+	}
+	else if(true){
+		cout<<"CO2_parameter default values"<<endl;
+	}
+	file_in.close();
+
 
 }
 
@@ -411,14 +631,9 @@ void solver_lumped::save_results(string folder_name, vector<string> edge_list, v
    {
 	   mkdir(fn.c_str(),0777);
 
-		string file_name = fn + "/q_ave.txt";
-		q_ave->save_results(file_name);
-
-		file_name = fn + "/p_ave.txt";
+		string file_name = fn + "/p_ave.txt";
 		p_ave->save_results(file_name);
 
-		file_name = fn + "/C_ave.txt";
-		C_ave->save_results(file_name);
    }
 
    //if(do_lum_RBC_transport)
@@ -524,20 +739,9 @@ void solver_lumped::save_results(double dt, string folder_name, vector<string> e
    {
 	   mkdir(fn.c_str(),0777);
 	   
-		string file_name = fn + "/q_ave.txt";
-		q_ave->save_results(dt, file_name);
-
-		file_name = fn + "/p_ave.txt";
+		string file_name = fn + "/p_ave.txt";
 		p_ave->save_results(dt, file_name);
 
-		file_name = fn + "/C_ave.txt";
-		C_ave->save_results(dt, file_name);
-
-		file_name = fn + "/R_fact.txt";
-		R_fact->save_results(dt, file_name);
-
-		file_name = fn + "/x_myo.txt";
-		x_myo_ts->save_results(dt, file_name);
    }
 }
 
