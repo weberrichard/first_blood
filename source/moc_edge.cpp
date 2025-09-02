@@ -18,7 +18,7 @@ void moc_edge::print_input()
 }
 
 //--------------------------------------------------------------
-void moc_edge::initialization(double pressure_initial, int mat_type, double RBC_init, double HBsat_init, double PlasmaO2_C_init )
+void moc_edge::initialization(double pressure_initial, int mat_type, double RBC_init, double HBsat_init, double PlasmaO2_C_init, double CO2_pla_moc_init, double CO2_rbc_moc_init, double HCO3_pla_moc_init, double HCO3_rbc_moc_init, double HbCO2_moc_init )
 {
 	// clearing time variables
 	pressure_start.clear();
@@ -41,6 +41,13 @@ void moc_edge::initialization(double pressure_initial, int mat_type, double RBC_
    HBsat_end.clear();
    time.clear();
    time.push_back(0.);
+
+   //CO2
+  	CO2_pla_start.clear(); CO2_pla_end.clear();
+	CO2_rbc_start.clear(); CO2_rbc_end.clear();
+ 	HCO3_pla_start.clear(); HCO3_pla_end.clear();
+	HCO3_rbc_start.clear(); HCO3_rbc_end.clear();
+	HbCO2_start.clear(); HbCO2_end.clear();
 
    // setting material properties
 	material_type = mat_type;
@@ -66,6 +73,18 @@ void moc_edge::initialization(double pressure_initial, int mat_type, double RBC_
 	PlasmaO2_edge.clear(); PlasmaO2_edge.resize(nx);
 	PlasmaO2_edge_new.clear(); PlasmaO2_edge_new.resize(nx);
 
+	//CO2
+	CO2_pla_edge_fi.clear(); CO2_pla_edge_fi.resize(nx);
+	CO2_pla_edge_finew.clear(); CO2_pla_edge_finew.resize(nx);
+	CO2_rbc_edge_fi.clear(); CO2_rbc_edge_fi.resize(nx);
+	CO2_rbc_edge_finew.clear(); CO2_rbc_edge_finew.resize(nx);
+	HCO3_pla_edge_fi.clear(); HCO3_pla_edge_fi.resize(nx);
+	HCO3_pla_edge_finew.clear(); HCO3_pla_edge_finew.resize(nx);
+	HCO3_rbc_edge_fi.clear(); HCO3_rbc_edge_fi.resize(nx);
+	HCO3_rbc_edge_finew.clear(); HCO3_rbc_edge_finew.resize(nx);
+	HbCO2_edge_fi.clear(); HbCO2_edge_fi.resize(nx);
+	HbCO2_edge_finew.clear(); HbCO2_edge_finew.resize(nx);
+
 	// calculating the space coordinates and dx
 	dx = l/(nx-1);
 	for(int i=0; i<nx; i++)
@@ -82,6 +101,18 @@ void moc_edge::initialization(double pressure_initial, int mat_type, double RBC_
 	HBsat_edge_new.assign(nx,HBsat_init);
 	PlasmaO2_edge.assign(nx,PlasmaO2_C_init);
 	PlasmaO2_edge_new.assign(nx,PlasmaO2_C_init);
+
+	//CO2
+	CO2_pla_edge_fi.assign(nx, CO2_pla_moc_init);
+	CO2_pla_edge_finew.assign(nx, CO2_pla_moc_init);
+	CO2_rbc_edge_fi.assign(nx, CO2_rbc_moc_init);
+	CO2_rbc_edge_finew.assign(nx, CO2_rbc_moc_init);
+	HCO3_pla_edge_fi.assign(nx, HCO3_pla_moc_init);
+	HCO3_pla_edge_finew.assign(nx, HCO3_pla_moc_init);
+	HCO3_rbc_edge_fi.assign(nx, HCO3_rbc_moc_init);
+	HCO3_rbc_edge_finew.assign(nx, HCO3_rbc_moc_init);
+	HbCO2_edge_fi.assign(nx, HbCO2_moc_init);
+	HbCO2_edge_finew.assign(nx, HbCO2_moc_init);
 
 	for(int i=0; i<nx; i++)
 	{	
@@ -483,6 +514,17 @@ void moc_edge::save_field_variables()
 
 	PlasmaO2_start.push_back(PlasmaO2_edge[0]);
 	PlasmaO2_end.push_back(PlasmaO2_edge[nx-1]);
+
+	CO2_pla_start.push_back(CO2_pla_edge_fi[0]);
+	CO2_pla_end.push_back(CO2_pla_edge_fi[nx-1]);
+	CO2_rbc_start.push_back(CO2_rbc_edge_fi[0]);
+	CO2_rbc_end.push_back(CO2_rbc_edge_fi[nx-1]);
+	HCO3_pla_start.push_back(HCO3_pla_edge_fi[0]);
+	HCO3_pla_end.push_back(HCO3_pla_edge_fi[nx-1]);
+	HCO3_rbc_start.push_back(HCO3_rbc_edge_fi[0]);
+	HCO3_rbc_end.push_back(HCO3_rbc_edge_fi[nx-1]);
+	HbCO2_start.push_back(HbCO2_edge_fi[0]);
+	HbCO2_end.push_back(HbCO2_edge_fi[nx-1]);
 
 	// debug TODO: del
 	/*if(time.back()>-1.)

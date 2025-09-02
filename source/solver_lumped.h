@@ -498,6 +498,7 @@ public:
     D0_transport( TransportType TType);
 
     void update_fi(double dt, solver_lumped& lum_mod, double t_act);
+    void prescribe_node_fi_CO2(TransportType TType, double& finode);
 
     //void UpdatePerifLumNode(int LumNodeIndex, double fiLeft, double fiRight, solver_lumped& lum_mod);
     void prescribe_node_fi(TransportType TType, double& finode);

@@ -43,6 +43,7 @@ public:
     Transport_1D(TransportType TType);
 
     void update_fi(vector<double> v, vector<double>& fi, vector<double>& fi_new, double l, double dt, double fiStart, double fiEnd);
+    void prescribe_node_fi_CO2(TransportType TType, double& finode);
 };
 
 class Transport_node {//for 1D nodes
@@ -170,6 +171,10 @@ public:
 	double T_last = 0.;
 	void set_sys_edge_pointer();
 	void init_time_periods_for_lum(double T);
+
+	void O2_transport(int moc_idx, int si, int ei, int e_idx, double t_act);
+	void CO2_transport(int moc_idx, int si, int ei, int e_idx, double t_act);
+	void save_transport_var_for_lum(int moc_idx, int si, int ei);
 
 	double baroreflex(double sys);
 	int period_of_first_lum = 0;// which period the furthest lumped model is in

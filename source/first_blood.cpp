@@ -352,310 +352,18 @@ bool first_blood::run()
 				// postproc: interpolate, save
 				moc[moc_idx]->edges[e_idx]->update();
 
-				//cout<<t_act<<endl;
-				if(do_RBC_transport){
-					//RBC transport in nodes
 
-					RBC_node_transport->update_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
-					RBC_node_transport->update_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
-
-					//moc[moc_idx]->nodes[0]->RBC_node_fi = 1.;
-					if(moc[moc_idx]->nodes[si]->is_master_node){
-						//RBC transport for lum
-						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_RBC_transport){
-							RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-						}
-
-					}
-					
-					if(moc[moc_idx]->nodes[ei]->is_master_node){
-						//RBC transport for lum
-						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_RBC_transport){
-							RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-						}
-
-					}
-
-					//transport 1D update (actual edge)
-					RBC1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->RBC_edge_fi, moc[moc_idx]->edges[e_idx]->RBC_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[ei]->RBC_node_fi);
-				}
-
-
-				// HB saturation transport
-				if(do_HBsat_transport){
-					//HB saturation transport
-
-					HB_O2_node_transport->update_fi(moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
-					HB_O2_node_transport->update_fi(moc[moc_idx]->nodes[ei]->HBsat_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
-
-					
-					if(moc[moc_idx]->nodes[si]->is_master_node){
-						//HBsat transport for lum
-						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_HB_sat_transport){
-							HB_O2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-						}
-
-					}
-					
-					if(moc[moc_idx]->nodes[ei]->is_master_node){
-						//HBsat transport for lum
-						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_HB_sat_transport){
-							HB_O2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->HBsat_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-						}
-
-					}
-
-					//transport 1D update (actual edge)
-					HBsat1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->HBsat_edge, moc[moc_idx]->edges[e_idx]->HBsat_edge_new, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[ei]->HBsat_node);
-				}
-
-
-
-				// Plasma O2 concentration
-				if(do_Plasma_O2_transport){
-					//Plasma O2 concentration
-
-					PlasmaO2_node_transport->update_fi(moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
-					PlasmaO2_node_transport->update_fi(moc[moc_idx]->nodes[ei]->PlasmaO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
-
-					
-					if(moc[moc_idx]->nodes[si]->is_master_node){
-						//Plasma O2 concentration for lum
-						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_PlasmaO2_transport){
-							PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-
-							//capillary is only updated here
-							lum[lum_idx]->capillary_O2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
-						}
-
-					}
-					
-					if(moc[moc_idx]->nodes[ei]->is_master_node){
-						//Plasma O2 concentration for lum
-						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_PlasmaO2_transport){
-							PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->PlasmaO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-
-							//capillary is only updated here
-							lum[lum_idx]->capillary_O2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
-						}
-
-					}
-
-					//transport 1D update (actual edge)
-					Plasma_O21D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->PlasmaO2_edge, moc[moc_idx]->edges[e_idx]->PlasmaO2_edge_new, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[ei]->PlasmaO2_node);
-				}
-
-
-
-
-
-				//CO2 transport
-				if(do_pla_CO2_transport){
-
-					if(moc[moc_idx]->nodes[si]->is_master_node){
-
-						//Plasma CO2 concentration for lum
-						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_pla_CO2_transport){
-							//transport_node_CO2_pla->update_master_fi(moc[moc_idx]->nodes[si]->CO2_pla_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->CO2_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-
-							//capillary is only updated here
-							lum[lum_idx]->CO2transport(moc[moc_idx]->edges[e_idx]->dt_act);
-						}
-					}
-					
-					
-					if(moc[moc_idx]->nodes[ei]->is_master_node){
-
-						//Plasma CO2 concentration for lum
-						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_pla_CO2_transport){
-							//transport_node_CO2_pla->update_master_fi(moc[moc_idx]->nodes[ei]->CO2_pla_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->CO2_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-
-							//capillary is only updated here
-							lum[lum_idx]->CO2transport(moc[moc_idx]->edges[e_idx]->dt_act);
-						}
-
-					}
-					
-				}
-
-
-				if(do_rbc_CO2_transport){
-					if(moc[moc_idx]->nodes[si]->is_master_node){
-						//rbc cytoplasm CO2 concentration for lum
-						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_rbc_CO2_transport){
-							//transport_node_CO2_rbc->update_master_fi(moc[moc_idx]->nodes[si]->CO2_rbc_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->CO2_rbc_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-
-						}
-					}
-					
-					if(moc[moc_idx]->nodes[ei]->is_master_node){
-						//rbc cytoplasm CO2 concentration for lum
-						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_rbc_CO2_transport){
-							//transport_node_CO2_rbc->update_master_fi(moc[moc_idx]->nodes[ei]->CO2_rbc_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->CO2_rbc_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-
-						}
-					}
-				}
+				//O2 transport, plasmaO2, HBsat, RBC concantration
+				O2_transport( moc_idx, si, ei, e_idx, t_act);
 				
 
-				if(do_pla_HCO3_transport){
-					if(moc[moc_idx]->nodes[si]->is_master_node){
-						//rbc plasma HCO3 concentration for lum
-						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+				//CO2 transport
+				CO2_transport( moc_idx, si, ei, e_idx, t_act);
+				
 
-						if (lum[lum_idx]->do_lum_pla_HCO3_transport){
-							//transport_node_HCO3_rbc->update_master_fi(moc[moc_idx]->nodes[si]->HCO3_rbc_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->HCO3_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-
-						}
-					}
-					
-					if(moc[moc_idx]->nodes[ei]->is_master_node){
-						//rbc plasma HCO3 concentration for lum
-						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_pla_HCO3_transport){
-							//transport_node_HCO3_rbc->update_master_fi(moc[moc_idx]->nodes[ei]->HCO3_rbc_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->HCO3_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-
-						}
-					}
-				}
-
-
-				if(do_rbc_HCO3_transport){
-					if(moc[moc_idx]->nodes[si]->is_master_node){
-						//rbc cytoplasm HCO3 concentration for lum
-						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_rbc_HCO3_transport){
-							//transport_node_HCO3_rbc->update_master_fi(moc[moc_idx]->nodes[si]->HCO3_rbc_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->HCO3_rbc_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-
-						}
-					}
-					
-					if(moc[moc_idx]->nodes[ei]->is_master_node){
-						//rbc cytoplasm HCO3 concentration for lum
-						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_rbc_HCO3_transport){
-							//transport_node_HCO3_rbc->update_master_fi(moc[moc_idx]->nodes[ei]->HCO3_rbc_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->HCO3_rbc_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-
-						}
-					}
-				}
-
-
-				if(do_HbCO2_transport){
-					if(moc[moc_idx]->nodes[si]->is_master_node){
-						//HbCO2 concentration for lum
-						int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_HbCO2_transport){
-							//transport_node_HCO3_rbc->update_master_fi(moc[moc_idx]->nodes[si]->HCO3_rbc_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->HbCO2_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-
-						}
-					}
-					
-					if(moc[moc_idx]->nodes[ei]->is_master_node){
-						//HbCO2 concentration for lum
-						int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-
-						if (lum[lum_idx]->do_lum_HbCO2_transport){
-							//transport_node_HCO3_rbc->update_master_fi(moc[moc_idx]->nodes[ei]->HCO3_rbc_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
-							lum[lum_idx]->HbCO2_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
-
-						}
-					}
-				}
-
-
-
-
-				if(moc[moc_idx]->nodes[ei]->is_master_node){
-					int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-					if (lum[lum_idx]->do_lum_PlasmaO2_transport){
-						if(lum[lum_idx]->PlasmaO2lum->do_save_results){
-							lum[lum_idx]->PlasmaO2lum->save_variables();}
-					}
-
-					if (lum[lum_idx]->do_lum_HB_sat_transport){
-						if(lum[lum_idx]->HBsatlum->do_save_results){
-							lum[lum_idx]->HBsatlum->save_variables();}
-					}
-
-					if (lum[lum_idx]->do_lum_RBC_transport){
-						if(lum[lum_idx]->RBClum->do_save_results){
-							lum[lum_idx]->RBClum->save_variables();}
-					}
-
-					if(lum[lum_idx]->name == "p10"){
-						lum[lum_idx]->CO2_pla_lum->save_variables();
-						lum[lum_idx]->CO2_rbc_lum->save_variables();
-						lum[lum_idx]->HCO3_pla_lum->save_variables();
-						lum[lum_idx]->HCO3_rbc_lum->save_variables();
-						lum[lum_idx]->HbCO2_lum->save_variables();
-					}
-				}
-
-				if(moc[moc_idx]->nodes[si]->is_master_node){
-					int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
-					if (lum[lum_idx]->do_lum_PlasmaO2_transport){
-						if(lum[lum_idx]->PlasmaO2lum->do_save_results){
-							lum[lum_idx]->PlasmaO2lum->save_variables();}
-					}
-
-					if (lum[lum_idx]->do_lum_HB_sat_transport){
-						if(lum[lum_idx]->HBsatlum->do_save_results){
-							lum[lum_idx]->HBsatlum->save_variables();}
-					}
-
-					if (lum[lum_idx]->do_lum_RBC_transport){
-						if(lum[lum_idx]->RBClum->do_save_results){
-							lum[lum_idx]->RBClum->save_variables();}
-					}
-
-					if(lum[lum_idx]->name == "p10"){
-						lum[lum_idx]->CO2_pla_lum->save_variables();
-						lum[lum_idx]->CO2_rbc_lum->save_variables();
-						lum[lum_idx]->HCO3_pla_lum->save_variables();
-						lum[lum_idx]->HCO3_rbc_lum->save_variables();
-						lum[lum_idx]->HbCO2_lum->save_variables();
-					}
-				}
+				//save transport variables for lumped models
+				save_transport_var_for_lum( moc_idx, si, ei);
+				
 
 				//baroreflex
 				double T_act_new = time_period;
@@ -1549,6 +1257,34 @@ void Transport_1D::update_fi(vector<double> v, vector<double>& fi, vector<double
 Transport_1D::Transport_1D(TransportType TType):TType(TType){};
 
 
+//-----------------------------------------------------------------
+void Transport_1D::prescribe_node_fi_CO2(TransportType TType, double& finode){
+	switch(TType){
+
+	case CO2_pla:
+		finode = 0.02635920*1.0; //m3 O2/ m3 pla
+		break;
+
+	case CO2_rbc:
+		finode = 0.02986472*1.0; //m3 O2/ m3 rbc cytoplasm
+		break;
+
+	case HCO3_pla:
+		finode = 0.73471517*1.0; //m3 O2/ m3 pla
+		break;
+
+	case HCO3_rbc:
+		finode = 0.08811732*1.0; //m3 O2/ m3 rbc cytoplasm
+		break;
+
+	case HbCO2:
+		finode = 0.04748449*1.0; //m3 O2/ m3 rbc cytoplasm
+		break;
+	}
+
+}
+
+
 
 //transport stuff for 1D nodes
 //separate class is needed for each type of transport. eg.: RBC...
@@ -1643,23 +1379,23 @@ void Transport_node::update_fi(double& fiNode, moc_node* node, const vector<moc_
 
             //CO2 stuff
             case CO2_pla:
-            	fiNode -= q * edges[node->edge_in[j]]->CO2_pla_edge_fi[0];
+            	fiNode -= q * edges[node->edge_out[j]]->CO2_pla_edge_fi[0];
             	break;
 
             case CO2_rbc:
-            	fiNode -= q * edges[node->edge_in[j]]->CO2_rbc_edge_fi[0];
+            	fiNode -= q * edges[node->edge_out[j]]->CO2_rbc_edge_fi[0];
             	break;
 
             case HCO3_pla:
-            	fiNode -= q * edges[node->edge_in[j]]->HCO3_pla_edge_fi[0];
+            	fiNode -= q * edges[node->edge_out[j]]->HCO3_pla_edge_fi[0];
             	break;
 
             case HCO3_rbc:
-            	fiNode -= q * edges[node->edge_in[j]]->HCO3_rbc_edge_fi[0];
+            	fiNode -= q * edges[node->edge_out[j]]->HCO3_rbc_edge_fi[0];
             	break;
 
             case HbCO2:
-            	fiNode -= q * edges[node->edge_in[j]]->HbCO2_edge_fi[0];
+            	fiNode -= q * edges[node->edge_out[j]]->HbCO2_edge_fi[0];
             	break;
             }
             }
@@ -1677,11 +1413,13 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
     int n1 = node->edge_in.size();
     int n2 = node->edge_out.size();
 
+
     double fiNodeOld = fiNode;
     fiNode = 0.;
 
     double q_sum = 0.;
     double q;
+
 
     //outgoing edges
     for (int j = 0; j < n2; j++)
@@ -1702,13 +1440,34 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
                 case RBC:
                 fiNode -= q * edges[node->edge_out[j]]->RBC_edge_fi[0];
                 break;
+
+                //CO2
+                case CO2_pla:
+                fiNode -= q * edges[node->edge_out[j]]->CO2_pla_edge_fi[0];
+                break;
+
+                case CO2_rbc:
+                fiNode -= q * edges[node->edge_out[j]]->CO2_rbc_edge_fi[0];
+                break;
+
+                case HCO3_pla:
+                fiNode -= q * edges[node->edge_out[j]]->HCO3_pla_edge_fi[0];
+                break;
+
+                case HCO3_rbc:
+                fiNode -= q * edges[node->edge_out[j]]->HCO3_rbc_edge_fi[0];
+                break;
+
+                case HbCO2:
+                fiNode -= q * edges[node->edge_out[j]]->HbCO2_edge_fi[0];
+                break;
             }
 
 
         }
     } 
 
-    //incoming edges
+    double r;
     for (int j = 0; j < n1; j++)
     {
         if (edges[node->edge_in[j]]->get_velocity().back() > 0.){
@@ -1727,6 +1486,27 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
                 case RBC:
                 fiNode += q * edges[node->edge_in[j]]->RBC_edge_fi.back();
                 break;
+
+                //CO2
+                case CO2_pla:
+                fiNode += q * edges[node->edge_in[j]]->CO2_pla_edge_fi.back();
+                break;
+
+                case CO2_rbc:
+                fiNode += q * edges[node->edge_in[j]]->CO2_rbc_edge_fi.back();
+                break;
+
+                case HCO3_pla:
+                fiNode += q * edges[node->edge_in[j]]->HCO3_pla_edge_fi.back();
+                break;
+
+                case HCO3_rbc:
+                fiNode += q * edges[node->edge_in[j]]->HCO3_rbc_edge_fi.back();
+                break;
+
+                case HbCO2:
+                fiNode += q * edges[node->edge_in[j]]->HbCO2_edge_fi.back();
+                break;
             }
 
 
@@ -1742,7 +1522,6 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
     	//cout << node->name<<endl;
     	if(node->name == moc_mod.boundary_model_node[i] ){
     		lumpMaster = moc_mod.boundary_main_node[i] ;
-    		//cout<<lumpMaster<<endl<<endl;
     	}
     }
 
@@ -1756,7 +1535,7 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
     		}
     	}
 	}
-    //cout<<lum_mod.name << "   " << moc_mod.name << "   "<<indexof_node<<endl;
+
 
     switch(TType){
     case HB_O2_saturation:
@@ -1830,6 +1609,135 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
         is++;
     }
     break;
+
+
+    //CO2
+    case CO2_pla:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_CO2_pla.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_CO2_pla[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_CO2_pla.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_CO2_pla[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+	case CO2_rbc:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_CO2_rbc.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_CO2_rbc[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_CO2_rbc.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_CO2_rbc[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+
+    case HCO3_pla:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_HCO3_pla.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_HCO3_pla[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_HCO3_pla.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_HCO3_pla[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+
+
+	case HCO3_rbc:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_HCO3_rbc.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_HCO3_rbc[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_HCO3_rbc.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_HCO3_rbc[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+
+	case HbCO2:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_HbCO2.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_HbCO2[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_HbCO2.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_HbCO2[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+
+
     }
 
 
@@ -1851,7 +1759,29 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
        case RBC:
        lum_mod.nodes[indexof_node]->RBC_fi0Dn = fiNode;
        break;
+
+       //
+       case CO2_pla:
+       lum_mod.nodes[indexof_node]->CO2_pla_n = fiNode;
+       break;
+
+       case CO2_rbc:
+       lum_mod.nodes[indexof_node]->CO2_rbc_n = fiNode;
+       break;
+
+       case HCO3_pla:
+       lum_mod.nodes[indexof_node]->HCO3_pla_n = fiNode;
+       break;
+
+       case HCO3_rbc:
+       lum_mod.nodes[indexof_node]->HCO3_rbc_n = fiNode;
+       break;
+
+       case HbCO2:
+       lum_mod.nodes[indexof_node]->HbCO2_n = fiNode;
+       break;
    }
+
 
 
 }
@@ -1973,6 +1903,390 @@ double first_blood::baroreflex(double sys){
 	return L_B / (1 + exp(- k_B * (sys_mmHg - x_B0))) + b_B;
 }
 
+//--------------------------------------------------------------
+void first_blood::O2_transport(int moc_idx, int si, int ei, int e_idx, double t_act){
+
+	if(do_RBC_transport){
+		//RBC transport in nodes
+
+		RBC_node_transport->update_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		RBC_node_transport->update_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+		//moc[moc_idx]->nodes[0]->RBC_node_fi = 1.;
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//RBC transport for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_RBC_transport){
+				RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+			}
+
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//RBC transport for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_RBC_transport){
+				RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+			}
+
+		}
+
+		//transport 1D update (actual edge)
+		RBC1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->RBC_edge_fi, moc[moc_idx]->edges[e_idx]->RBC_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[ei]->RBC_node_fi);
+	}
+
+
+	// HB saturation transport
+	if(do_HBsat_transport){
+		//HB saturation transport
+
+		HB_O2_node_transport->update_fi(moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		HB_O2_node_transport->update_fi(moc[moc_idx]->nodes[ei]->HBsat_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+					
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//HBsat transport for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_HB_sat_transport){
+				HB_O2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+			}
+
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//HBsat transport for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_HB_sat_transport){
+				HB_O2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->HBsat_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+			}
+
+		}
+
+		//transport 1D update (actual edge)
+		HBsat1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->HBsat_edge, moc[moc_idx]->edges[e_idx]->HBsat_edge_new, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[ei]->HBsat_node);
+	}
+
+
+
+	// Plasma O2 concentration
+	if(do_Plasma_O2_transport){
+		//Plasma O2 concentration
+
+		PlasmaO2_node_transport->update_fi(moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		PlasmaO2_node_transport->update_fi(moc[moc_idx]->nodes[ei]->PlasmaO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+					
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//Plasma O2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_PlasmaO2_transport){
+				PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+				//capillary is only updated here
+				lum[lum_idx]->capillary_O2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
+			}
+
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//Plasma O2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_PlasmaO2_transport){
+				PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->PlasmaO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+				//capillary is only updated here
+				lum[lum_idx]->capillary_O2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
+			}
+
+		}
+
+		//transport 1D update (actual edge)
+		Plasma_O21D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->PlasmaO2_edge, moc[moc_idx]->edges[e_idx]->PlasmaO2_edge_new, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[ei]->PlasmaO2_node);
+	}
+
+
+
+}
+
+
+//--------------------------------------------------------------
+void first_blood::CO2_transport(int moc_idx, int si, int ei, int e_idx, double t_act){
+	if(do_pla_CO2_transport){
+
+		transport_node_CO2_pla->update_fi(moc[moc_idx]->nodes[si]->CO2_pla_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		transport_node_CO2_pla->update_fi(moc[moc_idx]->nodes[ei]->CO2_pla_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+
+			//Plasma CO2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_pla_CO2_transport){
+				transport_node_CO2_pla->update_master_fi(moc[moc_idx]->nodes[si]->CO2_pla_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->CO2_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+				//capillary is only updated here
+				lum[lum_idx]->CO2transport(moc[moc_idx]->edges[e_idx]->dt_act);
+			}
+		}
+					
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+
+			//Plasma CO2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_pla_CO2_transport){
+				//cout<<moc[moc_idx]->edges[e_idx]->dt_act<<endl;
+				transport_node_CO2_pla->update_master_fi(moc[moc_idx]->nodes[ei]->CO2_pla_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->CO2_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+				//capillary is only updated here
+				lum[lum_idx]->CO2transport(moc[moc_idx]->edges[e_idx]->dt_act);
+			}
+
+		}
+
+		//transport 1D update (actual edge)
+		CO2_pla_1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->CO2_pla_edge_fi, moc[moc_idx]->edges[e_idx]->CO2_pla_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->CO2_pla_node, moc[moc_idx]->nodes[ei]->CO2_pla_node);
+	}
+
+
+
+	if(do_rbc_CO2_transport){
+
+		transport_node_CO2_rbc->update_fi(moc[moc_idx]->nodes[si]->CO2_rbc_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		transport_node_CO2_rbc->update_fi(moc[moc_idx]->nodes[ei]->CO2_rbc_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+
+
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//rbc cytoplasm CO2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_rbc_CO2_transport){
+				transport_node_CO2_rbc->update_master_fi(moc[moc_idx]->nodes[si]->CO2_rbc_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->CO2_rbc_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//rbc cytoplasm CO2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_rbc_CO2_transport){
+				transport_node_CO2_rbc->update_master_fi(moc[moc_idx]->nodes[ei]->CO2_rbc_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->CO2_rbc_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+
+		//transport 1D update (actual edge)
+		CO2_rbc_1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->CO2_rbc_edge_fi, moc[moc_idx]->edges[e_idx]->CO2_rbc_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->CO2_rbc_node, moc[moc_idx]->nodes[ei]->CO2_rbc_node);
+	}
+				
+
+	if(do_pla_HCO3_transport){
+
+		transport_node_HCO3_pla->update_fi(moc[moc_idx]->nodes[si]->HCO3_pla_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		transport_node_HCO3_pla->update_fi(moc[moc_idx]->nodes[ei]->HCO3_pla_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//rbc plasma HCO3 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_pla_HCO3_transport){
+				transport_node_HCO3_pla->update_master_fi(moc[moc_idx]->nodes[si]->HCO3_pla_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HCO3_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//rbc plasma HCO3 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_pla_HCO3_transport){
+				transport_node_HCO3_pla->update_master_fi(moc[moc_idx]->nodes[ei]->HCO3_pla_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HCO3_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+		HCO3_pla_1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->HCO3_pla_edge_fi, moc[moc_idx]->edges[e_idx]->HCO3_pla_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->HCO3_pla_node, moc[moc_idx]->nodes[ei]->HCO3_pla_node);
+	}
+
+
+
+	if(do_rbc_HCO3_transport){
+		transport_node_HCO3_rbc->update_fi(moc[moc_idx]->nodes[si]->HCO3_rbc_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		transport_node_HCO3_rbc->update_fi(moc[moc_idx]->nodes[ei]->HCO3_rbc_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//rbc cytoplasm HCO3 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_rbc_HCO3_transport){
+				transport_node_HCO3_rbc->update_master_fi(moc[moc_idx]->nodes[si]->HCO3_rbc_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HCO3_rbc_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//rbc cytoplasm HCO3 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_rbc_HCO3_transport){
+				transport_node_HCO3_rbc->update_master_fi(moc[moc_idx]->nodes[ei]->HCO3_rbc_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HCO3_rbc_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+		HCO3_rbc_1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->HCO3_rbc_edge_fi, moc[moc_idx]->edges[e_idx]->HCO3_rbc_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->HCO3_rbc_node, moc[moc_idx]->nodes[ei]->HCO3_rbc_node);
+	}
+
+
+	if(do_HbCO2_transport){
+		transport_node_HbCO2->update_fi(moc[moc_idx]->nodes[si]->HbCO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		transport_node_HbCO2->update_fi(moc[moc_idx]->nodes[ei]->HbCO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//HbCO2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_HbCO2_transport){
+				transport_node_HbCO2->update_master_fi(moc[moc_idx]->nodes[si]->HbCO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HbCO2_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//HbCO2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_HbCO2_transport){
+				transport_node_HbCO2->update_master_fi(moc[moc_idx]->nodes[ei]->HbCO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HbCO2_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+		HbCO2_1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->HbCO2_edge_fi, moc[moc_idx]->edges[e_idx]->HbCO2_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->HbCO2_node, moc[moc_idx]->nodes[ei]->HbCO2_node);
+	}
+}
+
+void first_blood::save_transport_var_for_lum(int moc_idx, int si, int ei){
+	if(moc[moc_idx]->nodes[ei]->is_master_node){
+		int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+		solver_lumped* lum_e = lum[lum_idx];
+
+		if (lum_e->do_lum_PlasmaO2_transport){
+			if(lum_e->PlasmaO2lum->do_save_results){
+				lum_e->PlasmaO2lum->save_variables();}
+		}
+
+		if (lum_e->do_lum_HB_sat_transport){
+			if(lum_e->HBsatlum->do_save_results){
+				lum_e->HBsatlum->save_variables();}
+		}
+
+		if (lum_e->do_lum_RBC_transport){
+			if(lum_e->RBClum->do_save_results){
+				lum_e->RBClum->save_variables();}
+		}
+
+		//CO2
+		if(lum_e->do_lum_pla_CO2_transport){
+			if(lum_e->CO2_pla_lum->do_save_results){
+				lum_e->CO2_pla_lum->save_variables();}
+		}
+
+		if(lum_e->do_lum_rbc_CO2_transport){
+			if(lum_e->CO2_rbc_lum->do_save_results){
+				lum_e->CO2_rbc_lum->save_variables();}
+		}
+
+		if(lum_e->do_lum_pla_HCO3_transport){
+			if(lum_e->HCO3_pla_lum->do_save_results){
+				lum_e->HCO3_pla_lum->save_variables();}
+		}
+
+		if(lum_e->do_lum_rbc_HCO3_transport){
+			if(lum_e->HCO3_rbc_lum->do_save_results){
+				lum_e->HCO3_rbc_lum->save_variables();}
+		}
+
+		if(lum_e->do_lum_HbCO2_transport){
+			if(lum_e->HbCO2_lum->do_save_results){
+				lum_e->HbCO2_lum->save_variables();}
+		}
+
+	}
+
+	if(moc[moc_idx]->nodes[si]->is_master_node){
+		int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+		solver_lumped* lum_s = lum[lum_idx];
+
+		if (lum_s->do_lum_PlasmaO2_transport){
+			if(lum_s->PlasmaO2lum->do_save_results){
+				lum_s->PlasmaO2lum->save_variables();}
+		}
+
+		if (lum_s->do_lum_HB_sat_transport){
+			if(lum_s->HBsatlum->do_save_results){
+				lum_s->HBsatlum->save_variables();}
+		}
+
+		if (lum_s->do_lum_RBC_transport){
+			if(lum_s->RBClum->do_save_results){
+				lum_s->RBClum->save_variables();}
+		}
+
+		//CO2
+		if(lum_s->do_lum_pla_CO2_transport){
+			if(lum_s->CO2_pla_lum->do_save_results){
+				lum_s->CO2_pla_lum->save_variables();}
+		}
+
+		if(lum_s->do_lum_rbc_CO2_transport){
+			if(lum_s->CO2_rbc_lum->do_save_results){
+				lum_s->CO2_rbc_lum->save_variables();}
+		}
+
+		if(lum_s->do_lum_pla_HCO3_transport){
+			if(lum_s->HCO3_pla_lum->do_save_results){
+				lum_s->HCO3_pla_lum->save_variables();}
+		}
+
+		if(lum_s->do_lum_rbc_HCO3_transport){
+			if(lum_s->HCO3_rbc_lum->do_save_results){
+				lum_s->HCO3_rbc_lum->save_variables();}
+		}
+
+		if(lum_s->do_lum_HbCO2_transport){
+			if(lum_s->HbCO2_lum->do_save_results){
+				lum_s->HbCO2_lum->save_variables();}
+		}
+
+	}
+}
 
 /*void first_blood::solve_lum(int index, double dt)
 {

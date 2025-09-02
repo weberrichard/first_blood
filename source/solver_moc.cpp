@@ -22,7 +22,7 @@ void solver_moc::initialization(double p_init, int material_type)
 	}
 	for(unsigned int i=0; i<number_of_edges; i++)
 	{
-		edges[i]->initialization(p_init,material_type, RBC_moc_init, HBsat_moc_init, PlasmaO2_moc_init);
+		edges[i]->initialization(p_init, material_type, RBC_moc_init, HBsat_moc_init, PlasmaO2_moc_init, CO2_pla_moc_init, CO2_rbc_moc_init, HCO3_pla_moc_init, HCO3_rbc_moc_init, HbCO2_moc_init);
 	}
 
 	// setting back the pressure_upstream interpolation index to 0

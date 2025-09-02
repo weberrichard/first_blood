@@ -93,7 +93,7 @@ public:
 	void print_vars();
 
 	// setting initial condition to field variables and setting short parameters
-	void initialization(double p_init, int mat_type, double RBC_init, double HBsat_init, double PlasmaO2_C_init  );
+	void initialization(double pressure_initial, int mat_type, double RBC_init, double HBsat_init, double PlasmaO2_C_init, double CO2_pla_moc_init, double CO2_rbc_moc_init, double HCO3_pla_moc_init, double HCO3_rbc_moc_init, double HbCO2_moc_init );
 	// setting upstream pressure p[0], only in the case of upstream_boundary
 	void set_pressure_upstream(double p_in);
 
