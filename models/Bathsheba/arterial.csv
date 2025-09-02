@@ -1,5 +1,6 @@
 RBC,PO2,HBsat
 O2transport_init, 4.9e15, 2.9545e-3, 0.97
+co2transport_init, 0.02635920, 0.02986472, 0.73471517, 0.08811732, 0.04748449
 
 type,ID,name,start_node,end_node,start_diameter[SI],end_diameter[SI],start_thickness[SI],end_thickness[SI],length[SI],division_points,elastance_1[SI],res_start[SI],res_end[SI],visc_fact[1],k1[SI],k2[SI],k3[SI]
 vis_f,A1,Ascending aorta 1,H,n1,0.0294,0.0293,0.00294,0.00293,0.005,5,2.92E+05,0,0,2.75,2.e6,-2253.,8.65e4

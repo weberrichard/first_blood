@@ -1,6 +1,9 @@
 RBC,PO2,HBsat
 O2transport_init, 4.9e15, 2.9545e-3, 0.97
 
+CO2_pla,CO2_rbc,HCO3_pla,HCO3_rbc,HbCO2
+co2transport_init, 0.02635920, 0.02986472, 0.73471517, 0.08811732, 0.04748449
+
 data of edges
 type, name, node start, node end, initial condition [SI], parameter [SI]
 resistor, R0, n1, P1, 0.000e+00, 2.107e+09
@@ -32,6 +35,13 @@ transport
 RBC_on, 1
 HBsaturation_on, 1
 PlasmaO2_on, 1
+
+pla_CO2_on, 1
+rbc_CO2_on, 1
+pla_HCO3_on, 1
+rbc_HCO3_on, 1
+HbCO2_on, 1
+
 virtual 1D
 type, name, node start, node end, length, cross section, division points, is systemic capillary, is pulmonary capillary
 v1D, arteriole, n1, P2, 0.06970586032830291, 5.480080353329191e-05, 10, 0, 0, R1
