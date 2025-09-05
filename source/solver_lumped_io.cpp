@@ -3,6 +3,9 @@
 //--------------------------------------------------------------
 void solver_lumped::load_model()
 {
+	int up_counter=0;//boundary conditions
+
+
 	ifstream file_in;
 	string file_name = input_folder_path + '/' + name + ".csv";
 	file_in.open(file_name);
@@ -18,7 +21,7 @@ void solver_lumped::load_model()
 			line.erase(remove(line.begin(), line.end(), '\r'), line.end());
 			vector<string> sv = separate_line(line);
 
-			if(sv[0] == "resistor" || sv[0] == "capacitor" || sv[0] == "inductor" || sv[0] == "voltage" || sv[0] == "diode" || sv[0] == "resistor2" || sv[0] == "valve" || sv[0] == "resistor_coronary" || sv[0] == "capacitor_coronary" || sv[0] == "current") // edges with one parameter
+			if(sv[0] == "resistor" || sv[0] == "capacitor" || sv[0] == "inductor" || sv[0] == "voltage" || sv[0] == "diode" || sv[0] == "resistor2" || sv[0] == "valve" || sv[0] == "resistor_coronary" || sv[0] == "capacitor_coronary" || sv[0] == "current" || sv[0] == "vfr") // edges with one parameter
 			{
 				edges.push_back(new edge);
 				edges[ne]->type = sv[0];
@@ -26,6 +29,7 @@ void solver_lumped::load_model()
 				edges[ne]->node_name_start = sv[2];
 				edges[ne]->node_name_end = sv[3];
 				edges[ne]->volume_flow_rate_initial = stod(sv[4],0);
+
 				if(sv[0] == "resistor")
 				{
 					edges[ne]->parameter.push_back(stod(sv[5],0));
@@ -71,6 +75,18 @@ void solver_lumped::load_model()
 					edges[ne]->parameter.push_back(stod(sv[5],0));					
 					edges[ne]->type_code = 9;
 				}
+				else if(sv[0] == "vfr")// q prescribed
+				{	
+					edges[ne]->type_code = 10;
+					if(sv.size()>6 && sv[6] != ""){
+						edges[ne]->upstream_boundary = up_counter;
+						edges[ne]->parameter.push_back(stod(sv[5],0));
+						up_counter++;
+						//type_upstream.push_back(1);// Q
+						pt_file_name.push_back(sv[4]);
+						load_time_series(sv[6]);
+					}
+				}
 				ne++;
 			}
 			else if(sv[0] == "elastance")
@@ -94,6 +110,7 @@ void solver_lumped::load_model()
 				edges[ne]->type_code = 2;
 				ne++;
 			}
+
 			else if(sv[0] == "node") // node
 			{
 				nodes.push_back(new node);
@@ -101,8 +118,18 @@ void solver_lumped::load_model()
 				nodes[nn]->name = sv[1];
 				nodes[nn]->pressure_initial = stod(sv[2],0);
 				nodes[nn]->is_ground = false;
+
+				if(sv.size()>3 && sv[3] != "")// P prescribed
+				{
+					nodes[nn]->upstream_boundary = up_counter;
+					up_counter++;
+					//type_upstream.push_back(0); // P
+					pt_file_name.push_back(sv[3]);
+					load_time_series(sv[3]);
+				}
 				nn++;
 			}
+
 			else if(sv[0] == "ground") // node with ground
 			{
 				nodes.push_back(new node);
@@ -391,4 +418,35 @@ void solver_lumped::load_initials()
 		exit(-1);
 	}
 	file_in.close();
+}
+
+
+//--------------------------------------------------------------
+void solver_lumped::load_time_series(string file_name)
+{
+
+	vector<double> tu,vu;
+	ifstream pt_file_in;
+	file_name = input_folder_path + '/' + file_name + ".csv";
+	pt_file_in.open(file_name);
+	if(pt_file_in.is_open())
+	{
+		string pt_line;
+		while(getline(pt_file_in,pt_line))
+		{
+			vector<string> pt_sv = separate_line(pt_line);
+			tu.push_back(stod(pt_sv[0],0));
+
+			double p = stod(pt_sv[1],0);
+			vu.push_back(p);
+		}
+	}
+	else
+	{
+		cout << "! ERROR !" << endl << " File is not open when calling load_time_series() function!!! file: " << file_name << "\nExiting..." << endl;
+		exit(-1);
+	}
+	time_upstream.push_back(tu);
+	value_upstream.push_back(vu);
+
 }

@@ -93,6 +93,15 @@ public:
 	double alpha_coronary = 0.;
 	double beta_coronary = 0.;
 
+	//prescribed BCs
+	// index of upstream boundary for interpolation
+	vector<int> index_upstream;
+	// upper boundary p-t
+	vector<vector<double> > time_upstream;
+	vector<vector<double> > value_upstream; // SI in code
+	vector<int> node_upstream; // which
+	void load_time_series(string file_name);
+
 private:
 	// general constants
 	double gravity; // [m/s2]
@@ -129,6 +138,9 @@ private:
 		bool is_ground;
 		// if the node is an outer boundary, ie connected to an other model
 		bool is_master_node = false;
+
+		//for prescribed p
+		int upstream_boundary = -1;
 	};
 
 	class edge
@@ -157,6 +169,9 @@ private:
 		// initial condition for volume flow rate
 		double volume_flow_rate_initial; // m3/s
 		double vfr_ini_non_SI; // ml/s
+
+		//for prescribed q
+		int upstream_boundary = -1;
 	};
 
 	// building the network, finding indicies
@@ -177,6 +192,13 @@ public:
 
 	// size of vectors
 	int number_of_nodes, number_of_edges, number_of_master, number_of_elastance, number_of_moc;
+
+	// prescribed p or q curves
+	vector<string> pt_file_name;
+	double get_interp_val(int index,double t_act, int up_b);
+
+	// number of which period is the simulation
+	vector<int> period;
 };
 
 #endif // SOLVER_LUMPED_H

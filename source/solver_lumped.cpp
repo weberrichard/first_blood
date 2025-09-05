@@ -23,6 +23,10 @@ void solver_lumped::initialization(double hr)
 	// heart rate
 	heart_rate = hr; // from Charlton2019
 
+	// setting back the period counter
+	period.assign(time_upstream.size(),0.);
+	index_upstream.assign(time_upstream.size(),0);
+
 	// setting the par variables, converting from SI to non-SI for favourable conditioning
 	set_non_SI_parameters();
 
@@ -80,6 +84,7 @@ void solver_lumped::set_newton_size()
 //--------------------------------------------------------------
 void solver_lumped::coefficients_newton(double t_act)
 {
+	
 	// increasing time
 	double dt = t_act - time.back();
 
@@ -96,14 +101,15 @@ void solver_lumped::coefficients_newton(double t_act)
 		int i2 = edges[i]->node_index_end;
 
 		double par = edges[i]->par_non_SI[0]*edges[i]->parameter_factor;
-
+		
 		if(edges[i]->type_code == 0) // resistor
 		{
-			Jac(i,m+i2) = 1.;
-			Jac(i,m+i1) = -1.;
-			Jac(i,i) = par; // R*Rf
+		Jac(i,m+i2) = 1.;
+		Jac(i,m+i1) = -1.;
+		Jac(i,i) = par; // R*Rf
 
-			f(i) = x(m+i2) - x(m+i1) + par*x(i);
+		f(i) = x(m+i2) - x(m+i1) + par*x(i);
+			
 		}
 		else if(edges[i]->type_code == 1) // capacitor
 		{
@@ -197,6 +203,15 @@ void solver_lumped::coefficients_newton(double t_act)
 			Jac(i,i) = 1.;
 			f(i) = x(i) - par;
 		}
+		else if(edges[i]->type_code == 10) // vfr source (prescribed q)
+		{
+			double r;
+			if(edges[i]->upstream_boundary > -1){
+				double q = get_interp_val(i, t_act, 0); // q is in ml/s in code and in fil
+				Jac(i,i) = -1;
+				f(i) = q - x(i);
+			}
+		}
 	}
 
 	// nodes
@@ -204,16 +219,23 @@ void solver_lumped::coefficients_newton(double t_act)
 	{
 		if(nodes[i]->is_ground == false) // intersections
 		{
-			f(m+i) = 0.;
-			for(int j=0; j<nodes[i]->edge_in.size(); j++)
-			{
-				Jac(m+i,nodes[i]->edge_in[j]) = 1;
-				f(m+i) += x(nodes[i]->edge_in[j]);
+			if(nodes[i]->upstream_boundary > -1){ // pi is prescribed
+				double p = get_interp_val(i, t_act, 1); // p is in mmHg in code and in file
+				Jac(m+i,m+i) = 1;
+				f(m+i) = x(m+i)-p;
 			}
-			for(int j=0; j<nodes[i]->edge_out.size(); j++)
-			{
-				Jac(m+i,nodes[i]->edge_out[j]) = -1;
-				f(m+i) -= x(nodes[i]->edge_out[j]);
+			else{
+				f(m+i) = 0.;
+				for(int j=0; j<nodes[i]->edge_in.size(); j++)
+				{
+					Jac(m+i,nodes[i]->edge_in[j]) = 1;
+					f(m+i) += x(nodes[i]->edge_in[j]);
+				}
+				for(int j=0; j<nodes[i]->edge_out.size(); j++)
+				{
+					Jac(m+i,nodes[i]->edge_out[j]) = -1;
+					f(m+i) -= x(nodes[i]->edge_out[j]);
+				}
 			}
 		}
 		else // ground nodes, pi = p0[mmHg]
@@ -345,6 +367,10 @@ void solver_lumped::set_non_SI_parameters()
 		else if(edges[i]->type_code == 9) // current source
 		{
 			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]*1.e6);
+		}
+		else if(edges[i]->type_code == 10) // vfr
+		{
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]*1.);
 		}
 	}
 }
@@ -504,3 +530,53 @@ void solver_lumped::set_save_memory(vector<string> edge_list, vector<string> nod
 	}
 }
 
+//--------------------------------------------------------------
+double solver_lumped::get_interp_val(int index, double t_act, int up_b){
+	int up_idx;
+
+	if (up_b == 0){
+		up_idx = edges[index]->upstream_boundary;
+	}
+	else{
+		up_idx = nodes[index]->upstream_boundary;
+	}
+
+
+	int j=index_upstream[up_idx];
+	bool got_it = false;
+
+
+	while(!got_it)
+	{
+		// making the inlet function periodic
+		if(j >= time_upstream[up_idx].size()-1)
+		{
+			j -= time_upstream[up_idx].size();
+			period[up_idx] += 1;
+		}
+
+		double t = t_act-period[up_idx]*(time_upstream[up_idx].back()-time_upstream[up_idx][0]);
+
+		if(t >= time_upstream[up_idx][j] && t <= time_upstream[up_idx][j+1])
+		{
+			got_it=true;
+			index_upstream[up_idx] = j;
+		}
+		else
+		{
+			j++;
+		}
+	}
+
+	// interpolating
+	double v_h = value_upstream[up_idx][index_upstream[up_idx]+1]; // pressure at higher index
+	double v_l = value_upstream[up_idx][index_upstream[up_idx]]; // pressure at lower index
+	double t_h = time_upstream[up_idx][index_upstream[up_idx]+1]; // time at higher index
+	double t_l = time_upstream[up_idx][index_upstream[up_idx]]; // time at lower index
+
+	double t_in = t_act-period[up_idx]*time_upstream[up_idx].back(); // actual time of the simulation
+	double v_in = (v_h-v_l)/(t_h-t_l) * (t_in-t_l) + v_l; // actual pressure of the simulation
+
+	return v_in;
+cout<<v_in<<endl;
+}
