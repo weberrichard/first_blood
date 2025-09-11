@@ -1,0 +1,595 @@
+data of edges
+type, name, node start, node end, initial condition, parameter [SI], parameter [SI]
+
+Left Ventrice
+vfr, Q_in, gvfr, p_LA3, 0.000e+00, 0.000e+00, MV_flow_2
+elastance, E_lv, g0, p_LA3, 0.000e+00, 2.67e+08, 8.0e+06
+inductor, L_lv_aorta, p_LA3, p_LV1, 0.000e+00, 6.50e+04
+diode, R_lv_aorta, p_LV1, H, 0.000e+00, 1.00e+06
+
+Common carotid dextra
+resistor, R_CCD, n6, n60032, 0.00e+00, 1.56e+06
+inductor, L_CCD, n60032, n32, 0.00e+00, 1.34e+06
+capacitor, C_CCD, g1, n6, 0.00e+00, 1.15E-10
+
+Vertebral dextra
+resistor, R_VERTD, n7, n70031, 0.00e+00, 1.84e+08
+inductor, L_VERTD, n70031, n31, 0.00e+00, 1.93e+07
+capacitor, C_VERTD, g1, n7, 0.00e+00, 9.50E-12
+
+Internal carotid dextra
+resistor, R_ICD, n32, n320046, 0.00e+00, 3.92e+07
+inductor, L_ICD, n320046, n46, 0.00e+00, 9.76e+06
+capacitor, C_ICD, g1, n32, 0.00e+00, 3.47E-11
+
+External carotid 1 dextra
+resistor, R_EC1D, n32, n320033, 0.00e+00, 1.05e+07
+inductor, L_EC1D, n320033, n33, 0.00e+00, 2.45e+06
+capacitor, C_EC1D, g1, n32, 0.00e+00, 7.01E-12
+
+Common carotid sinistra
+resistor, R_CCS, n3, n30026, 0.00e+00, 4.03e+06
+inductor, L_CCS, n30026, n26, 0.00e+00, 2.59e+06
+capacitor, C_CCS, g1, n3, 0.00e+00, 1.22E-10
+
+Internal carotid sinistra
+resistor, R_ICS, n26, n260037, 0.00e+00, 4.97e+07
+inductor, L_ICS, n260037, n37, 0.00e+00, 1.10e+07
+capacitor, C_ICS, g1, n26, 0.00e+00, 2.96E-11
+
+External carotid 1 sinistra
+resistor, R_EC1S, n26, n260027, 0.00e+00, 1.30e+07
+inductor, L_EC1S, n260027, n27, 0.00e+00, 2.73e+06
+capacitor, C_EC1S, g1, n26, 0.00e+00, 6.09E-12
+
+Basilar artery 2
+resistor, R_BA2, n31, n310050, 0.00e+00, 1.25e+07
+inductor, L_BA2, n310050, n50, 0.00e+00, 1.87e+06
+capacitor, C_BA2, g1, n31, 0.00e+00, 1.92E-12
+
+Superior cerebellar dextra
+resistor, R_SCD, n50, n500035, 0.00e+00, 2.31e+08
+inductor, L_SCD, n500035, p35, 0.00e+00, 5.64e+06
+capacitor, C_SCD, g1, n50, 0.00e+00, 9.22E-14
+
+Superior cerebellar sinistra
+resistor, R_SCS, n50, n500034, 0.00e+00, 2.31e+08
+inductor, L_SCS, n500034, p34, 0.00e+00, 5.64e+06
+capacitor, C_SCS, g1, n50, 0.00e+00, 9.22E-14
+
+Basilar artery 1
+resistor, R_BA1, n50, n500049, 0.00e+00, 9.26e+06
+inductor, L_BA1, n500049, n49, 0.00e+00, 8.02e+05
+capacitor, C_BA1, g1, n50, 0.00e+00, 2.36E-13
+
+Post. cerebral 1 sinistra
+resistor, R_PC1S, n49, n490047, 0.00e+00, 1.98e+07
+inductor, L_PC1S, n490047, n47, 0.00e+00, 7.44e+05
+capacitor, C_PC1S, g1, n49, 0.00e+00, 3.15E-14
+
+Post. cerebral 1 dextra
+resistor, R_PC1D, n49, n490048, 0.00e+00, 1.98e+07
+inductor, L_PC1D, n490048, n48, 0.00e+00, 7.44e+05
+capacitor, C_PC1D, g1, n49, 0.00e+00, 3.15E-14
+
+Post. communicating dextra
+resistor, R_PCMD, n47, n470045, 0.00e+00, 2.49e+08
+inductor, L_PCMD, n470045, n45, 0.00e+00, 3.73e+06
+capacitor, C_PCMD, g1, n47, 0.00e+00, 1.87E-14
+
+Post. communicating sinistra
+resistor, R_PCMS, n48, n480038, 0.00e+00, 2.49e+08
+inductor, L_PCMS, n480038, n38, 0.00e+00, 3.73e+06
+capacitor, C_PCMS, g1, n48, 0.00e+00, 1.87E-14
+
+Post. cerebral 2 dextra
+resistor, R_PC2D, n47, n470036, 0.00e+00, 5.89e+08
+inductor, L_PC2D, n470036, p36, 0.00e+00, 2.20e+07
+capacitor, C_PC2D, g1, n47, 0.00e+00, 9.23E-13
+
+Post. cerebral 2 sinistra
+resistor, R_PC2S, n48, n480033, 0.00e+00, 5.89e+08
+inductor, L_PC2S, n480033, p33, 0.00e+00, 2.20e+07
+capacitor, C_PC2S, g1, n48, 0.00e+00, 9.23E-13
+
+ICA distal PCo.ant. chor. seg. dextra
+resistor, R_ICADPCSD, n45, n450044, 0.00e+00, 1.17e+06
+inductor, L_ICADPCSD, n450044, n44, 0.00e+00, 1.81e+05
+capacitor, C_ICADPCSD, g1, n45, 0.00e+00, 1.98E-13
+
+ICA distal PCo.ant. chor. seg. sinistra
+resistor, R_ICADPCSS, n38, n380039, 0.00e+00, 1.17e+06
+inductor, L_ICADPCSS, n380039, n39, 0.00e+00, 1.81e+05
+capacitor, C_ICADPCSS, g1, n38, 0.00e+00, 1.98E-13
+
+Ant. cerebral 1 dextra
+resistor, R_AC1D, n43, n430042, 0.00e+00, 8.78e+07
+inductor, L_AC1D, n430042, n42, 0.00e+00, 3.84e+06
+capacitor, C_AC1D, g1, n43, 0.00e+00, 2.30E-13
+
+Ant. cerebral 1 sinistra
+resistor, R_AC1S, n40, n400041, 0.00e+00, 8.78e+07
+inductor, L_AC1S, n400041, n41, 0.00e+00, 3.84e+06
+capacitor, C_AC1S, g1, n40, 0.00e+00, 2.30E-13
+
+Middle cerebral M1 dextra
+resistor, R_MDDC1D, n43, n430036, 0.00e+00, 1.46e+07
+inductor, L_MDDC1D, n430036, n36, 0.00e+00, 1.28e+06
+capacitor, C_MDDC1D, g1, n43, 0.00e+00, 3.81E-13
+
+MCA M2 sup. fr. cist. sylvian bif. dextra
+resistor, R_MCAMSD, n36, n360039, 0.00e+00, 2.67e+09
+inductor, L_MCAMSD, n360039, p39, 0.00e+00, 4.77e+07
+capacitor, C_MCAMSD, g1, n36, 0.00e+00, 5.91E-13
+
+MCA M2 inf. br. dist. sylvian bif. dextra
+resistor, R_MCAAMID, n36, n360040, 0.00e+00, 2.63e+09
+inductor, L_MCAAMID, n360040, p40, 0.00e+00, 4.70e+07
+capacitor, C_MCAAMID, g1, n36, 0.00e+00, 5.83E-13
+
+Middle cerebral M1 sinistra
+resistor, R_MDDC1S, n40, n400030, 0.00e+00, 1.46e+07
+inductor, L_MDDC1S, n400030, n30, 0.00e+00, 1.28e+06
+capacitor, C_MDDC1S, g1, n40, 0.00e+00, 3.81E-13
+
+MCA M2 sup. fr. cist. sylvian bif. sinistra
+resistor, R_MCAMS, n30, n300030, 0.00e+00, 2.67e+09
+inductor, L_MCAMS, n300030, p30, 0.00e+00, 4.77e+07
+capacitor, C_MCAMS, g1, n30, 0.00e+00, 5.91E-13
+
+MCA M2 inf. br. dist. sylvian bif. sinistra
+resistor, R_MCAMIS, n30, n300029, 0.00e+00, 2.63e+09
+inductor, L_MCAMIS, n300029, p29, 0.00e+00, 4.70e+07
+capacitor, C_MCAMIS, g1, n30, 0.00e+00, 5.83E-13
+
+Ant. cerebral A2 dextra
+resistor, R_ACA2D, n42, n420038, 0.00e+00, 3.31e+08
+inductor, L_ACA2D, n420038, p38, 0.00e+00, 1.05e+07
+capacitor, C_ACA2D, g1, n42, 0.00e+00, 3.03E-13
+
+Ant. communicating
+resistor, R_ACM, n41, n410042, 0.00e+00, 9.03e+07
+inductor, L_ACM, n410042, n42, 0.00e+00, 1.59e+06
+capacitor, C_ACM, g1, n41, 0.00e+00, 1.16E-14
+
+Ant. cerebral A2 sinistra
+resistor, R_ACA2S, n41, n410031, 0.00e+00, 3.31e+08
+inductor, L_ACA2S, n410031, p31, 0.00e+00, 1.05e+07
+capacitor, C_ACA2S, g1, n41, 0.00e+00, 3.03E-13
+
+Int. car. sinus dextra
+resistor, R_ICASD, n46, n460045, 0.00e+00, 5.06e+06
+inductor, L_ICASD, n460045, n45, 0.00e+00, 8.81e+05
+capacitor, C_ICASD, g1, n46, 0.00e+00, 1.29E-12
+
+Ophthalmic dextra
+resistor, R_OPTD, n46, n460037, 0.00e+00, 6.62e+09
+inductor, L_OPTD, n460037, p37, 0.00e+00, 2.96e+07
+capacitor, C_OPTD, g1, n46, 0.00e+00, 1.46E-14
+
+Int. car. sinus sinistra
+resistor, R_ICASS, n37, n370038, 0.00e+00, 5.06e+06
+inductor, L_ICASS, n370038, n38, 0.00e+00, 8.81e+05
+capacitor, C_ICASS, g1, n37, 0.00e+00, 1.29E-12
+
+Ophthalmic sinistra
+resistor, R_OPTS, n37, n370032, 0.00e+00, 6.62e+09
+inductor, L_OPTS, n370032, p32, 0.00e+00, 2.96e+07
+capacitor, C_OPTS, g1, n37, 0.00e+00, 1.46E-14
+
+External carotid 2 dextra
+resistor, R_EC2D, n33, n330034, 0.00e+00, 4.04e+07
+inductor, L_EC2D, n330034, n34, 0.00e+00, 5.85e+06
+capacitor, C_EC2D, g1, n33, 0.00e+00, 5.65E-12
+
+Sup. thy. asc. ph. lyng. fac. occ. dextra
+resistor, R_STAPLD, n33, n330044, 0.00e+00, 3.80e+09
+inductor, L_STAPLD, n330044, p44, 0.00e+00, 6.78e+07
+capacitor, C_STAPLD, g1, n33, 0.00e+00, 8.41E-13
+
+External carotid 2 sinistra
+resistor, R_EC2S, n27, n270028, 0.00e+00, 4.04e+07
+inductor, L_EC2S, n270028, n28, 0.00e+00, 5.85e+06
+capacitor, C_EC2S, g1, n27, 0.00e+00, 5.65E-12
+
+Sup. thy. asc. ph. lyng. fac. occ. sinistra
+resistor, R_STAPLS, n27, n270025, 0.00e+00, 3.80e+09
+inductor, L_STAPLS, n270025, p25, 0.00e+00, 6.78e+07
+capacitor, C_STAPLS, g1, n27, 0.00e+00, 8.41E-13
+
+Superficial temporal dextra
+resistor, R_SFTD, n34, n340035, 0.00e+00, 8.55e+07
+inductor, L_SFTD, n340035, n35, 0.00e+00, 8.54e+06
+capacitor, C_SFTD, g1, n34, 0.00e+00, 3.45E-12
+
+Maxillary dextra
+resistor, R_MAXD, n34, n340043, 0.00e+00, 2.95e+09
+inductor, L_MAXD, n340043, p43, 0.00e+00, 5.56e+07
+capacitor, C_MAXD, g1, n34, 0.00e+00, 8.92E-13
+
+Superficial temporal sinistra
+resistor, R_SFTS, n28, n280029, 0.00e+00, 8.55e+07
+inductor, L_SFTS, n280029, n29, 0.00e+00, 8.54e+06
+capacitor, C_SFTS, g1, n28, 0.00e+00, 3.45E-12
+
+Maxillary sinistra
+resistor, R_MAXS, n28, n280026, 0.00e+00, 2.95e+09
+inductor, L_MAXS, n280026, p26, 0.00e+00, 5.56e+07
+capacitor, C_MAXS, g1, n28, 0.00e+00, 8.92E-13
+
+Superficial temporal frontal br. dextra
+resistor, R_STFD, n35, n350041, 0.00e+00, 1.45e+09
+inductor, L_STFD, n350041, p41, 0.00e+00, 4.36e+07
+capacitor, C_STFD, g1, n35, 0.00e+00, 1.36E-12
+
+Superficial temporal parietal br. dextra
+resistor, R_STPD, n35, n350042, 0.00e+00, 1.47e+09
+inductor, L_STPD, n350042, p42, 0.00e+00, 4.40e+07
+capacitor, C_STPD, g1, n35, 0.00e+00, 1.37E-12
+
+Superficial temporal frontal br. sinistra
+resistor, R_STFS, n29, n290028, 0.00e+00, 1.45e+09
+inductor, L_STFS, n290028, p28, 0.00e+00, 4.36e+07
+capacitor, C_STFS, g1, n29, 0.00e+00, 1.36E-12
+
+Superficial temporal parietal br. sinistra
+resistor, R_STPS, n29, n290027, 0.00e+00, 1.47e+09
+inductor, L_STPS, n290027, p27, 0.00e+00, 4.40e+07
+capacitor, C_STPS, g1, n29, 0.00e+00, 1.37E-12
+
+Ant. choroidal dextra
+resistor, R_ACHD, n44, n440045, 0.00e+00, 1.23e+09
+inductor, L_ACHD, n440045, p45, 0.00e+00, 2.48e+07
+capacitor, C_ACHD, g1, n44, 0.00e+00, 2.54E-13
+
+ICA distal cnt. chor.M1 seg.  dextra
+resistor, R_ICADCCSD, n44, n440043, 0.00e+00, 1.24e+06
+inductor, L_ICADCCSD, n440043, n43, 0.00e+00, 1.86e+05
+capacitor, C_ICADCCSD, g1, n44, 0.00e+00, 1.92E-13
+
+Ant. choroidal sinistra
+resistor, R_ACHS, n39, n390046, 0.00e+00, 1.23e+09
+inductor, L_ACHS, n390046, p46, 0.00e+00, 2.48e+07
+capacitor, C_ACHS, g1, n39, 0.00e+00, 2.54E-13
+
+ICA distal cnt. chor.M1 seg.  sinistra
+resistor, R_ICADCCSS, n39, n390040, 0.00e+00, 1.24e+06
+inductor, L_ICADCCSS, n390040, n40, 0.00e+00, 1.86e+05
+capacitor, C_ICADCCSS, g1, n39, 0.00e+00, 1.92E-13
+
+Vertebral sinistra
+resistor, R_VERTS, n10, n100031, 0.00e+00, 1.82e+08
+inductor, L_VERTS, n100031, n31, 0.00e+00, 1.92e+07
+capacitor, C_VERTS, g1, n10, 0.00e+00, 9.44E-12
+
+Ascending aorta 1
+resistor, R_ASC1, H, H001, 0.00e+00, 8.69e+02
+inductor, L_ASC1, H001, n1, 0.00e+00, 7.80e+03
+capacitor, C_ASC1, g1, H, 0.00e+00, 8.69E-11
+
+Ascending aorta 2
+resistor, R_ASC2, n1, n1002, 0.00e+00, 6.34e+03
+inductor, L_ASC2, n1002, n2, 0.00e+00, 5.57e+04
+capacitor, C_ASC2, g1, n1, 0.00e+00, 5.92E-10
+
+Aortic arch A
+resistor, R_AAA, n2, n2003, 0.00e+00, 7.11e+03
+inductor, L_AAA, n2003, n3, 0.00e+00, 4.46e+04
+capacitor, C_AAA, g1, n2, 0.00e+00, 2.23E-10
+
+Aortic arch B
+resistor, R_AAB, n3, n3004, 0.00e+00, 2.54e+04
+inductor, L_AAB, n3004, n4, 0.00e+00, 1.18e+05
+capacitor, C_AAB, g1, n3, 0.00e+00, 2.97E-10
+
+Brachiocephalic
+resistor, R_BRAC, n2, n2006, 0.00e+00, 3.33e+04
+inductor, L_BRAC, n2006, n6, 0.00e+00, 1.26e+05
+capacitor, C_BRAC, g1, n2, 0.00e+00, 2.02E-10
+
+Subclavian A dextra
+resistor, R_SUBAD, n6, n6007, 0.00e+00, 4.18e+05
+inductor, L_SUBAD, n6007, n7, 0.00e+00, 4.41e+05
+capacitor, C_SUBAD, g1, n6, 0.00e+00, 4.18E-11
+
+Subclavian A sinistra
+resistor, R_SUBAS, n4, n40010, 0.00e+00, 5.13e+05
+inductor, L_SUBAS, n40010, n10, 0.00e+00, 4.88e+05
+capacitor, C_SUBAS, g1, n4, 0.00e+00, 3.68E-11
+
+Periphery_25
+resistor, R_PE25, p25, p2500250, 0.00e+00, 4.72e+10
+inductor, L_PE25, p2500250, g250, 0.00e+00, 3.46e+07
+capacitor, C_PE25, g1, p25, 0.00e+00, 4.68E-10
+
+Periphery_26
+resistor, R_PE26, p26, p2600260, 0.00e+00, 3.93e+10
+inductor, L_PE26, p2600260, g260, 0.00e+00, 2.89e+07
+capacitor, C_PE26, g1, p26, 0.00e+00, 5.61E-10
+
+Periphery_27
+resistor, R_PE27, p27, p2700270, 0.00e+00, 3.93e+10
+inductor, L_PE27, p2700270, g270, 0.00e+00, 2.89e+07
+capacitor, C_PE27, g1, p27, 0.00e+00, 5.61E-10
+
+Periphery_28
+resistor, R_PE28, p28, p2800280, 0.00e+00, 3.93e+10
+inductor, L_PE28, p2800280, g280, 0.00e+00, 2.89e+07
+capacitor, C_PE28, g1, p28, 0.00e+00, 5.61E-10
+
+Periphery_29
+resistor, R_PE29, p29, p2900290, 0.00e+00, 1.57e+10
+inductor, L_PE29, p2900290, g290, 0.00e+00, 1.21e+07
+capacitor, C_PE29, g1, p29, 0.00e+00, 1.33E-09
+
+Periphery_30
+resistor, R_PE30, p30, p3000300, 0.00e+00, 1.57e+10
+inductor, L_PE30, p3000300, g300, 0.00e+00, 1.21e+07
+capacitor, C_PE30, g1, p30, 0.00e+00, 1.33E-09
+
+Periphery_31
+resistor, R_PE31, p31, p3100310, 0.00e+00, 1.68e+10
+inductor, L_PE31, p3100310, g310, 0.00e+00, 1.30e+07
+capacitor, C_PE31, g1, p31, 0.00e+00, 1.25E-09
+
+Periphery_32
+resistor, R_PE32, p32, p3200320, 0.00e+00, 4.20e+10
+inductor, L_PE32, p3200320, g320, 0.00e+00, 3.24e+07
+capacitor, C_PE32, g1, p32, 0.00e+00, 4.99E-10
+
+Periphery_33
+resistor, R_PE33, p33, p3300330, 0.00e+00, 1.68e+10
+inductor, L_PE33, p3300330, g330, 0.00e+00, 1.30e+07
+capacitor, C_PE33, g1, p33, 0.00e+00, 1.25E-09
+
+Periphery_34
+resistor, R_PE34, p34, p3400340, 0.00e+00, 4.20e+10
+inductor, L_PE34, p3400340, g340, 0.00e+00, 3.24e+07
+capacitor, C_PE34, g1, p34, 0.00e+00, 4.99E-10
+
+Periphery_35
+resistor, R_PE35, p35, p3500350, 0.00e+00, 4.20e+10
+inductor, L_PE35, p3500350, g350, 0.00e+00, 3.24e+07
+capacitor, C_PE35, g1, p35, 0.00e+00, 4.99E-10
+
+Periphery_36
+resistor, R_PE36, p36, p3600360, 0.00e+00, 1.68e+10
+inductor, L_PE36, p3600360, g360, 0.00e+00, 1.30e+07
+capacitor, C_PE36, g1, p36, 0.00e+00, 1.25E-09
+
+Periphery_37
+resistor, R_PE37, p37, p3700370, 0.00e+00, 4.20e+10
+inductor, L_PE37, p3700370, g370, 0.00e+00, 3.24e+07
+capacitor, C_PE37, g1, p37, 0.00e+00, 4.99E-10
+
+Periphery_38
+resistor, R_PE38, p38, p3800380, 0.00e+00, 1.68e+10
+inductor, L_PE38, p3800380, g380, 0.00e+00, 1.30e+07
+capacitor, C_PE38, g1, p38, 0.00e+00, 1.25E-09
+
+Periphery_39
+resistor, R_PE39, p39, p3900390, 0.00e+00, 1.57e+10
+inductor, L_PE39, p3900390, g390, 0.00e+00, 1.21e+07
+capacitor, C_PE39, g1, p39, 0.00e+00, 1.33E-09
+
+Periphery_40
+resistor, R_PE40, p40, p4000400, 0.00e+00, 1.57e+10
+inductor, L_PE40, p4000400, g400, 0.00e+00, 1.21e+07
+capacitor, C_PE40, g1, p40, 0.00e+00, 1.33E-09
+
+Periphery_41
+resistor, R_PE41, p41, p4100410, 0.00e+00, 3.93e+10
+inductor, L_PE41, p4100410, g410, 0.00e+00, 2.89e+07
+capacitor, C_PE41, g1, p41, 0.00e+00, 5.61E-10
+
+Periphery_42
+resistor, R_PE42, p42, p4200420, 0.00e+00, 3.93e+10
+inductor, L_PE42, p4200420, g420, 0.00e+00, 2.89e+07
+capacitor, C_PE42, g1, p42, 0.00e+00, 5.61E-10
+
+Periphery_43
+resistor, R_PE43, p43, p4300430, 0.00e+00, 3.93e+10
+inductor, L_PE43, p4300430, g430, 0.00e+00, 2.89e+07
+capacitor, C_PE43, g1, p43, 0.00e+00, 5.61E-10
+
+Periphery_44
+resistor, R_PE44, p44, p4400440, 0.00e+00, 4.72e+10
+inductor, L_PE44, p4400440, g440, 0.00e+00, 3.46e+07
+capacitor, C_PE44, g1, p44, 0.00e+00, 4.68E-10
+
+Periphery_45
+resistor, R_PE45, p45, p4500450, 0.00e+00, 3.14e+10
+inductor, L_PE45, p4500450, g450, 0.00e+00, 2.43e+07
+capacitor, C_PE45, g1, p45, 0.00e+00, 6.67E-10
+
+Periphery_46
+resistor, R_PE46, p46, p4600460, 0.00e+00, 3.14e+10
+inductor, L_PE46, p4600460, g460, 0.00e+00, 2.43e+07
+capacitor, C_PE46, g1, p46, 0.00e+00, 6.67E-10
+
+Arota pars descendens periphery
+resistor, R_APDP, n4, n4004, 0.00e+00, 1.43e+09
+inductor, L_APDP, n4004, g4, 0.00e+00, 1.02e+06
+capacitor, C_APDP, g1, n4, 0.00e+00, 8.86E-08
+
+Subclavian dextra periphery
+resistor, R_SDP, n7, n7007, 0.00e+00, 4.02e+09
+inductor, L_SDP, n7007, g7, 0.00e+00, 2.45e+06
+capacitor, C_SDP, g1, n7, 0.00e+00, 6.62E-09
+
+Subclavian sinistra periphery
+resistor, R_SSP, n10, n100010, 0.00e+00, 4.02e+09
+inductor, L_SSP, n100010, g10, 0.00e+00, 2.45e+06
+capacitor, C_SSP, g1, n10, 0.00e+00, 6.62E-09 
+
+
+data of nodes, , , , , , 
+type, name, initial condition [SI]
+ground, g0, 1.00e+05
+node, p_LA3, 1.0110e+05
+node, p_LV1, 1.0110e+05
+ground, g1, 1.00e+05
+ground, g250, 1.00e+05
+ground, g260, 1.00e+05
+ground, g270, 1.00e+05
+ground, g280, 1.00e+05
+ground, g290, 1.00e+05
+ground, g300, 1.00e+05
+ground, g310, 1.00e+05
+ground, g320, 1.00e+05
+ground, g330, 1.00e+05
+ground, g340, 1.00e+05
+ground, g350, 1.00e+05
+ground, g360, 1.00e+05
+ground, g370, 1.00e+05
+ground, g380, 1.00e+05
+ground, g390, 1.00e+05
+ground, g400, 1.00e+05
+ground, g410, 1.00e+05
+ground, g420, 1.00e+05
+ground, g430, 1.00e+05
+ground, g440, 1.00e+05
+ground, g450, 1.00e+05
+ground, g460, 1.00e+05
+ground, g4, 1.00e+05
+ground, g7, 1.00e+05
+ground, g10, 1.00e+05
+ground, gvfr, 1.00e+05
+node, n6, 1.00e+05
+node, n7, 1.00e+05
+node, n32, 1.00e+05
+node, n3, 1.00e+05
+node, n26, 1.00e+05
+node, n31, 1.00e+05
+node, n50, 1.00e+05
+node, n49, 1.00e+05
+node, n47, 1.00e+05
+node, n48, 1.00e+05
+node, n45, 1.00e+05
+node, n38, 1.00e+05
+node, n43, 1.00e+05
+node, n40, 1.00e+05
+node, n36, 1.00e+05
+node, n30, 1.00e+05
+node, n42, 1.00e+05
+node, n41, 1.00e+05
+node, n46, 1.00e+05
+node, n37, 1.00e+05
+node, n33, 1.00e+05
+node, n27, 1.00e+05
+node, n34, 1.00e+05
+node, n28, 1.00e+05
+node, n35, 1.00e+05
+node, n29, 1.00e+05
+node, n44, 1.00e+05
+node, n39, 1.00e+05
+node, n10, 1.00e+05
+node, H, 1.13e+05
+node, n1, 1.00e+05
+node, n2, 1.00e+05
+node, n4, 1.00e+05
+node, p25, 1.00e+05
+node, p26, 1.00e+05
+node, p27, 1.00e+05
+node, p28, 1.00e+05
+node, p29, 1.00e+05
+node, p30, 1.00e+05
+node, p31, 1.00e+05
+node, p32, 1.00e+05
+node, p33, 1.00e+05
+node, p34, 1.00e+05
+node, p35, 1.00e+05
+node, p36, 1.00e+05
+node, p37, 1.00e+05
+node, p38, 1.00e+05
+node, p39, 1.00e+05
+node, p40, 1.00e+05
+node, p41, 1.00e+05
+node, p42, 1.00e+05
+node, p43, 1.00e+05
+node, p44, 1.00e+05
+node, p45, 1.00e+05
+node, p46, 1.00e+05
+node, n60032, 1.00e+05
+node, n70031, 1.00e+05
+node, n320046, 1.00e+05
+node, n320033, 1.00e+05
+node, n30026, 1.00e+05
+node, n260037, 1.00e+05
+node, n260027, 1.00e+05
+node, n310050, 1.00e+05
+node, n500035, 1.00e+05
+node, n500034, 1.00e+05
+node, n500049, 1.00e+05
+node, n490047, 1.00e+05
+node, n490048, 1.00e+05
+node, n470045, 1.00e+05
+node, n480038, 1.00e+05
+node, n470036, 1.00e+05
+node, n480033, 1.00e+05
+node, n450044, 1.00e+05
+node, n380039, 1.00e+05
+node, n430042, 1.00e+05
+node, n400041, 1.00e+05
+node, n430036, 1.00e+05
+node, n360039, 1.00e+05
+node, n360040, 1.00e+05
+node, n400030, 1.00e+05
+node, n300030, 1.00e+05
+node, n300029, 1.00e+05
+node, n420038, 1.00e+05
+node, n410042, 1.00e+05
+node, n410031, 1.00e+05
+node, n460045, 1.00e+05
+node, n460037, 1.00e+05
+node, n370038, 1.00e+05
+node, n370032, 1.00e+05
+node, n330034, 1.00e+05
+node, n330044, 1.00e+05
+node, n270028, 1.00e+05
+node, n270025, 1.00e+05
+node, n340035, 1.00e+05
+node, n340043, 1.00e+05
+node, n280029, 1.00e+05
+node, n280026, 1.00e+05
+node, n350041, 1.00e+05
+node, n350042, 1.00e+05
+node, n290028, 1.00e+05
+node, n290027, 1.00e+05
+node, n440045, 1.00e+05
+node, n440043, 1.00e+05
+node, n390046, 1.00e+05
+node, n390040, 1.00e+05
+node, n100031, 1.00e+05
+node, H001, 1.00e+05
+node, n1002, 1.00e+05
+node, n2003, 1.00e+05
+node, n3004, 1.00e+05
+node, n2006, 1.00e+05
+node, n6007, 1.00e+05
+node, n40010, 1.00e+05
+node, p2500250, 1.00e+05
+node, p2600260, 1.00e+05
+node, p2700270, 1.00e+05
+node, p2800280, 1.00e+05
+node, p2900290, 1.00e+05
+node, p3000300, 1.00e+05
+node, p3100310, 1.00e+05
+node, p3200320, 1.00e+05
+node, p3300330, 1.00e+05
+node, p3400340, 1.00e+05
+node, p3500350, 1.00e+05
+node, p3600360, 1.00e+05
+node, p3700370, 1.00e+05
+node, p3800380, 1.00e+05
+node, p3900390, 1.00e+05
+node, p4000400, 1.00e+05
+node, p4100410, 1.00e+05
+node, p4200420, 1.00e+05
+node, p4300430, 1.00e+05
+node, p4400440, 1.00e+05
+node, p4500450, 1.00e+05
+node, p4600460, 1.00e+05
+node, n4004, 1.00e+05
+node, n7007, 1.00e+05
+node, n100010, 1.00e+05

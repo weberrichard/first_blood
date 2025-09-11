@@ -1,0 +1,9 @@
+run,forward
+time,5.0
+material,olufsen
+solver,maccormack
+
+type,name,main node,model node,main node,model node,...
+
+lumped,abel_0d
+
