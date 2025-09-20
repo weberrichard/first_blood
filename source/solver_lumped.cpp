@@ -39,6 +39,8 @@ void solver_lumped::initialization(double hr)
 		nodes[i]->y = nodes[i]->p/E;
 	}
 
+	build_system();
+
 	number_of_elastance = 0;
 	for(int i=0; i<number_of_edges; i++)
 	{
@@ -65,8 +67,8 @@ void solver_lumped::initialization(double hr)
 	A = MatrixXd::Zero(nm,nm);
 	b = VectorXd::Zero(nm);
 
-	// building model
-	build_system();
+	//// building model
+	//build_system();
 }
 
 //--------------------------------------------------------------
@@ -211,6 +213,18 @@ void solver_lumped::coefficients_newton(double t_act)
 				Jac(i,i) = -1;
 				f(i) = q - x(i);
 			}
+		}
+		else if(edges[i]->type_code == 11) // v_pump
+		{
+		vector<double> Z = p_drop_q(x(i), i); // dp(q) and d(dp)/dq
+		double dp = Z[0];
+		double ddp_dq = Z[1];
+
+		Jac(i,m+i2) = 1.;
+		Jac(i,m+i1) = -1.;
+		Jac(i,i) = ddp_dq;
+
+		f(i) = x(m+i2) - x(m+i1) + dp;
 		}
 	}
 
@@ -372,6 +386,11 @@ void solver_lumped::set_non_SI_parameters()
 		{
 			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]*1.);
 		}
+		else if(edges[i]->type_code == 11) // v_pump
+		{
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]*1.);
+		}
+
 	}
 }
 
@@ -578,5 +597,34 @@ double solver_lumped::get_interp_val(int index, double t_act, int up_b){
 	double v_in = (v_h-v_l)/(t_h-t_l) * (t_in-t_l) + v_l; // actual pressure of the simulation
 
 	return v_in;
-cout<<v_in<<endl;
+}
+
+
+//--------------------------------------------------------------
+vector<double> solver_lumped::p_drop_q(double q, int index) {
+    // returns {pressure drop, derivative wrt q}
+    const std::vector<double>& qv = edges[index]->qv_c;
+    const std::vector<double>& dp = edges[index]->dp_c;
+
+    if (qv.empty() || dp.empty() || qv.size() != dp.size()) {
+        throw std::runtime_error("Invalid qv/dp data");
+    }
+
+    double p_val, slope;
+
+    if (q < qv.front()) {
+        p_val = dp.front();
+        slope = 0.; 
+    } else if (q >= qv.back()) {
+        p_val = dp.back();
+        slope = 0.; 
+    } else {
+        int i = 0;
+        while (!(qv[i] <= q && q < qv[i+1])) {
+            i++;
+        }
+        slope = (dp[i+1] - dp[i]) / (qv[i+1] - qv[i]);
+        p_val = dp[i] + slope * (q - qv[i]);
+    }
+    return {p_val, slope};
 }
