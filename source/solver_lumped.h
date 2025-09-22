@@ -172,6 +172,11 @@ private:
 
 		//for prescribed q
 		int upstream_boundary = -1;
+
+		//curves for v_pump
+		vector<double> qv_c;
+		vector<double> dp_c;
+
 	};
 
 	// building the network, finding indicies
@@ -199,6 +204,10 @@ public:
 
 	// number of which period is the simulation
 	vector<int> period;
+
+	//for volumetric pump
+	void load_dp_qv_curve(string filename, vector<double>& dp_c, vector<double>& qv_c);
+	vector<double> p_drop_q(double q, int index);
 };
 
 #endif // SOLVER_LUMPED_H

@@ -21,7 +21,7 @@ void solver_lumped::load_model()
 			line.erase(remove(line.begin(), line.end(), '\r'), line.end());
 			vector<string> sv = separate_line(line);
 
-			if(sv[0] == "resistor" || sv[0] == "capacitor" || sv[0] == "inductor" || sv[0] == "voltage" || sv[0] == "diode" || sv[0] == "resistor2" || sv[0] == "valve" || sv[0] == "resistor_coronary" || sv[0] == "capacitor_coronary" || sv[0] == "current" || sv[0] == "vfr") // edges with one parameter
+			if(sv[0] == "resistor" || sv[0] == "capacitor" || sv[0] == "inductor" || sv[0] == "voltage" || sv[0] == "diode" || sv[0] == "resistor2" || sv[0] == "valve" || sv[0] == "resistor_coronary" || sv[0] == "capacitor_coronary" || sv[0] == "current" || sv[0] == "vfr" || sv[0] == "v_pump") // edges with one parameter
 			{
 				edges.push_back(new edge);
 				edges[ne]->type = sv[0];
@@ -86,6 +86,19 @@ void solver_lumped::load_model()
 						pt_file_name.push_back(sv[4]);
 						load_time_series(sv[6]);
 					}
+				}
+				else if(sv[0] == "v_pump")//volumetric pump, prescribes 
+				{
+					edges[ne]->type_code = 11;
+					if(sv.size()>6 && sv[6] != ""){
+						edges[ne]->parameter.push_back(0.);
+						load_dp_qv_curve(sv[6], edges[ne]->dp_c, edges[ne]->qv_c);
+					}
+					else{
+						cout << "! ERROR !" << endl << " No file given for volumetric pump: " << sv[1] << "\nExiting..." << endl;
+						exit(-1);
+					}
+
 				}
 				ne++;
 			}
@@ -448,5 +461,29 @@ void solver_lumped::load_time_series(string file_name)
 	}
 	time_upstream.push_back(tu);
 	value_upstream.push_back(vu);
+
+}
+
+void solver_lumped::load_dp_qv_curve(string filename, vector<double>& dp_c, vector<double>& qv_c){
+
+	ifstream pt_file_in;
+	string file_name = input_folder_path + '/' + filename + ".csv";
+	pt_file_in.open(file_name);
+	if(pt_file_in.is_open())
+	{
+		string pt_line;
+		while(getline(pt_file_in,pt_line))
+		{
+			vector<string> pt_sv = separate_line(pt_line);
+			qv_c.push_back(stod(pt_sv[0],0));
+
+			dp_c.push_back(stod(pt_sv[1],0));
+		}
+	}
+	else
+	{
+		cout << "! ERROR !" << endl << " File is not open when calling load_dp_qv_curve() function!!! file: " << file_name << "\nExiting..." << endl;
+		exit(-1);
+	}
 
 }
