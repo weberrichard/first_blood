@@ -220,11 +220,11 @@ void solver_lumped::coefficients_newton(double t_act)
 		double dp = Z[0];
 		double ddp_dq = Z[1];
 
-		Jac(i,m+i2) = 1.;
-		Jac(i,m+i1) = -1.;
+		Jac(i,m+i2) = -1.;
+		Jac(i,m+i1) = 1.;
 		Jac(i,i) = ddp_dq;
 
-		f(i) = x(m+i2) - x(m+i1) + dp;
+		f(i) = - x(m+i2) + x(m+i1) + dp;
 		}
 	}
 

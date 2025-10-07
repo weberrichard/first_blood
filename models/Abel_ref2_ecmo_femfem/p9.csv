@@ -1,0 +1,28 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, R0, n1, P1, 0.000e+00, 1.482e+09
+resistor, R1, P1, Q1, 0.000e+00, 4.744e+09
+resistor, R2, P2, Q2, 0.000e+00, 1.824e+09
+resistor, R3, P3, Q3, 0.000e+00, 5.838e+08
+resistor, R4, P4, Q4, 0.000e+00, 1.460e+08
+capacitor, C1, P1, g, 0.000e+00, 7.155e-11
+capacitor, C2, P2, g, 0.000e+00, 7.154e-12
+capacitor, C3, P3, g, 0.000e+00, 2.131e-10
+capacitor, C4, P4, g, 0.000e+00, 2.261e-09
+inductor, L1, Q1, P2, 0.000e+00, 3.530e+06
+inductor, L2, Q2, P3, 0.000e+00, 5.937e+05
+inductor, L3, Q3, P4, 0.000e+00, 1.052e+06
+inductor, L4, Q4, g, 0.000e+00, 1.171e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, n1, 1.000e+05
+node, P1, 1.000e+05
+node, P2, 1.000e+05
+node, P3, 1.000e+05
+node, P4, 1.000e+05
+node, Q1, 1.000e+05
+node, Q2, 1.000e+05
+node, Q3, 1.000e+05
+node, Q4, 1.000e+05
+ground, g, 1.000e+05

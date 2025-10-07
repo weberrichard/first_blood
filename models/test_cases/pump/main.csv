@@ -1,9 +1,7 @@
 run,forward
-time,100.0
+time,1
 material,olufsen
-solver,maccormack
 
 type,name,main node,model node,main node,model node,...
-
-lumped,abel_0d
+lumped,pump
 
