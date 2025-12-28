@@ -231,26 +231,31 @@ void solver_lumped::load_model()
 				if(do_lum_pla_CO2_transport&&sv.size()>9){
 				CO2_pla_lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), CO2_pla, fi_init_CO2_pla, sv[2], sv[3], sv[9]));
 				if(sv[7] == "1" ){CO2_pla_lum->D0_edges.back()->is_per_capillary = true;}
+				if(sv[8] == "1" ){CO2_pla_lum->D0_edges.back()->is_pul_capillary = true;}
 				}
 
 				if(do_lum_rbc_CO2_transport&&sv.size()>9){
 				CO2_rbc_lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), CO2_rbc, fi_init_CO2_rbc, sv[2], sv[3], sv[9]));
 				if(sv[7] == "1" ){CO2_rbc_lum->D0_edges.back()->is_per_capillary = true;}
+				if(sv[8] == "1" ){CO2_rbc_lum->D0_edges.back()->is_pul_capillary = true;}
 				}
 
 				if(do_lum_pla_HCO3_transport&&sv.size()>9){
 				HCO3_pla_lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), HCO3_pla, fi_init_HCO3_pla, sv[2], sv[3], sv[9]));
 				if(sv[7] == "1" ){HCO3_pla_lum->D0_edges.back()->is_per_capillary = true;}
+				if(sv[8] == "1" ){HCO3_pla_lum->D0_edges.back()->is_pul_capillary = true;}
 				}
 
 				if(do_lum_rbc_HCO3_transport&&sv.size()>9){
 				HCO3_rbc_lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), HCO3_rbc, fi_init_HCO3_rbc, sv[2], sv[3], sv[9]));
 				if(sv[7] == "1" ){HCO3_rbc_lum->D0_edges.back()->is_per_capillary = true;}
+				if(sv[8] == "1" ){HCO3_rbc_lum->D0_edges.back()->is_pul_capillary = true;}
 				}
 
 				if(do_lum_HbCO2_transport&&sv.size()>9){
 				HbCO2_lum->D0_edges.push_back(new D0_edge(sv[1], stod(sv[4],0), stod(sv[5],0), stoi(sv[6],0), HbCO2, fi_init_HbCO2, sv[2], sv[3], sv[9]));
 				if(sv[7] == "1" ){HbCO2_lum->D0_edges.back()->is_per_capillary = true;}
+				if(sv[8] == "1" ){HbCO2_lum->D0_edges.back()->is_pul_capillary = true;}
 				}
 
 
@@ -465,31 +470,47 @@ void solver_lumped::load_model()
 			int n_per_cap = 0;
 
 			for(int zz=0; zz<CO2_pla_lum->D0_edges.size(); zz++){
-				if(CO2_pla_lum->D0_edges[zz]->is_per_capillary){
+				if(CO2_pla_lum->D0_edges[zz]->is_pul_capillary){
+					do_pul_CO2_transport=true;
+					n_pul_cap++;
+					pul_cap_CO2_pla = CO2_pla_lum->D0_edges[zz];}
+				else if(CO2_pla_lum->D0_edges[zz]->is_per_capillary){
 					do_per_CO2_transport=true;
 					n_per_cap++;
 					per_cap_CO2_pla = CO2_pla_lum->D0_edges[zz];}
 			}
 
 			for(int zz=0; zz<CO2_rbc_lum->D0_edges.size(); zz++){
-				if(CO2_rbc_lum->D0_edges[zz]->is_per_capillary){
+				if(CO2_rbc_lum->D0_edges[zz]->is_pul_capillary){
+					n_pul_cap++;
+					pul_cap_CO2_rbc = CO2_rbc_lum->D0_edges[zz];}
+				else if(CO2_rbc_lum->D0_edges[zz]->is_per_capillary){
 					n_per_cap++;
 					per_cap_CO2_rbc = CO2_rbc_lum->D0_edges[zz];}
 			}
 
 			for(int zz=0; zz<HCO3_pla_lum->D0_edges.size(); zz++){
-				if(HCO3_pla_lum->D0_edges[zz]->is_per_capillary){
+				if(HCO3_pla_lum->D0_edges[zz]->is_pul_capillary){
+					n_pul_cap++;
+					pul_cap_HCO3_pla = HCO3_pla_lum->D0_edges[zz];}
+				else if(HCO3_pla_lum->D0_edges[zz]->is_per_capillary){
 					n_per_cap++;
 					per_cap_HCO3_pla = HCO3_pla_lum->D0_edges[zz];}
 			}
 
 			for(int zz=0; zz<HCO3_rbc_lum->D0_edges.size(); zz++){
+				if(HCO3_rbc_lum->D0_edges[zz]->is_pul_capillary){
+					n_pul_cap++;
+					pul_cap_HCO3_rbc = HCO3_rbc_lum->D0_edges[zz];}
 				if(HCO3_rbc_lum->D0_edges[zz]->is_per_capillary){
 					n_per_cap++;
 					per_cap_HCO3_rbc = HCO3_rbc_lum->D0_edges[zz];}
 			}
 
 			for(int zz=0; zz<HbCO2_lum->D0_edges.size(); zz++){
+				if(HbCO2_lum->D0_edges[zz]->is_pul_capillary){
+					n_pul_cap++;
+					pul_cap_HbCO2 = HbCO2_lum->D0_edges[zz];}
 				if(HbCO2_lum->D0_edges[zz]->is_per_capillary){
 					n_per_cap++;
 					per_cap_HbCO2 = HbCO2_lum->D0_edges[zz];}

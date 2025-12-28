@@ -1039,6 +1039,8 @@ void D0_transport::update_nodes(solver_lumped& lum_mod){
 		double q=0.;
 		double c=0.; //concantration
 
+		//if(lum_mod.nodes[i]->name == "p_LA3"){cout<<lum_mod.nodes[i]->HBsat_0Dn<<endl;}
+
 		if(!lum_mod.nodes[i]->is_master_node){ //master nodes are handled separately in a different function
 			switch(TType){
 				case RBC:
@@ -1243,15 +1245,15 @@ void D0_transport::update_edges( double dt, solver_lumped& lum_mod, double t_act
 
 		if((!D0_edges[i]->is_per_capillary && !D0_edges[i]->is_pul_capillary) || !do_tissue_transport){
 			if(D0_edges[i]->is_diode){
-				//D0_edges[i]->update_diode();
+				D0_edges[i]->update_diode();
 			}
 			else if(D0_edges[i]->is_capacitor){
-				D0_edges[i]->update_capacitor(dt);
+				//D0_edges[i]->update_capacitor(dt);
 			}
 			else if(D0_edges[i]->is_elastance){
 				double E = lum_mod.elastance(t_act, D0_edges[i]->corr_edge->parameter);
 				E = E*mmHg_to_Pa*1.e6; // mmHg/ml to SI: Pa/m3
-				D0_edges[i]->update_elastance(dt, E);
+				//D0_edges[i]->update_elastance(dt, E);
 			}
 			else{
 				D0_edges[i]->virt1D(dt);
@@ -1703,6 +1705,7 @@ void D0_edge::update_capacitor(double dt){
 		fi[0] = (fi_old*V + Q*dt*f*ml_to_m3)/(V+Q*dt*ml_to_m3);}
 
 	}
+/*
 	else{
 		double f;
 		switch(TType){
@@ -1743,21 +1746,28 @@ void D0_edge::update_capacitor(double dt){
 		if(V-Q*dt*ml_to_m3 !=0. ){
 		fi[0] = (fi_old*V - Q*dt*f*ml_to_m3)/(V-Q*dt*ml_to_m3);}
 		//cout<<V-Q*dt*ml_to_m3<<endl;
-	}
+	}*/
 
 
 }
 
 
+
+
 //--------------------------------------------------------------------------------------------------
 void D0_edge::update_elastance(double dt, double E){
-	double V = V0 + abs( node_start->p - node_end->p  )/E/mmHg_to_Pa; //SI
+	double Q = corr_edge->vfr;
+	double dV = Q*dt*ml_to_m3;
+	double V = V0 + abs( node_end->p - node_start->p  )/E/mmHg_to_Pa + dV; //SI
+
 	double fi_old = fi[0];
 
-	double Q = corr_edge->vfr;
 	//cout<<node_start->p - node_end->p<< "  " << Q<<endl;
 	//cout<<fi[0]<<endl;
+	//cout<<abs( node_end->p - node_start->p  )/E/mmHg_to_Pa<<endl;
 
+// if Q>0 the concentration does not change, since it goes out of the volume
+/*
 	if(Q>0){
 		double f;
 		switch(TType){
@@ -1795,9 +1805,13 @@ void D0_edge::update_elastance(double dt, double E){
 			break;
 		}
 
-		fi[0] = (fi_old*V + Q*dt*f*ml_to_m3)/(V+Q*dt*ml_to_m3);
-	}
-	else{
+		if((V+Q*dt*ml_to_m3)!=0){
+		fi[0] = (fi_old*V + Q*dt*f*ml_to_m3)/(V+Q*dt*ml_to_m3);}
+
+		//fi[0]=f;
+	}*/
+
+	if(Q<0){
 		double f;
 		switch(TType){
 			case RBC:
@@ -1835,7 +1849,10 @@ void D0_edge::update_elastance(double dt, double E){
 
 		}
 
-		fi[0] = (fi_old*V - Q*dt*f*ml_to_m3)/(V-Q*dt*ml_to_m3);
+		//if((V-Q*dt*ml_to_m3)!=0){
+		//fi[0] = (fi_old*V - Q*dt*f*ml_to_m3)/(V-Q*dt*ml_to_m3);}
+		if((V-dV)!=0){
+		fi[0] = (fi_old*V - dV*f)/(V-dV);}
 	}
 
 }
@@ -2012,9 +2029,10 @@ void solver_lumped::CO2transport(double dt){
 
     //tissue concentration
     for(int i=0; i<n; i++){
-	tissueCO2v[i] =  tissueCO2vold[i] + Mmax*tissueO2v[i]/(tissueO2v[i]+C50)*0.8 - dt/tao_co2_rbc_pla*(tissueCO2vold[i] - CO2_pla_old[i]*alpha_co2_tis/alpha_co2_pla);
+	tissueCO2v[i] =  tissueCO2vold[i] + Mmax*tissueO2v[i]/(tissueO2v[i]+C50)*RQ - dt/tao_co2_rbc_pla*(tissueCO2vold[i] - CO2_pla_old[i]*alpha_co2_tis/alpha_co2_pla);
     }
     tissueCO2s = average(tissueCO2v);
+    //cout<<tissueCO2s/alpha_co2_tis<<endl;
 
 };
 
@@ -2103,3 +2121,160 @@ void D0_transport::prescribe_node_fi_CO2(TransportType TType, double& finode){
 	}
 
 }
+
+
+
+//--------------------------------------------------------------------------------------------------
+void solver_lumped::capillary_CO2_transport(double dt){
+
+	if(do_pul_O2_rtansport){
+
+		pulmonary_CO2transport( dt);
+	}
+
+    if(do_per_O2_rtansport){
+
+    	CO2transport( dt);
+    }
+
+};
+
+
+//--------------------------------------------------------------------------------------------------
+void solver_lumped::pulmonary_CO2transport(double dt){
+	//only one capillary is allowed per 0D model.
+
+	vector<double> CO2_pla_old = pul_cap_CO2_pla->fi;
+	vector<double>& CO2_pla = pul_cap_CO2_pla->fi;
+
+	vector<double> CO2_rbc_old = pul_cap_CO2_rbc->fi;
+	vector<double>& CO2_rbc = pul_cap_CO2_rbc->fi;
+
+	vector<double> HCO3_pla_old = pul_cap_HCO3_pla->fi;
+	vector<double>& HCO3_pla = pul_cap_HCO3_pla->fi;
+
+	vector<double> HCO3_rbc_old = pul_cap_HCO3_rbc->fi;
+	vector<double>& HCO3_rbc = pul_cap_HCO3_rbc->fi;
+
+	vector<double> HbCO2_old = pul_cap_HbCO2->fi;
+	vector<double>& HbCO2 = pul_cap_HbCO2->fi;
+
+
+	//double r;
+	//cin>>r;
+	//vfr_edge, A, nx are the same for these D0_edges
+	int n = pul_cap_CO2_pla-> nx;
+	vector<double> K_pul_v = sin_2(K_pul_scale_CO2, n);
+	double dx = pul_cap_CO2_pla-> dx;
+	double v = pul_cap_CO2_pla->corr_edge->vfr/pul_cap_CO2_pla->A*ml_to_m3;
+
+	//double r;
+	//cin>>r;
+	//BCs
+	double CO2_pla_n_s = pul_cap_CO2_pla->node_start->CO2_pla_n; //node start
+	double CO2_pla_n_e = pul_cap_CO2_pla->node_end->CO2_pla_n; //node end
+	double CO2_rbc_n_s = pul_cap_CO2_rbc->node_start->CO2_rbc_n;
+	double CO2_rbc_n_e = pul_cap_CO2_rbc->node_end->CO2_rbc_n;
+	double HCO3_pla_n_s = pul_cap_HCO3_pla->node_start->HCO3_pla_n;
+	double HCO3_pla_n_e = pul_cap_HCO3_pla->node_end->HCO3_pla_n;
+	double HCO3_rbc_n_s = pul_cap_HCO3_rbc->node_start->HCO3_rbc_n;
+	double HCO3_rbc_n_e = pul_cap_HCO3_rbc->node_end->HCO3_rbc_n;
+	double HbCO2_n_s = pul_cap_HbCO2->node_start->HbCO2_n;
+	double HbCO2_n_e = pul_cap_HbCO2->node_end->HbCO2_n;
+
+
+	//capillary
+    for (int i = 1; i < n - 1; i++) {
+        double CO2_pla_der;
+        double CO2_rbc_der;
+        double HCO3_pla_der;
+        double HCO3_rbc_der;
+        double HbCO2_der;
+
+        if (v > 0.) {
+            CO2_pla_der = (CO2_pla_old[i] - CO2_pla_old[i-1])/dx;
+            CO2_rbc_der = (CO2_rbc_old[i] - CO2_rbc_old[i-1])/dx;
+            HCO3_pla_der = (HCO3_pla_old[i] - HCO3_pla_old[i-1])/dx;
+            HCO3_rbc_der = (HCO3_rbc_old[i] - HCO3_rbc_old[i-1])/dx;
+            HbCO2_der = (HbCO2_old[i] - HbCO2_old[i-1])/dx;
+        }
+        else {
+            CO2_pla_der = (CO2_pla_old[i+1] - CO2_pla_old[i])/dx;
+            CO2_rbc_der = (CO2_rbc_old[i+1] - CO2_rbc_old[i])/dx;
+            HCO3_pla_der = (HCO3_pla_old[i+1] - HCO3_pla_old[i])/dx;
+            HCO3_rbc_der = (HCO3_rbc_old[i+1] - HCO3_rbc_old[i])/dx;
+            HbCO2_der = (HbCO2_old[i+1] - HbCO2_old[i])/dx;
+        }
+
+
+        double Eta_hco3 = eta_hco3(HCO3_rbc_old[i], HCO3_pla_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
+        double Eta_hb = eta_hb( HbCO2_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
+
+
+
+        CO2_pla[i] = CO2_pla_old[i] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[i] - CO2_rbc_old[i]*alpha_co2_pla/alpha_co2_rbc) + dt*K_pul_v[i]*(PCO2_alveolar - CO2_pla_old[i]/alpha_co2_pla);
+		//CO2_pla[i] = CO2_pla_old[i] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[i] - CO2_rbc_old[i]*alpha_co2_pla/alpha_co2_rbc) + 10*dt/tao_co2_pla_tis*(PCO2_alveolar*alpha_co2_pla - CO2_pla_old[i]);
+        CO2_rbc[i] = CO2_rbc_old[i] - dt/fi_rbc*v*CO2_rbc_der*ksi_rbc + dt/tao_co2_rbc_pla*(CO2_pla_old[i]*alpha_co2_rbc/alpha_co2_pla - CO2_rbc_old[i]) - dt/tao_hco3*Eta_hco3 - dt/tao_hbco2*Eta_hb;
+        HCO3_pla[i] = HCO3_pla_old[i] - dt/fi_pla*v*HCO3_pla_der*ksi_pla - dt/tao_hco3_pla_rbc*(HCO3_pla_old[i]-HCO3_rbc_old[i]/alpha_hco3_rbc*alpha_hco3_pla);
+        HCO3_rbc[i] = HCO3_rbc_old[i] - dt/fi_rbc*v*HCO3_rbc_der*ksi_rbc + dt/tao_hco3_rbc_pla*(HCO3_pla_old[i]*alpha_hco3_rbc/alpha_hco3_pla-HCO3_rbc_old[i]) + dt/tao_hco3*Eta_hco3;
+        HbCO2[i] = HbCO2_old[i] - v*dt*HbCO2_der + dt/tao_hbco2*Eta_hb;
+    }
+
+    //BCs
+    if (v > 0.) {
+        double CO2_pla_der = (CO2_pla_old[n - 1] - CO2_pla_old[n - 2])/dx;
+        double CO2_rbc_der = (CO2_rbc_old[n - 1] - CO2_rbc_old[n - 2])/dx;
+        double HCO3_pla_der = (HCO3_pla_old[n - 1] - HCO3_pla_old[n - 2])/dx;
+        double HCO3_rbc_der = (HCO3_rbc_old[n - 1] - HCO3_rbc_old[n - 2])/dx;
+        double HbCO2_der = (HbCO2_old[n - 1] - HbCO2_old[n - 2])/dx;
+
+        double Eta_hco3 = eta_hco3(HCO3_rbc_old[n - 1], HCO3_pla_old[n - 1], CO2_pla_old[n - 1], CO2_rbc_old[n - 1]);
+        double Eta_hb = eta_hb( HbCO2_old[n - 1], CO2_pla_old[n - 1] , CO2_rbc_old[n - 1]);
+
+
+        CO2_pla[n-1] = CO2_pla_old[n-1] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[n-1] - CO2_rbc_old[n-1]*alpha_co2_pla/alpha_co2_rbc) + dt*K_pul_v[n-1]*(PCO2_alveolar - CO2_pla_old[n-1]/alpha_co2_pla);
+        //CO2_pla[n-1] = CO2_pla_old[n-1] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[n-1] - CO2_rbc_old[n-1]*alpha_co2_pla/alpha_co2_rbc) + 10*dt/tao_co2_pla_tis*(PCO2_alveolar*alpha_co2_pla - CO2_pla_old[n-1]);
+        CO2_rbc[n-1] = CO2_rbc_old[n-1] - dt/fi_rbc*v*CO2_rbc_der*ksi_rbc + dt/tao_co2_rbc_pla*(CO2_pla_old[n-1]*alpha_co2_rbc/alpha_co2_pla - CO2_rbc_old[n-1]) - dt/tao_hco3*Eta_hco3 - dt/tao_hbco2*Eta_hb;
+        HCO3_pla[n-1] = HCO3_pla_old[n-1] - dt/fi_pla*v*HCO3_pla_der*ksi_pla - dt/tao_hco3_pla_rbc*(HCO3_pla_old[n-1]-HCO3_rbc_old[n-1]/alpha_hco3_rbc*alpha_hco3_pla);
+        HCO3_rbc[n-1] = HCO3_rbc_old[n-1] - dt/fi_rbc*v*HCO3_rbc_der*ksi_rbc + dt/tao_hco3_rbc_pla*(HCO3_pla_old[n-1]*alpha_hco3_rbc/alpha_hco3_pla-HCO3_rbc_old[n-1]) + dt/tao_hco3*Eta_hco3;
+        HbCO2[n-1] = HbCO2_old[n-1] - v*dt*HbCO2_der+dt/tao_hbco2*Eta_hb;
+
+        CO2_pla[0] = CO2_pla_n_s;
+        CO2_rbc[0] = CO2_rbc_n_s;
+        HCO3_pla[0] = HCO3_pla_n_s;
+        HCO3_rbc[0] = HCO3_rbc_n_s;
+        HbCO2[0] = HbCO2_n_s;
+
+
+    }
+    else {
+        double CO2_pla_der = (CO2_pla_old[1] - CO2_pla_old[0])/dx;
+        double CO2_rbc_der = (CO2_rbc_old[1] - CO2_rbc_old[0])/dx;
+        double HCO3_pla_der = (HCO3_pla_old[1] - HCO3_pla_old[0])/dx;
+        double HCO3_rbc_der = (HCO3_rbc_old[1] - HCO3_rbc_old[0])/dx;
+        double HbCO2_der = (HbCO2_old[1] - HbCO2_old[0])/dx;
+
+        double Eta_hco3 = eta_hco3(HCO3_rbc_old[0], HCO3_pla_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
+        double Eta_hb = eta_hb( HbCO2_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
+        
+
+        CO2_pla[0] = CO2_pla_old[0] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[0] - CO2_rbc_old[0]*alpha_co2_pla/alpha_co2_rbc) + dt*K_pul_v[0]*(PCO2_alveolar - CO2_pla_old[0]/alpha_co2_pla);
+        //CO2_pla[0] = CO2_pla_old[0] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[0] - CO2_rbc_old[0]*alpha_co2_pla/alpha_co2_rbc) + 10*dt/tao_co2_pla_tis*(PCO2_alveolar*alpha_co2_pla - CO2_pla_old[0]);//
+        CO2_rbc[0] = CO2_rbc_old[0] - dt/fi_rbc*v*CO2_rbc_der*ksi_rbc + dt/tao_co2_rbc_pla*(CO2_pla_old[0]*alpha_co2_rbc/alpha_co2_pla - CO2_rbc_old[0]) - dt/tao_hco3*Eta_hco3 - dt/tao_hbco2*Eta_hb;
+        HCO3_pla[0] = HCO3_pla_old[0] - dt/fi_pla*v*HCO3_pla_der*ksi_pla - dt/tao_hco3_pla_rbc*(HCO3_pla_old[0]-HCO3_rbc_old[0]/alpha_hco3_rbc*alpha_hco3_pla);
+        HCO3_rbc[0] = HCO3_rbc_old[0] - dt/fi_rbc*v*HCO3_rbc_der*ksi_rbc + dt/tao_hco3_rbc_pla*(HCO3_pla_old[0]*alpha_hco3_rbc/alpha_hco3_pla-HCO3_rbc_old[0]) + dt/tao_hco3*Eta_hco3;
+        HbCO2[0] = HbCO2_old[0] - v*dt*HbCO2_der+dt/tao_hbco2*Eta_hb;
+
+        CO2_pla[n-1] = CO2_pla_n_e;
+        CO2_rbc[n-1] = CO2_rbc_n_e;
+        HCO3_pla[n-1] = HCO3_pla_n_e;
+        HCO3_rbc[n-1] = HCO3_rbc_n_e;
+        HbCO2[n-1] = HbCO2_n_e;
+
+    }
+
+     //for (int i = 1; i < n - 1; i++){cout<<CO2_pla[i]<<"  ";}
+     //cout<<endl;
+
+
+};

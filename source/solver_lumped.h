@@ -152,6 +152,9 @@ public:
 
     //CO2 transport
     void CO2transport(double dt);
+    void pulmonary_CO2transport(double dt);
+    //double K_pul_scale_CO2 = 5.9e-2; // m3(O2)/m3(plasma)/Pa
+    double K_pul_scale_CO2 = 5.9e-4; // m3(O2)/m3(plasma)/Pa
 
     //tissue CO2 concentration vector and scalar
     vector<double> tissueCO2v;
@@ -160,8 +163,9 @@ public:
 
     
     //tissue O2 concentration initial condition
-    double init_tissueO2 = 0.0266;
+    //double init_tissueO2 = 0.0166;
     //double init_tissueO2 = 2.2e-3;
+    double init_tissueO2 = 2.2e-4;
     //init function for tissue O2
     void init_lum_tissueO2();
 
@@ -191,7 +195,8 @@ public:
     double PO2_alveolar = 100.; // [mmHg]
     double K_pul_O2 = 1.33e-7; // [m3/s/mmHg]
     double taoO2_p = 0.4;//s
-    double K_pul_scale = 4.479e-4;
+    //double K_pul_scale = 4.479e-4; // m3(O2)/m3(plasma)/mmHg
+    double K_pul_scale = 4.479e-3; // m3(O2)/m3(plasma)/mmHg
 
     //paramteres for metabolic response
     double x_met = 0.;
@@ -232,6 +237,7 @@ public:
     //CO2 transport modelling
     //plasma CO2
     bool do_per_CO2_transport = false;
+    bool do_pul_CO2_transport = false;
     
     D0_transport* CO2_pla_lum;
     bool do_lum_pla_CO2_transport = false;
@@ -264,6 +270,13 @@ public:
  	D0_edge* per_cap_HCO3_rbc;
  	D0_edge* per_cap_HbCO2;
 
+ 	//pulmonary capillary edges
+ 	D0_edge* pul_cap_CO2_pla;
+ 	D0_edge* pul_cap_CO2_rbc;
+ 	D0_edge* pul_cap_HCO3_pla;
+ 	D0_edge* pul_cap_HCO3_rbc;
+ 	D0_edge* pul_cap_HbCO2;
+
  	//parameters
  	double tao_hco3_rbc_pla;
  	double tao_hco3_pla_rbc;
@@ -288,7 +301,14 @@ public:
  	void assign_perif_CO2_params(vector<string> sv);
  	void init_lum_tissueCO2();
 
+ 	//double init_tissueCO2 = 0.0567; //m3/m3
  	double init_tissueCO2 = 0.0266; //m3/m3
+ 	//double init_tissueCO2 = 0.0166; //m3/m3
+
+ 	//alveolar co2 partial pressure
+ 	//double PCO2_alveolar = 5332.89474;//Pa = 40 mmHg from fonyo
+ 	double PCO2_alveolar = 4332.89474;
+ 	//double PCO2_alveolar = 3000.0;
 
 
 private:
@@ -420,6 +440,8 @@ public:
 
 	friend class D0_edge;
 	void capillary_O2_transport(double dt);
+	void capillary_CO2_transport(double dt);
+
 
 	void autoregulation(double t_act);
 	void update_R_fact();

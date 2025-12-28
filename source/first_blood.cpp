@@ -1420,6 +1420,8 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
     double q_sum = 0.;
     double q;
 
+//cout<<lum_mod.name<<"  "<<moc_mod.name<<endl;
+
 
     //outgoing edges
     for (int j = 0; j < n2; j++)
@@ -1750,6 +1752,7 @@ void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vect
     switch(TType){
        case HB_O2_saturation:
        lum_mod.nodes[indexof_node]->HBsat_0Dn = fiNode;
+       //cout<<lum_mod.nodes[indexof_node]->HBsat_0Dn<<"  "<<fiNode<<endl;
        break;
 
        case C_Plasma_O2:
@@ -2039,7 +2042,8 @@ void first_blood::CO2_transport(int moc_idx, int si, int ei, int e_idx, double t
 				lum[lum_idx]->CO2_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
 
 				//capillary is only updated here
-				lum[lum_idx]->CO2transport(moc[moc_idx]->edges[e_idx]->dt_act);
+				//lum[lum_idx]->CO2transport(moc[moc_idx]->edges[e_idx]->dt_act);
+				lum[lum_idx]->capillary_CO2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
 			}
 		}
 					
@@ -2055,7 +2059,8 @@ void first_blood::CO2_transport(int moc_idx, int si, int ei, int e_idx, double t
 				lum[lum_idx]->CO2_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
 
 				//capillary is only updated here
-				lum[lum_idx]->CO2transport(moc[moc_idx]->edges[e_idx]->dt_act);
+				//lum[lum_idx]->CO2transport(moc[moc_idx]->edges[e_idx]->dt_act);
+				lum[lum_idx]->capillary_CO2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
 			}
 
 		}
