@@ -1,5 +1,5 @@
 run,forward
-time,100.0
+time,10.0
 material,olufsen
 solver,maccormack
 

@@ -603,8 +603,15 @@ double solver_lumped::get_interp_val(int index, double t_act, int up_b){
 //--------------------------------------------------------------
 vector<double> solver_lumped::p_drop_q(double q, int index) {
     // returns {pressure drop, derivative wrt q}
-    const std::vector<double>& qv = edges[index]->qv_c;
-    const std::vector<double>& dp = edges[index]->dp_c;
+    double rev_f = edges[index]->parameter_factor;
+
+    // applying affinity law
+    vector<double> qv(edges[index]->qv_c.size()),dp(edges[index]->dp_c.size());
+    for(int i=0; i<edges[index]->qv_c.size(); i++)
+    {
+    	qv[i] = rev_f*edges[index]->qv_c[i];
+	    dp[i] = rev_f*rev_f*edges[index]->dp_c[i];
+    }
 
     if (qv.empty() || dp.empty() || qv.size() != dp.size()) {
         throw std::runtime_error("Invalid qv/dp data");
