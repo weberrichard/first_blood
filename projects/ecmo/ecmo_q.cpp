@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
    double save_dt = 1e-3;
    double heart_rate = 75.6;  // if there is a heart model   
    double period_time = 60./heart_rate;
-   double sim_time = 1.5*period_time;
+   double sim_time = 10.*period_time;
    bool init_from_file = false;
 
    // handling inputs
@@ -53,6 +53,12 @@ int main(int argc, char* argv[])
    vector<string> el{"A1"};
    vector<string> nl{};
    fb->set_save_memory(model_name,model_type,el,nl);
+
+   string model_name3 = "heart_kim_lit"; 
+   string model_type3 = "lum";
+   vector<string> el3;
+   vector<string> nl3{"p_LA1", "p_RV2"};
+   fb->set_save_memory(model_name3,model_type3,el3,nl3);
 
    fb->time_end = sim_time;
 
