@@ -633,5 +633,7 @@ vector<double> solver_lumped::p_drop_q(double q, int index) {
         slope = (dp[i+1] - dp[i]) / (qv[i+1] - qv[i]);
         p_val = dp[i] + slope * (q - qv[i]);
     }
+    cout << "q: " << q << " p: " << p_val << endl;
+    cin.get();
     return {p_val, slope};
 }
