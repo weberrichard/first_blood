@@ -25,7 +25,7 @@ write_to_file(log_file,"q_base: " + str(q_base*1.e3*60) + "\n\r")
 @lru_cache(maxsize=None)
 
 def objective(x):
-	os.system("./ecmo_q.out Abel_ref2_ecmo_femfem " + str(elastance_max) + " " + str(x))
+	os.system("./ecmo_q.out " + case_name + " " + str(elastance_max) + " " + str(x))
 	q = float(np.loadtxt(result_file))
 	write_to_file(log_file,"rev: " + str(x) + " q: " + str(q*1e3*60) + "\n\r",'a')
 	out = pow(q_base-q,2)
