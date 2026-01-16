@@ -36,16 +36,15 @@ int main(int argc, char* argv[])
 
    // setting the ecmo revolution number
    double rev_factor = stod(argv[3],0);
+   string model_name2 = "p8";
+   string model_type2 = "lum";
+   vector<string> el2{"V1"};
+   vector<string> nl2{};
    if(rev_factor!=-1.0)
    {
       int lum_index = fb->lum_id_to_index("p8");
       fb->lum[lum_index]->edges[5]->parameter_factor = rev_factor;
-
-      string model_name = "p8";
-      string model_type = "lum";
-      vector<string> el{"V1"};
-      vector<string> nl{};
-      fb->set_save_memory(model_name,model_type,el,nl);
+      fb->set_save_memory(model_name2,model_type2,el2,nl2);
    }
 
    string model_name = "arterial";
@@ -71,6 +70,8 @@ int main(int argc, char* argv[])
    if(is_run_ok)
    {
       fb->save_results(save_name,model_name,model_type,el,nl);
+      fb->save_results(save_name,model_name2,model_type2,el2,nl2);
+      fb->save_results(save_name,model_name3,model_type3,el3,nl3);
 
       vector<double> co = fb->moc[0]->edges[0]->volume_flow_rate_start;
       vector<double> t = fb->moc[0]->edges[0]->time;
