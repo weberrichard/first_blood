@@ -153,8 +153,9 @@ public:
     //CO2 transport
     void CO2transport(double dt);
     void pulmonary_CO2transport(double dt);
-    //double K_pul_scale_CO2 = 5.9e-2; // m3(O2)/m3(plasma)/Pa
-    double K_pul_scale_CO2 = 5.9e-4; // m3(O2)/m3(plasma)/Pa
+    //double K_pul_scale_CO2 = 5.9e-2; // m3(CO2)/m3(plasma)/Pa
+    //double K_pul_scale_CO2 = 5.9e-4; // m3(CO2)/m3(plasma)/Pa
+    double K_pul_scale_CO2 = 5.9e-5; // m3(CO2)/m3(plasma)/Pa
 
     //tissue CO2 concentration vector and scalar
     vector<double> tissueCO2v;
@@ -302,12 +303,13 @@ public:
  	void init_lum_tissueCO2();
 
  	//double init_tissueCO2 = 0.0567; //m3/m3
- 	double init_tissueCO2 = 0.0266; //m3/m3
+ 	double init_tissueCO2 = 0.0767; //m3/m3
+ 	//double init_tissueCO2 = 0.026; //m3/m3
  	//double init_tissueCO2 = 0.0166; //m3/m3
 
  	//alveolar co2 partial pressure
- 	//double PCO2_alveolar = 5332.89474;//Pa = 40 mmHg from fonyo
- 	double PCO2_alveolar = 4332.89474;
+ 	double PCO2_alveolar = 5332.89474;//Pa = 40 mmHg from fonyo
+ 	//double PCO2_alveolar = 4332.89474;
  	//double PCO2_alveolar = 3000.0;
 
 
@@ -325,6 +327,7 @@ private:
 	MatrixXd A;
 	VectorXd b;
 
+public:
 	class node
 	{
 	public:
@@ -515,7 +518,7 @@ public:
     bool do_tissue_transport = false;
     bool do_tissue_CO2_transport = false;
 
-
+    static const std::string& get_node_fi_property_name(TransportType type);
 
     D0_transport( TransportType TType);
 

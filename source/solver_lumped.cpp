@@ -894,23 +894,17 @@ void solver_lumped::init_lum_tissueO2(){
     tissueO2v.clear();
     tissueO2_save.clear();
 
-    //only one pulmonary capillary is allowed in a lumped model but noth both
+    //only one peripheral capillary is allowed in a lumped model
     int t;
-	for(int i=0;i<HBsatlum ->D0_edges.size();i++){
-		if(HBsatlum ->D0_edges[i]->is_pul_capillary){
-			t=HBsatlum ->D0_edges[i]->nx;
-		}
-	}
 
 	for(int i=0;i<HBsatlum ->D0_edges.size();i++){
 		if(HBsatlum ->D0_edges[i]->is_per_capillary){
 			t=HBsatlum ->D0_edges[i]->nx;
+    		//O2 transport initialization
+    		tissueO2s = init_tissueCO2;
+    		tissueO2v.assign( t , init_tissueCO2);
 		}
 	}
-
-    //O2 transport initialization
-    tissueO2s = init_tissueCO2;
-    tissueO2v.assign( t , init_tissueCO2);
 }
 
 
@@ -1034,226 +1028,21 @@ D0_edge::D0_edge(string D0_name, double L, double A, int  nx, TransportType TTyp
 
 
 //--------------------------------------------------------------------------------------------------
-void D0_transport::update_nodes(solver_lumped& lum_mod){
-	for(int i=0; i<lum_mod.nodes.size() ;i++){
-		double q=0.;
-		double c=0.; //concantration
-
-		//if(lum_mod.nodes[i]->name == "p_LA3"){cout<<lum_mod.nodes[i]->HBsat_0Dn<<endl;}
-
-		if(!lum_mod.nodes[i]->is_master_node){ //master nodes are handled separately in a different function
-			switch(TType){
-				case RBC:
-					//incoming edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_RBC.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_RBC[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q > 0.){
-							q += Q;
-							c += Q * d->fi.back();
-						}
-					}
-
-					//outgoing edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_RBC.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_RBC[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q < 0.){
-							q -= Q;
-							c -= Q * d->fi[0];
-						}
-					}
-					if(q !=0. ){lum_mod.nodes[i]->RBC_fi0Dn = c/q;}
-				break;
-
-				case C_Plasma_O2:
-					//incoming edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_PlasmaO2.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_PlasmaO2[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q > 0.){
-							q += Q;
-							c += Q * d->fi.back();
-						}
-					}
-
-					//outgoing edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_PlasmaO2.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_PlasmaO2[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q < 0.){
-							q -= Q;
-							c -= Q * d->fi[0];
-						}
-					}
-					if(q !=0. ){lum_mod.nodes[i]->PlasmaO2_0Dn = c/q;}
-				break;
-
-				case HB_O2_saturation:
-					//incoming edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_HBsat.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_HBsat[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q > 0.){
-							q += Q;
-							c += Q * d->fi.back();
-						}
-					}
-
-					//outgoing edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_HBsat.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_HBsat[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q < 0.){
-							q -= Q;
-							c -= Q * d->fi[0];
-						}
-					}
-					if(q !=0. ){lum_mod.nodes[i]->HBsat_0Dn = c/q;}
-				break;
-
-
-
-				//CO2 transport
-				case CO2_pla:
-					//incoming edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_CO2_pla.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_CO2_pla[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q > 0.){
-							q += Q;
-							c += Q * d->fi.back();
-						}
-					}
-
-					//outgoing edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_CO2_pla.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_CO2_pla[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q < 0.){
-							q -= Q;
-							c -= Q * d->fi[0];
-						}
-					}
-					if(q !=0. ){lum_mod.nodes[i]->CO2_pla_n = c/q;}
-				break;
-
-				case CO2_rbc:
-					//incoming edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_CO2_rbc.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_CO2_rbc[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q > 0.){
-							q += Q;
-							c += Q * d->fi.back();
-						}
-					}
-
-					//outgoing edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_CO2_rbc.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_CO2_rbc[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q < 0.){
-							q -= Q;
-							c -= Q * d->fi[0];
-						}
-					}
-					if(q !=0. ){lum_mod.nodes[i]->CO2_rbc_n = c/q;}
-				break;
-
-				case HCO3_pla:
-					//incoming edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_HCO3_pla.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_HCO3_pla[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q > 0.){
-							q += Q;
-							c += Q * d->fi.back();
-						}
-					}
-
-					//outgoing edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_HCO3_pla.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_HCO3_pla[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q < 0.){
-							q -= Q;
-							c -= Q * d->fi[0];
-						}
-					}
-					if(q !=0. ){lum_mod.nodes[i]->HCO3_pla_n = c/q;}
-				break;
-
-				case HCO3_rbc:
-					//incoming edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_HCO3_rbc.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_HCO3_rbc[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q > 0.){
-							q += Q;
-							c += Q * d->fi.back();
-						}
-					}
-
-					//outgoing edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_HCO3_rbc.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_HCO3_rbc[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q < 0.){
-							q -= Q;
-							c -= Q * d->fi[0];
-						}
-					}
-					if(q !=0. ){lum_mod.nodes[i]->HCO3_rbc_n = c/q;}
-				break;
-
-			case HbCO2:
-					//incoming edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_in_HbCO2.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_in_HbCO2[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q > 0.){
-							q += Q;
-							c += Q * d->fi.back();
-						}
-					}
-
-					//outgoing edges
-					for(int j=0; j< lum_mod.nodes[i]->D0_edges_out_HbCO2.size() ; j++ ){
-						D0_edge* d = lum_mod.nodes[i]->D0_edges_out_HbCO2[j];
-						double Q = d->corr_edge->vfr * d->corr_edge->is_open;
-						if(Q < 0.){
-							q -= Q;
-							c -= Q * d->fi[0];
-						}
-					}
-					if(q !=0. ){lum_mod.nodes[i]->HbCO2_n = c/q;}
-				break;
-
-
-			}
-		}
-		//capacitances modelling dilation and contraction
-	}
-}
-
-
-//--------------------------------------------------------------------------------------------------
 void D0_transport::update_edges( double dt, solver_lumped& lum_mod, double t_act){
 //capillary edges are updates from solver_lumped
 	for(int i=0; i< D0_edges.size(); i++ ){
 
-		if((!D0_edges[i]->is_per_capillary && !D0_edges[i]->is_pul_capillary) || !do_tissue_transport){
+		if((!D0_edges[i]->is_per_capillary && !D0_edges[i]->is_pul_capillary)){
 			if(D0_edges[i]->is_diode){
 				D0_edges[i]->update_diode();
 			}
 			else if(D0_edges[i]->is_capacitor){
-				//D0_edges[i]->update_capacitor(dt);
+				D0_edges[i]->update_capacitor(dt);
 			}
 			else if(D0_edges[i]->is_elastance){
 				double E = lum_mod.elastance(t_act, D0_edges[i]->corr_edge->parameter);
 				E = E*mmHg_to_Pa*1.e6; // mmHg/ml to SI: Pa/m3
-				//D0_edges[i]->update_elastance(dt, E);
+				D0_edges[i]->update_elastance(dt, E);
 			}
 			else{
 				D0_edges[i]->virt1D(dt);
@@ -1264,257 +1053,10 @@ void D0_transport::update_edges( double dt, solver_lumped& lum_mod, double t_act
 
 
 //--------------------------------------------------------------------------------------------------
-void D0_edge::virt1D(double dt){
-	double v = corr_edge->vfr/A * ml_to_m3;
-	
-	vector<double> fi_old = fi;
-
-    for (int i = 1; i < nx - 1; i++) {
-
-        if (v > 0.) {
-            fi[i] = fi_old[i] - v * dt / dx * (fi_old[i] - fi_old[i - 1]);
-        }
-        else {
-            fi[i] = fi_old[i] - v * dt / dx * (fi_old[i + 1] - fi_old[i]);
-        }
-    }
-
-    //BC
-    
-    if (v > 0.) {
-
-        fi[nx - 1] = fi_old[nx - 1] - v * dt / dx * (fi_old[nx - 1] - fi_old[nx - 2]);
-
-        double fiStartNode;
-        switch(TType){
-    case RBC:
-    	fiStartNode = node_start->RBC_fi0Dn;
-    	break;
-
-    case C_Plasma_O2:
-    	fiStartNode = node_start->PlasmaO2_0Dn;
-    	break;
-
-    case HB_O2_saturation:
-    	fiStartNode = node_start->HBsat_0Dn;
-    	break;
-
-    //CO2
-    case CO2_pla:
-    	fiStartNode = node_start->CO2_pla_n;
-    	break;
-
-    case CO2_rbc:
-    	fiStartNode = node_start->CO2_rbc_n;
-    	break;
-
-    case HCO3_pla:
-    	fiStartNode = node_start->HCO3_pla_n;
-    	break;
-
-    case HCO3_rbc:
-    	fiStartNode = node_start->HCO3_rbc_n;
-    	break;
-
-    case HbCO2:
-    	fiStartNode = node_start->HbCO2_n;
-    	break;}
-
-
-        fi[0] = fiStartNode;
-    }
-    else {
-
-    	double fiEndNode;
-        switch(TType){
-    case RBC:
-    	fiEndNode = node_end->RBC_fi0Dn;
-    	break;
-
-    case C_Plasma_O2:
-    	fiEndNode = node_end->PlasmaO2_0Dn;
-    	break;
-
-    case HB_O2_saturation:
-    	fiEndNode = node_end->HBsat_0Dn;
-    	break;
-
-    //CO2
-    case CO2_pla:
-    	fiEndNode = node_start->CO2_pla_n;
-    	break;
-
-    case CO2_rbc:
-    	fiEndNode = node_start->CO2_rbc_n;
-    	break;
-
-    case HCO3_pla:
-    	fiEndNode = node_start->HCO3_pla_n;
-    	break;
-
-    case HCO3_rbc:
-    	fiEndNode = node_start->HCO3_rbc_n;
-    	break;
-
-    case HbCO2:
-    	fiEndNode = node_start->HbCO2_n;
-    	break;
-    }
-
-        fi[nx - 1] = fiEndNode; 
-        fi[0] = fi_old[0] - v * dt / dx * (fi_old[1] - fi_old[0]);
-    }
-
-}
-
-
 void D0_edge::save(){
 
 	fi_start.push_back(fi[0]);
 	fi_end.push_back(fi.back());
-}
-
-void D0_edge::update_diode(){
-
-	if(corr_edge->is_open){
-		switch(TType){
-		case RBC:
-		fi[0] = node_start->RBC_fi0Dn;
-		break;
-
-		case HB_O2_saturation:
-		fi[0] = node_start->HBsat_0Dn;
-		break;
-
-		case C_Plasma_O2:
-		fi[0] = node_start->PlasmaO2_0Dn;
-		break;
-
-
-		//CO2
-    	case CO2_pla:
-    	fi[0] = node_start->CO2_pla_n;
-    	break;
-
-    	case CO2_rbc:
-    	fi[0] = node_start->CO2_rbc_n;
-    	break;
-
-    	case HCO3_pla:
-    	fi[0] = node_start->HCO3_pla_n;
-    	break;
-
-    	case HCO3_rbc:
-    	fi[0] = node_start->HCO3_rbc_n;
-    	break;
-
-    	case HbCO2:
-    	fi[0] = node_start->HbCO2_n;
-    	break;
-
-		}
-	}
-}
-
-
-//--------------------------------------------------------------------------------------------------
-void D0_transport::connect_0D_edges(solver_lumped& lum_mod){
-	for(int i=0; i<D0_edges.size(); i++){
-		string ns = D0_edges[i]->node_s_name;
-		string ne = D0_edges[i]->node_e_name;
-
-		int index_start = -1;
-		int index_end = -1;
-		for(int j=0;j<lum_mod.nodes.size();j++){
-			if (ns == lum_mod.nodes[j]->name){
-				index_start=j;
-
-				switch(TType){
-				case RBC:
-				lum_mod.nodes[j]->D0_edges_out_RBC.push_back(D0_edges[i]);
-				break;
-
-				case HB_O2_saturation:
-				lum_mod.nodes[j]->D0_edges_out_HBsat.push_back(D0_edges[i]);
-				break;
-
-				case C_Plasma_O2:
-				lum_mod.nodes[j]->D0_edges_out_PlasmaO2.push_back(D0_edges[i]);
-				break;
-
-				//CO2 transport
-				case CO2_pla:
-				lum_mod.nodes[j]->D0_edges_out_CO2_pla.push_back(D0_edges[i]);
-				break;
-
-				case CO2_rbc:
-				lum_mod.nodes[j]->D0_edges_out_CO2_rbc.push_back(D0_edges[i]);
-				break;
-
-				case HCO3_pla:
-				lum_mod.nodes[j]->D0_edges_out_HCO3_pla.push_back(D0_edges[i]);
-				break;
-
-				case HCO3_rbc:
-				lum_mod.nodes[j]->D0_edges_out_HCO3_rbc.push_back(D0_edges[i]);
-				break;
-
-				case HbCO2:
-				lum_mod.nodes[j]->D0_edges_out_HbCO2.push_back(D0_edges[i]);
-				break;
-
-				}
-
-			}
-			if (ne == lum_mod.nodes[j]->name){
-				index_end=j;
-
-				switch(TType){
-				case RBC:
-				lum_mod.nodes[j]->D0_edges_in_RBC.push_back(D0_edges[i]);
-				break;
-
-				case HB_O2_saturation:
-				lum_mod.nodes[j]->D0_edges_in_HBsat.push_back(D0_edges[i]);
-				break;
-
-				case C_Plasma_O2:
-				lum_mod.nodes[j]->D0_edges_in_PlasmaO2.push_back(D0_edges[i]);
-				break;
-
-				//CO2 transport
-				case CO2_pla:
-				lum_mod.nodes[j]->D0_edges_in_CO2_pla.push_back(D0_edges[i]);
-				break;
-
-				case CO2_rbc:
-				lum_mod.nodes[j]->D0_edges_in_CO2_rbc.push_back(D0_edges[i]);
-				break;
-
-				case HCO3_pla:
-				lum_mod.nodes[j]->D0_edges_in_HCO3_pla.push_back(D0_edges[i]);
-				break;
-
-				case HCO3_rbc:
-				lum_mod.nodes[j]->D0_edges_in_HCO3_rbc.push_back(D0_edges[i]);
-				break;
-
-				case HbCO2:
-				lum_mod.nodes[j]->D0_edges_in_HbCO2.push_back(D0_edges[i]);
-				break;
-				}
-			}
-		}
-
-		if(index_start<0 || index_end<0){
-			cout<<"Transport node " <<ns<< " or " <<ne<<" does not exist in the lumped model."<<endl;
-			exit(-1);
-		}
-
-		D0_edges[i]->node_start = lum_mod.nodes[index_start];
-		D0_edges[i]->node_end = lum_mod.nodes[index_end];
-
-	}
 }
 
 
@@ -1705,49 +1247,6 @@ void D0_edge::update_capacitor(double dt){
 		fi[0] = (fi_old*V + Q*dt*f*ml_to_m3)/(V+Q*dt*ml_to_m3);}
 
 	}
-/*
-	else{
-		double f;
-		switch(TType){
-			case RBC:
-				f=node_end->RBC_fi0Dn;
-			break;
-
-			case HB_O2_saturation:
-				f=node_end->HBsat_0Dn;
-			break;
-
-			case C_Plasma_O2:
-				f=node_end->PlasmaO2_0Dn;
-			break;
-
-			//CO2
-			case CO2_pla:
-				f=node_end->CO2_pla_n;
-			break;
-
-			case CO2_rbc:
-				f=node_end->CO2_rbc_n;
-			break;
-
-			case HCO3_pla:
-				f=node_end->HCO3_pla_n;
-			break;
-
-			case HCO3_rbc:
-				f=node_end->HCO3_rbc_n;
-			break;
-
-			case HbCO2:
-				f=node_end->HbCO2_n;
-			break;
-		}
-
-		if(V-Q*dt*ml_to_m3 !=0. ){
-		fi[0] = (fi_old*V - Q*dt*f*ml_to_m3)/(V-Q*dt*ml_to_m3);}
-		//cout<<V-Q*dt*ml_to_m3<<endl;
-	}*/
-
 
 }
 
@@ -1762,54 +1261,7 @@ void D0_edge::update_elastance(double dt, double E){
 
 	double fi_old = fi[0];
 
-	//cout<<node_start->p - node_end->p<< "  " << Q<<endl;
-	//cout<<fi[0]<<endl;
-	//cout<<abs( node_end->p - node_start->p  )/E/mmHg_to_Pa<<endl;
 
-// if Q>0 the concentration does not change, since it goes out of the volume
-/*
-	if(Q>0){
-		double f;
-		switch(TType){
-			case RBC:
-				f=node_start->RBC_fi0Dn;
-			break;
-
-			case HB_O2_saturation:
-				f=node_start->HBsat_0Dn;
-			break;
-
-			case C_Plasma_O2:
-				f=node_start->PlasmaO2_0Dn;
-			break;
-
-			//CO2
-			case CO2_pla:
-				f=node_start->CO2_pla_n;
-			break;
-
-			case CO2_rbc:
-				f=node_start->CO2_rbc_n;
-			break;
-
-			case HCO3_pla:
-				f=node_start->HCO3_pla_n;
-			break;
-
-			case HCO3_rbc:
-				f=node_start->HCO3_rbc_n;
-			break;
-
-			case HbCO2:
-				f=node_start->HbCO2_n;
-			break;
-		}
-
-		if((V+Q*dt*ml_to_m3)!=0){
-		fi[0] = (fi_old*V + Q*dt*f*ml_to_m3)/(V+Q*dt*ml_to_m3);}
-
-		//fi[0]=f;
-	}*/
 
 	if(Q<0){
 		double f;
@@ -1849,10 +1301,9 @@ void D0_edge::update_elastance(double dt, double E){
 
 		}
 
-		//if((V-Q*dt*ml_to_m3)!=0){
-		//fi[0] = (fi_old*V - Q*dt*f*ml_to_m3)/(V-Q*dt*ml_to_m3);}
 		if((V-dV)!=0){
 		fi[0] = (fi_old*V - dV*f)/(V-dV);}
+		//cout<<f<<"  "<<fi_old<<"  "<<fi[0]<<endl;
 	}
 
 }
@@ -2027,12 +1478,17 @@ void solver_lumped::CO2transport(double dt){
 
     }
 
+/*
     //tissue concentration
     for(int i=0; i<n; i++){
-	tissueCO2v[i] =  tissueCO2vold[i] + Mmax*tissueO2v[i]/(tissueO2v[i]+C50)*RQ - dt/tao_co2_rbc_pla*(tissueCO2vold[i] - CO2_pla_old[i]*alpha_co2_tis/alpha_co2_pla);
+	tissueCO2v[i] =  tissueCO2vold[i] + dt*Mmax*tissueO2v[i]/(tissueO2v[i]+C50)*RQ - dt/tao_co2_tis_pla*(tissueCO2vold[i] - CO2_pla_old[i]*alpha_co2_tis/alpha_co2_pla);
     }
-    tissueCO2s = average(tissueCO2v);
+    tissueCO2s = average(tissueCO2v);*/
+
     //cout<<tissueCO2s/alpha_co2_tis<<endl;
+    cout<<Mmax*tissueO2v[30]/(tissueO2v[30]+C50)*RQ<<"  "<<1/tao_co2_tis_pla*(tissueCO2vold[30] - CO2_pla_old[30]*alpha_co2_tis/alpha_co2_pla)<<endl;
+    //cout<<Mmax*tissueO2v[30]/(tissueO2v[30]+C50)<<endl;
+    cout<<tissueCO2s/alpha_co2_tis/mmHg_to_Pa<<endl<<endl;
 
 };
 
@@ -2075,23 +1531,16 @@ void solver_lumped::init_lum_tissueCO2(){
     tissueCO2v.clear();
     tissueCO2_save.clear();
 
-    //only one pulmonary capillary is allowed in a lumped model but noth both
     int t;
-	for(int i=0;i<HBsatlum ->D0_edges.size();i++){
-		if(HBsatlum ->D0_edges[i]->is_pul_capillary){
-			t=HBsatlum ->D0_edges[i]->nx;
-		}
-	}
-
+    //only one pulmonary capillary is allowed in a lumped model
 	for(int i=0;i<HBsatlum ->D0_edges.size();i++){
 		if(HBsatlum ->D0_edges[i]->is_per_capillary){
 			t=HBsatlum ->D0_edges[i]->nx;
+			//CO2 transport initialization
+    		tissueCO2s = init_tissueCO2;
+    		tissueCO2v.assign( t , init_tissueCO2);
 		}
 	}
-
-    //CO2 transport initialization
-    tissueCO2s = init_tissueCO2;
-    tissueCO2v.assign( t , init_tissueCO2);
 }
 
 
@@ -2121,7 +1570,6 @@ void D0_transport::prescribe_node_fi_CO2(TransportType TType, double& finode){
 	}
 
 }
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -2278,3 +1726,211 @@ void solver_lumped::pulmonary_CO2transport(double dt){
 
 
 };
+
+//-------------------------------------------------------------------------------------
+struct TransportConfig {
+    std::string edge_in_list_name;
+    std::string edge_out_list_name;
+    std::string node_fi_property_name;
+};
+
+//-------------------------------------------------------------------------------------
+std::unordered_map<TransportType, TransportConfig> transport_configs = {
+    {RBC, {"D0_edges_in_RBC", "D0_edges_out_RBC", "RBC_fi0Dn"}},
+    {HB_O2_saturation, {"D0_edges_in_HBsat", "D0_edges_out_HBsat", "HBsat_0Dn"}},
+    {C_Plasma_O2, {"D0_edges_in_PlasmaO2", "D0_edges_out_PlasmaO2", "PlasmaO2_0Dn"}},
+    {CO2_pla, {"D0_edges_in_CO2_pla", "D0_edges_out_CO2_pla", "CO2_pla_n"}},
+    {CO2_rbc, {"D0_edges_in_CO2_rbc", "D0_edges_out_CO2_rbc", "CO2_rbc_n"}},
+    {HCO3_pla, {"D0_edges_in_HCO3_pla", "D0_edges_out_HCO3_pla", "HCO3_pla_n"}},
+    {HCO3_rbc, {"D0_edges_in_HCO3_rbc", "D0_edges_out_HCO3_rbc", "HCO3_rbc_n"}},
+    {HbCO2, {"D0_edges_in_HbCO2", "D0_edges_out_HbCO2",  "HbCO2_n"}}
+};
+
+//-------------------------------------------------------------------------------------
+// Helper function to get the edge list from a node
+std::vector<D0_edge*>& get_edge_list(solver_lumped::node* node, const std::string& list_name) {
+    if (list_name == "D0_edges_in_RBC") return node->D0_edges_in_RBC;
+    if (list_name == "D0_edges_out_RBC") return node->D0_edges_out_RBC;
+    if (list_name == "D0_edges_in_HBsat") return node->D0_edges_in_HBsat;
+    if (list_name == "D0_edges_out_HBsat") return node->D0_edges_out_HBsat;
+    if (list_name == "D0_edges_in_PlasmaO2") return node->D0_edges_in_PlasmaO2;
+    if (list_name == "D0_edges_out_PlasmaO2") return node->D0_edges_out_PlasmaO2;
+    if (list_name == "D0_edges_in_CO2_pla") return node->D0_edges_in_CO2_pla;
+    if (list_name == "D0_edges_out_CO2_pla") return node->D0_edges_out_CO2_pla;
+    if (list_name == "D0_edges_in_CO2_rbc") return node->D0_edges_in_CO2_rbc;
+    if (list_name == "D0_edges_out_CO2_rbc") return node->D0_edges_out_CO2_rbc;
+    if (list_name == "D0_edges_in_HCO3_pla") return node->D0_edges_in_HCO3_pla;
+    if (list_name == "D0_edges_out_HCO3_pla") return node->D0_edges_out_HCO3_pla;
+    if (list_name == "D0_edges_in_HCO3_rbc") return node->D0_edges_in_HCO3_rbc;
+    if (list_name == "D0_edges_out_HCO3_rbc") return node->D0_edges_out_HCO3_rbc;
+    if (list_name == "D0_edges_in_HbCO2") return node->D0_edges_in_HbCO2;
+    if (list_name == "D0_edges_out_HbCO2") return node->D0_edges_out_HbCO2;
+    throw std::runtime_error("Unknown edge list: " + list_name);
+}
+
+//-------------------------------------------------------------------------------------
+// Helper function to get the node property
+double& get_node_fi(solver_lumped::node* node, const std::string& property_name) {
+    if (property_name == "RBC_fi0Dn") return node->RBC_fi0Dn;
+    if (property_name == "HBsat_0Dn") return node->HBsat_0Dn;
+    if (property_name == "PlasmaO2_0Dn") return node->PlasmaO2_0Dn;
+    if (property_name == "CO2_pla_n") return node->CO2_pla_n;
+    if (property_name == "CO2_rbc_n") return node->CO2_rbc_n;
+    if (property_name == "HCO3_pla_n") return node->HCO3_pla_n;
+    if (property_name == "HCO3_rbc_n") return node->HCO3_rbc_n;
+    if (property_name == "HbCO2_n") return node->HbCO2_n;
+
+    throw std::runtime_error("Unknown node property: " + property_name);
+}
+
+//-------------------------------------------------------------------------------------
+void D0_transport::update_nodes(solver_lumped& lum_mod) {
+    // Get the configuration for the current transport type
+    auto config_it = transport_configs.find(TType);
+    if (config_it == transport_configs.end()) {
+        std::cerr << "Error: Unknown transport type!" << std::endl;
+        return;
+    }
+
+    const auto& config = config_it->second;
+
+    for (int i = 0; i < lum_mod.nodes.size(); i++) {
+        if (lum_mod.nodes[i]->is_master_node) continue; // Skip master nodes
+
+        double q = 0.0;
+        double c = 0.0; // concentration
+
+        // Incoming edges
+        auto& edges_in = get_edge_list(lum_mod.nodes[i], config.edge_in_list_name);
+        for (auto* edge : edges_in) {
+            double Q = edge->corr_edge->vfr * edge->corr_edge->is_open;
+            if (Q > 0.0) {
+                q += Q;
+                c += Q * edge->fi.back();
+            }
+        }
+
+        // Outgoing edges
+        auto& edges_out = get_edge_list(lum_mod.nodes[i], config.edge_out_list_name);
+        for (auto* edge : edges_out) {
+            double Q = edge->corr_edge->vfr * edge->corr_edge->is_open;
+            if (Q < 0.0) {
+                q -= Q;
+                c -= Q * edge->fi[0];
+            }
+        }
+
+        // Update node concentration
+        if (q != 0.0) {
+            get_node_fi(lum_mod.nodes[i], config.node_fi_property_name) = c / q;
+        }
+    }
+}
+
+//-------------------------------------------------------------------------------------
+void D0_transport::connect_0D_edges(solver_lumped& lum_mod) {
+    for (int i = 0; i < D0_edges.size(); i++) {
+        std::string ns = D0_edges[i]->node_s_name;
+        std::string ne = D0_edges[i]->node_e_name;
+
+        int index_start = -1;
+        int index_end = -1;
+
+        for (int j = 0; j < lum_mod.nodes.size(); j++) {
+            if (ns == lum_mod.nodes[j]->name) {
+                index_start = j;
+                // Get the configuration for the current transport type
+                auto config_it = transport_configs.find(TType);
+                if (config_it == transport_configs.end()) {
+                    std::cerr << "Error: Unknown transport type!" << std::endl;
+                    exit(-1);
+                }
+                const auto& config = config_it->second;
+                // Add the edge to the outgoing edge list of the start node
+                get_edge_list(lum_mod.nodes[j], config.edge_out_list_name).push_back(D0_edges[i]);
+            }
+
+            if (ne == lum_mod.nodes[j]->name) {
+                index_end = j;
+                // Get the configuration for the current transport type
+                auto config_it = transport_configs.find(TType);
+                if (config_it == transport_configs.end()) {
+                    std::cerr << "Error: Unknown transport type!" << std::endl;
+                    exit(-1);
+                }
+                const auto& config = config_it->second;
+                // Add the edge to the incoming edge list of the end node
+                get_edge_list(lum_mod.nodes[j], config.edge_in_list_name).push_back(D0_edges[i]);
+            }
+        }
+
+        if (index_start < 0 || index_end < 0) {
+            std::cout << "Transport node " << ns << " or " << ne << " does not exist in the lumped model." << std::endl;
+            exit(-1);
+        }
+
+        D0_edges[i]->node_start = lum_mod.nodes[index_start];
+        D0_edges[i]->node_end = lum_mod.nodes[index_end];
+    }
+}
+
+const std::string& D0_transport::get_node_fi_property_name(TransportType type) {
+    auto config_it = transport_configs.find(type);
+    if (config_it == transport_configs.end()) {
+        throw std::runtime_error("Unknown transport type!");
+    }
+    return config_it->second.node_fi_property_name;
+}
+
+//-------------------------------------------------------------------------------------
+void D0_edge::update_diode() {
+    if (corr_edge->is_open) {
+        try {
+            const std::string& property_name = D0_transport::get_node_fi_property_name(TType);
+            fi[0] = get_node_fi(node_start, property_name);
+        } catch (const std::runtime_error& e) {
+            std::cerr << "Error in update_diode: " << e.what() << std::endl;
+        }
+    }
+}
+
+
+//-------------------------------------------------------------------------------------
+void D0_edge::virt1D(double dt) {
+    double v = corr_edge->vfr / A * ml_to_m3;
+    std::vector<double> fi_old = fi;
+
+    // Update interior points
+    for (int i = 1; i < nx - 1; i++) {
+        if (v > 0.) {
+            fi[i] = fi_old[i] - v * dt / dx * (fi_old[i] - fi_old[i - 1]);
+        }
+        else {
+            fi[i] = fi_old[i] - v * dt / dx * (fi_old[i + 1] - fi_old[i]);
+        }
+    }
+
+    // Boundary conditions
+    if (v > 0.) {
+        fi[nx - 1] = fi_old[nx - 1] - v * dt / dx * (fi_old[nx - 1] - fi_old[nx - 2]);
+
+        try {
+            const std::string& property_name = D0_transport::get_node_fi_property_name(TType);
+            fi[0] = get_node_fi(node_start, property_name);
+        } catch (const std::runtime_error& e) {
+            std::cerr << "Error in virt1D: " << e.what() << std::endl;
+        }
+
+    }
+    else {
+        try {
+            const std::string& property_name = D0_transport::get_node_fi_property_name(TType);
+            fi[nx - 1] = get_node_fi(node_end, property_name);
+        } catch (const std::runtime_error& e) {
+            std::cerr << "Error in virt1D: " << e.what() << std::endl;
+        }
+
+        fi[0] = fi_old[0] - v * dt / dx * (fi_old[1] - fi_old[0]);
+
+    }
+}
