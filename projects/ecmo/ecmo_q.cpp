@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
    double save_dt = 1e-3;
    double heart_rate = 75.6;  // if there is a heart model   
    double period_time = 60./heart_rate;
-   double sim_time = 1.3*period_time;
+   double sim_time = 10.*period_time;
    bool init_from_file = false;
 
    // handling inputs
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
          vector<double> t2(t.begin()+i_crop,t.end());
          vector<double> co2(q_ecmo.begin()+i_crop,q_ecmo.end());
          q_ecmo_ave = average(co2,t2);
-         out += q_ecmo_ave;
+         //out += q_ecmo_ave;
       }
    }
 
