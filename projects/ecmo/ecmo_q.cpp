@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
          vector<double> t2(t.begin()+i_crop,t.end());
          vector<double> co2(q_ecmo.begin()+i_crop,q_ecmo.end());
          q_ecmo_ave = average(co2,t2);
-         //out += q_ecmo_ave;
+         out += q_ecmo_ave;
       }
    }
 
