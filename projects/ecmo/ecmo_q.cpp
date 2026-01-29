@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
    double save_dt = 1e-3;
    double heart_rate = 75.6;  // if there is a heart model   
    double period_time = 60./heart_rate;
-   double sim_time = 10.*period_time;
+   double sim_time = 1.3*period_time;
    bool init_from_file = false;
 
    // handling inputs
@@ -36,13 +36,13 @@ int main(int argc, char* argv[])
 
    // setting the ecmo revolution number
    double rev_factor = stod(argv[3],0);
-   string model_name2 = "p8";
+   string model_name2 = "heart_kim_lit"; // p8 for femfem and femcar, heart_kim_lit for venven
    string model_type2 = "lum";
    vector<string> el2{"V1"};
    vector<string> nl2{};
    if(rev_factor!=-1.0)
    {
-      int lum_index = fb->lum_id_to_index("p8");
+      int lum_index = fb->lum_id_to_index("heart_kim_lit"); // p8 for femfem and femcar, heart_kim_lit for venven
       fb->lum[lum_index]->edges[5]->parameter_factor = rev_factor;
       fb->set_save_memory(model_name2,model_type2,el2,nl2);
    }
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 
       if(rev_factor!=-1.0)
       {
-         int lum_index = fb->lum_id_to_index("p8");
+         int lum_index = fb->lum_id_to_index("heart_kim_lit"); // p8 for femfem and femcar, heart_kim_lit for venven
          vector<double> q_ecmo = fb->lum[lum_index]->edges[5]->volume_flow_rate;
          vector<double> t = fb->lum[lum_index]->time;
          int i_crop = crop_after_T(q_ecmo,t,t.back()-period_time);

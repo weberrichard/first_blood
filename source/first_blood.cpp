@@ -966,7 +966,7 @@ int first_blood::lum_id_to_index(string lum_id)
 	}
 	if(idx == -1)
 	{
-		cout << "\n !!!WARNING!!!\n solver_moc::lum_id_to_index function\nLum model is not existing, lum_id: " << lum_id << "\n Continouing..." << endl;
+		cout << "\n !!!WARNING!!!\n first_blood::lum_id_to_index function\nLum model is not existing, lum_id: " << lum_id << "\n Continouing..." << endl;
 	}
 	return idx;
 }
