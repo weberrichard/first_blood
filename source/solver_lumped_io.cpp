@@ -408,6 +408,8 @@ void solver_lumped::load_model()
 
 			}
 
+			else if(sv[0] == "Mmax"){Mmax = stod(sv[1],0);}
+
 
 		}
 

@@ -155,7 +155,10 @@ public:
     void pulmonary_CO2transport(double dt);
     //double K_pul_scale_CO2 = 5.9e-2; // m3(CO2)/m3(plasma)/Pa
     //double K_pul_scale_CO2 = 5.9e-4; // m3(CO2)/m3(plasma)/Pa
-    double K_pul_scale_CO2 = 5.9e-5; // m3(CO2)/m3(plasma)/Pa
+    //double K_pul_scale_CO2 = 5.9e-5; // m3(CO2)/m3(plasma)/Pa
+    double K_pul_scale_CO2 = 5.9e-3; // m3(CO2)/m3(plasma)/Pa
+
+    double Mmax; // [1/s]
 
     //tissue CO2 concentration vector and scalar
     vector<double> tissueCO2v;
@@ -165,8 +168,8 @@ public:
     
     //tissue O2 concentration initial condition
     //double init_tissueO2 = 0.0166;
-    //double init_tissueO2 = 2.2e-3;
-    double init_tissueO2 = 2.2e-4;
+    double init_tissueO2 = 2.2e-3;
+    //double init_tissueO2 = 2.2e-4;
     //init function for tissue O2
     void init_lum_tissueO2();
 
@@ -179,7 +182,7 @@ public:
     double hc = 1.0e-6; // [m] wall thickness of capillary walls
     double S_V_c = 4.74e5; // [1/m] surface to voulme ratio in capillaries
     double kc = 4.2e-14; // [m2/mmHg/s]
-    double Mmax = 2.5e-4; // [1/s] ????
+
     double C50 = 2.6e-5; // [m3/m3]
     double taoO2 = 0.5;//s
 
@@ -303,7 +306,11 @@ public:
  	void init_lum_tissueCO2();
 
  	//double init_tissueCO2 = 0.0567; //m3/m3
- 	double init_tissueCO2 = 0.0767; //m3/m3
+
+ 	//double init_tissueCO2 = 0.0767; //m3/m3
+ 	double init_tissueCO2 = 0.0867; //m3/m3
+ 	//double init_tissueCO2 = 0.0467; //m3/m3
+
  	//double init_tissueCO2 = 0.026; //m3/m3
  	//double init_tissueCO2 = 0.0166; //m3/m3
 
