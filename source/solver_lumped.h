@@ -168,7 +168,8 @@ public:
     
     //tissue O2 concentration initial condition
     //double init_tissueO2 = 0.0166;
-    double init_tissueO2 = 2.2e-3;
+    //double init_tissueO2 = 2.2e-3;
+    double init_tissueO2 = 6.2e-3;
     //double init_tissueO2 = 2.2e-4;
     //init function for tissue O2
     void init_lum_tissueO2();
@@ -308,8 +309,10 @@ public:
  	//double init_tissueCO2 = 0.0567; //m3/m3
 
  	//double init_tissueCO2 = 0.0767; //m3/m3
- 	double init_tissueCO2 = 0.0867; //m3/m3
- 	//double init_tissueCO2 = 0.0467; //m3/m3
+
+ 	//double init_tissueCO2 = 0.0867; //m3/m3
+ 	//double init_tissueCO2 = 0.0867; //m3/m3
+ 	double init_tissueCO2 = 0.052; //m3/m3
 
  	//double init_tissueCO2 = 0.026; //m3/m3
  	//double init_tissueCO2 = 0.0166; //m3/m3

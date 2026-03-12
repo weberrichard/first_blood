@@ -1478,13 +1478,13 @@ void solver_lumped::CO2transport(double dt){
 
     }
 
-/*
+
     //tissue concentration
     for(int i=0; i<n; i++){
 	tissueCO2v[i] =  tissueCO2vold[i] + dt*Mmax*tissueO2v[i]/(tissueO2v[i]+C50)*RQ - dt/tao_co2_tis_pla*(tissueCO2vold[i] - CO2_pla_old[i]*alpha_co2_tis/alpha_co2_pla);
     }
     tissueCO2s = average(tissueCO2v);
-*/
+
     //cout<<tissueCO2s/alpha_co2_tis<<endl;
     cout<<Mmax*tissueO2v[30]/(tissueO2v[30]+C50)*RQ<<"  "<<1/tao_co2_tis_pla*(tissueCO2vold[30] - CO2_pla_old[30]*alpha_co2_tis/alpha_co2_pla)<< "  " <<name<<endl;
     //cout<<Mmax*tissueO2v[30]/(tissueO2v[30]+C50)<<endl;
