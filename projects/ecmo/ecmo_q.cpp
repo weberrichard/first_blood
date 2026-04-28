@@ -32,18 +32,20 @@ int main(int argc, char* argv[])
    // setting the heart parameters
    double heart_factor = stod(argv[2],0);
    int heart_index = fb->lum_id_to_index("heart_kim_lit");
-   fb->lum[heart_index]->edges[3]->parameter[0]  *= heart_factor; // E_rv_max, E_max
+   fb->lum[heart_index]->edges[2]->parameter[0]  *= heart_factor; // E_rv_max, E_max
+   fb->lum[heart_index]->edges[10]->parameter[0]  *= heart_factor; // E_lv_max, E_max
 
    // setting the ecmo revolution number
    double rev_factor = stod(argv[3],0);
-   string model_name2 = "heart_kim_lit"; // p8 for femfem and femcar, heart_kim_lit for venven
+   string model_name2 = "p8"; // p8 for femfem and femcar, heart_kim_lit for venven
    string model_type2 = "lum";
-   vector<string> el2{"V1"};
+   vector<string> el2{};
    vector<string> nl2{};
    if(rev_factor!=-1.0)
    {
-      int lum_index = fb->lum_id_to_index("heart_kim_lit"); // p8 for femfem and femcar, heart_kim_lit for venven
+      int lum_index = fb->lum_id_to_index("p8"); // p8 for femfem and femcar, heart_kim_lit for venven
       fb->lum[lum_index]->edges[5]->parameter_factor = rev_factor;
+      el2.push_back("V1");
       fb->set_save_memory(model_name2,model_type2,el2,nl2);
    }
 
@@ -83,14 +85,14 @@ int main(int argc, char* argv[])
 
       if(rev_factor!=-1.0)
       {
-         int lum_index = fb->lum_id_to_index("heart_kim_lit"); // p8 for femfem and femcar, heart_kim_lit for venven
-         vector<double> q_ecmo = fb->lum[lum_index]->edges[5]->volume_flow_rate;
+         int lum_index = fb->lum_id_to_index("p8"); // p8 for femfem and femcar, heart_kim_lit for venven
+         vector<double> q_ecmo = fb->lum[lum_index]->edges[4]->volume_flow_rate;
          vector<double> t = fb->lum[lum_index]->time;
          int i_crop = crop_after_T(q_ecmo,t,t.back()-period_time);
          vector<double> t2(t.begin()+i_crop,t.end());
          vector<double> co2(q_ecmo.begin()+i_crop,q_ecmo.end());
          q_ecmo_ave = average(co2,t2);
-         //out += q_ecmo_ave;
+         out += q_ecmo_ave;
       }
    }
 

@@ -10,15 +10,16 @@ def write_to_file(filename, content, mode='w'):
 	with open(filename, mode, encoding='utf-8') as file:
 		file.write(content)
 
-case_name = "Abel_ref2_ecmo_venven"
+case_name = "Bathsheba_femfem"
 elastance_max = float(sys.argv[1])
 log_file = case_name + "_" + str(elastance_max) + ".log"
 result_file = "result_" + f"{elastance_max:.6f}" + ".txt"
 
-#os.system("./ecmo_q.out Abel_ref2 1.0 -1.0")
+#os.system("./ecmo_q.out Bathsheba 1.0 -1.0")
 #q_base = float(np.loadtxt("result_1.000000.txt"))
 
-q_base = 4.7793737598/1.e3/60
+#q_base = 4.7793737598/1.e3/60 # Abel_ref2
+q_base = 7.160800729e-05 # Bathsheba
 
 write_to_file(log_file,"q_base: " + str(q_base*1.e3*60) + "\n\r")
 

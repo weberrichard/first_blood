@@ -5,7 +5,7 @@ resistor, R1, P1, Q1, 0.000e+00, 4.055e+09
 resistor, R2, P2, Q2, 0.000e+00, 1.560e+09
 resistor, R3, P3, Q3, 0.000e+00, 4.990e+08
 resistor, R4, P4, Q4, 0.000e+00, 1.248e+08
-v_pump, V1, P1, n2, 0.0, 5e7, qdp
+v_pump, V1, P4, g, 0.0, 5e7, qdp
 capacitor, C1, P1, g, 0.000e+00, 8.370e-11
 capacitor, C2, P2, g, 0.000e+00, 8.369e-12
 capacitor, C3, P3, g, 0.000e+00, 2.493e-10

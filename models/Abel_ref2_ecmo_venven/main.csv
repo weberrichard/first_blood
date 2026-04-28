@@ -13,6 +13,7 @@ lumped,p4,N4p,n1
 lumped,p5,N5p,n1
 lumped,p6,N6p,n1
 lumped,p7,N7p,n1
+lumped,p8,N8p,n1
 lumped,p9,N9p,n1
 lumped,p10,N10p,n1
 lumped,p11,N11p,n1
@@ -52,7 +53,7 @@ lumped,p44,N44p,n1
 lumped,p45,N45p,n1
 lumped,p46,N46p,n1
 lumped,p47,N47p,n1
-lumped,heart_kim_lit,Heart,aorta,N8p,n1
+lumped,heart_kim_lit,Heart,aorta
 
 node,N1p
 node,N2p
