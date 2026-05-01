@@ -18,7 +18,7 @@ baroreflex, off, arterial, A1, 0.9242
 
 type,name,main node,model node,main node,model node..
 moc,arterial,N1p,p1,N2p,p2,N3p,p3,N4p,p4,N5p,p5,N6p,p6,N7p,p7,N8p,p8,N9p,p9,N10p,p10,N11p,p11,N12p,p12,N13p,p13,N14p,p14,N15p,p15,N16p,p16,N17p,p17,N18p,p18,N19p,p19,N20p,p20,N21p,p21,N22p,p22,N23p,p23,N24p,p24,N25p,p25,N26p,p26,N27p,p27,N28p,p28,N29p,p29,N30p,p30,N31p,p31,N32p,p32,N33p,p33,N34p,p34,N35p,p35,N36p,p36,N37p,p37,N38p,p38,N39p,p39,N40p,p40,N41p,p41,N42p,p42,N43p,p43,N44p,p44,N45p,p45,N46p,p46,N47p,p47,Heart,H
-moc,venous,V1p,p1,V2p,p2,V3p,p3,V4p,p4,V5p,p5,V6p,p6,V7p,p7,V8p,p8,V9p,p9,V10p,p10,V11p,p11,V12p,p12,V13p,p13,V14p,p14,V15p,p15,V16p,p16,V17p,p17,V18p,p18,V19p,p19,V20p,p20,V21p,p21,V22p,p22,V23p,p23,V24p,p24,V25p,p25,V26p,p26,V27p,p27,V28p,p28,V29p,p29,V30p,p30,V31p,p31,V32p,p32,V33p,p33,V34p,p34,V35p,p35,V36p,p36,V37p,p37,V38p,p38,V39p,p39,V40p,p40,V41p,p41,V42p,p42,V43p,p43,V44p,p44,V45p,p45,V46p,p46,V47p,p47,Heart2,H,NE1,n69x,NE2,n1x
+moc,venous,V1p,p1,V2p,p2,V3p,p3,V4p,p4,V5p,p5,V6p,p6,V7p,p7,V8p,p8,V9p,p9,V10p,p10,V11p,p11,V12p,p12,V13p,p13,V14p,p14,V15p,p15,V16p,p16,V17p,p17,V18p,p18,V19p,p19,V20p,p20,V21p,p21,V22p,p22,V23p,p23,V24p,p24,V25p,p25,V26p,p26,V27p,p27,V28p,p28,V29p,p29,V30p,p30,V31p,p31,V32p,p32,V33p,p33,V34p,p34,V35p,p35,V36p,p36,V37p,p37,V38p,p38,V39p,p39,V40p,p40,V41p,p41,V42p,p42,V43p,p43,V44p,p44,V45p,p45,V46p,p46,V47p,p47,Heart2,H,NE1,p8x,NE2,n1x
 
 lumped,pecmo,NE1,n1,NE2,n2
 lumped,p1,N1p,n1,V1p,g

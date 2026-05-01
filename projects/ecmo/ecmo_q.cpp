@@ -25,6 +25,24 @@ int main(int argc, char* argv[])
       exit(-1);
    }
 
+   string ecmo_id;
+   int ecmo_idx;
+   if(case_name == "Bathsheba_femcar" || case_name == "Bathsheba_femfem" || case_name == "Bathsheba")
+   {
+      ecmo_id = "p8";
+      ecmo_idx = 4;
+   }
+   else if(case_name == "Bathsheba_venven")
+   {
+      ecmo_id = "pecmo";
+      ecmo_idx = 0;
+   }
+   else
+   {
+      cout << "case_name: " << case_name << " is NOT handeld (ecmo_id, ecmo_idx)" << endl;
+      exit(-1);
+   }
+
    // loading original case
    first_blood *fb = new first_blood(case_folder + case_name);
    fb->clear_save_memory();
@@ -37,14 +55,14 @@ int main(int argc, char* argv[])
 
    // setting the ecmo revolution number
    double rev_factor = stod(argv[3],0);
-   string model_name2 = "p8"; // p8 for femfem and femcar, heart_kim_lit for venven
+   string model_name2 = ecmo_id;
    string model_type2 = "lum";
    vector<string> el2{};
    vector<string> nl2{};
    if(rev_factor!=-1.0)
    {
-      int lum_index = fb->lum_id_to_index("p8"); // p8 for femfem and femcar, heart_kim_lit for venven
-      fb->lum[lum_index]->edges[5]->parameter_factor = rev_factor;
+      int lum_index = fb->lum_id_to_index(ecmo_id);
+      fb->lum[lum_index]->edges[ecmo_idx]->parameter_factor = rev_factor;
       el2.push_back("V1");
       fb->set_save_memory(model_name2,model_type2,el2,nl2);
    }
@@ -85,8 +103,8 @@ int main(int argc, char* argv[])
 
       if(rev_factor!=-1.0)
       {
-         int lum_index = fb->lum_id_to_index("p8"); // p8 for femfem and femcar, heart_kim_lit for venven
-         vector<double> q_ecmo = fb->lum[lum_index]->edges[4]->volume_flow_rate;
+         int lum_index = fb->lum_id_to_index(ecmo_id);
+         vector<double> q_ecmo = fb->lum[lum_index]->edges[ecmo_idx]->volume_flow_rate;
          vector<double> t = fb->lum[lum_index]->time;
          int i_crop = crop_after_T(q_ecmo,t,t.back()-period_time);
          vector<double> t2(t.begin()+i_crop,t.end());
@@ -99,6 +117,8 @@ int main(int argc, char* argv[])
    std::ofstream file("result_" + to_string(heart_factor) + ".txt");
    file << std::setprecision(10) << out << "\n";
    file.close();
+
+   cout << "out: " << out << endl;
 
    return 0;
 }

@@ -10,7 +10,7 @@ def write_to_file(filename, content, mode='w'):
 	with open(filename, mode, encoding='utf-8') as file:
 		file.write(content)
 
-case_name = "Bathsheba_femfem"
+case_name = "Bathsheba_venven"
 elastance_max = float(sys.argv[1])
 log_file = case_name + "_" + str(elastance_max) + ".log"
 result_file = "result_" + f"{elastance_max:.6f}" + ".txt"
