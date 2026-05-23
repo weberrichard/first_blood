@@ -4,6 +4,8 @@ O2transport_init, 4.9e15, 2.9545e-3, 0.97
 CO2_pla,CO2_rbc,HCO3_pla,HCO3_rbc,HbCO2
 co2transport_init, 0.02665714, 0.03082293, 0.73392893, 0.08805559, 0.04712094
 
+Mmax, 1.25e-4
+
 data of edges
 type, name, node start, node end, initial condition [SI], parameter [SI]
 resistor, R0, n1, P1, 0.000e+00, 7.530e+08

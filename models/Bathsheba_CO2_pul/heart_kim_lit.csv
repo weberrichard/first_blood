@@ -79,7 +79,13 @@ t_diode, t2, p_RA3, p_RV1, R_rv
 t_diode, t3, p_LA2, p_LA3, R_la
 t_diode, t4, p_LA3, aorta, R_lv_aorta
 
+type, name, node start, node end, capacitor
+0Dcapacitor, c_pa, p_RV2, g2, C_pa
+0Dcapacitor, e_la, p_LA1, g3, E_la
 
+type, name, node start, node end, elastance, V0 [SI]
+0Delastance, e_rv, g1, p_RA3, E_rv, 0.00005
+0Delastance, e_lv, g4, p_LA3, E_lv, 0.00012
 
 
 

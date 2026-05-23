@@ -4,9 +4,11 @@ O2transport_init, 4.9e15, 2.9545e-3, 0.97
 CO2_pla,CO2_rbc,HCO3_pla,HCO3_rbc,HbCO2
 co2transport_init, 0.02665714, 0.03082293, 0.73392893, 0.08805559, 0.04712094
 
+Mmax, 2.5e-4
+
 data of control
 type, on/off, q_ref, p_ref, tao, G, sat1, sat2,
-myogenic, on, 0.000000732, 104450.38907360748, 40, 0.9, 0.55, 2, 
+myogenic, off, 0.000000732, 104450.38907360748, 40, 0.9, 0.55, 2, 
 
 data of edges
 type, name, node start, node end, initial condition [SI], parameter [SI]

@@ -4,9 +4,11 @@ O2transport_init, 4.9e15, 2.9545e-3, 0.97
 CO2_pla,CO2_rbc,HCO3_pla,HCO3_rbc,HbCO2
 co2transport_init, 0.02665714, 0.03082293, 0.73392893, 0.08805559, 0.04712094
 
+Mmax, 1.25e-4
+
 data of metabolic
 type, on/off, Ct_ref, tao_met, G_met, sat1_met, sat2_met,
-metabolic, on, 0.0022219049495433244, 40, 0.9, 0.772, 1.773
+metabolic, off, 0.0022219049495433244, 40, 0.9, 0.772, 1.773
 
 data of edges
 type, name, node start, node end, initial condition [SI], parameter [SI]
