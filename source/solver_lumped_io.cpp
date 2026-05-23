@@ -872,3 +872,31 @@ void solver_lumped::load_initials()
 	}
 	file_in.close();
 }
+
+
+
+bool solver_lumped::saveVectorToFile(const vector<double>& vec, const std::string& filePath) {
+    // Create directories if they don't exist
+    std::filesystem::path path(filePath);
+    if (path.has_parent_path()) {
+        std::filesystem::create_directories(path.parent_path());
+    }
+
+    std::ofstream outFile(filePath);
+
+    if (!outFile.is_open()) {
+        std::cerr << "Error: Could not open file: " << filePath << std::endl;
+        return false;
+    }
+
+    for (size_t i = 0; i < vec.size(); ++i) {
+        outFile << vec[i];
+        if (i < vec.size() - 1) {
+            outFile << "\n";
+        }
+    }
+
+    outFile.close();
+    std::cout << "Vector saved to: " << filePath << std::endl;
+    return true;
+}

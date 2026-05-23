@@ -872,6 +872,7 @@ void solver_lumped::pulmonary_O2transport(double dt){
     //}
     //cout<<endl<<endl;
 
+
 };
 
 
@@ -985,7 +986,7 @@ void solver_lumped::assign_haemogobin_sat_params(vector<string> sv){
 //--------------------------------------------------------------
 void solver_lumped::assign_pulmonary_O2_params(vector<string> sv){
 	PO2_alveolar = stod(sv[1],0);
-	K_pul_O2 = stod(sv[2],0);
+	//K_pul_O2 = stod(sv[2],0);
 	taoO2_p = stod(sv[3],0);
 	K_pul_scale =stod(sv[4],0) ;
 }
@@ -1204,10 +1205,14 @@ void D0_edge::update_capacitor(double dt){
 	double fi_old = fi[0];
 	//cout<<( node_start->p - node_end->p  )<<endl;
 
-	//cout<<fi[0]<<endl;
 
 	double Q = corr_edge->vfr;
-	if(Q>0){
+
+	//if( (D0_name == "c_pa") && (Q>0.) && (node_start->PlasmaO2_0Dn != 0.0011467116) ){cout<< "Alma";}
+	//if(D0_name == "c_pa"){cout<<Q<<endl<<node_start->PlasmaO2_0Dn<<endl<<endl;}
+
+
+	if(Q>0.){
 		double f;
 		switch(TType){
 			case RBC:
@@ -1246,6 +1251,9 @@ void D0_edge::update_capacitor(double dt){
 		if(V+Q*dt*ml_to_m3 != 0.){
 		fi[0] = (fi_old*V + Q*dt*f*ml_to_m3)/(V+Q*dt*ml_to_m3);}
 
+		//if ((D0_name == "c_pa") && (Q > 0.) && (node_start->PlasmaO2_0Dn != 0.0011467116)) {cout << std::setprecision(17) << V << endl << Q*dt*ml_to_m3 <<endl<<endl;}
+		//if ((D0_name == "c_pa") && (Q > 0.) && (node_start->PlasmaO2_0Dn != 0.0011467116)) {cout << std::setprecision(17) << fi[0] << endl << endl;}
+
 	}
 
 }
@@ -1263,7 +1271,7 @@ void D0_edge::update_elastance(double dt, double E){
 
 
 
-	if(Q<0){
+	if(Q<0.){
 		double f;
 		switch(TType){
 			case RBC:
@@ -1420,7 +1428,9 @@ void solver_lumped::CO2transport(double dt){
         double Eta_hb = eta_hb( HbCO2_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
 
 
-        CO2_pla[i] = CO2_pla_old[i] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[i] - CO2_rbc_old[i]*alpha_co2_pla/alpha_co2_rbc) + dt/tao_co2_pla_tis*(tissueCO2vold[i]*alpha_co2_pla/alpha_co2_tis - CO2_pla_old[i]);
+        //CO2_pla[i] = CO2_pla_old[i] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[i] - CO2_rbc_old[i]*alpha_co2_pla/alpha_co2_rbc) + dt/tao_co2_pla_tis*(tissueCO2vold[i]*alpha_co2_pla/alpha_co2_tis - CO2_pla_old[i]);
+        CO2_pla[i] = CO2_pla_old[i] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[i] - CO2_rbc_old[i]*alpha_co2_pla/alpha_co2_rbc) + dt*Mmax*tissueO2v[i]/(tissueO2v[i]+C50)*RQ * fi_t/fi_c/fi_pla;
+
         CO2_rbc[i] = CO2_rbc_old[i] - dt/fi_rbc*v*CO2_rbc_der*ksi_rbc + dt/tao_co2_rbc_pla*(CO2_pla_old[i]*alpha_co2_rbc/alpha_co2_pla - CO2_rbc_old[i]) - dt/tao_hco3*Eta_hco3 - dt/tao_hbco2*Eta_hb;
         HCO3_pla[i] = HCO3_pla_old[i] - dt/fi_pla*v*HCO3_pla_der*ksi_pla - dt/tao_hco3_pla_rbc*(HCO3_pla_old[i]-HCO3_rbc_old[i]/alpha_hco3_rbc*alpha_hco3_pla);
         HCO3_rbc[i] = HCO3_rbc_old[i] - dt/fi_rbc*v*HCO3_rbc_der*ksi_rbc + dt/tao_hco3_rbc_pla*(HCO3_pla_old[i]*alpha_hco3_rbc/alpha_hco3_pla-HCO3_rbc_old[i]) + dt/tao_hco3*Eta_hco3;
@@ -1439,7 +1449,9 @@ void solver_lumped::CO2transport(double dt){
         double Eta_hb = eta_hb( HbCO2_old[n - 1], CO2_pla_old[n - 1] , CO2_rbc_old[n - 1]);
 
 
-        CO2_pla[n-1] = CO2_pla_old[n-1] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[n-1] - CO2_rbc_old[n-1]*alpha_co2_pla/alpha_co2_rbc) + dt/tao_co2_pla_tis*(tissueCO2vold[n-1]*alpha_co2_pla/alpha_co2_tis - CO2_pla_old[n-1]);
+        //CO2_pla[n-1] = CO2_pla_old[n-1] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[n-1] - CO2_rbc_old[n-1]*alpha_co2_pla/alpha_co2_rbc) + dt/tao_co2_pla_tis*(tissueCO2vold[n-1]*alpha_co2_pla/alpha_co2_tis - CO2_pla_old[n-1]);
+        CO2_pla[n-1] = CO2_pla_old[n-1] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[n-1] - CO2_rbc_old[n-1]*alpha_co2_pla/alpha_co2_rbc) + dt*Mmax*tissueO2v[n-1]/(tissueO2v[n-1]+C50)*RQ* fi_t/fi_c/fi_pla;
+
         CO2_rbc[n-1] = CO2_rbc_old[n-1] - dt/fi_rbc*v*CO2_rbc_der*ksi_rbc + dt/tao_co2_rbc_pla*(CO2_pla_old[n-1]*alpha_co2_rbc/alpha_co2_pla - CO2_rbc_old[n-1]) - dt/tao_hco3*Eta_hco3 - dt/tao_hbco2*Eta_hb;
         HCO3_pla[n-1] = HCO3_pla_old[n-1] - dt/fi_pla*v*HCO3_pla_der*ksi_pla - dt/tao_hco3_pla_rbc*(HCO3_pla_old[n-1]-HCO3_rbc_old[n-1]/alpha_hco3_rbc*alpha_hco3_pla);
         HCO3_rbc[n-1] = HCO3_rbc_old[n-1] - dt/fi_rbc*v*HCO3_rbc_der*ksi_rbc + dt/tao_hco3_rbc_pla*(HCO3_pla_old[n-1]*alpha_hco3_rbc/alpha_hco3_pla-HCO3_rbc_old[n-1]) + dt/tao_hco3*Eta_hco3;
@@ -1464,7 +1476,9 @@ void solver_lumped::CO2transport(double dt){
         double Eta_hb = eta_hb( HbCO2_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
         
 
-        CO2_pla[0] = CO2_pla_old[0] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[0] - CO2_rbc_old[0]*alpha_co2_pla/alpha_co2_rbc) + dt/tao_co2_pla_tis*(tissueCO2vold[0]*alpha_co2_pla/alpha_co2_tis - CO2_pla_old[0]);//
+        //CO2_pla[0] = CO2_pla_old[0] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[0] - CO2_rbc_old[0]*alpha_co2_pla/alpha_co2_rbc) + dt/tao_co2_pla_tis*(tissueCO2vold[0]*alpha_co2_pla/alpha_co2_tis - CO2_pla_old[0]);
+        CO2_pla[0] = CO2_pla_old[0] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[0] - CO2_rbc_old[0]*alpha_co2_pla/alpha_co2_rbc) + dt*Mmax*tissueO2v[0]/(tissueO2v[0]+C50)*RQ * fi_t/fi_c/fi_pla;//
+        
         CO2_rbc[0] = CO2_rbc_old[0] - dt/fi_rbc*v*CO2_rbc_der*ksi_rbc + dt/tao_co2_rbc_pla*(CO2_pla_old[0]*alpha_co2_rbc/alpha_co2_pla - CO2_rbc_old[0]) - dt/tao_hco3*Eta_hco3 - dt/tao_hbco2*Eta_hb;
         HCO3_pla[0] = HCO3_pla_old[0] - dt/fi_pla*v*HCO3_pla_der*ksi_pla - dt/tao_hco3_pla_rbc*(HCO3_pla_old[0]-HCO3_rbc_old[0]/alpha_hco3_rbc*alpha_hco3_pla);
         HCO3_rbc[0] = HCO3_rbc_old[0] - dt/fi_rbc*v*HCO3_rbc_der*ksi_rbc + dt/tao_hco3_rbc_pla*(HCO3_pla_old[0]*alpha_hco3_rbc/alpha_hco3_pla-HCO3_rbc_old[0]) + dt/tao_hco3*Eta_hco3;
@@ -1478,7 +1492,7 @@ void solver_lumped::CO2transport(double dt){
 
     }
 
-
+/*
     //tissue concentration
     for(int i=0; i<n; i++){
 	tissueCO2v[i] =  tissueCO2vold[i] + dt*Mmax*tissueO2v[i]/(tissueO2v[i]+C50)*RQ - dt/tao_co2_tis_pla*(tissueCO2vold[i] - CO2_pla_old[i]*alpha_co2_tis/alpha_co2_pla);
@@ -1489,7 +1503,11 @@ void solver_lumped::CO2transport(double dt){
     cout<<Mmax*tissueO2v[30]/(tissueO2v[30]+C50)*RQ<<"  "<<1/tao_co2_tis_pla*(tissueCO2vold[30] - CO2_pla_old[30]*alpha_co2_tis/alpha_co2_pla)<< "  " <<name<<endl;
     //cout<<Mmax*tissueO2v[30]/(tissueO2v[30]+C50)<<endl;
     //cout<<tissueO2s<<endl;
-    cout<<tissueCO2s/alpha_co2_tis/mmHg_to_Pa<<endl<<endl;
+    cout<<tissueCO2s/alpha_co2_tis/mmHg_to_Pa<<endl<<endl;*/
+
+    //for (int i = 1; i < n - 1; i++){cout<<CO2_pla[i]<<"  ";}
+    //cout<<endl;
+    //cout<<CO2_pla[n-1]<<endl;
 
 };
 
@@ -1725,8 +1743,7 @@ void solver_lumped::pulmonary_CO2transport(double dt){
 
     }
 
-     //for (int i = 1; i < n - 1; i++){cout<<CO2_pla[i]<<"  ";}
-     //cout<<endl;
+
 
 
 };

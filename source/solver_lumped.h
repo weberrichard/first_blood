@@ -18,6 +18,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <filesystem>
 
 using namespace Eigen;
 using namespace std;
@@ -67,6 +68,9 @@ public:
 	void save_results(string folder_name, vector<string> edge_list, vector<string> node_list);
 	void save_results(double dt, string folder_name);
 	void save_results(double dt, string folder_name, vector<string> edge_list, vector<string> node_list);
+
+
+	bool saveVectorToFile(const vector<double>& vec, const std::string& filePath);
 
 	// save model to file
 	void save_model(string model_name, string folder_name);
@@ -156,7 +160,17 @@ public:
     //double K_pul_scale_CO2 = 5.9e-2; // m3(CO2)/m3(plasma)/Pa
     //double K_pul_scale_CO2 = 5.9e-4; // m3(CO2)/m3(plasma)/Pa
     //double K_pul_scale_CO2 = 5.9e-5; // m3(CO2)/m3(plasma)/Pa
-    double K_pul_scale_CO2 = 5.9e-3; // m3(CO2)/m3(plasma)/Pa
+    //double K_pul_scale_CO2 = 5.9e-3; // m3(CO2)/m3(plasma)/Pa
+    double K_pul_scale_CO2 = 1.9e-4; // m3(CO2)/m3(plasma)/Pa
+
+    // constants of CO2 control
+	bool do_CO2_control = false;
+	double tao_CO2 = 20.; // time constant
+	double G_CO2 = .9; // gain
+	time_average  *CO2_ave; // time period average values
+	int CO2_edge_index; // index for average values, which element's average
+	double x_CO2=0.; // acting signal
+	CO2_ref=0.; //
 
     double Mmax; // [1/s]
 
@@ -198,7 +212,7 @@ public:
 
     //partial pressure of O2 in alveolars
     double PO2_alveolar = 100.; // [mmHg]
-    double K_pul_O2 = 1.33e-7; // [m3/s/mmHg]
+    //double K_pul_O2 = 1.33e-7; // [m3/s/mmHg]
     double taoO2_p = 0.4;//s
     //double K_pul_scale = 4.479e-4; // m3(O2)/m3(plasma)/mmHg
     double K_pul_scale = 4.479e-3; // m3(O2)/m3(plasma)/mmHg
