@@ -71,6 +71,7 @@ public:
 
 
 	bool saveVectorToFile(const vector<double>& vec, const std::string& filePath);
+	bool saveVectorsToFile(const std::vector<double>& time, const std::vector<double>& vec, const std::string& filePath);
 
 	// save model to file
 	void save_model(string model_name, string folder_name);
@@ -113,8 +114,8 @@ public:
 	bool do_myogenic = false;
 	double tao = 20.; // time constant
 	double G = .9; // gain
-	double sat1 = .55; // saturation 1
-	double sat2 = 2.; // saturation 2
+	//double sat1 = .55; // saturation 1
+	//double sat2 = 2.; // saturation 2
 	time_average  *p_ave; // time period average values
 	int q_idx=0, p_idx=0, C_idx; // index for average values, which element's average
 	double x_myo=0.; // acting signal
@@ -167,10 +168,11 @@ public:
 	bool do_CO2_control = false;
 	double tao_CO2 = 20.; // time constant
 	double G_CO2 = .9; // gain
-	time_average  *CO2_ave; // time period average values
-	int CO2_edge_index; // index for average values, which element's average
+	time_average  *P_CO2_ave; // time period average values
+	int P_CO2_edge_index; // index for average values, which element's average
 	double x_CO2=0.; // acting signal
-	CO2_ref=0.; //
+	double CO2_ref=0.; //
+	void CO2_response(double t_act);
 
     double Mmax; // [1/s]
 
@@ -224,7 +226,8 @@ public:
     double G_met;
     time_average *Ct_ave;
     bool do_metabolic_res = false;
-    double sat1_met, sat2_met;
+    double sat1_met = 0.1;
+    double sat2_met = 16.0;
     void metabolic_response(double t_act);
     double vessel_dilation(int edgeindex);
     void set_0D_pointers();

@@ -127,8 +127,8 @@ void solver_lumped::load_model()
 				{
 					tao   = stod(sv[4],0); // time constant
 					G     = stod(sv[5],0); // gain
-					sat1  = stod(sv[6],0); // saturation 1
-					sat2  = stod(sv[7],0); // saturation 2
+					//sat1  = stod(sv[6],0); // saturation 1
+					//sat2  = stod(sv[7],0); // saturation 2
 				}
 			}
 
@@ -203,6 +203,17 @@ void solver_lumped::load_model()
                    sat2_met = stod(sv[6],0);
     					 //Ct_ave;
     					 do_metabolic_res = true;
+				}
+			}
+
+			//CO2 response
+			else if(sv[0] == "CO2_response")
+			{
+					if(sv[1]=="on"){
+				    CO2_ref = stod(sv[2],0);
+    				tao_CO2 = stod(sv[3],0);
+                    G_CO2 = stod(sv[4],0);
+                    do_CO2_control = true;
 				}
 			}
 
@@ -897,6 +908,31 @@ bool solver_lumped::saveVectorToFile(const vector<double>& vec, const std::strin
     }
 
     outFile.close();
-    std::cout << "Vector saved to: " << filePath << std::endl;
+    //std::cout << "Vector saved to: " << filePath << std::endl;
+    return true;
+}
+
+bool solver_lumped::saveVectorsToFile(const std::vector<double>& time, const std::vector<double>& vec, const std::string& filePath)
+{
+    // Create directories if they don't exist
+    std::filesystem::path path(filePath);
+    if (path.has_parent_path()) {
+        std::filesystem::create_directories(path.parent_path());
+    }
+
+    std::ofstream outFile(filePath);
+
+    if (!outFile.is_open()) {
+        std::cerr << "Error: Could not open file: " << filePath << std::endl;
+        return false;
+    }
+
+    for (size_t i = 0; i < time.size(); ++i) {
+        outFile << time[i] << ", " << vec[i] << "\n";
+    }
+
+    outFile.close();
+
+   // std::cout << "Vectors saved to: " << filePath << std::endl;
     return true;
 }

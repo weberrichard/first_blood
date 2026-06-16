@@ -86,6 +86,9 @@ void solver_lumped::initialization(double time_period)
 
 	//for metabolic response
 	Ct_ave = new time_average();
+
+	// for CO2 response
+	P_CO2_ave = new time_average();
 }
 
 //--------------------------------------------------------------
@@ -254,7 +257,7 @@ void solver_lumped::initialization_newton(double t_act)
 {
 
 		// updating parameters: applying control effects
-	if(t_act>3.*time_period)
+	if(t_act>30.*time_period)
 	{
 		update_parameters(t_act);
 	}
@@ -321,9 +324,9 @@ void solver_lumped::substitute_newton(double t_act)
 	if(do_myogenic)
 	{
 		double tn = time.back();
-		double vn = edges[0]->vfr;
+		//double vn = edges[0]->vfr;
 
-		vn = nodes[5]->p;
+		double vn = nodes[5]->p;
 		p_ave->update(tn, vn, T_act, T_last, T_sum);
 	}
 
@@ -339,13 +342,22 @@ void solver_lumped::substitute_newton(double t_act)
     	Ct_ave->update(tn, tissueO2s, T_act, T_last, T_sum);
     }
 
+    //update CO2 for CO2 control 
+    if(do_CO2_control){
+    	double tn = time.back();
+
+    	double PP = CO2_pla_lum->D0_edges[2]->fi[0] ;//co2 concentration
+    	P_CO2_ave->update(tn, PP, T_act, T_last, T_sum);
+    }
+
 }
 
 
 //--------------------------------------------------------------
 void solver_lumped::update_parameters(double t_act)
 {
-	autoregulation(t_act);
+	if(t_act>= 30. ){
+	autoregulation(t_act);}
 }
 
 //--------------------------------------------------------------
@@ -917,11 +929,8 @@ double solver_lumped::turn_source(double t){
 
 //--------------------------------------------------------------
 void solver_lumped::save_tissueO2(string folder_name, const vector<double>& time){
-	   if (do_lum_PlasmaO2_transport&&do_lum_HB_sat_transport&&do_lum_RBC_transport){
-
 		string file_name = folder_name;
 		HBsatlum->save_vector(file_name, tissueO2_save, time);
-   }
 }
 
 
@@ -1163,11 +1172,16 @@ void solver_lumped::autoregulation(double t_act){
 		metabolic_response(t_act);
 	}
 
+	if(do_CO2_control){
+		//updates x_met
+		CO2_response(t_act);
+	}
+
 	//updates the parameter factor of the resistance
-	//update_R_fact();
+	update_R_fact();
 }
 
-
+/*
 //--------------------------------------------------------------------------------------------------
 void solver_lumped::update_R_fact(){
 
@@ -1177,7 +1191,7 @@ void solver_lumped::update_R_fact(){
 	for(int i=0; i<Ridx.size(); i++)
 	{
 		double Rmax, Rmin; // calculated from r_min, r_max from "Regulation of Coronary Microvascular Resistance in Health and Disease" pic 12.2
-		if((x_met + x_myo) < 0){
+		if((x_met + x_myo - x_CO2) < 0){ // x_co2 has the opposite effect -> negative sign
 			//the sigmoid curve is the same for the two responses
 			Rmin = sat1_met;
 			Rmax = 2. - Rmin;
@@ -1188,15 +1202,48 @@ void solver_lumped::update_R_fact(){
 		}
 
 		double ff = 80. / (Rmax - Rmin) ;
-		FF = (Rmax + Rmin * exp(- (x_met + x_myo) * ff)) / (1. + exp(-(x_met + x_myo) * ff));
+		FF = (Rmax + Rmin * exp(- (x_met + x_myo - x_CO2) * ff)) / (1. + exp(-(x_met + x_myo - x_CO2) * ff));
 		
-		//cout.precision(10);
-		//cout << FF << endl;
+
+		if(do_CO2_control){
+			//cout<<x_met<<"  "<<x_myo<<"  "<<x_CO2<<endl;
+			cout.precision(10);
+			cout << FF << endl<<endl;}
 
 		edges[Ridx[i]]->parameter_factor = FF;
 	}
 
+}*/
+
+
+//--------------------------------------------------------------------------------------------------
+void solver_lumped::update_R_fact(){
+
+	vector<int> Ridx{0,1}; // which resistors are we modifying
+
+
+	double Rmax = sat2_met;
+	double Rmin = sat1_met;
+	double x = x_met + x_myo - x_CO2;
+	double A = (Rmax - Rmin) / (1.0 - Rmin) - 1.0;
+	double FF = Rmin + (Rmax - Rmin) / (1.0 + A * exp(- 50. * x));
+
+	if(do_CO2_control){
+	cout.precision(10);
+	cout << FF << endl<<endl;
+
+	for(int i=0; i<Ridx.size(); i++)
+	{
+		edges[Ridx[i]]->parameter_factor = FF;
+	}
+
+	}
+ 
+
+
 }
+
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -1385,7 +1432,6 @@ void solver_lumped::CO2transport(double dt){
 	int n = per_cap_CO2_pla-> nx;
 	double dx = per_cap_CO2_pla-> dx;
 	double v = per_cap_CO2_pla->corr_edge->vfr/per_cap_CO2_pla->A*ml_to_m3;
-
 
 	//BCs
 	double CO2_pla_n_s = per_cap_CO2_pla->node_start->CO2_pla_n; //node start
@@ -1954,4 +2000,23 @@ void D0_edge::virt1D(double dt) {
         fi[0] = fi_old[0] - v * dt / dx * (fi_old[1] - fi_old[0]);
 
     }
+}
+
+
+
+//Co2 control in brain 
+
+//--------------------------------------------------------------
+void solver_lumped::CO2_response(double t_act)
+{
+
+	// time step
+	double dt = t_act - time.back();
+
+	double P_CO2 = P_CO2_ave->average.back(); //partial pressure of arterial co2 locally
+
+	// actuator signal
+	cout<<P_CO2<<"  "<<CO2_ref<<endl<<endl;
+	x_CO2 = x_CO2 + dt / tao_CO2 * (- x_CO2 + G_CO2 * (P_CO2 - CO2_ref)/CO2_ref); // le kell normálni
+
 }
