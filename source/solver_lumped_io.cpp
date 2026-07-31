@@ -94,6 +94,25 @@ void solver_lumped::load_model()
 				edges[ne]->type_code = 2;
 				ne++;
 			}
+			else if(sv[0] == "resistor_piecewise_constant")
+			{
+				edges.push_back(new edge);
+				edges[ne]->type = sv[0];
+				edges[ne]->name = sv[1];
+				edges[ne]->node_name_start = sv[2];
+				edges[ne]->node_name_end = sv[3];
+				edges[ne]->volume_flow_rate_initial = stod(sv[4],0);
+				edges[ne]->type_code = 10;
+
+				if(sv.size()>8)
+				{
+					edges[ne]->parameter.push_back(stod(sv[5],0)); // R1 
+					edges[ne]->parameter.push_back(stod(sv[6],0)); // R2
+					edges[ne]->t1 = stod(sv[7],0);
+					edges[ne]->t2 = stod(sv[8],0);
+				}
+				ne++;
+			}
 			else if(sv[0] == "node") // node
 			{
 				nodes.push_back(new node);

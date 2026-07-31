@@ -227,7 +227,7 @@ public:
     time_average *Ct_ave;
     bool do_metabolic_res = false;
     double sat1_met = 0.1;
-    double sat2_met = 16.0;
+    double sat2_met = 4.0;
     void metabolic_response(double t_act);
     double vessel_dilation(int edgeindex);
     void set_0D_pointers();
@@ -447,6 +447,10 @@ public:
 		double vfr_ini_non_SI; // ml/s
 
 		bool is_open = true;//for diodes only, needed for transport
+
+		//piecewise constant resistors to model compression, CCC test for example
+		// R1 until t1, R2 between t1 and t2, R1 after t2 
+		double t1, t2;//time values for change
 	};
 
 	// building the network, finding indicies

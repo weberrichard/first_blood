@@ -46,6 +46,11 @@ public:
 	double nominal_diameter_start,   nominal_diameter_end; // m
 	double nominal_thickness_start,  nominal_thickness_end; // m
 	double resistance_start,         resistance_end; // 1/ms
+
+	double R1, R2; //values of the time dependent resistors
+	double t1, t2; //the time dependent resistors are piecevise constanst. they model compression. for example common carotid artery compression teszt
+
+
 	double geodetic_height_start=0., geodetic_height_end=0.; //m
 	double elasticity; // Ns/m2
 	int division_points; // pc.

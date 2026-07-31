@@ -225,6 +225,22 @@ void solver_lumped::coefficients_newton(double t_act)
 			Jac(i,i) = 1.;
 			f(i) = x(i) - par;
 		}
+		else if(edges[i]->type_code == 10) // piecevise constant resistor, models compression
+		{
+
+			//if(edges[i]->t1 > t_act){par = edges[i]->par_non_SI[0];}
+			if (edges[i]->t1 < t_act && t_act < edges[i]->t2) 
+			{
+    			par = edges[i]->par_non_SI[1];
+			}
+			//else {par = edges[i]->par_non_SI[0];}
+
+			Jac(i,m+i2) = 1.;
+			Jac(i,m+i1) = -1.;
+			Jac(i,i) = par; // R*Rf
+
+			f(i) = x(m+i2) - x(m+i1) + par*x(i);
+		}
 	}
 
 	// nodes
@@ -327,6 +343,7 @@ void solver_lumped::substitute_newton(double t_act)
 		//double vn = edges[0]->vfr;
 
 		double vn = nodes[5]->p;
+		//double vn = nodes[1]->p;
 		p_ave->update(tn, vn, T_act, T_last, T_sum);
 	}
 
@@ -346,7 +363,8 @@ void solver_lumped::substitute_newton(double t_act)
     if(do_CO2_control){
     	double tn = time.back();
 
-    	double PP = CO2_pla_lum->D0_edges[2]->fi[0] ;//co2 concentration
+    	//double PP = CO2_pla_lum->D0_edges[2]->fi[0] ;//co2 concentration
+    	double PP = CO2_pla_lum->D0_edges[0]->fi[0] ;//local arterial co2 concentration
     	P_CO2_ave->update(tn, PP, T_act, T_last, T_sum);
     }
 
@@ -356,7 +374,7 @@ void solver_lumped::substitute_newton(double t_act)
 //--------------------------------------------------------------
 void solver_lumped::update_parameters(double t_act)
 {
-	if(t_act>= 30. ){
+	if(t_act>= 80. ){
 	autoregulation(t_act);}
 }
 
@@ -434,6 +452,11 @@ void solver_lumped::set_non_SI_parameters()
 		{
 			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]*1.e6);
 		}
+		else if(edges[i]->type_code == 10) // piecewise constant resistance
+		{
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[0]/mmHg_to_Pa*1.e-6);
+			edges[i]->par_non_SI.push_back(edges[i]->parameter[1]/mmHg_to_Pa*1.e-6);
+		}
 	}
 }
 
@@ -505,7 +528,7 @@ int solver_lumped::edge_id_to_index(string edge_id)
 	}
 	if(idx == -1)
 	{
-		cout << "\n!!!WARNING!!!\n solver_lumped::edge_id_to_index function\n Node is not existing, edge_id: " << edge_id << "\n Continouing..." << endl;
+		cout << "\n!!!WARNING!!!\n solver_lumped::edge_id_to_index function\nEdge is not existing, edge_id: " << edge_id << "\n Continouing..." << endl;
 	}
 	return idx;
 }
@@ -1178,7 +1201,8 @@ void solver_lumped::autoregulation(double t_act){
 	}
 
 	//updates the parameter factor of the resistance
-	update_R_fact();
+	if(do_CO2_control || do_metabolic_res || do_myogenic){
+	update_R_fact();}
 }
 
 /*
@@ -1226,18 +1250,18 @@ void solver_lumped::update_R_fact(){
 	double Rmin = sat1_met;
 	double x = x_met + x_myo - x_CO2;
 	double A = (Rmax - Rmin) / (1.0 - Rmin) - 1.0;
-	double FF = Rmin + (Rmax - Rmin) / (1.0 + A * exp(- 50. * x));
+	double FF = Rmin + (Rmax - Rmin) / (1.0 + A * exp(- 30. * x));
 
-	if(do_CO2_control){
-	cout.precision(10);
-	cout << FF << endl<<endl;
+
+	//cout.precision(10);
+	cout << FF << endl;
 
 	for(int i=0; i<Ridx.size(); i++)
 	{
 		edges[Ridx[i]]->parameter_factor = FF;
 	}
 
-	}
+	
  
 
 
@@ -2016,7 +2040,8 @@ void solver_lumped::CO2_response(double t_act)
 	double P_CO2 = P_CO2_ave->average.back(); //partial pressure of arterial co2 locally
 
 	// actuator signal
-	cout<<P_CO2<<"  "<<CO2_ref<<endl<<endl;
+	//cout<<P_CO2<<"  "<<CO2_ref<<endl<<endl;
+	cout<<t_act<<endl;
 	x_CO2 = x_CO2 + dt / tao_CO2 * (- x_CO2 + G_CO2 * (P_CO2 - CO2_ref)/CO2_ref); // le kell normálni
 
 }

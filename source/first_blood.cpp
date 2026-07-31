@@ -372,7 +372,7 @@ bool first_blood::run()
 					if(lum[lum_idx]->check_whole_period(t_act)){
 						//cout<<systole(sys_edge->pressure_start, sys_edge->time, lum[lum_idx]->T_sum)<<endl;
 						//cout<<period_of_first_lum<<"  "<<lum[lum_idx]->period<<endl;
-						if(do_baroreflex && period_of_first_lum == lum[lum_idx]->period && period_of_first_lum > 7){
+						if(do_baroreflex && period_of_first_lum == lum[lum_idx]->period && period_of_first_lum > 40){
 							double sys = systole(sys_edge->pressure_start, sys_edge->time, lum[lum_idx]->T_sum) - atmospheric_pressure;
 							T_act_new = baroreflex(sys);
 							//cout<<T_act_new<<endl;
@@ -386,7 +386,7 @@ bool first_blood::run()
 					if(lum[lum_idx]->check_whole_period(t_act)){
 						//cout<<systole(sys_edge->pressure_start, sys_edge->time, lum[lum_idx]->T_sum)<<endl;
 						//cout<<period_of_first_lum<<"  "<<lum[lum_idx]->period<<endl;
-						if(do_baroreflex && period_of_first_lum == lum[lum_idx]->period && period_of_first_lum > 7){
+						if(do_baroreflex && period_of_first_lum == lum[lum_idx]->period && period_of_first_lum > 40){
 							double sys = systole(sys_edge->pressure_start, sys_edge->time, lum[lum_idx]->T_sum) - atmospheric_pressure;
 							T_act_new = baroreflex(sys);
 							//cout<<T_act_new<<endl;

@@ -160,7 +160,7 @@ public:
 	 double L_B = 0.5936; //s
     double k_B = 0.1086; //1/mmHg
     double b_B = 0.6274; //s
-    double x_B0 = 114.33; //mmHg
+    double x_B0 = 114.15; //mmHg
     //double x_B0 = 114.33; //mmHg
 	double time_period;// = 60./heart_rate;
 	string sys_moc;
