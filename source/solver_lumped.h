@@ -52,7 +52,6 @@ public:
 	VectorXd x, f;
 
 	// control functions
-	void update_parameters(double t_act);
 	void myogenic_control(double t_act);
 
 	// OLD solving the linear equations
@@ -338,6 +337,15 @@ public:
  	double PCO2_alveolar = 5332.89474;//Pa = 40 mmHg from fonyo
  	//double PCO2_alveolar = 4332.89474;
  	//double PCO2_alveolar = 3000.0;
+
+ 	//paroreflex for the preipheral vessels
+ 	double x_bar = 0.;
+ 	vector<double> x_bar_vect; 
+ 	vector<double> x_bar_time;
+ 	void load_perif_baroreflex(string filename);
+ 	bool do_perif_baroreflex = false;
+ 	int index_of_time;//the curent place in the time vector during the simulation. (for interpolation)
+ 	void perif_baroreflex();//
 
 
 private:

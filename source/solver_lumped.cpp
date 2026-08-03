@@ -272,13 +272,6 @@ void solver_lumped::coefficients_newton(double t_act)
 void solver_lumped::initialization_newton(double t_act)
 {
 
-		// updating parameters: applying control effects
-	if(t_act>30.*time_period)
-	{
-		update_parameters(t_act);
-	}
-
-
 	int i_elas=0;
 	for(int i=0; i<number_of_edges; i++)
 	{
@@ -370,13 +363,6 @@ void solver_lumped::substitute_newton(double t_act)
 
 }
 
-
-//--------------------------------------------------------------
-void solver_lumped::update_parameters(double t_act)
-{
-	if(t_act>= 80. ){
-	autoregulation(t_act);}
-}
 
 //--------------------------------------------------------------
 void solver_lumped::myogenic_control(double t_act)
@@ -1184,6 +1170,9 @@ void solver_lumped::capillary_O2_transport(double dt){
 
 //--------------------------------------------------------------------------------------------------
 void solver_lumped::autoregulation(double t_act){
+
+	if(t_act<=80.){return;}
+
 	if(do_myogenic)
 	{
 		//updates x_myo
@@ -1200,8 +1189,15 @@ void solver_lumped::autoregulation(double t_act){
 		CO2_response(t_act);
 	}
 
+	if(do_perif_baroreflex){
+		//updates x_bar
+		perif_baroreflex();
+	}
+
+
+
 	//updates the parameter factor of the resistance
-	if(do_CO2_control || do_metabolic_res || do_myogenic){
+	if(do_CO2_control || do_metabolic_res || do_myogenic || do_perif_baroreflex){
 	update_R_fact();}
 }
 
@@ -1248,7 +1244,7 @@ void solver_lumped::update_R_fact(){
 
 	double Rmax = sat2_met;
 	double Rmin = sat1_met;
-	double x = x_met + x_myo - x_CO2;
+	double x = x_met + x_myo - x_CO2 + x_bar;
 	double A = (Rmax - Rmin) / (1.0 - Rmin) - 1.0;
 	double FF = Rmin + (Rmax - Rmin) / (1.0 + A * exp(- 30. * x));
 
@@ -2044,4 +2040,60 @@ void solver_lumped::CO2_response(double t_act)
 	cout<<t_act<<endl;
 	x_CO2 = x_CO2 + dt / tao_CO2 * (- x_CO2 + G_CO2 * (P_CO2 - CO2_ref)/CO2_ref); // le kell normálni
 
+}
+
+
+//--------------------------------------------------------------
+void solver_lumped::load_perif_baroreflex(string filename){
+	do_perif_baroreflex = true;
+
+	ifstream file_in;
+	string file_name = input_folder_path + '/' + filename + ".txt";
+	file_in.open(file_name);
+	string line;
+	if(file_in.is_open()){
+		while(getline(file_in,line)){
+			line.erase(remove(line.begin(), line.end(), ' '), line.end());
+			line.erase(remove(line.begin(), line.end(), '\n'), line.end());
+			line.erase(remove(line.begin(), line.end(), '\r'), line.end());
+
+			// separating strings to vector by comma
+			vector<string> sv = separate_line(line);
+			x_bar_time.push_back(stod(sv[0],0));
+			x_bar_vect.push_back(stod(sv[1],0));
+
+		}
+	}
+	else{
+		cout << "! ERROR !" << endl << " File is not open when calling load_main_csv() function!!! file: " << file_name << "\n" << endl;
+	}
+}
+
+
+void solver_lumped::perif_baroreflex()
+{
+    double t = time.back();
+
+    if (t <= x_bar_time.front()) {
+        x_bar = x_bar_vect.front();
+        return;
+    }
+
+    if (t >= x_bar_time.back()) {
+        x_bar = x_bar_vect.back();
+        return;
+    }
+
+    //interval
+    while (index_of_time + 1 < x_bar_time.size() &&
+           t >= x_bar_time[index_of_time + 1]) {
+        index_of_time++;
+    }
+
+    double t0 = x_bar_time[index_of_time];
+    double t1 = x_bar_time[index_of_time + 1];
+    double y0 = x_bar_vect[index_of_time];
+    double y1 = x_bar_vect[index_of_time + 1];
+
+    x_bar = y0 + (t - t0) * (y1 - y0) / (t1 - t0);
 }

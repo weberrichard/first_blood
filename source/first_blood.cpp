@@ -64,6 +64,15 @@ bool first_blood::load_model()
 	{
 		lum[i]->load_model();
 	}
+
+	//loading perif baroreflex response
+	for(int i=0; i<baroreflex_perifs.size();i++){
+		for (int j = 0; j<number_of_lum;j++){
+			if(lum[j]->name == baroreflex_perifs[i]){
+				lum[j]->load_perif_baroreflex(baroreflex_filename);
+			}
+		}
+	}
 	return load_ok;
 }
 
@@ -222,6 +231,16 @@ bool first_blood::load_main_csv()
 				}
 			}
 
+			else if(sv[0] == "perifbaroreflex"){
+				if(sv[1] == "on"){
+					baroreflex_filename = sv[2];
+					baroreflex_perifs.clear();
+					for(int i = 3; i<sv.size(); i++ ){
+						baroreflex_perifs.push_back(sv[i]);
+					}
+				}
+			}
+
 
 
 
@@ -339,6 +358,7 @@ bool first_blood::run()
 				if(moc[moc_idx]->nodes[si]->is_master_node)
 				{
 					int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+					lum[lum_idx]->autoregulation(t_act);//autoreguletion, updating peripheral parameters
 					solve_lum_newton(lum_idx, t_act);
 				}
 
@@ -346,6 +366,7 @@ bool first_blood::run()
 				if(moc[moc_idx]->nodes[ei]->is_master_node)
 				{
 					int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+					lum[lum_idx]->autoregulation(t_act);//autoreguletion, updating peripheral parameters
 					solve_lum_newton(lum_idx, t_act);
 				}
 
@@ -469,7 +490,7 @@ double first_blood::lowest_new_time(int &moc_idx, int &e_idx)
 
 //--------------------------------------------------------------
 void first_blood::solve_lum_newton(int index, double t_act)
-{
+{	
 	/*
 	x = [q1,q2,...qm,p1,p2,p3,...pn,y1,y2,...ye,qmoc1,...qmock] y: for elastance if present
 	f = [edge1,edge2,...edgem,node1,node2,...node,elas1,elas2,...elase,char1,char2,...]

@@ -179,6 +179,11 @@ public:
 	double baroreflex(double sys);
 	int period_of_first_lum = 0;// which period the furthest lumped model is in
 
+	//for perif baroreflex
+	vector <string> baroreflex_perifs;
+	string baroreflex_filename;
+
+
 
 	// autoregulation stuff
 	bool do_autoregulation = false;
