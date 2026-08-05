@@ -218,8 +218,8 @@ void solver_lumped::load_model()
 					    Ct_ref = stod(sv[2],0);
     					 tao_met = stod(sv[3],0);
                    G_met = stod(sv[4],0);
-                   sat1_met = stod(sv[5],0);
-                   sat2_met = stod(sv[6],0);
+                   Rmin= stod(sv[5],0);
+                   Rmax = stod(sv[6],0);
     					 //Ct_ave;
     					 do_metabolic_res = true;
 				}

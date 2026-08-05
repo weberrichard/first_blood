@@ -1173,68 +1173,40 @@ void solver_lumped::autoregulation(double t_act){
 
 	if(t_act<=80.){return;}
 
+	bool updated = false;
+
 	if(do_myogenic)
 	{
 		//updates x_myo
 		myogenic_control(t_act);
+		updated = true;
 	}
 
 	if(do_metabolic_res){
 		//updates x_met
 		metabolic_response(t_act);
+		updated = true;
 	}
 
 	if(do_CO2_control){
-		//updates x_met
+		//updates x_CO2
 		CO2_response(t_act);
+		updated = true;
 	}
 
 	if(do_perif_baroreflex){
 		//updates x_bar
 		perif_baroreflex();
+		updated = true;
 	}
 
 
 
 	//updates the parameter factor of the resistance
-	if(do_CO2_control || do_metabolic_res || do_myogenic || do_perif_baroreflex){
+	if(updated){
 	update_R_fact();}
 }
 
-/*
-//--------------------------------------------------------------------------------------------------
-void solver_lumped::update_R_fact(){
-
-	vector<int> Ridx{0,1}; // which resistors are we modifying
-
-	double FF; 
-	for(int i=0; i<Ridx.size(); i++)
-	{
-		double Rmax, Rmin; // calculated from r_min, r_max from "Regulation of Coronary Microvascular Resistance in Health and Disease" pic 12.2
-		if((x_met + x_myo - x_CO2) < 0){ // x_co2 has the opposite effect -> negative sign
-			//the sigmoid curve is the same for the two responses
-			Rmin = sat1_met;
-			Rmax = 2. - Rmin;
-		}
-		else{
-			Rmax = sat2_met;
-			Rmin = 2. - sat2_met;
-		}
-
-		double ff = 80. / (Rmax - Rmin) ;
-		FF = (Rmax + Rmin * exp(- (x_met + x_myo - x_CO2) * ff)) / (1. + exp(-(x_met + x_myo - x_CO2) * ff));
-		
-
-		if(do_CO2_control){
-			//cout<<x_met<<"  "<<x_myo<<"  "<<x_CO2<<endl;
-			cout.precision(10);
-			cout << FF << endl<<endl;}
-
-		edges[Ridx[i]]->parameter_factor = FF;
-	}
-
-}*/
-
 
 //--------------------------------------------------------------------------------------------------
 void solver_lumped::update_R_fact(){
@@ -1242,23 +1214,18 @@ void solver_lumped::update_R_fact(){
 	vector<int> Ridx{0,1}; // which resistors are we modifying
 
 
-	double Rmax = sat2_met;
-	double Rmin = sat1_met;
 	double x = x_met + x_myo - x_CO2 + x_bar;
 	double A = (Rmax - Rmin) / (1.0 - Rmin) - 1.0;
 	double FF = Rmin + (Rmax - Rmin) / (1.0 + A * exp(- 30. * x));
 
 
 	//cout.precision(10);
-	cout << FF << endl;
+	//cout << FF << endl;
 
 	for(int i=0; i<Ridx.size(); i++)
 	{
 		edges[Ridx[i]]->parameter_factor = FF;
 	}
-
-	
- 
 
 
 }

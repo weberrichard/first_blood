@@ -225,8 +225,8 @@ public:
     double G_met;
     time_average *Ct_ave;
     bool do_metabolic_res = false;
-    double sat1_met = 0.1;
-    double sat2_met = 4.0;
+    double Rmin = 0.1;
+    double Rmax = 4.0;
     void metabolic_response(double t_act);
     double vessel_dilation(int edgeindex);
     void set_0D_pointers();
