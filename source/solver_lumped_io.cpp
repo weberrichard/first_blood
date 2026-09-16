@@ -145,9 +145,7 @@ void solver_lumped::load_model()
 				if(sv.size()>7)
 				{
 					tao   = stod(sv[4],0); // time constant
-					G     = stod(sv[5],0); // gain
-					//sat1  = stod(sv[6],0); // saturation 1
-					//sat2  = stod(sv[7],0); // saturation 2
+					G_myo     = stod(sv[5],0); // gain
 				}
 			}
 
@@ -220,8 +218,7 @@ void solver_lumped::load_model()
                    G_met = stod(sv[4],0);
                    Rmin= stod(sv[5],0);
                    Rmax = stod(sv[6],0);
-    					 //Ct_ave;
-    					 do_metabolic_res = true;
+    			   do_metabolic_res = true;
 				}
 			}
 
@@ -583,7 +580,7 @@ void solver_lumped::load_model()
 
 		}
 	}
-	else if(do_lum_PlasmaO2_transport&&do_lum_HB_sat_transport&&do_lum_RBC_transport){
+	else if(do_lum_PlasmaO2_transport||do_lum_HB_sat_transport||do_lum_RBC_transport){
 		cout<<"O2_parameter default values"<<endl;
 	}
 	file_in.close();
@@ -604,7 +601,7 @@ void solver_lumped::load_model()
 		}
 		
 	}
-	else if(true){
+	else if(do_lum_pla_CO2_transport||do_lum_rbc_CO2_transport||do_lum_pla_HCO3_transport||do_lum_rbc_HCO3_transport||do_lum_HbCO2_transport){
 		cout<<"CO2_parameter default values"<<endl;
 	}
 	file_in.close();

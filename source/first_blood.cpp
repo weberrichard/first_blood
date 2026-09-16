@@ -358,7 +358,7 @@ bool first_blood::run()
 				if(moc[moc_idx]->nodes[si]->is_master_node)
 				{
 					int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
-					lum[lum_idx]->autoregulation(t_act);//autoreguletion, updating peripheral parameters
+					lum[lum_idx]->autoregulation(t_act);// updating peripheral rasistance parameters
 					solve_lum_newton(lum_idx, t_act);
 				}
 
@@ -366,7 +366,7 @@ bool first_blood::run()
 				if(moc[moc_idx]->nodes[ei]->is_master_node)
 				{
 					int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
-					lum[lum_idx]->autoregulation(t_act);//autoreguletion, updating peripheral parameters
+					lum[lum_idx]->autoregulation(t_act);// updating peripheral resistance parameters
 					solve_lum_newton(lum_idx, t_act);
 				}
 

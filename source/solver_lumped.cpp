@@ -333,10 +333,7 @@ void solver_lumped::substitute_newton(double t_act)
 	if(do_myogenic)
 	{
 		double tn = time.back();
-		//double vn = edges[0]->vfr;
-
 		double vn = nodes[5]->p;
-		//double vn = nodes[1]->p;
 		p_ave->update(tn, vn, T_act, T_last, T_sum);
 	}
 
@@ -355,8 +352,6 @@ void solver_lumped::substitute_newton(double t_act)
     //update CO2 for CO2 control 
     if(do_CO2_control){
     	double tn = time.back();
-
-    	//double PP = CO2_pla_lum->D0_edges[2]->fi[0] ;//co2 concentration
     	double PP = CO2_pla_lum->D0_edges[0]->fi[0] ;//local arterial co2 concentration
     	P_CO2_ave->update(tn, PP, T_act, T_last, T_sum);
     }
@@ -365,16 +360,14 @@ void solver_lumped::substitute_newton(double t_act)
 
 
 //--------------------------------------------------------------
-void solver_lumped::myogenic_control(double t_act)
+void solver_lumped::myogenic_response(double t_act)
 {
-
 	// time step
 	double dt = t_act - time.back();
-
 	double p = p_ave->average.back();
 
 	// actuator signal
-	x_myo = x_myo + dt / tao * (- x_myo + G * (p - p_ref)/(p_ref - atmospheric_pressure/mmHg_to_Pa));
+	x_myo = x_myo + dt / tao * (- x_myo + G_myo * (p - p_ref)/(p_ref - atmospheric_pressure/mmHg_to_Pa));
 }
 
 //--------------------------------------------------------------
@@ -1171,62 +1164,51 @@ void solver_lumped::capillary_O2_transport(double dt){
 //--------------------------------------------------------------------------------------------------
 void solver_lumped::autoregulation(double t_act){
 
-	if(t_act<=80.){return;}
+	if(t_act<=settling_time){return;}
 
-	bool updated = false;
+	bool update = false;
 
-	if(do_myogenic)
-	{
+	if(do_myogenic){
 		//updates x_myo
-		myogenic_control(t_act);
-		updated = true;
+		myogenic_response(t_act);
+		update = true;
 	}
 
 	if(do_metabolic_res){
 		//updates x_met
 		metabolic_response(t_act);
-		updated = true;
+		update = true;
 	}
 
 	if(do_CO2_control){
 		//updates x_CO2
 		CO2_response(t_act);
-		updated = true;
+		update = true;
 	}
 
 	if(do_perif_baroreflex){
 		//updates x_bar
 		perif_baroreflex();
-		updated = true;
+		update = true;
 	}
 
-
-
-	//updates the parameter factor of the resistance
-	if(updated){
-	update_R_fact();}
+	if(update){
+	update_resistance_factor();
+	}
 }
 
 
 //--------------------------------------------------------------------------------------------------
-void solver_lumped::update_R_fact(){
-
-	vector<int> Ridx{0,1}; // which resistors are we modifying
-
+void solver_lumped::update_resistance_factor(){
 
 	double x = x_met + x_myo - x_CO2 + x_bar;
-	double A = (Rmax - Rmin) / (1.0 - Rmin) - 1.0;
-	double FF = Rmin + (Rmax - Rmin) / (1.0 + A * exp(- 30. * x));
-
-
-	//cout.precision(10);
-	//cout << FF << endl;
+	double sigmoid_scale = (Rmax - Rmin) / (1.0 - Rmin) - 1.0;
+	double resistance_factor = Rmin + (Rmax - Rmin) / (1.0 + sigmoid_scale * exp(- sigmoid_gain * x));
 
 	for(int i=0; i<Ridx.size(); i++)
 	{
-		edges[Ridx[i]]->parameter_factor = FF;
+		edges[Ridx[i]]->parameter_factor = resistance_factor;
 	}
-
 
 }
 
@@ -1284,9 +1266,6 @@ void D0_edge::update_capacitor(double dt){
 		}
 		if(V+Q*dt*ml_to_m3 != 0.){
 		fi[0] = (fi_old*V + Q*dt*f*ml_to_m3)/(V+Q*dt*ml_to_m3);}
-
-		//if ((D0_name == "c_pa") && (Q > 0.) && (node_start->PlasmaO2_0Dn != 0.0011467116)) {cout << std::setprecision(17) << V << endl << Q*dt*ml_to_m3 <<endl<<endl;}
-		//if ((D0_name == "c_pa") && (Q > 0.) && (node_start->PlasmaO2_0Dn != 0.0011467116)) {cout << std::setprecision(17) << fi[0] << endl << endl;}
 
 	}
 

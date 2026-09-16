@@ -52,7 +52,7 @@ public:
 	VectorXd x, f;
 
 	// control functions
-	void myogenic_control(double t_act);
+	void myogenic_response(double t_act);
 
 	// OLD solving the linear equations
 	vector<vector<double> > solve_one_step(double dt, vector<vector<double> > coefs);
@@ -112,13 +112,16 @@ public:
 	// constants of myogenic control
 	bool do_myogenic = false;
 	double tao = 20.; // time constant
-	double G = .9; // gain
-	//double sat1 = .55; // saturation 1
-	//double sat2 = 2.; // saturation 2
+	double G_myo = .9; // gain
 	time_average  *p_ave; // time period average values
-	int q_idx=0, p_idx=0, C_idx; // index for average values, which element's average
 	double x_myo=0.; // acting signal
 	double q_ref=0., p_ref=0.;
+
+	double settling_time = 80.; //settling time of all functionalities used for autoregulation, [s]
+	void autoregulation(double t_act);
+	void update_resistance_factor();
+	array<int, 2> Ridx{0, 1}; // which resistors are we modifying, indices of the rasistors
+	double sigmoid_gain = 30.0;
 
 
 	// RBC transport in 0D
@@ -157,10 +160,6 @@ public:
     //CO2 transport
     void CO2transport(double dt);
     void pulmonary_CO2transport(double dt);
-    //double K_pul_scale_CO2 = 5.9e-2; // m3(CO2)/m3(plasma)/Pa
-    //double K_pul_scale_CO2 = 5.9e-4; // m3(CO2)/m3(plasma)/Pa
-    //double K_pul_scale_CO2 = 5.9e-5; // m3(CO2)/m3(plasma)/Pa
-    //double K_pul_scale_CO2 = 5.9e-3; // m3(CO2)/m3(plasma)/Pa
     double K_pul_scale_CO2 = 1.9e-4; // m3(CO2)/m3(plasma)/Pa
 
     // constants of CO2 control
@@ -182,15 +181,10 @@ public:
 
     
     //tissue O2 concentration initial condition
-    //double init_tissueO2 = 0.0166;
-    //double init_tissueO2 = 2.2e-3;
     double init_tissueO2 = 6.2e-3;
-    //double init_tissueO2 = 2.2e-4;
-    //init function for tissue O2
     void init_lum_tissueO2();
 
     //constant parameters of O2 transport, literature: Bing dissertation and article
-    double Dc = 1.6e-9; // [m2/s] O2 diffusion coefficient in plasma/blood
     double fi_c = 0.011303; // porosity (capillaries) [-]
     double fi_t = 0.988697; // porosity (tissue) =1-fi_c [-]
     double alpha_b = 3.11e-5; // [1/mmHg] solubility of oxygen in blood
@@ -483,10 +477,6 @@ public:
 	friend class D0_edge;
 	void capillary_O2_transport(double dt);
 	void capillary_CO2_transport(double dt);
-
-
-	void autoregulation(double t_act);
-	void update_R_fact();
 
 	friend D0_transport;
 
