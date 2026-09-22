@@ -558,8 +558,8 @@ public:
     void prescribe_node_fi(TransportType TType, double& finode);
 
     void save_variables();
-    void save_results(string fn, const vector<double>& time, string model_name);
-    void save_vector(string fname, const vector<double>& st, const vector<double>& en, const vector<double>& time);
+    void save_results(string fn, const vector<double>& time, string model_name, double dt = 0.);
+    void save_vector(string fname, const vector<double>& st, const vector<double>& en, const vector<double>& time, double dt);
     void save_vector(string folder_name, const vector<double>& vect, const vector<double>& time);
     void set_save_memory();
     vector<double> linear_dist(double avg, double dist, int len);

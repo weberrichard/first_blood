@@ -660,7 +660,7 @@ void D0_transport::save_variables(){
 
 
 //--------------------------------------------------------------
-void D0_transport::save_results(string fn, const vector<double>& time, string model_name){
+void D0_transport::save_results(string fn, const vector<double>& time, string model_name, double dt){
 	string file_name, tname;
 	switch(this->TType){
 	case RBC:
@@ -701,22 +701,89 @@ void D0_transport::save_results(string fn, const vector<double>& time, string mo
 
 	for(int i=0;i< D0_edges.size();i++){
 		file_name = "results/" + fn + "/" + model_name + "/" + tname + "/" + D0_edges[i]->D0_name + ".txt";
-		save_vector(file_name, D0_edges[i]->fi_start, D0_edges[i]->fi_end, time);
+		save_vector(file_name, D0_edges[i]->fi_start, D0_edges[i]->fi_end, time, dt);
 	}
 	
 }
 
-//--------------------------------------------------------------
-void D0_transport::save_vector(string folder_name, const vector<double>& st, const vector<double>& en, const vector<double>& time){
-    FILE *out_file = fopen(folder_name.c_str(),"w");
 
-	for(unsigned int j=0; j<st.size(); j++)
-	{
-		double t = time[j];
-		double fi_start = st[j];
-		double fi_end = en[j];
-		fprintf(out_file, "%9.7e, %9.7e, %9.7e\n", t, fi_start, fi_end);
-	}
+
+//--------------------------------------------------------------
+void D0_transport::save_vector(string folder_name, const vector<double>& st, const vector<double>& en, const vector<double>& time, double dt = 0.){
+
+    FILE *out_file = fopen(folder_name.c_str(), "w");
+
+    if (!out_file)
+        return;
+
+    // Original behavior: write every simulation point
+    if (dt <= 0.0)
+    {
+        for (unsigned int j = 0; j < st.size(); j++)
+        {
+            double t = time[j];
+            double fi_start = st[j];
+            double fi_end = en[j];
+
+            fprintf(out_file, "%9.7e, %9.7e, %9.7e\n",
+                    t, fi_start, fi_end);
+        }
+
+        fclose(out_file);
+        return;
+    }
+
+    // Write interpolated values at:
+    // 0, dt, 2*dt, 3*dt, ...
+    double output_time = 0.0;
+
+    unsigned int j = 0;
+
+    while (output_time <= time.back())
+    {
+        // Find the interval [time[j], time[j+1]]
+        // containing output_time.
+        while (j + 1 < time.size() &&
+               time[j + 1] < output_time)
+        {
+            j++;
+        }
+
+        // If output_time is before the first simulation point,
+        // use the first value.
+        if (output_time <= time.front())
+        {
+            fprintf(out_file, "%9.7e, %9.7e, %9.7e\n",
+                    output_time, st.front(), en.front());
+        }
+        // If output_time is exactly at or beyond the last point
+        else if (j + 1 >= time.size())
+        {
+            fprintf(out_file, "%9.7e, %9.7e, %9.7e\n",
+                    time.back(), st.back(), en.back());
+            break;
+        }
+        else
+        {
+            // Linear interpolation
+            double t1 = time[j];
+            double t2 = time[j + 1];
+
+            double alpha = (output_time - t1) / (t2 - t1);
+
+            double fi_start = st[j] +
+                              alpha * (st[j + 1] - st[j]);
+
+            double fi_end = en[j] +
+                            alpha * (en[j + 1] - en[j]);
+
+            fprintf(out_file, "%9.7e, %9.7e, %9.7e\n",
+                    output_time, fi_start, fi_end);
+        }
+
+        output_time += dt;
+    }
+
     fclose(out_file);
 }
 

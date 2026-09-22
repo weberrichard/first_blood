@@ -1030,6 +1030,51 @@ void first_blood::save_results(double dt, string folder_name, string model_name,
 			}
 		}
 	}
+	else if(model_type == "RBC_transport")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name && do_RBC_transport && lum[i]->RBClum->do_save_results)
+			{
+				lum[i]->RBClum->save_results(folder_name, lum[i]->time, model_name, dt);		
+			}
+		}
+	}
+	else if(model_type == "HBsat_transport")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name && do_HBsat_transport && lum[i]->HBsatlum->do_save_results)
+			{
+				lum[i]->HBsatlum->save_results(folder_name, lum[i]->time, model_name, dt);		
+			}
+		}
+	}
+	else if(model_type == "PlasmaO2_transport")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name && do_Plasma_O2_transport && lum[i]->PlasmaO2lum->do_save_results)
+			{
+				lum[i]->PlasmaO2lum->save_results(folder_name, lum[i]->time, model_name, dt);		
+			}
+		}
+	}
+
+	else if(model_type == "CO2_transport++")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name )
+			{
+				lum[i]->CO2_pla_lum->save_results(folder_name, lum[i]->time, model_name, dt);
+				lum[i]->CO2_rbc_lum->save_results(folder_name, lum[i]->time, model_name, dt);
+				lum[i]->HCO3_pla_lum->save_results(folder_name, lum[i]->time, model_name, dt);
+				lum[i]->HCO3_rbc_lum->save_results(folder_name, lum[i]->time, model_name, dt);
+				lum[i]->HbCO2_lum->save_results(folder_name, lum[i]->time, model_name, dt);		
+			}
+		}
+	}
 }
 
 //--------------------------------------------------------------
