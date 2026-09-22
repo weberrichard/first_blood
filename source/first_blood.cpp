@@ -229,7 +229,6 @@ bool first_blood::run()
 			while(!is_run_end(t_act,t_old) && is_run_ok)
 			{
 				
-				//cout << "t: " << t_act << endl;
 				/*if(t_act>7.) // improve this
 				{
 					int idx = lum_id_to_index("heart_kim");
@@ -318,6 +317,8 @@ bool first_blood::run()
 			double t_act = 0.;
 			while(t_act<time_end)
 			{
+				cout << "t: " << t_act << endl;
+				
 				t_act = lum[0]->time.back() + dt_lumped;
 				solve_lum_newton(0, t_act);
 			}
@@ -965,7 +966,7 @@ int first_blood::lum_id_to_index(string lum_id)
 	}
 	if(idx == -1)
 	{
-		cout << "\n !!!WARNING!!!\n solver_moc::lum_id_to_index function\nLum model is not existing, lum_id: " << lum_id << "\n Continouing..." << endl;
+		cout << "\n !!!WARNING!!!\n first_blood::lum_id_to_index function\nLum model is not existing, lum_id: " << lum_id << "\n Continouing..." << endl;
 	}
 	return idx;
 }

@@ -21,7 +21,7 @@ double maximum(const vector<double> &x, int &idx);
 int find_index(const vector<double> &x, double x0);
 double average(const vector<double> &x, const vector<double> &t);
 vector<double> resample(const vector<double> &x, const vector<double> &t, double dt);
-int crop_index(const vector<double> &x, const vector<double> &t, double T);
+int crop_after_T(const vector<double> &x, const vector<double> &t, double T);
 double systole(const vector<double> &x, const vector<double> &t, double T);
 double diastole(const vector<double> &x, const vector<double> &t, double T);
 double time_delay_min(const vector<double> &x, const vector<double> &y, const vector<double> &t, double T);

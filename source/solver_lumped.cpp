@@ -220,11 +220,13 @@ void solver_lumped::coefficients_newton(double t_act)
 		double dp = Z[0];
 		double ddp_dq = Z[1];
 
-		Jac(i,m+i2) = 1.;
-		Jac(i,m+i1) = -1.;
+
+		Jac(i,m+i2) = -1.;
+		Jac(i,m+i1) = 1.;
 		Jac(i,i) = ddp_dq;
 
-		f(i) = x(m+i2) - x(m+i1) + dp;
+		f(i) = - x(m+i2) + x(m+i1) + dp;
+
 		}
 	}
 
@@ -603,8 +605,20 @@ double solver_lumped::get_interp_val(int index, double t_act, int up_b){
 //--------------------------------------------------------------
 vector<double> solver_lumped::p_drop_q(double q, int index) {
     // returns {pressure drop, derivative wrt q}
+<<<<<<< HEAD
     const std::vector<double>& qv = edges[index]->qv_c;
     const std::vector<double>& dp = edges[index]->dp_c;
+=======
+    double rev_f = edges[index]->parameter_factor;
+
+    // applying affinity law
+    vector<double> qv(edges[index]->qv_c.size()),dp(edges[index]->dp_c.size());
+    for(int i=0; i<edges[index]->qv_c.size(); i++)
+    {
+    	qv[i] = rev_f*edges[index]->qv_c[i];
+	    dp[i] = rev_f*rev_f*edges[index]->dp_c[i];
+    }
+>>>>>>> 053007928590123a996b65c071af08b277d05b64
 
     if (qv.empty() || dp.empty() || qv.size() != dp.size()) {
         throw std::runtime_error("Invalid qv/dp data");

@@ -1,0 +1,12 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor_coronary, R1, n1, n2, 0.00, 1.20E+09
+resistor_coronary, R2, n2, g, 0.00, 4.81E+09
+capacitor_coronary, C, n2, g, 0.00, 1.99E-12
+
+data of nodes
+type, name, initial condition [SI]
+node, n1, 1.000e+05
+node, n2, 1.000e+05
+ground, g, 1.000e+05
+

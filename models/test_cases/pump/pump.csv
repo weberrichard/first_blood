@@ -1,0 +1,10 @@
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI] 
+v_pump, p1, g1, n1, 0.0, 5e7, qdp
+resistor, R1, n1, g2, 0.0, 5e8
+
+data of nodes
+type, name, initial condition [SI]
+ground, g1, 1e5
+node, n1, 1e5
+ground, g2, 1e5
