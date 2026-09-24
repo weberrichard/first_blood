@@ -1,0 +1,90 @@
+RBC,PO2,HBsat
+O2transport_init, 4.9e15, 2.9545e-3, 0.97
+
+CO2_pla,CO2_rbc,HCO3_pla,HCO3_rbc,HbCO2
+co2transport_init, 0.05004034, 0.02960993, 0.78838485, 0.09752594, 0.04786631
+
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI], parameter [SI]
+
+
+Right Atrium
+inductor, L_ra, p_RA1, p_RA2, 0.000e+00, 5.000e+4
+diode, R_ra, p_RA2, p_RA3, 0.000e+00, 1.000e+06
+
+
+Right Ventrice
+elastance, E_rv, g1, p_RA3, 0.000e+00, 6.67e+07, 8.0e+06
+inductor, L_rv, p_RA3, p_RV1, 0.000e+00, 2.50e+04
+diode, R_rv, p_RV1, p_RV2, 0.000e+00, 2.000e+06
+
+
+P
+resistor, R_pa, p_RV2, p_LA1, 0.000e+00, 1.2e+07
+capacitor, C_pa, p_RV2, g2, 0.000e+00, 3.0e-08
+
+
+Left Atrium
+capacitor, E_la, p_LA1, g3, 0.000e+00, 3.60e-08
+inductor, L_la, p_LA1, p_LA2, 0.000e+00, 1.00e+04
+diode, R_la, p_LA2, p_LA3, 0.000e+00, 5.000e+05
+
+
+Left Ventrice
+elastance, E_lv, g4, p_LA3, 0.000e+00, 2.67e+08, 8.0e+06
+inductor, L_lv_aorta, p_LA3, p_LV1, 0.000e+00, 6.50e+04
+diode, R_lv_aorta, p_LV1, aorta, 0.000e+00, 1.00e+06
+
+
+
+data of nodes
+type, name, initial condition [SI]
+node, aorta, 1.13e+05
+ground, g1, 1.00e+05
+ground, g2, 1.00e+05
+ground, g3, 1.00e+05
+ground, g4, 1.00e+05
+node, p_RA1, 1.0150e+05
+node, p_RA2, 1.0150e+05
+node, p_RA3, 1.0150e+05
+node, p_RV1, 1.0150e+05
+node, p_RV2, 1.0150e+05
+node, p_LA1, 1.0150e+05
+node, p_LA2, 1.0150e+05
+node, p_LA3, 1.0150e+05
+node, p_LV1, 1.0150e+05
+
+
+transport
+RBC_on, 1
+HBsaturation_on, 1
+PlasmaO2_on, 1
+
+pla_CO2_on, 1
+rbc_CO2_on, 1
+pla_HCO3_on, 1
+rbc_HCO3_on, 1
+HbCO2_on, 1
+
+
+virtual 1D
+type, name, node start, node end, length, cross section, division points, is systemic capillary, is pulmonary capillary, vfr edge
+v1D, pul_art, p_RV1, p_RV2, 0.5, 0.000949, 50, 0, 0, R_ra
+v1D, pul_cap, p_RV2, p_LA1, 0.5, 0.000949, 500, 0, 1, R_rv
+v1D, pul_vein, p_LA1, p_LA2, 0.005, 0.075, 40, 0, 0, R_pa
+
+type, name, node start, node end, diode
+t_diode, t1, p_RA1, p_RA3, R_ra
+t_diode, t2, p_RA3, p_RV1, R_rv
+t_diode, t3, p_LA2, p_LA3, R_la
+t_diode, t4, p_LA3, aorta, R_lv_aorta
+
+
+type, name, node start, node end, capacitor
+0Dcapacitor, c_pa, p_RV2, g2, C_pa
+0Dcapacitor, e_la, p_LA1, g3, E_la
+
+type, name, node start, node end, elastance, V0 [SI]
+0Delastance, e_rv, g1, p_RA3, E_rv, 0.00005
+0Delastance, e_lv, g4, p_LA3, E_lv, 0.00012
+

@@ -19,6 +19,7 @@
 #include "solver_lumped.h"
 #include "statistics.h"
 
+
 #include "/usr/include/eigen3/Eigen/Eigen"
 
 #include <string>
@@ -32,6 +33,28 @@
 #include <stdio.h>
 
 using namespace Eigen;
+
+//transport stuff
+//a first_blood object gets one of this class. This handles 1D transport for the moc edges
+class Transport_1D {
+public:
+    TransportType TType;
+
+    Transport_1D(TransportType TType);
+
+    void update_fi(vector<double> v, vector<double>& fi, vector<double>& fi_new, double l, double dt, double fiStart, double fiEnd);
+    void prescribe_node_fi_CO2(TransportType TType, double& finode);
+};
+
+class Transport_node {//for 1D nodes
+public:
+    TransportType TType;
+
+    Transport_node(TransportType TType);
+
+    void update_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges);
+    void update_master_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges, solver_lumped& lum_mod, solver_moc& moc_mod);
+};
 
 class first_blood
 {
@@ -131,19 +154,91 @@ public:
 	string case_name;
 
 	int period=0; // saving which period the calculation is
-	double heart_rate = 75.6; // from Charlton2019
-	double time_period = 60./heart_rate;
+	//double heart_rate = 75.6; // from Charlton2019
+
+	//for baroreflex
+	 double L_B = 0.5936; //s
+    double k_B = 0.1086; //1/mmHg
+    double b_B = 0.6274; //s
+    double x_B0 = 114.15; //mmHg
+    //double x_B0 = 114.33; //mmHg
+	double time_period;// = 60./heart_rate;
+	string sys_moc;
+	string sys_edge_name; // systole pressure of this edge
+	moc_edge* sys_edge;
+	bool do_baroreflex = false;
+	double T_sum = 0.; //sum of completed cycles
+	double T_last = 0.;
+	void set_sys_edge_pointer();
+	void init_time_periods_for_lum(double T);
+
+	void O2_transport(int moc_idx, int si, int ei, int e_idx, double t_act);
+	void CO2_transport(int moc_idx, int si, int ei, int e_idx, double t_act);
+	void save_transport_var_for_lum(int moc_idx, int si, int ei);
+
+	double baroreflex(double sys);
+	int period_of_first_lum = 0;// which period the furthest lumped model is in
+
+	//for perif baroreflex
+	vector <string> baroreflex_perifs;
+	string baroreflex_filename;
+
+
 
 	// autoregulation stuff
 	bool do_autoregulation = false;
 	void autoregulation();
 	
 	// time averaged series
-	time_average *map, *cfr;
+	time_average *map;
+
 
 	void calculate_time_average();
 	void save_time_average(string folder_name);
 	void save_time_average(double dt, string folder_name);
+
+	// RBC transport
+	bool do_RBC_transport = false;
+	Transport_1D* RBC1D; //class handling the 1D transport stuff
+	TransportType TRBCType = RBC;
+	Transport_node* RBC_node_transport;
+
+	// Haemoglobin saturation
+	bool do_HBsat_transport = false;
+	Transport_1D* HBsat1D; //class handling the 1D transport stuff
+	TransportType THBType = HB_O2_saturation;
+	Transport_node* HB_O2_node_transport;
+
+	// Plasma O2 concentration
+	bool do_Plasma_O2_transport = false;
+	Transport_1D* Plasma_O21D; //class handling the 1D transport stuff
+	TransportType TPlasmaO2 = C_Plasma_O2;
+	Transport_node* PlasmaO2_node_transport;
+
+	//CO2 transport
+	bool do_pla_CO2_transport = false;
+    bool do_rbc_CO2_transport = false;
+    bool do_pla_HCO3_transport = false;
+    bool do_rbc_HCO3_transport = false;
+    bool do_HbCO2_transport = false;
+
+    Transport_node* transport_node_CO2_pla;
+    Transport_node* transport_node_CO2_rbc;
+    Transport_node* transport_node_HCO3_pla;
+    Transport_node* transport_node_HCO3_rbc;
+    Transport_node* transport_node_HbCO2;
+
+    Transport_1D* CO2_pla_1D;
+    Transport_1D* CO2_rbc_1D;
+    Transport_1D* HCO3_pla_1D;
+    Transport_1D* HCO3_rbc_1D;
+    Transport_1D* HbCO2_1D;
+
+
+
+	void check_valves();
+	void connect_0D_edges();
+
 
 private:
 	// data of boundary for forward, and backward simulation

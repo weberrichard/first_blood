@@ -46,6 +46,11 @@ public:
 	double nominal_diameter_start,   nominal_diameter_end; // m
 	double nominal_thickness_start,  nominal_thickness_end; // m
 	double resistance_start,         resistance_end; // 1/ms
+
+	double R1, R2; //values of the time dependent resistors
+	double t1, t2; //the time dependent resistors are piecevise constanst. they model compression. for example common carotid artery compression teszt
+
+
 	double geodetic_height_start=0., geodetic_height_end=0.; //m
 	double elasticity; // Ns/m2
 	int division_points; // pc.
@@ -77,13 +82,23 @@ public:
 	vector<double> area_start,              area_end; // m2
 	vector<double> volume_flow_rate_start,  volume_flow_rate_end; // m3/s
 	vector<double> mass_flow_rate_start,    mass_flow_rate_end; // kg/s
+	vector<double> RBC_concentration_start, RBC_concentration_end;// SI
+	vector<double> HBsat_start, HBsat_end; // [1]
+	vector<double> PlasmaO2_start, PlasmaO2_end; // [m3/m3]
+
+	vector<double> CO2_pla_start, CO2_pla_end;
+	vector<double> CO2_rbc_start, CO2_rbc_end;
+	vector<double> HCO3_pla_start, HCO3_pla_end;
+	vector<double> HCO3_rbc_start, HCO3_rbc_end;
+	vector<double> HbCO2_start, HbCO2_end;
+
 
 	// printing input parameters to console
 	void print_input();
 	void print_vars();
 
 	// setting initial condition to field variables and setting short parameters
-	void initialization(double p_init, int mat_type);
+	void initialization(double pressure_initial, int mat_type, double RBC_init, double HBsat_init, double PlasmaO2_C_init, double CO2_pla_moc_init, double CO2_rbc_moc_init, double HCO3_pla_moc_init, double HCO3_rbc_moc_init, double HbCO2_moc_init );
 	// setting upstream pressure p[0], only in the case of upstream_boundary
 	void set_pressure_upstream(double p_in);
 
@@ -151,6 +166,22 @@ public:
 	double f_pressure_end(double pp, double p_in, double dt, double &v_e);
 	double f_flowrate_start(double pp, double q_in, double dt, double &v_s);
 	double f_flowrate_end(double pp, double q_in, double dt, double &v_e);
+
+	//get function(s) for transport
+	vector<double> get_velocity();
+	vector<double> get_area();
+	vector<double> get_new_velocity();
+
+	vector<double> RBC_edge_fi, RBC_edge_finew; //RBC concentration SI
+	vector<double> HBsat_edge, HBsat_edge_new; //Haemoglobin saturation [1]
+	vector<double> PlasmaO2_edge, PlasmaO2_edge_new; //O2 concentration in plasma [m3/m3]
+
+	//CO2 stuff
+	vector<double> CO2_pla_edge_fi, CO2_pla_edge_finew;
+	vector<double> CO2_rbc_edge_fi, CO2_rbc_edge_finew;
+	vector<double> HCO3_pla_edge_fi, HCO3_pla_edge_finew;
+	vector<double> HCO3_rbc_edge_fi, HCO3_rbc_edge_finew;
+	vector<double> HbCO2_edge_fi, HbCO2_edge_finew;
 
 private:
 	// changing diameter along the vessel

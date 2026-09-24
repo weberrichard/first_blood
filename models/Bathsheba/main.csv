@@ -1,5 +1,5 @@
 run,forward
-time,10.0
+time,30.0
 material,Olufsen
 solver,maccormack
 
@@ -27,7 +27,7 @@ lumped,p4,N4p,n1,V4p,P4
 lumped,p5,N5p,n1,V5p,P4
 lumped,p6,N6p,n1,V6p,P4
 lumped,p7,N7p,n1,V7p,P4
-lumped,p8,N8p,n1,V8p,P4,N82p,n2
+lumped,p8,N8p,n1,V8p,P4
 lumped,p9,N9p,n1,V9p,P4
 lumped,p10,N10p,n1,V10p,P4
 lumped,p11,N11p,n1,V11p,P4

@@ -230,7 +230,8 @@ time_average::~time_average()
 }
 
 //--------------------------------------------------
-void time_average::update(double tnew, double vnew, double T)
+/*
+void time_average::update(double tnew, double vnew, double T) // T is constant
 {
 	if(tnew<T)
 	{
@@ -266,7 +267,7 @@ void time_average::update(double tnew, double vnew, double T)
 		value.push_back(vnew);
 		time.push_back(tnew);
 	}
-}
+}*/
 
 //--------------------------------------------------
 void time_average::save_results(string file_name)
@@ -294,4 +295,57 @@ void time_average::save_results(double dt, string file_name)
 		t += dt;
    }
 	fclose(out_file);
+}
+
+//--------------------------------------------------
+double average(const vector<double> &x){
+	int n = x.size();
+
+	double sum = 0;
+	for (int i=0; i<n; i++){
+		sum += x[i];
+	}
+	return sum/n;
+}
+
+
+//--------------------------------------------------
+void time_average::update(double tnew, double vnew, double T_act, double T_last, double T_sum) // T is not constant
+{
+	if(tnew<T_act)
+	{
+		if(average.size()>0)
+		{
+			double Anew = (vnew+value.back())*.5*(tnew-time.back());
+			double avenew = (average.back()*(time.back()-time[0]) + Anew)/(tnew-time[0]);
+			average.push_back(avenew);
+			area_act += Anew;
+		}
+		else
+		{
+			average.push_back(vnew);
+			area_act = vnew*.5*tnew;
+		}
+		value.push_back(vnew);
+		time.push_back(tnew);
+	}
+	else
+	{
+		double Anew = (vnew+value.back())*.5*(tnew-time.back());
+		area_act += Anew;
+
+		double y_new = (tnew-T_sum)/T_act; //ratio
+
+		while( T_sum -time[last_idx] >= T_last*(1-y_new) )
+		{
+			last_idx++;
+			area_last -= (value[last_idx]+value[last_idx-1])*.5*(time[last_idx]-time[last_idx-1]);
+		}
+
+		double avenew = (area_last + area_act) / (T_last*(1-y_new) + T_act*y_new);
+
+		average.push_back(avenew);
+		value.push_back(vnew);
+		time.push_back(tnew);
+	}
 }

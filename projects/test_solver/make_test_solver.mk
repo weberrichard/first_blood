@@ -1,4 +1,4 @@
-CXX=clang++
+CXX=g++
 CXXFLAGS=-std=c++17 -O3 -c
 
 SOURCE_FOLDER = ../../source/

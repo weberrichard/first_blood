@@ -19,6 +19,7 @@
 
 using namespace std;
 
+
 class moc_node
 {
 public:
@@ -32,6 +33,7 @@ public:
 	// 0: junction (with or without resistance), 1: periferia, 2: heart
 	string type;
 	int type_code;
+	bool is_diode = false;
 
 	// containing the INgoing and OUTgoing edges
 	vector<int> edge_in;
@@ -51,6 +53,12 @@ public:
 	double is_resistance; // if there is "leakage" this is 1, otherwise 0 and will eliminate this term
 	double pressure_out; // outside pressure 
 	double density; // density of the fluid (blood)
+	double RBC_node_fi; // concenrtation of RBC
+	double HBsat_node; //Haemoglobin saturation [1]
+	double PlasmaO2_node; //O2 concentration in plasma [m3/m3]
+
+	//concentrations for CO2
+	double CO2_pla_node, CO2_rbc_node, HCO3_pla_node, HCO3_rbc_node, HbCO2_node;
 
 	// bool is_upstream_boundary = false;
 	int upstream_boundary = -1; // for heart or upper boundary it is true
@@ -68,7 +76,7 @@ public:
 	void print_input();
 
 	// setting initial condition to field variables
-	void initialization(double p_init);
+	void initialization(double p_init, double RBC_init, double HBsat_init, double PlasmaO2_C_init, double CO2_pla_init, double CO2_rbc_init, double HCO3_pla_init, double HCO3_rbc_init, double HbCO2_init);
 
 private:
 	double R, Ri, p0, rho;

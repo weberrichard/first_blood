@@ -81,6 +81,14 @@ void solver_moc::load_model()
 				}
 				nodes[j]->type = "node";
 				nodes[j]->type_code = 0;
+
+				if(sv.size()>=6){// vein diodes
+					if(sv[6]=="diode"){
+						nodes[j]->is_diode = true;
+						//cout<<j<<endl;
+					}
+				}
+
 				j++;
 			}
 			else if(sv[0] == "perif" || sv[0] == "periferia") // nodes
@@ -153,6 +161,21 @@ void solver_moc::load_model()
 
 				j++;
 			}
+
+			else if(sv[0]=="O2transport_init" && sv.size() > 3 ){
+				RBC_moc_init = stod(sv[1],0);
+				PlasmaO2_moc_init = stod(sv[2],0);
+				HBsat_moc_init = stod(sv[3],0);
+			}
+
+			else if(sv[0]=="co2transport_init" && sv.size() > 5 ){
+				CO2_pla_moc_init = stod(sv[1],0);
+				CO2_rbc_moc_init = stod(sv[2],0);
+				HCO3_pla_moc_init = stod(sv[3],0);
+				HCO3_rbc_moc_init = stod(sv[4],0);
+				HbCO2_moc_init = stod(sv[5],0);
+			}
+
 		}
 	}
 	else
@@ -278,8 +301,74 @@ void solver_moc::save_results(string folder_name, vector<string> edge_list, vect
 		         double Ae = edges[idx]->area_end[j];
 		         double as = edges[idx]->wave_speed_start[j];
 		         double ae = edges[idx]->wave_speed_end[j];
+		         double RBC_s = 0.;
+		         double RBC_e = 0.;
+		         double HBsat_s = 0.;
+		         double HBsat_e = 0.;
+		         double PlasmaO2_s = 0.;
+		         double PlasmaO2_e = 0.;
 
-		         fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",t,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,As,Ae,as,ae);
+		         //CO2 stuff
+		         double CO2_pla_s = 0.;
+		         double CO2_pla_e = 0.;
+		         double CO2_rbc_s = 0.;
+		         double CO2_rbc_e = 0.;
+		         double HCO3_pla_s = 0.;
+		         double HCO3_pla_e = 0.;
+		         double HCO3_rbc_s = 0.;
+		         double HCO3_rbc_e = 0.;
+		         double HbCO2_s = 0.;
+		         double HbCO2_e = 0.;
+
+
+		         if(edges[idx]->RBC_concentration_start.size()>1){
+		         RBC_s = edges[idx]->RBC_concentration_start[j];
+		         RBC_e = edges[idx]->RBC_concentration_end[j];
+		         }
+
+		         if(edges[idx]->HBsat_start.size()>1){
+		         HBsat_s = edges[idx]->HBsat_start[j];
+		         HBsat_e = edges[idx]->HBsat_end[j];
+		         }
+
+		         if(edges[idx]->PlasmaO2_start.size()>1){
+		         PlasmaO2_s = edges[idx]->PlasmaO2_start[j];
+		         PlasmaO2_e = edges[idx]->PlasmaO2_end[j];
+		         }
+
+
+		         //CO2
+		         if(edges[idx]->CO2_pla_start.size()>1){
+		         CO2_pla_s = edges[idx]->CO2_pla_start[j];
+		         CO2_pla_e = edges[idx]->CO2_pla_end[j];
+		         }
+
+		         if(edges[idx]->CO2_rbc_start.size()>1){
+		         CO2_rbc_s = edges[idx]->CO2_rbc_start[j];
+		         CO2_rbc_e = edges[idx]->CO2_rbc_end[j];
+		         }
+
+		         if(edges[idx]->HCO3_pla_start.size()>1){
+		         HCO3_pla_s = edges[idx]->HCO3_pla_start[j];
+		         HCO3_pla_e = edges[idx]->HCO3_pla_end[j];
+		         }
+
+		         if(edges[idx]->HCO3_rbc_start.size()>1){
+		         HCO3_rbc_s = edges[idx]->HCO3_rbc_start[j];
+		         HCO3_rbc_e = edges[idx]->HCO3_rbc_end[j];
+		         }
+
+		         if(edges[idx]->HbCO2_start.size()>1){
+		         HbCO2_s = edges[idx]->HbCO2_start[j];
+		         HbCO2_e = edges[idx]->HbCO2_end[j];
+		         	
+		         }
+
+
+		         fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, ",t,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,As,Ae,as,ae,RBC_s,RBC_e,HBsat_s,HBsat_e,PlasmaO2_s,PlasmaO2_e);
+
+		         //CO2
+		         fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n", CO2_pla_s, CO2_pla_e, CO2_rbc_s, CO2_rbc_e, HCO3_pla_s, HCO3_pla_e, HCO3_rbc_s, HCO3_rbc_e, HbCO2_s, HbCO2_e);
 		      }
 		      fclose(out_file);
    		}
@@ -382,7 +471,62 @@ void solver_moc::save_results(double dt, string folder_name, vector<string> edge
 			         double as = edges[idx]->wave_speed_start[j]*a0 + edges[idx]->wave_speed_start[j+1]*a1;
 			         double ae = edges[idx]->wave_speed_end[j]*a0 + edges[idx]->wave_speed_end[j+1]*a1;
 
-		         	fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n",ts,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,As,Ae,as,ae);
+			         //O2
+			         double RBC_s = 0.;
+			         double RBC_e = 0.;
+			         double HBsat_s = 0.;
+		            double HBsat_e = 0.;
+		            double PlasmaO2_s = 0.;
+		            double PlasmaO2_e = 0.;
+
+		            //CO2
+		            double CO2_pla_s = 0.;
+		            double CO2_pla_e = 0.;
+						double CO2_rbc_s = 0.;
+						double CO2_rbc_e = 0.;
+						double HCO3_pla_s = 0.;
+						double HCO3_pla_e = 0.;
+						double HCO3_rbc_s = 0.;
+						double HCO3_rbc_e = 0.;
+						double HbCO2_s = 0.;
+						double HbCO2_e = 0.;
+
+						//O2
+			         if(edges[idx]->RBC_concentration_start.size()>1){
+			         RBC_s = edges[idx]->RBC_concentration_start[j]*a0 + edges[idx]->RBC_concentration_start[j+1]*a1;
+		         	RBC_e = edges[idx]->RBC_concentration_end[j]*a0 + edges[idx]->RBC_concentration_end[j+1]*a1;}
+
+		         	if(edges[idx]->HBsat_start.size()>1){
+			         HBsat_s = edges[idx]->HBsat_start[j]*a0 + edges[idx]->HBsat_start[j+1]*a1;
+		         	HBsat_e = edges[idx]->HBsat_end[j]*a0 + edges[idx]->HBsat_end[j+1]*a1;}
+
+		         	if(edges[idx]->PlasmaO2_start.size()>1){
+			         PlasmaO2_s = edges[idx]->PlasmaO2_start[j]*a0 + edges[idx]->PlasmaO2_start[j+1]*a1;
+		         	PlasmaO2_e = edges[idx]->PlasmaO2_end[j]*a0 + edges[idx]->PlasmaO2_end[j+1]*a1;}
+
+		         	//CO2
+		         	if(edges[idx]->CO2_pla_start.size()>1){
+			         CO2_pla_s = edges[idx]->CO2_pla_start[j]*a0 + edges[idx]->CO2_pla_start[j+1]*a1;
+		         	CO2_pla_e = edges[idx]->CO2_pla_end[j]*a0 + edges[idx]->CO2_pla_end[j+1]*a1;}
+
+		         	if(edges[idx]->CO2_rbc_start.size()>1){
+			         CO2_rbc_s = edges[idx]->CO2_rbc_start[j]*a0 + edges[idx]->CO2_rbc_start[j+1]*a1;
+		         	CO2_rbc_e = edges[idx]->CO2_rbc_end[j]*a0 + edges[idx]->CO2_rbc_end[j+1]*a1;}
+
+		         	if(edges[idx]->HCO3_pla_start.size()>1){
+			         HCO3_pla_s = edges[idx]->HCO3_pla_start[j]*a0 + edges[idx]->HCO3_pla_start[j+1]*a1;
+		         	HCO3_pla_e = edges[idx]->HCO3_pla_end[j]*a0 + edges[idx]->HCO3_pla_end[j+1]*a1;}
+
+		         	if(edges[idx]->HCO3_rbc_start.size()>1){
+			         HCO3_rbc_s = edges[idx]->HCO3_rbc_start[j]*a0 + edges[idx]->HCO3_rbc_start[j+1]*a1;
+		         	HCO3_rbc_e = edges[idx]->HCO3_rbc_end[j]*a0 + edges[idx]->HCO3_rbc_end[j+1]*a1;}
+
+		         	if(edges[idx]->HbCO2_start.size()>1){
+			         HbCO2_s = edges[idx]->HbCO2_start[j]*a0 + edges[idx]->HbCO2_start[j+1]*a1;
+		         	HbCO2_e = edges[idx]->HbCO2_end[j]*a0 + edges[idx]->HbCO2_end[j+1]*a1;}
+
+		         	fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e",ts,ps,pe,vs,ve,vfrs,vfre,mfrs,mfre,As,Ae,as,ae,RBC_s,RBC_e,HBsat_s,HBsat_e,PlasmaO2_s,PlasmaO2_e);
+		         	fprintf(out_file, "%9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e, %9.7e\n", CO2_pla_s,CO2_pla_e,CO2_rbc_s,CO2_rbc_e,HCO3_pla_s,HCO3_pla_e,HCO3_rbc_s,HCO3_rbc_e,HbCO2_s,HbCO2_e );
 		         	ts += dt;
 					}
 					else

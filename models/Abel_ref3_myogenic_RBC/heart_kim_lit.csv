@@ -1,0 +1,55 @@
+RBC transport data
+type, L_pul_art, L_pul_vein, A_pul_art, A_pul_vein, nx_pul_art, nx_pul_vein
+RBCheart, 0.5, 0.5, 0.000949, 0.000949, 50, 50
+
+
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI], parameter [SI]
+
+
+Right Atrium
+voltage, V_ra, g, p_RA1, 0.000e+00, 8.0e+02
+inductor, L_ra, p_RA1, p_RA2, 0.000e+00, 5.000e+4
+diode, R_ra, p_RA2, p_RA3, 0.000e+00, 1.000e+06
+
+
+Right Ventrice
+elastance, E_rv, g2, p_RA3, 0.000e+00, 6.67e+07, 8.0e+06
+inductor, L_rv, p_RA3, p_RV1, 0.000e+00, 2.50e+04
+diode, R_rv, p_RV1, p_RV2, 0.000e+00, 2.000e+06
+
+
+P
+resistor, R_pa, p_RV2, p_LA1, 0.000e+00, 1.2e+07
+capacitor, C_pa, g, p_RV2, 0.000e+00, 3.0e-08
+
+
+Left Atrium
+capacitor, E_la, g3, p_LA1, 0.000e+00, 3.60e-08
+inductor, L_la, p_LA1, p_LA2, 0.000e+00, 1.00e+04
+diode, R_la, p_LA2, p_LA3, 0.000e+00, 5.000e+05
+
+
+Left Ventrice
+elastance, E_lv, g1, p_LA3, 0.000e+00, 2.67e+08, 8.0e+06
+inductor, L_lv_aorta, p_LA3, p_LV1, 0.000e+00, 6.50e+04
+diode, R_lv_aorta, p_LV1, aorta, 0.000e+00, 1.00e+06
+
+
+
+data of nodes
+type, name, initial condition [SI]
+node, aorta, 1.13e+05
+ground, g, 1.00e+05
+ground, g1, 1.00e+05
+ground, g2, 1.00e+05
+ground, g3, 1.00e+05
+node, p_RA1, 1.010e+05
+node, p_RA2, 1.010e+05
+node, p_RA3, 1.010e+05
+node, p_RV1, 1.010e+05
+node, p_RV2, 1.010e+05
+node, p_LA1, 1.0110e+05
+node, p_LA2, 1.0110e+05
+node, p_LA3, 1.0110e+05
+node, p_LV1, 1.0110e+05

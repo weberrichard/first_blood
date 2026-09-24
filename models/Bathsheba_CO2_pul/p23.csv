@@ -1,0 +1,56 @@
+RBC,PO2,HBsat
+O2transport_init, 4.9e15, 2.9545e-3, 0.97
+
+CO2_pla,CO2_rbc,HCO3_pla,HCO3_rbc,HbCO2
+co2transport_init, 0.02665714, 0.03082293, 0.73392893, 0.08805559, 0.04712094
+
+Mmax, 1.25e-4
+
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, R0, n1, P1, 0.000e+00, 4.140e+08
+resistor, R1, P1, Q1, 0.000e+00, 7.087e+08
+resistor, R2, P2, Q2, 0.000e+00, 2.726e+08
+resistor, R3, P3, Q3, 0.000e+00, 8.723e+07
+capacitor, C1, P1, g1, 0.000e+00, 4.789e-10
+capacitor, C2, P2, g2, 0.000e+00, 4.788e-11
+capacitor, C3, P3, g3, 0.000e+00, 1.426e-09
+inductor, L1, Q1, P2, 0.000e+00, 5.274e+05
+inductor, L2, Q2, P3, 0.000e+00, 8.869e+04
+inductor, L3, Q3, P4, 0.000e+00, 1.571e+05
+
+type, name, initial condition [SI]
+node, n1, 1.000e+05
+node, P1, 1.000e+05
+node, P2, 1.000e+05
+node, P3, 1.000e+05
+node, P4, 1.000e+05
+node, Q1, 1.000e+05
+node, Q2, 1.000e+05
+node, Q3, 1.000e+05
+ground, g1, 1.000e+05
+ground, g2, 1.000e+05
+ground, g3, 1.000e+05
+
+
+transport
+RBC_on, 1
+HBsaturation_on, 1
+PlasmaO2_on, 1
+
+pla_CO2_on, 1
+rbc_CO2_on, 1
+pla_HCO3_on, 1
+rbc_HCO3_on, 1
+HbCO2_on, 1
+
+virtual 1D
+type, name, node start, node end, length, cross section, division points, is systemic capillary, is pulmonary capillary
+v1D, arteriole, n1, P2, 0.06970586032830291, 0.00038307000479064044, 10, 0, 0, R1
+v1D, capillary, P2, P3, 0.0018333567671206539, 0.007661253829136434, 80, 1, 0, R2
+v1D, venulare, P3, P4, 0.051934261774761646, 0.00023209400083224743, 10, 0, 0, R3
+
+type, name, node start, node end, capacitor
+0Dcapacitor, c1, P1, g1, C1
+0Dcapacitor, c2, P2, g2, C2
+0Dcapacitor, c3, P3, g3, C3
