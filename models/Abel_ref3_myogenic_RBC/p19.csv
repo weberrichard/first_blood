@@ -1,0 +1,32 @@
+data of transport
+transport type, L_art, L_cap, L_venul, L_vein, A_art, A_cap, A_venul, A_vein, dx_art_min, dx_cap_min, dx_venul_min, dx_vein_min
+RBCperif, 0.07017533346438255, 0.0018694749100096005, 0.05549130678501639, 0.346, 5.705300360914517e-05, 0.001329008558564952, 3.661267076192415e-05, 8.293191486066187e-06, 3.276841243731366e-05, 1.3986162747883914e-06, 4.787603228920435e-05, 0.00019868828178033277, 
+
+data of edges
+type, name, node start, node end, initial condition [SI], parameter [SI]
+resistor, R0, n1, P1, 0.000e+00, 1.940e+09
+resistor, R1, P1, Q1, 0.000e+00, 4.269e+09
+resistor, R2, P2, Q2, 0.000e+00, 1.642e+09
+resistor, R3, P3, Q3, 0.000e+00, 5.255e+08
+resistor, R4, P4, Q4, 0.000e+00, 1.314e+08
+capacitor, C1, P1, g, 0.000e+00, 7.949e-11
+capacitor, C2, P2, g, 0.000e+00, 7.948e-12
+capacitor, C3, P3, g, 0.000e+00, 2.368e-10
+capacitor, C4, P4, g, 0.000e+00, 2.512e-09
+inductor, L1, Q1, P2, 0.000e+00, 3.177e+06
+inductor, L2, Q2, P3, 0.000e+00, 5.343e+05
+inductor, L3, Q3, P4, 0.000e+00, 9.465e+05
+inductor, L4, Q4, g, 0.000e+00, 1.054e+06
+
+data of nodes
+type, name, initial condition [SI]
+node, n1, 1.000e+05
+node, P1, 1.000e+05
+node, P2, 1.000e+05
+node, P3, 1.000e+05
+node, P4, 1.000e+05
+node, Q1, 1.000e+05
+node, Q2, 1.000e+05
+node, Q3, 1.000e+05
+node, Q4, 1.000e+05
+ground, g, 1.000e+05

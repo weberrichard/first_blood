@@ -64,6 +64,15 @@ bool first_blood::load_model()
 	{
 		lum[i]->load_model();
 	}
+
+	//loading perif baroreflex response
+	for(int i=0; i<baroreflex_perifs.size();i++){
+		for (int j = 0; j<number_of_lum;j++){
+			if(lum[j]->name == baroreflex_perifs[i]){
+				lum[j]->load_perif_baroreflex(baroreflex_filename);
+			}
+		}
+	}
 	return load_ok;
 }
 
@@ -161,6 +170,80 @@ bool first_blood::load_main_csv()
 				nodes.push_back(sv[1]);
 				nn++;
 			}
+			else if(sv[0] == "RBCtransport"){ //RBC transport
+				if(sv[1] == "on"){
+					do_RBC_transport = true;
+					RBC_node_transport = new Transport_node(RBC); 
+				}
+			}
+			else if(sv[0] == "HBsat_transport"){
+				if(sv[1] == "on"){
+					do_HBsat_transport = true;
+					HB_O2_node_transport = new Transport_node(HB_O2_saturation);
+				}
+			}
+			else if(sv[0] == "PlasmaO2C_transport"){
+				if(sv[1] == "on"){
+					do_Plasma_O2_transport = true;
+					PlasmaO2_node_transport = new Transport_node(C_Plasma_O2);
+				}
+			}
+			else if(sv[0]=="baroreflex"){
+				if(sv[1] == "on"){do_baroreflex = true;}
+				time_period = stod(sv[4],0);
+				sys_moc = sv[2];
+				sys_edge_name = sv[3];
+			}
+
+			//CO2 stuff
+			else if(sv[0] == "pla_CO2_transport"){
+				if(sv[1] == "on"){
+					do_pla_CO2_transport = true;
+					transport_node_CO2_pla = new Transport_node(CO2_pla);
+				}
+			}
+
+			else if(sv[0] == "rbc_CO2_transport"){
+				if(sv[1] == "on"){
+					do_rbc_CO2_transport = true;
+					transport_node_CO2_rbc = new Transport_node(CO2_rbc);
+				}
+			}
+
+			else if(sv[0] == "pla_HCO3_transport"){
+				if(sv[1] == "on"){
+					do_pla_HCO3_transport = true;
+					transport_node_HCO3_pla = new Transport_node(HCO3_pla);
+				}
+			}
+
+			else if(sv[0] == "rbc_HCO3_transport"){
+				if(sv[1] == "on"){
+					do_rbc_HCO3_transport = true;
+					transport_node_HCO3_rbc = new Transport_node(HCO3_rbc);
+				}
+			}
+
+			else if(sv[0] == "HbCO2_transport"){
+				if(sv[1] == "on"){
+					do_HbCO2_transport = true;
+					transport_node_HbCO2 = new Transport_node(HbCO2);
+				}
+			}
+
+			else if(sv[0] == "perifbaroreflex"){
+				if(sv[1] == "on"){
+					baroreflex_filename = sv[2];
+					baroreflex_perifs.clear();
+					for(int i = 3; i<sv.size(); i++ ){
+						baroreflex_perifs.push_back(sv[i]);
+					}
+				}
+			}
+
+
+
+
 		}
 		load_ok = true;
 	}
@@ -207,6 +290,15 @@ bool first_blood::run()
 		load_initials();
 	}
 
+	check_valves();//checking thw numer of in and outgoing edges. 1+1 is the only valid 
+
+	connect_0D_edges();
+
+	init_time_periods_for_lum(time_period);
+
+	set_sys_edge_pointer();//for baroreflex
+
+
 	if(run_type == "forward") // simple forward calculation
 	{
 		is_run_ok = true;
@@ -229,7 +321,6 @@ bool first_blood::run()
 			while(!is_run_end(t_act,t_old) && is_run_ok)
 			{
 				
-				//cout << "t: " << t_act << endl;
 				/*if(t_act>7.) // improve this
 				{
 					int idx = lum_id_to_index("heart_kim");
@@ -266,6 +357,7 @@ bool first_blood::run()
 				if(moc[moc_idx]->nodes[si]->is_master_node)
 				{
 					int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+					lum[lum_idx]->autoregulation(t_act);// updating peripheral rasistance parameters
 					solve_lum_newton(lum_idx, t_act);
 				}
 
@@ -273,11 +365,62 @@ bool first_blood::run()
 				if(moc[moc_idx]->nodes[ei]->is_master_node)
 				{
 					int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+					lum[lum_idx]->autoregulation(t_act);// updating peripheral resistance parameters
 					solve_lum_newton(lum_idx, t_act);
 				}
 
 				// postproc: interpolate, save
 				moc[moc_idx]->edges[e_idx]->update();
+
+
+				//O2 transport, plasmaO2, HBsat, RBC concantration
+				O2_transport( moc_idx, si, ei, e_idx, t_act);
+				
+
+				//CO2 transport
+				CO2_transport( moc_idx, si, ei, e_idx, t_act);
+				
+
+				//save transport variables for lumped models
+				save_transport_var_for_lum( moc_idx, si, ei);
+				
+
+				//baroreflex
+				double T_act_new = time_period;
+				if(moc[moc_idx]->nodes[si]->is_master_node){
+					int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+					if(lum[lum_idx]->check_whole_period(t_act)){
+						//cout<<systole(sys_edge->pressure_start, sys_edge->time, lum[lum_idx]->T_sum)<<endl;
+						//cout<<period_of_first_lum<<"  "<<lum[lum_idx]->period<<endl;
+						if(do_baroreflex && period_of_first_lum == lum[lum_idx]->period && period_of_first_lum > 40){
+							double sys = systole(sys_edge->pressure_start, sys_edge->time, lum[lum_idx]->T_sum) - atmospheric_pressure;
+							T_act_new = baroreflex(sys);
+							//cout<<T_act_new<<endl;
+						}
+						lum[lum_idx]->update_period_time(T_act_new);
+					}
+				}
+
+				if(moc[moc_idx]->nodes[ei]->is_master_node){
+					int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+					if(lum[lum_idx]->check_whole_period(t_act)){
+						//cout<<systole(sys_edge->pressure_start, sys_edge->time, lum[lum_idx]->T_sum)<<endl;
+						//cout<<period_of_first_lum<<"  "<<lum[lum_idx]->period<<endl;
+						if(do_baroreflex && period_of_first_lum == lum[lum_idx]->period && period_of_first_lum > 40){
+							double sys = systole(sys_edge->pressure_start, sys_edge->time, lum[lum_idx]->T_sum) - atmospheric_pressure;
+							T_act_new = baroreflex(sys);
+							//cout<<T_act_new<<endl;
+						}
+						lum[lum_idx]->update_period_time(T_act_new);
+					}
+				}
+
+				// update the period
+				if(T_sum + time_period - t_act<0.){period++; T_sum += time_period; time_period = T_act_new;}
+				//tracking period of the "furthest" lumped model
+				if(moc[moc_idx]->nodes[ei]->is_master_node || moc[moc_idx]->nodes[si]->is_master_node){period_of_first_lum = period;}
+
+
 				//moc[moc_idx]->edges[e_idx]->update_variables();
 				if(moc[moc_idx]->edges[e_idx]->do_save_memory)
 				{
@@ -303,8 +446,6 @@ bool first_blood::run()
 					time_counter--;
 				}
 
-				// update the period
-				period = floor(t_act/time_period);
 			}
 		}
 		else // only LUMPED MODEL without any moc
@@ -318,6 +459,8 @@ bool first_blood::run()
 			double t_act = 0.;
 			while(t_act<time_end)
 			{
+				cout << "t: " << t_act << endl;
+				
 				t_act = lum[0]->time.back() + dt_lumped;
 				solve_lum_newton(0, t_act);
 			}
@@ -348,7 +491,7 @@ double first_blood::lowest_new_time(int &moc_idx, int &e_idx)
 
 //--------------------------------------------------------------
 void first_blood::solve_lum_newton(int index, double t_act)
-{
+{	
 	/*
 	x = [q1,q2,...qm,p1,p2,p3,...pn,y1,y2,...ye,qmoc1,...qmock] y: for elastance if present
 	f = [edge1,edge2,...edgem,node1,node2,...node,elas1,elas2,...elase,char1,char2,...]
@@ -359,7 +502,7 @@ void first_blood::solve_lum_newton(int index, double t_act)
 	int k = lum[index]->boundary_indices.size();
 
 	// setting initial conditions for lumped part
-	lum[index]->initialization_newton();
+	lum[index]->initialization_newton(t_act);
 	// setting initial conditions for moc part
 	for(int j=0; j<lum[index]->boundary_indices.size(); j++)
 	{
@@ -457,6 +600,7 @@ void first_blood::solve_lum_newton(int index, double t_act)
 }
 
 //--------------------------------------------------------------
+/*
 void first_blood::calculate_time_average()
 {
 	// mean arterial pressure
@@ -466,16 +610,7 @@ void first_blood::calculate_time_average()
 	double vn = moc[0]->edges[idx]->pressure_start.back();
 	map->update(tn,vn,time_period);
 
-	// mean cerebral flow rate
-	vector<string> ids{"A5","A6","A20","A15"};
-	vn=0.;
-	for(int i=0; i<ids.size(); i++)
-	{
-		idx = moc[0]->edge_id_to_index(ids[i]);
-		vn += moc[0]->edges[idx]->volume_flow_rate_start.back();
-	}
-	cfr->update(tn,vn,time_period);
-}
+}*/
 
 //--------------------------------------------------------------
 void first_blood::autoregulation()
@@ -510,8 +645,6 @@ void first_blood::save_time_average(string folder_name)
 	string file_name = folder_name + "/arterial/map.txt";
 	map->save_results(file_name);
 
-	file_name = folder_name + "/arterial/cfr.txt";
-	cfr->save_results(file_name);
 }
 
 //--------------------------------------------------------------
@@ -523,8 +656,6 @@ void first_blood::save_time_average(double dt, string folder_name)
 	string file_name = folder_name + "/arterial/map.txt";
 	map->save_results(dt, file_name);
 
-	file_name = folder_name + "/arterial/cfr.txt";
-	cfr->save_results(dt, file_name);
 }
 
 //--------------------------------------------------------------
@@ -617,7 +748,7 @@ void first_blood::initialization()
 	}
 	for(int i=0; i<number_of_lum; i++)
 	{
-		lum[i]->initialization(heart_rate);
+		lum[i]->initialization(time_period);
 		time_counter += 1;
 	}
 
@@ -652,7 +783,19 @@ void first_blood::initialization()
 
 	// time average stuff
 	map = new time_average();
-	cfr = new time_average();
+
+	//O2 transfer class
+	RBC1D = new Transport_1D(TRBCType);
+	HBsat1D = new Transport_1D(HB_O2_saturation);
+	Plasma_O21D = new Transport_1D(C_Plasma_O2);
+
+	//CO2 stuff
+	CO2_pla_1D = new Transport_1D(CO2_pla);
+    CO2_rbc_1D = new Transport_1D(CO2_rbc);
+    HCO3_pla_1D = new Transport_1D(HCO3_pla);
+    HCO3_rbc_1D = new Transport_1D(HCO3_rbc);
+    HbCO2_1D = new Transport_1D(HbCO2);
+
 }
 
 //--------------------------------------------------------------
@@ -815,6 +958,51 @@ void first_blood::save_results(string folder_name, string model_name, string mod
 			}
 		}
 	}
+	else if(model_type == "RBC_transport")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name && do_RBC_transport && lum[i]->RBClum->do_save_results)
+			{
+				lum[i]->RBClum->save_results(folder_name, lum[i]->time, model_name);		
+			}
+		}
+	}
+	else if(model_type == "HBsat_transport")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name && do_HBsat_transport && lum[i]->HBsatlum->do_save_results)
+			{
+				lum[i]->HBsatlum->save_results(folder_name, lum[i]->time, model_name);		
+			}
+		}
+	}
+	else if(model_type == "PlasmaO2_transport")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name && do_Plasma_O2_transport && lum[i]->PlasmaO2lum->do_save_results)
+			{
+				lum[i]->PlasmaO2lum->save_results(folder_name, lum[i]->time, model_name);		
+			}
+		}
+	}
+
+	else if(model_type == "CO2_transport++")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name )
+			{
+				lum[i]->CO2_pla_lum->save_results(folder_name, lum[i]->time, model_name);
+				lum[i]->CO2_rbc_lum->save_results(folder_name, lum[i]->time, model_name);
+				lum[i]->HCO3_pla_lum->save_results(folder_name, lum[i]->time, model_name);
+				lum[i]->HCO3_rbc_lum->save_results(folder_name, lum[i]->time, model_name);
+				lum[i]->HbCO2_lum->save_results(folder_name, lum[i]->time, model_name);		
+			}
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -840,6 +1028,51 @@ void first_blood::save_results(double dt, string folder_name, string model_name,
 			if(model_name == lum[i]->name)
 			{
 				lum[i]->save_results(dt,folder_name,edge_list,node_list);			
+			}
+		}
+	}
+	else if(model_type == "RBC_transport")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name && do_RBC_transport && lum[i]->RBClum->do_save_results)
+			{
+				lum[i]->RBClum->save_results(folder_name, lum[i]->time, model_name, dt);		
+			}
+		}
+	}
+	else if(model_type == "HBsat_transport")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name && do_HBsat_transport && lum[i]->HBsatlum->do_save_results)
+			{
+				lum[i]->HBsatlum->save_results(folder_name, lum[i]->time, model_name, dt);		
+			}
+		}
+	}
+	else if(model_type == "PlasmaO2_transport")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name && do_Plasma_O2_transport && lum[i]->PlasmaO2lum->do_save_results)
+			{
+				lum[i]->PlasmaO2lum->save_results(folder_name, lum[i]->time, model_name, dt);		
+			}
+		}
+	}
+
+	else if(model_type == "CO2_transport++")
+	{
+		for(int i=0; i<lum.size(); i++)
+		{
+			if(model_name == lum[i]->name )
+			{
+				lum[i]->CO2_pla_lum->save_results(folder_name, lum[i]->time, model_name, dt);
+				lum[i]->CO2_rbc_lum->save_results(folder_name, lum[i]->time, model_name, dt);
+				lum[i]->HCO3_pla_lum->save_results(folder_name, lum[i]->time, model_name, dt);
+				lum[i]->HCO3_rbc_lum->save_results(folder_name, lum[i]->time, model_name, dt);
+				lum[i]->HbCO2_lum->save_results(folder_name, lum[i]->time, model_name, dt);		
 			}
 		}
 	}
@@ -947,6 +1180,55 @@ void first_blood::set_save_memory(string model_name, string model_type, vector<s
 			}
 		}
 	}
+
+	if(model_type == "RBC_transport" && do_RBC_transport)
+	{
+		for(int i=0; i<number_of_lum; i++)
+		{
+			if(lum[i]->name == model_name)
+			{
+				lum[i]->RBClum->set_save_memory();
+			}
+		}
+	}
+
+	if(model_type == "HBsat_transport" && do_HBsat_transport)
+	{
+		for(int i=0; i<number_of_lum; i++)
+		{
+			if(lum[i]->name == model_name)
+			{
+				lum[i]->HBsatlum->set_save_memory();
+			}
+		}
+	}
+
+	if(model_type == "PlasmaO2_transport" && do_Plasma_O2_transport)
+	{
+		for(int i=0; i<number_of_lum; i++)
+		{
+			if(lum[i]->name == model_name)
+			{
+				lum[i]->PlasmaO2lum->set_save_memory();
+			}
+		}
+	}
+
+	if(model_type == "CO2_transport++" && do_pla_CO2_transport && do_rbc_CO2_transport && do_pla_HCO3_transport && do_rbc_HCO3_transport && do_HbCO2_transport)
+	{
+		for(int i=0; i<number_of_lum; i++)
+		{
+			if(lum[i]->name == model_name)
+			{
+				lum[i]->CO2_pla_lum->set_save_memory();
+				lum[i]->CO2_rbc_lum->set_save_memory();
+				lum[i]->HCO3_pla_lum->set_save_memory();
+				lum[i]->HCO3_rbc_lum->set_save_memory();
+				lum[i]->HbCO2_lum->set_save_memory();
+			}
+		}
+	}
+
 }
 
 //--------------------------------------------------------------
@@ -965,7 +1247,7 @@ int first_blood::lum_id_to_index(string lum_id)
 	}
 	if(idx == -1)
 	{
-		cout << "\n !!!WARNING!!!\n solver_moc::lum_id_to_index function\nLum model is not existing, lum_id: " << lum_id << "\n Continouing..." << endl;
+		cout << "\n !!!WARNING!!!\n first_blood::lum_id_to_index function\nLum model is not existing, lum_id: " << lum_id << "\n Continouing..." << endl;
 	}
 	return idx;
 }
@@ -1002,7 +1284,1082 @@ void first_blood::load_initials()
 	}
 }
 
+
+//transport stuff
+//-------------------------------------------
+void Transport_1D::update_fi(vector<double> v, vector<double>& fi, vector<double>& fi_new, double l, double dt, double fiStart, double fiEnd){
+    int n = v.size();
+    double dx = l / (n - 1);
+    //vector<double> fi_tmp = fi_new; //this will be the new fi
+
+    for (int i = 1; i < n - 1; i++) {
+        if (v[i] > 0 ) {
+            fi_new[i] = fi[i] - v[i] * dt / dx * (fi[i] - fi[i - 1]);
+        }
+        else {
+            fi_new[i] = fi[i] - v[i] * dt / dx * (fi[i + 1] - fi[i]);
+        }
+    }
+ 
+    // downstream BC
+    if (v[n - 1] > 0) {
+        fi_new[n - 1] = fi[n - 1] - v[n - 1] * dt / dx * (fi[n - 1] - fi[n - 2]);
+    }
+    else {
+        fi_new[n - 1] = fiEnd; // fom node
+    }
+
+    // upstream BC
+    if (v[0] > 0) {
+        fi_new[0] = fiStart;  // from node
+    }
+    else{
+        fi_new[0] = fi[0] - v[0] * dt / dx * (fi[1] - fi[0]);
+    }
+
+    fi = fi_new;
+}
+
+//-----------------------------------------------------------------
+Transport_1D::Transport_1D(TransportType TType):TType(TType){};
+
+
+//-----------------------------------------------------------------
+void Transport_1D::prescribe_node_fi_CO2(TransportType TType, double& finode){
+	switch(TType){
+
+	case CO2_pla:
+		finode = 0.02635920*1.0; //m3 O2/ m3 pla
+		break;
+
+	case CO2_rbc:
+		finode = 0.02986472*1.0; //m3 O2/ m3 rbc cytoplasm
+		break;
+
+	case HCO3_pla:
+		finode = 0.73471517*1.0; //m3 O2/ m3 pla
+		break;
+
+	case HCO3_rbc:
+		finode = 0.08811732*1.0; //m3 O2/ m3 rbc cytoplasm
+		break;
+
+	case HbCO2:
+		finode = 0.04748449*1.0; //m3 O2/ m3 rbc cytoplasm
+		break;
+	}
+
+}
+
+
+
+//transport stuff for 1D nodes
+//separate class is needed for each type of transport. eg.: RBC...
+//--------------------------------------------
+Transport_node::Transport_node(TransportType TType) : TType(TType) {};
+
+//--------------------------------------------
+void Transport_node::update_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges){
+    if (node->is_master_node == true) {
+        return;
+        };
+
+    if (node->upstream_boundary > -1) {} // no idea about this, TODO
+
+    else if (node->type_code == 1) {} //periphery
+
+    else if (node->type_code == 0) { // junction
+
+        int n1 = node->edge_in.size();
+        int n2 = node->edge_out.size();
+
+        double q_sum = 0.; //vfr sum of the incoming edges only
+        double q;
+        double fiNodeOld = fiNode;
+        fiNode = 0.;
+
+       for (int j = 0; j < n1; j++)
+       {
+           if (edges[node->edge_in[j]]->get_velocity().back() > 0.)
+           {
+           	q = edges[node->edge_in[j]]->get_velocity().back() * edges[node->edge_in[j]]->get_area().back();
+            q_sum += q;
+
+            switch(TType){
+            case HB_O2_saturation:
+            	fiNode += q * edges[node->edge_in[j]]->HBsat_edge.back();
+            	break;
+            	
+            case C_Plasma_O2:
+                fiNode += q * edges[node->edge_in[j]]->PlasmaO2_edge.back();
+            	break;
+
+            case RBC:
+            	fiNode += q * edges[node->edge_in[j]]->RBC_edge_fi.back();
+            	break;
+
+            //CO2 stuff
+            case CO2_pla:
+            	fiNode += q * edges[node->edge_in[j]]->CO2_pla_edge_fi.back();
+            	break;
+
+            case CO2_rbc:
+            	fiNode += q * edges[node->edge_in[j]]->CO2_rbc_edge_fi.back();
+            	break;
+
+            case HCO3_pla:
+            	fiNode += q * edges[node->edge_in[j]]->HCO3_pla_edge_fi.back();
+            	break;
+
+            case HCO3_rbc:
+            	fiNode += q * edges[node->edge_in[j]]->HCO3_rbc_edge_fi.back();
+            	break;
+
+            case HbCO2:
+            	fiNode += q * edges[node->edge_in[j]]->HbCO2_edge_fi.back();
+            	break;
+            }
+
+
+           }
+        }
+        for (int j = 0; j < n2; j++)
+        {
+            if (edges[node->edge_out[j]]->get_velocity()[0] < 0.)
+            {
+            q = edges[node->edge_out[j]]->get_velocity()[0] * edges[node->edge_out[j]]->get_area()[0];
+            q_sum -= q; //not sure about the sign tho...
+
+            switch(TType){
+            case HB_O2_saturation:
+            	fiNode -= q * edges[node->edge_out[j]]->HBsat_edge[0];
+                break;
+
+            case C_Plasma_O2:
+            	fiNode -= q * edges[node->edge_out[j]]->PlasmaO2_edge[0];
+                break;
+
+            case RBC:
+                fiNode -= q * edges[node->edge_out[j]]->RBC_edge_fi[0];
+                break;
+
+
+            //CO2 stuff
+            case CO2_pla:
+            	fiNode -= q * edges[node->edge_out[j]]->CO2_pla_edge_fi[0];
+            	break;
+
+            case CO2_rbc:
+            	fiNode -= q * edges[node->edge_out[j]]->CO2_rbc_edge_fi[0];
+            	break;
+
+            case HCO3_pla:
+            	fiNode -= q * edges[node->edge_out[j]]->HCO3_pla_edge_fi[0];
+            	break;
+
+            case HCO3_rbc:
+            	fiNode -= q * edges[node->edge_out[j]]->HCO3_rbc_edge_fi[0];
+            	break;
+
+            case HbCO2:
+            	fiNode -= q * edges[node->edge_out[j]]->HbCO2_edge_fi[0];
+            	break;
+            }
+            }
+        }
+        if (q_sum != 0.) {
+            fiNode /= q_sum;
+        }
+        else { fiNode = fiNodeOld; }//if nothing flows in it stays the old
+    }
+};
+
+//----------------------------------------------------------------
+
+void Transport_node::update_master_fi(double& fiNode, moc_node* node, const vector<moc_edge*>& edges, solver_lumped& lum_mod, solver_moc& moc_mod){
+    int n1 = node->edge_in.size();
+    int n2 = node->edge_out.size();
+
+
+    double fiNodeOld = fiNode;
+    fiNode = 0.;
+
+    double q_sum = 0.;
+    double q;
+
+//cout<<lum_mod.name<<"  "<<moc_mod.name<<endl;
+
+
+    //outgoing edges
+    for (int j = 0; j < n2; j++)
+    {
+        if (edges[node->edge_out[j]]->get_velocity()[0] < 0.){
+   	       q = edges[node->edge_out[j]]->get_velocity()[0] * edges[node->edge_out[j]]->get_area()[0];
+           q_sum -= q;
+
+            switch(TType){
+            	case HB_O2_saturation:
+            	fiNode -= q * edges[node->edge_out[j]]->HBsat_edge[0];
+                break;
+
+            	case C_Plasma_O2:
+            	fiNode -= q * edges[node->edge_out[j]]->PlasmaO2_edge[0];
+                break;
+
+                case RBC:
+                fiNode -= q * edges[node->edge_out[j]]->RBC_edge_fi[0];
+                break;
+
+                //CO2
+                case CO2_pla:
+                fiNode -= q * edges[node->edge_out[j]]->CO2_pla_edge_fi[0];
+                break;
+
+                case CO2_rbc:
+                fiNode -= q * edges[node->edge_out[j]]->CO2_rbc_edge_fi[0];
+                break;
+
+                case HCO3_pla:
+                fiNode -= q * edges[node->edge_out[j]]->HCO3_pla_edge_fi[0];
+                break;
+
+                case HCO3_rbc:
+                fiNode -= q * edges[node->edge_out[j]]->HCO3_rbc_edge_fi[0];
+                break;
+
+                case HbCO2:
+                fiNode -= q * edges[node->edge_out[j]]->HbCO2_edge_fi[0];
+                break;
+            }
+
+
+        }
+    } 
+
+    double r;
+    for (int j = 0; j < n1; j++)
+    {
+        if (edges[node->edge_in[j]]->get_velocity().back() > 0.){
+   	        q = edges[node->edge_in[j]]->get_velocity().back() * edges[node->edge_in[j]]->get_area().back();
+            q_sum += q;
+
+            switch(TType){
+            	case HB_O2_saturation:
+            	fiNode += q * edges[node->edge_in[j]]->HBsat_edge.back();
+                break;
+
+            	case C_Plasma_O2:
+            	fiNode += q * edges[node->edge_in[j]]->PlasmaO2_edge.back();
+                break;
+
+                case RBC:
+                fiNode += q * edges[node->edge_in[j]]->RBC_edge_fi.back();
+                break;
+
+                //CO2
+                case CO2_pla:
+                fiNode += q * edges[node->edge_in[j]]->CO2_pla_edge_fi.back();
+                break;
+
+                case CO2_rbc:
+                fiNode += q * edges[node->edge_in[j]]->CO2_rbc_edge_fi.back();
+                break;
+
+                case HCO3_pla:
+                fiNode += q * edges[node->edge_in[j]]->HCO3_pla_edge_fi.back();
+                break;
+
+                case HCO3_rbc:
+                fiNode += q * edges[node->edge_in[j]]->HCO3_rbc_edge_fi.back();
+                break;
+
+                case HbCO2:
+                fiNode += q * edges[node->edge_in[j]]->HbCO2_edge_fi.back();
+                break;
+            }
+
+
+        }
+    }
+    
+
+    //0D transport part
+    //finding the node corresponding to the given moc model
+    int indexof_node = -1;
+    string lumpMaster;
+    for(int i=0; i< moc_mod.boundary_model_node.size();i++ ){
+    	//cout << node->name<<endl;
+    	if(node->name == moc_mod.boundary_model_node[i] ){
+    		lumpMaster = moc_mod.boundary_main_node[i] ;
+    	}
+    }
+
+
+    for(int i=0; i< lum_mod.boundary_main_node.size() ; i++){
+    	if (lum_mod.boundary_main_node[i] == lumpMaster){
+    		for(int j=0; j<lum_mod.nodes.size(); j++){
+    			if(lum_mod.nodes[j]->name == lum_mod.boundary_model_node[i]){
+    				indexof_node = j;
+    			}
+    		}
+    	}
+	}
+
+
+    switch(TType){
+    case HB_O2_saturation:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_HBsat.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_HBsat[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_HBsat.size(); i++){//arteriole
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_HBsat[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+    case C_Plasma_O2:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_PlasmaO2.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_PlasmaO2[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_PlasmaO2.size(); i++){//arteriole
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_PlasmaO2[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+    case RBC:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_RBC.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_RBC[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_RBC.size(); i++){//arteriole
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_RBC[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+
+    //CO2
+    case CO2_pla:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_CO2_pla.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_CO2_pla[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_CO2_pla.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_CO2_pla[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+	case CO2_rbc:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_CO2_rbc.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_CO2_rbc[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_CO2_rbc.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_CO2_rbc[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+
+    case HCO3_pla:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_HCO3_pla.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_HCO3_pla[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_HCO3_pla.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_HCO3_pla[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+
+
+	case HCO3_rbc:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_HCO3_rbc.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_HCO3_rbc[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_HCO3_rbc.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_HCO3_rbc[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+
+	case HbCO2:
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_in_HbCO2.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_in_HbCO2[i];
+        q = is->corr_edge->vfr;
+        if(q > 0){
+        q_sum += q;
+        fiNode += q * is->fi.back();
+        }
+
+        is++;
+    }
+
+    for(int i=0; i<lum_mod.nodes[indexof_node]->D0_edges_out_HbCO2.size(); i++){
+    	D0_edge* is= lum_mod.nodes[indexof_node]->D0_edges_out_HbCO2[i] ;
+        q = is->corr_edge->vfr;
+        if(q < 0){
+        q_sum -= q;
+        fiNode -= q * is->fi.back();
+        }
+
+        is++;
+    }
+    break;
+
+
+
+    }
+
+
+    if (q_sum != 0.) {
+       fiNode /= q_sum;
+    }
+    else { fiNode = fiNodeOld; }//if nothing flows in it stays the old
+
+    //node concentration must be updated as well
+    switch(TType){
+       case HB_O2_saturation:
+       lum_mod.nodes[indexof_node]->HBsat_0Dn = fiNode;
+       //cout<<lum_mod.nodes[indexof_node]->HBsat_0Dn<<"  "<<fiNode<<endl;
+       break;
+
+       case C_Plasma_O2:
+       lum_mod.nodes[indexof_node]->PlasmaO2_0Dn = fiNode;
+       break;
+
+       case RBC:
+       lum_mod.nodes[indexof_node]->RBC_fi0Dn = fiNode;
+       break;
+
+       //
+       case CO2_pla:
+       lum_mod.nodes[indexof_node]->CO2_pla_n = fiNode;
+       break;
+
+       case CO2_rbc:
+       lum_mod.nodes[indexof_node]->CO2_rbc_n = fiNode;
+       break;
+
+       case HCO3_pla:
+       lum_mod.nodes[indexof_node]->HCO3_pla_n = fiNode;
+       break;
+
+       case HCO3_rbc:
+       lum_mod.nodes[indexof_node]->HCO3_rbc_n = fiNode;
+       break;
+
+       case HbCO2:
+       lum_mod.nodes[indexof_node]->HbCO2_n = fiNode;
+       break;
+   }
+
+
+
+}
+
+
 //--------------------------------------------------------------
+void first_blood::check_valves(){
+	for(int j=0;j<moc.size();j++){
+	for(int i=0;i<moc[j]->nodes.size();i++){
+		if(moc[j]->nodes[i]->is_diode){
+			if(moc[j]->nodes[i]->edge_in.size()!=1 || moc[j]->nodes[i]->edge_out.size() !=1){
+				cout<<"Diode definition between edges is not valid. More than one incoming or more than one outgoing edge.";
+				exit(-1);
+			}
+		}
+	}
+}
+}
+
+
+//--------------------------------------------------------------
+void first_blood::connect_0D_edges(){
+	if(do_Plasma_O2_transport){
+	for(int i=0; i< lum.size(); i++){
+		if(lum[i]->do_lum_PlasmaO2_transport){
+			lum[i]->PlasmaO2lum->connect_0D_edges(*lum[i]);
+		}
+	}}
+
+	if(do_RBC_transport){
+	for(int i=0; i< lum.size(); i++){
+		if(lum[i]->do_lum_RBC_transport){
+			lum[i]->RBClum->connect_0D_edges(*lum[i]);
+		}
+	}}
+
+	if(do_HBsat_transport){
+	for(int i=0; i< lum.size(); i++){
+		if(lum[i]->do_lum_HB_sat_transport){
+			lum[i]->HBsatlum->connect_0D_edges(*lum[i]);
+		}
+	}}
+
+	//CO2
+	if(do_pla_CO2_transport){
+	for(int i=0; i< lum.size(); i++){
+		if(lum[i]->do_lum_pla_CO2_transport){
+			lum[i]->CO2_pla_lum->connect_0D_edges(*lum[i]);
+		}
+	}}
+
+	if(do_rbc_CO2_transport){
+	for(int i=0; i< lum.size(); i++){
+		if(lum[i]->do_lum_rbc_CO2_transport){
+			lum[i]->CO2_rbc_lum->connect_0D_edges(*lum[i]);
+		}
+	}}
+
+	if(do_pla_HCO3_transport){
+	for(int i=0; i< lum.size(); i++){
+		if(lum[i]->do_lum_pla_HCO3_transport){
+			lum[i]->HCO3_pla_lum->connect_0D_edges(*lum[i]);
+		}
+	}}
+
+	if(do_rbc_HCO3_transport){
+	for(int i=0; i< lum.size(); i++){
+		if(lum[i]->do_lum_rbc_HCO3_transport){
+			lum[i]->HCO3_rbc_lum->connect_0D_edges(*lum[i]);
+		}
+	}}
+
+	if(do_HbCO2_transport){
+	for(int i=0; i< lum.size(); i++){
+		if(lum[i]->do_lum_HbCO2_transport){
+			lum[i]->HbCO2_lum->connect_0D_edges(*lum[i]);
+		}
+	}}
+
+}
+
+
+//--------------------------------------------------------------
+void first_blood::set_sys_edge_pointer(){
+	for(int i=0; i<moc.size();i++){
+		if(moc[i]->name == sys_moc){
+			for (int j=0; j<moc[i]->edges.size();j++){
+				if(moc[i]->edges[j]->ID == sys_edge_name){
+					sys_edge = moc[i]->edges[j];
+					sys_edge->do_save_memory = true;
+				}
+			}
+		}
+	}
+}
+
+
+//--------------------------------------------------------------
+void first_blood::init_time_periods_for_lum(double T){
+
+	for(int i=0; i<lum.size(); i++){
+		lum[i]->T_act = T;
+		lum[i]->T_sum = 0.;
+		lum[i]->T_last = T;
+		lum[i]->heart_rate = 60./T;
+		lum[i]->time_period=T;
+	}
+}
+
+
+//--------------------------------------------------------------
+double first_blood::baroreflex(double sys){
+	//sys is in Pa
+
+	double sys_mmHg = sys/mmHg_to_Pa;
+	//cout<<(sys_mmHg - x_B0)<<endl;
+	//cout<<sys_mmHg<<endl<<endl;
+
+	return L_B / (1 + exp(- k_B * (sys_mmHg - x_B0))) + b_B;
+}
+
+//--------------------------------------------------------------
+void first_blood::O2_transport(int moc_idx, int si, int ei, int e_idx, double t_act){
+
+	if(do_RBC_transport){
+		//RBC transport in nodes
+
+		RBC_node_transport->update_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		RBC_node_transport->update_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+		//moc[moc_idx]->nodes[0]->RBC_node_fi = 1.;
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//RBC transport for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_RBC_transport){
+				RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+			}
+
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//RBC transport for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_RBC_transport){
+				RBC_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->RBC_node_fi, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->RBClum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+			}
+
+		}
+
+		//transport 1D update (actual edge)
+		RBC1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->RBC_edge_fi, moc[moc_idx]->edges[e_idx]->RBC_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->RBC_node_fi, moc[moc_idx]->nodes[ei]->RBC_node_fi);
+	}
+
+
+	// HB saturation transport
+	if(do_HBsat_transport){
+		//HB saturation transport
+
+		HB_O2_node_transport->update_fi(moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		HB_O2_node_transport->update_fi(moc[moc_idx]->nodes[ei]->HBsat_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+					
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//HBsat transport for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_HB_sat_transport){
+				HB_O2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+			}
+
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//HBsat transport for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_HB_sat_transport){
+				HB_O2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->HBsat_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HBsatlum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+			}
+
+		}
+
+		//transport 1D update (actual edge)
+		HBsat1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->HBsat_edge, moc[moc_idx]->edges[e_idx]->HBsat_edge_new, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->HBsat_node, moc[moc_idx]->nodes[ei]->HBsat_node);
+	}
+
+
+
+	// Plasma O2 concentration
+	if(do_Plasma_O2_transport){
+		//Plasma O2 concentration
+
+		PlasmaO2_node_transport->update_fi(moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		PlasmaO2_node_transport->update_fi(moc[moc_idx]->nodes[ei]->PlasmaO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+					
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//Plasma O2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_PlasmaO2_transport){
+				PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+				//capillary is only updated here
+				lum[lum_idx]->capillary_O2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
+			}
+
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//Plasma O2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_PlasmaO2_transport){
+				PlasmaO2_node_transport->update_master_fi(moc[moc_idx]->nodes[ei]->PlasmaO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->PlasmaO2lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+				//capillary is only updated here
+				lum[lum_idx]->capillary_O2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
+			}
+
+		}
+
+		//transport 1D update (actual edge)
+		Plasma_O21D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->PlasmaO2_edge, moc[moc_idx]->edges[e_idx]->PlasmaO2_edge_new, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->PlasmaO2_node, moc[moc_idx]->nodes[ei]->PlasmaO2_node);
+	}
+
+
+
+}
+
+
+//--------------------------------------------------------------
+void first_blood::CO2_transport(int moc_idx, int si, int ei, int e_idx, double t_act){
+	if(do_pla_CO2_transport){
+
+		transport_node_CO2_pla->update_fi(moc[moc_idx]->nodes[si]->CO2_pla_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		transport_node_CO2_pla->update_fi(moc[moc_idx]->nodes[ei]->CO2_pla_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+
+			//Plasma CO2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_pla_CO2_transport){
+				transport_node_CO2_pla->update_master_fi(moc[moc_idx]->nodes[si]->CO2_pla_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->CO2_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+				//capillary is only updated here
+				//lum[lum_idx]->CO2transport(moc[moc_idx]->edges[e_idx]->dt_act);
+				lum[lum_idx]->capillary_CO2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
+			}
+		}
+					
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+
+			//Plasma CO2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_pla_CO2_transport){
+				//cout<<moc[moc_idx]->edges[e_idx]->dt_act<<endl;
+				transport_node_CO2_pla->update_master_fi(moc[moc_idx]->nodes[ei]->CO2_pla_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->CO2_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+				//capillary is only updated here
+				//lum[lum_idx]->CO2transport(moc[moc_idx]->edges[e_idx]->dt_act);
+				lum[lum_idx]->capillary_CO2_transport(moc[moc_idx]->edges[e_idx]->dt_act);
+			}
+
+		}
+
+		//transport 1D update (actual edge)
+		CO2_pla_1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->CO2_pla_edge_fi, moc[moc_idx]->edges[e_idx]->CO2_pla_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->CO2_pla_node, moc[moc_idx]->nodes[ei]->CO2_pla_node);
+	}
+
+
+
+	if(do_rbc_CO2_transport){
+
+		transport_node_CO2_rbc->update_fi(moc[moc_idx]->nodes[si]->CO2_rbc_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		transport_node_CO2_rbc->update_fi(moc[moc_idx]->nodes[ei]->CO2_rbc_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+
+
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//rbc cytoplasm CO2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_rbc_CO2_transport){
+				transport_node_CO2_rbc->update_master_fi(moc[moc_idx]->nodes[si]->CO2_rbc_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->CO2_rbc_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//rbc cytoplasm CO2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_rbc_CO2_transport){
+				transport_node_CO2_rbc->update_master_fi(moc[moc_idx]->nodes[ei]->CO2_rbc_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->CO2_rbc_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+
+		//transport 1D update (actual edge)
+		CO2_rbc_1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->CO2_rbc_edge_fi, moc[moc_idx]->edges[e_idx]->CO2_rbc_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->CO2_rbc_node, moc[moc_idx]->nodes[ei]->CO2_rbc_node);
+	}
+				
+
+	if(do_pla_HCO3_transport){
+
+		transport_node_HCO3_pla->update_fi(moc[moc_idx]->nodes[si]->HCO3_pla_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		transport_node_HCO3_pla->update_fi(moc[moc_idx]->nodes[ei]->HCO3_pla_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//rbc plasma HCO3 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_pla_HCO3_transport){
+				transport_node_HCO3_pla->update_master_fi(moc[moc_idx]->nodes[si]->HCO3_pla_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HCO3_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//rbc plasma HCO3 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_pla_HCO3_transport){
+				transport_node_HCO3_pla->update_master_fi(moc[moc_idx]->nodes[ei]->HCO3_pla_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HCO3_pla_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+		HCO3_pla_1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->HCO3_pla_edge_fi, moc[moc_idx]->edges[e_idx]->HCO3_pla_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->HCO3_pla_node, moc[moc_idx]->nodes[ei]->HCO3_pla_node);
+	}
+
+
+
+	if(do_rbc_HCO3_transport){
+		transport_node_HCO3_rbc->update_fi(moc[moc_idx]->nodes[si]->HCO3_rbc_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		transport_node_HCO3_rbc->update_fi(moc[moc_idx]->nodes[ei]->HCO3_rbc_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//rbc cytoplasm HCO3 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_rbc_HCO3_transport){
+				transport_node_HCO3_rbc->update_master_fi(moc[moc_idx]->nodes[si]->HCO3_rbc_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HCO3_rbc_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//rbc cytoplasm HCO3 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_rbc_HCO3_transport){
+				transport_node_HCO3_rbc->update_master_fi(moc[moc_idx]->nodes[ei]->HCO3_rbc_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HCO3_rbc_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+		HCO3_rbc_1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->HCO3_rbc_edge_fi, moc[moc_idx]->edges[e_idx]->HCO3_rbc_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->HCO3_rbc_node, moc[moc_idx]->nodes[ei]->HCO3_rbc_node);
+	}
+
+
+	if(do_HbCO2_transport){
+		transport_node_HbCO2->update_fi(moc[moc_idx]->nodes[si]->HbCO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges);
+		transport_node_HbCO2->update_fi(moc[moc_idx]->nodes[ei]->HbCO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges);
+
+
+		if(moc[moc_idx]->nodes[si]->is_master_node){
+			//HbCO2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_HbCO2_transport){
+				transport_node_HbCO2->update_master_fi(moc[moc_idx]->nodes[si]->HbCO2_node, moc[moc_idx]->nodes[si], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HbCO2_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+					
+		if(moc[moc_idx]->nodes[ei]->is_master_node){
+			//HbCO2 concentration for lum
+			int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+
+			if (lum[lum_idx]->do_lum_HbCO2_transport){
+				transport_node_HbCO2->update_master_fi(moc[moc_idx]->nodes[ei]->HbCO2_node, moc[moc_idx]->nodes[ei], moc[moc_idx]->edges, *lum[lum_idx], *moc[moc_idx]);
+				lum[lum_idx]->HbCO2_lum->update_fi(moc[moc_idx]->edges[e_idx]->dt_act, *lum[lum_idx], t_act);
+
+			}
+		}
+		HbCO2_1D->update_fi(moc[moc_idx]->edges[e_idx]->get_velocity(), moc[moc_idx]->edges[e_idx]->HbCO2_edge_fi, moc[moc_idx]->edges[e_idx]->HbCO2_edge_finew, moc[moc_idx]->edges[e_idx]->length, moc[moc_idx]->edges[e_idx]->dt_act, moc[moc_idx]->nodes[si]->HbCO2_node, moc[moc_idx]->nodes[ei]->HbCO2_node);
+	}
+}
+
+void first_blood::save_transport_var_for_lum(int moc_idx, int si, int ei){
+	if(moc[moc_idx]->nodes[ei]->is_master_node){
+		int lum_idx = moc[moc_idx]->nodes[ei]->master_node_lum;
+		solver_lumped* lum_e = lum[lum_idx];
+
+		if (lum_e->do_lum_PlasmaO2_transport){
+			if(lum_e->PlasmaO2lum->do_save_results){
+				lum_e->PlasmaO2lum->save_variables();}
+		}
+
+		if (lum_e->do_lum_HB_sat_transport){
+			if(lum_e->HBsatlum->do_save_results){
+				lum_e->HBsatlum->save_variables();}
+		}
+
+		if (lum_e->do_lum_RBC_transport){
+			if(lum_e->RBClum->do_save_results){
+				lum_e->RBClum->save_variables();}
+		}
+
+		//CO2
+		if(lum_e->do_lum_pla_CO2_transport){
+			if(lum_e->CO2_pla_lum->do_save_results){
+				lum_e->CO2_pla_lum->save_variables();}
+		}
+
+		if(lum_e->do_lum_rbc_CO2_transport){
+			if(lum_e->CO2_rbc_lum->do_save_results){
+				lum_e->CO2_rbc_lum->save_variables();}
+		}
+
+		if(lum_e->do_lum_pla_HCO3_transport){
+			if(lum_e->HCO3_pla_lum->do_save_results){
+				lum_e->HCO3_pla_lum->save_variables();}
+		}
+
+		if(lum_e->do_lum_rbc_HCO3_transport){
+			if(lum_e->HCO3_rbc_lum->do_save_results){
+				lum_e->HCO3_rbc_lum->save_variables();}
+		}
+
+		if(lum_e->do_lum_HbCO2_transport){
+			if(lum_e->HbCO2_lum->do_save_results){
+				lum_e->HbCO2_lum->save_variables();}
+		}
+
+	}
+
+	if(moc[moc_idx]->nodes[si]->is_master_node){
+		int lum_idx = moc[moc_idx]->nodes[si]->master_node_lum;
+		solver_lumped* lum_s = lum[lum_idx];
+
+		if (lum_s->do_lum_PlasmaO2_transport){
+			if(lum_s->PlasmaO2lum->do_save_results){
+				lum_s->PlasmaO2lum->save_variables();}
+		}
+
+		if (lum_s->do_lum_HB_sat_transport){
+			if(lum_s->HBsatlum->do_save_results){
+				lum_s->HBsatlum->save_variables();}
+		}
+
+		if (lum_s->do_lum_RBC_transport){
+			if(lum_s->RBClum->do_save_results){
+				lum_s->RBClum->save_variables();}
+		}
+
+		//CO2
+		if(lum_s->do_lum_pla_CO2_transport){
+			if(lum_s->CO2_pla_lum->do_save_results){
+				lum_s->CO2_pla_lum->save_variables();}
+		}
+
+		if(lum_s->do_lum_rbc_CO2_transport){
+			if(lum_s->CO2_rbc_lum->do_save_results){
+				lum_s->CO2_rbc_lum->save_variables();}
+		}
+
+		if(lum_s->do_lum_pla_HCO3_transport){
+			if(lum_s->HCO3_pla_lum->do_save_results){
+				lum_s->HCO3_pla_lum->save_variables();}
+		}
+
+		if(lum_s->do_lum_rbc_HCO3_transport){
+			if(lum_s->HCO3_rbc_lum->do_save_results){
+				lum_s->HCO3_rbc_lum->save_variables();}
+		}
+
+		if(lum_s->do_lum_HbCO2_transport){
+			if(lum_s->HbCO2_lum->do_save_results){
+				lum_s->HbCO2_lum->save_variables();}
+		}
+
+	}
+}
+
 /*void first_blood::solve_lum(int index, double dt)
 {
 	vector<vector<double> > coefs;

@@ -1,0 +1,7 @@
+run,forward
+time,1
+material,olufsen
+
+type,name,main node,model node,main node,model node,...
+lumped,pump
+

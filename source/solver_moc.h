@@ -14,6 +14,7 @@
 #include "moc_edge.h"
 #include "moc_node.h"
 #include "statistics.h"
+//#include "solver_lumped.h"
 
 #include "/usr/include/eigen3/Eigen/Eigen"
 
@@ -21,6 +22,7 @@
 #include <algorithm>
 
 using namespace Eigen;
+
 
 class solver_moc
 {
@@ -62,7 +64,7 @@ public:
 	vector<double> olufsen_def_const{2.e6,-2253.,8.65e4}; // default constants for olufsen model
 
 	// giving initial conditions
-	void initialization(double pressure_initial,int mat_type);
+	void initialization(double p_init, int material_type);
 	// initialazing Newton's method for 1D/0D boundaries
 	void initialization_newton(VectorXd &x, int N, int moc_edge_index, int edge_end);
 	// substituting the results back to field variables
@@ -126,6 +128,17 @@ public:
 	// finding all correspondning nodes to edges
 	vector<int> edge_to_node(vector<int> edge_idx);
 
+	//if init values are given for first_blood
+	double RBC_moc_init = 0.;
+	double PlasmaO2_moc_init = 0.;
+	double HBsat_moc_init = 0.;
+
+	double CO2_pla_moc_init = 0.;
+	double CO2_rbc_moc_init = 0.;
+	double HCO3_pla_moc_init = 0.;
+	double HCO3_rbc_moc_init = 0.;
+	double HbCO2_moc_init = 0.;
+
 private:
 
 	const double pi=3.14159265359;
@@ -142,6 +155,11 @@ private:
 	vector<string> pt_file_name;
 	
 };
+
+
+
+
+
 
 #endif // SOLVER_MOC_H
 

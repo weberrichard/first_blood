@@ -1,0 +1,14 @@
+RBC,PO2,HBsat
+O2transport_init, 4.9e15, 2.9545e-3, 0.97
+
+CO2_pla,CO2_rbc,HCO3_pla,HCO3_rbc,HbCO2
+co2transport_init, 0.02496, 0.0254968, 0.7048, 0.083527, 0.042741
+
+
+piecewise constant resistance for compression
+type, name, node start, node end, initial condition [SI], parameter [SI], parameter [SI], parameter [SI], parameter [SI]
+
+resistor_piecewise_constant, RCC, n1, n2, 0.000e+00, 7.0e+07, 7.0e+8, 1.0e+10, 1.0e+10
+
+node, n1, 1.000e+05
+node, n2, 1.000e+05

@@ -7,6 +7,8 @@
 
 using namespace std;
 
+enum TransportType {RBC, HB_O2_saturation, C_Plasma_O2, CO2_pla, CO2_rbc, HCO3_pla, HCO3_rbc, HbCO2};
+
 // separating string to vector<string>, comma
 vector<string> separate_line(string line);
 

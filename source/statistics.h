@@ -21,7 +21,7 @@ double maximum(const vector<double> &x, int &idx);
 int find_index(const vector<double> &x, double x0);
 double average(const vector<double> &x, const vector<double> &t);
 vector<double> resample(const vector<double> &x, const vector<double> &t, double dt);
-int crop_index(const vector<double> &x, const vector<double> &t, double T);
+int crop_after_T(const vector<double> &x, const vector<double> &t, double T);
 double systole(const vector<double> &x, const vector<double> &t, double T);
 double diastole(const vector<double> &x, const vector<double> &t, double T);
 double time_delay_min(const vector<double> &x, const vector<double> &y, const vector<double> &t, double T);
@@ -29,6 +29,7 @@ double time_delay_max(const vector<double> &x, const vector<double> &y, const ve
 double pearson_correlation(const vector<double> &x, const vector<double> &y);
 vector<double> cross_correlation(const vector<double> &x, const vector<double> &y);
 double time_delay_correl(const vector<double> &x, const vector<double> &y, const vector<double> &t, double T);
+double average(const vector<double> &x);
 
 class time_average
 {
@@ -38,9 +39,15 @@ public:
 	vector<double> average, value, time; // actual averaged time series
 	double area=0.;
 	int last_idx=0;
-	void update(double tnew, double vnew, double T); // inicializalas!!!
+	//void update(double tnew, double vnew, double T); // inicializalas!!!
 	void save_results(string file_name);
 	void save_results(double dt, string file_name);
+
+	// for calculating average with changing time period
+	double area_act = 0.;
+	double area_last = 0.;
+	void update(double tnew, double vnew, double T_act, double T_last, double T_sum); // T is not constant
+
 };
 
 #endif

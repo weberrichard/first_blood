@@ -18,11 +18,11 @@ void solver_moc::initialization(double p_init, int material_type)
 
 	for(unsigned int i=0; i<number_of_nodes; i++)
 	{
-		nodes[i]->initialization(p_init);
+		nodes[i]->initialization(p_init, RBC_moc_init, HBsat_moc_init, PlasmaO2_moc_init, CO2_pla_moc_init, CO2_rbc_moc_init, HCO3_pla_moc_init, HCO3_rbc_moc_init, HbCO2_moc_init);
 	}
 	for(unsigned int i=0; i<number_of_edges; i++)
 	{
-		edges[i]->initialization(p_init,material_type);
+		edges[i]->initialization(p_init, material_type, RBC_moc_init, HBsat_moc_init, PlasmaO2_moc_init, CO2_pla_moc_init, CO2_rbc_moc_init, HCO3_pla_moc_init, HCO3_rbc_moc_init, HbCO2_moc_init);
 	}
 
 	// setting back the pressure_upstream interpolation index to 0
@@ -146,8 +146,7 @@ void solver_moc::boundaries(int e_idx, double t_act)
 
 	for(unsigned int i=0; i<node_idx.size(); i++)
 	{
-		if(nodes[node_idx[i]]->is_master_node == false)
-		{
+		if(nodes[node_idx[i]]->is_master_node == false){
 			if(nodes[node_idx[i]]->upstream_boundary>-1) // handling the upstream boundary
 			{
 				int up_idx = nodes[node_idx[i]]->upstream_boundary;
@@ -482,6 +481,25 @@ void solver_moc::boundaries(int e_idx, double t_act)
 					}
 				}
 			}
+
+			if(nodes[node_idx[i]]->is_diode){//diode 
+				double p_in;
+				int ei = nodes[node_idx[i]]->edge_in[0];
+				double dt = edges[ei]->dt_act;
+				if(edges[ei]->get_new_velocity().back()<0.){
+					double q=0.;
+					p_in = edges[ei]->boundary_velocity_end(dt, 0., q);
+				}
+				//cout<<edges[ei]->get_new_velocity().back()<<endl;
+
+				ei = nodes[node_idx[i]]->edge_out[0];
+				dt = edges[ei]->dt_act;
+				if(edges[ei]->get_new_velocity()[0]<0.){
+					double q=0.;
+					p_in = edges[ei]->boundary_velocity_start(dt, 0., q);
+				}
+				//cout<<edges[ei]->get_new_velocity()[0]<<endl;
+			}
 		}
 	}
 }
@@ -630,6 +648,8 @@ void solver_moc::set_save_memory(vector<string> edge_list, vector<string> node_l
 		}
 	}
 }
+
+
 
 /*//--------------------------------------------------------------
 void solver_moc::post_process()
