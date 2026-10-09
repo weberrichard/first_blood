@@ -5,6 +5,7 @@
 - *carotis:* analysing only the carotis stenosis with only 4 branches and nonlinear resistance
 - *simple_run:* run a model and save all field variables
 - *vpd:* creating virtual patient database (VPD) that mimics the whole population physiologically properly
+- *custom_output:* run a simulation for a given model and save data as given in a file
 
 ### How to use
 The code is built upon the *source* and the *projects* folder. While the former one includes the basic sources of the *first_blood*, the latter one contains the projects which are applying the source code. Each project has an individual make file that can compile the whole code.
@@ -23,12 +24,14 @@ Then the running *.out* file will run the simulation. The *models* folder must c
 ### Developement team
 Dr. Richárd Wéber, assistant professor
 
-Márta Viharos, BSc student
+Márta Viharos, MSc student
 
-Dániel Gyürki, research assistant fellow
+Dániel Gyürki, assistant professor
 
 ### Publications
 
 Richárd Wéber, Dániel Gyürki, György Paál (2023) First blood: An efficient, hybrid one- and zero-dimensional, modular hemodynamic solver, International Journal for Numerical Methods in Biomedical Engineering, DOI: 10.1002/cnm.3701
 
 Dániel Gyürki, Tamás Horváth, Sára Till, Attila Egri, Csilla Celeng, György Paál, Béla Merkely, Pál Maurovich-Horvat & Gábor Halász (2022) Central arterial pressure and patient-specific model parameter estimation based on radial pressure measurements, Computer Methods in Biomechanics and Biomedical Engineering, DOI: 10.1080/10255842.2022.2115292
+
+Wéber Richárd, Viharos Márta, and Paál György. Improvement for the hemodynamic solver, First Blood, using the MacCormack scheme. Biomechanica Hungarica, 17(1): 17–23, January 1970. ISSN 2060-4475, 2060-0305. doi: 10.17489/biohun/2024/1/594.
