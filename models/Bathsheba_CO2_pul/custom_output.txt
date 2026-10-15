@@ -1,0 +1,11 @@
+model name, model type (moc, lumped), node or edge, e1, e2, e3, e4 …
+
+arterial, moc, edge, A1, A2, A3
+arterial, moc, node, n1, n2, n3
+
+p8, lum, edge, R1, R2
+p8, lum, transport
+
+
+sample time, [SI]
+save_dt, 0.001

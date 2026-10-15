@@ -1,0 +1,14 @@
+//peripheral capillary O2 transport parameters
+fi_c, fi_t, alpha_b, alpha_t, hc, S_V_c, kc, Mmax, C50, taoO2, Z
+[-], [-], [1/mmHg], [1/mmHg], [m], [1/m], [m2/mmHg/s], [1/s], [m3/1]
+peripheries, 0.011303, 0.988697, 3.11e-5, 3.95e-5, 1.0e-6, 4.74e5, 4.2e-14, 2.5e-4, 2.6e-5, 0.4, 3.73e-17
+
+//parameters of the haemoglobin saturetion curve
+L_HBsat, k_HBsat, b_HBsat, m_HBsat
+[-], [1/mmHg], [-], [1/mmHg]
+haemoglobin, 1.251, 0.0676, -0.274, 17.71
+
+//pulmonary capillary O2 transport parameters
+PO2_alveolar, K_pul_O2, taoO2_p, K_pul_scale
+[mmHg], [m3/s/mmHg], [s], [m3/s/mmHg]
+pulmonary, 100., 1.33e-7, 0.4, 4.479e-4
