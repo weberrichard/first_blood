@@ -1,0 +1,6 @@
+type, name, node start, node end, initial condition [SI], parameter [SI], parameter [SI], parameter [SI], parameter [SI]
+
+resistor, R1, n1, n2, 0.000e+00, 7.6e+10
+
+node, n1, 1.000e+05
+node, n2, 1.000e+05

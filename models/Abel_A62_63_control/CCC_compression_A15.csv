@@ -1,0 +1,8 @@
+piecewise constant resistance for compression
+type, name, node start, node end, initial condition [SI], parameter [SI], parameter [SI], parameter [SI], parameter [SI]
+
+resistor_piecewise_constant, RCC, n1, n2, 0.000e+00, 7.0e+03, 8.0e+8, 100., 110.
+
+node, n1, 1.000e+05
+node, n2, 1.000e+05
+
