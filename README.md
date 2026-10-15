@@ -26,8 +26,6 @@ Dr. Richárd Wéber, assistant professor
 
 Márta Viharos, MSc student
 
-Dániel Gyürki, assistant professor
-
 ### Publications
 
 Richárd Wéber, Dániel Gyürki, György Paál (2023) First blood: An efficient, hybrid one- and zero-dimensional, modular hemodynamic solver, International Journal for Numerical Methods in Biomedical Engineering, DOI: 10.1002/cnm.3701
