@@ -1,0 +1,9 @@
+model name, model type (moc, lumped), node or edge, e1, e2, e3, e4 …
+
+arterial, moc, edge, A1, A2, A3
+arterial, moc, node, n1, n2, n3
+
+p8, lum, edge, R1
+save_dt, 0.01
+
+if there is no transport in the mode, dont try to savee it pls
