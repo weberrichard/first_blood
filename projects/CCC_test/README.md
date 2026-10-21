@@ -17,5 +17,4 @@ The "Abel_A62_63_control" model is used for the simulation. A few remarks on the
 - Tune the autoregulaton parameters to match the CCC test itself. 
 
 # Current simulation result
-
 ![Alt text](Abel_A62_63_control_velocity.png?raw=true "Title")
