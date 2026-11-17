@@ -13,6 +13,7 @@
 
 #include	"file_io.h"
 #include    "statistics.h"
+#include "albanese_gas.h"
 
 #include "/usr/include/eigen3/Eigen/Eigen"
 #include <iostream>
@@ -152,8 +153,17 @@ public:
 	//O2 transport function
     void O2transport(double dt);
     void pulmonary_O2transport(double dt);
-    double dCO2_plasma(double CO2_plasma_old, double HBsat_old, double C_RBC);
-    double HBsat_equilibrium(double PO2);
+    double dCO2_plasma(double CO2_plasma_old, double HBsat_old, double C_RBC, double CO2_pla = 0.);
+    double HBsat_equilibrium(double PO2, double PCO2 = 0., double C_RBC = 4.9e15);
+    AlbaneseGas albanese_gas;
+    struct GasSourceSnapshot {
+        vector<double> hb_departure, oxygen_departure, bicarbonate_departure, carbamino_departure;
+        bool ready = false;
+    };
+    GasSourceSnapshot peripheral_gas_sources, pulmonary_gas_sources;
+    void prepare_albanese_sources();
+    void validate_gas_parameters() const;
+    bool co2_parameters_loaded = false;
     double turn_source(double t);
     void save_tissueO2(string folder_name, const vector<double>& time);
     vector<double> sin_2(double scale, int nx);
@@ -320,8 +330,8 @@ public:
  	double fi_rbc, fi_pla;
 
  	//balance functions
- 	double eta_hco3(double HCO3_rbc, double HCO3_pla, double CO2_pla, double CO2_rbc);
- 	double eta_hb(double HbCO2, double CO2_pla, double CO2_rbc);
+    double eta_hco3(double HCO3_rbc, double HCO3_pla, double CO2_pla, double CO2_rbc, double PO2 = 0.);
+    double eta_hb(double HbCO2, double CO2_pla, double CO2_rbc, double PO2 = 0.);
 
  	void assign_perif_CO2_params(vector<string> sv);
  	void init_lum_tissueCO2();

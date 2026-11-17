@@ -615,7 +615,8 @@ void solver_lumped::load_model()
 			line.erase(remove(line.begin(), line.end(), '\r'), line.end());
 			vector<string> sv = separate_line(line);
 			
-			if (sv[0] == "peripheries"){ assign_perif_O2_params(sv); }
+			if (albanese_gas.read_row(sv)) { continue; }
+            if (sv[0] == "peripheries"){ assign_perif_O2_params(sv); }
 			else if(sv[0] == "haemoglobin"){ assign_haemogobin_sat_params(sv); }
 			else if(sv[0] == "pulmonary"){ assign_pulmonary_O2_params(sv); }
 
@@ -637,7 +638,8 @@ void solver_lumped::load_model()
 			line.erase(remove(line.begin(), line.end(), '\r'), line.end());
 			vector<string> sv = separate_line(line);
 			
-			if (sv[0] == "perifco2"){ assign_perif_CO2_params(sv);}
+			if (albanese_gas.read_row(sv)) { continue; }
+            if (sv[0] == "perifco2"){ assign_perif_CO2_params(sv);}
 
 		}
 		
@@ -646,6 +648,8 @@ void solver_lumped::load_model()
 		cout<<"CO2_parameter default values"<<endl;
 	}
 	file_in.close();
+
+    validate_gas_parameters();
 
 
 }

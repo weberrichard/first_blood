@@ -60,7 +60,7 @@ void solver_moc::load_model()
 			else if(sv[0] == "elag" || sv[0] == "junction" || sv[0] == "node") // nodes
 			{
 				nodes.push_back(new moc_node(sv[1]));
-				if(sv[3] == "")
+				if(sv.size() <= 3 || sv[3].empty())
 				{
 					nodes[j]->resistance = 1.; // this will be multiplied with is_resistance i.e. there is no leakage
 					nodes[j]->is_resistance = 0.;
@@ -82,7 +82,7 @@ void solver_moc::load_model()
 				nodes[j]->type = "node";
 				nodes[j]->type_code = 0;
 
-				if(sv.size()>=6){// vein diodes
+				if(sv.size()>=7){// vein diodes
 					if(sv[6]=="diode"){
 						nodes[j]->is_diode = true;
 						//cout<<j<<endl;
@@ -94,7 +94,7 @@ void solver_moc::load_model()
 			else if(sv[0] == "perif" || sv[0] == "periferia") // nodes
 			{
 				nodes.push_back(new moc_node(sv[1]));
-				if(sv[3] == "")
+				if(sv.size() <= 3 || sv[3].empty())
 				{
 					nodes[j]->resistance = 1.; // this will be multiplied with is_resistance i.e. there is no leakage
 					nodes[j]->is_resistance = 0.;

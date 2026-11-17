@@ -1,5 +1,6 @@
 #include "solver_lumped.h"
 #include <iomanip>
+#include <stdexcept>
 
 //--------------------------------------------------------------
 solver_lumped::solver_lumped(string a_name, string a_folder)
@@ -10,9 +11,86 @@ solver_lumped::solver_lumped(string a_name, string a_folder)
 
 solver_lumped::~solver_lumped(){}
 
+void solver_lumped::validate_gas_parameters() const {
+    const bool carbon_active = do_lum_pla_CO2_transport || do_lum_rbc_CO2_transport ||
+        do_lum_pla_HCO3_transport || do_lum_rbc_HCO3_transport || do_lum_HbCO2_transport;
+    const bool oxygen_active = do_lum_PlasmaO2_transport || do_lum_HB_sat_transport || do_lum_RBC_transport;
+    if (carbon_active) {
+        if (!co2_parameters_loaded)
+            throw std::runtime_error(name + ": CO2_parameters.txt must contain a perifco2 row");
+        for (double value : {tao_hco3_rbc_pla, tao_hco3_pla_rbc, tao_co2_pla_tis,
+             tao_co2_tis_pla, tao_co2_rbc_pla, tao_co2_pla_rbc, tao_hco3, tao_hbco2,
+             alpha_co2_rbc, alpha_co2_pla, alpha_co2_tis, alpha_hco3_rbc, alpha_hco3_pla,
+             fi_rbc, fi_pla})
+            if (!std::isfinite(value) || value <= 0.)
+                throw std::runtime_error(name + ": CO2 time constants, solubilities and fractions must be positive");
+        if (std::abs(fi_rbc + fi_pla - 1.) > 1.e-6)
+            throw std::runtime_error(name + ": fi_rbc + fi_pla must equal one");
+    }
+    if (!albanese_gas.enabled || (!carbon_active && !oxygen_active)) return;
+    albanese_gas.validate();
+    if (!(do_lum_PlasmaO2_transport && do_lum_HB_sat_transport && do_lum_RBC_transport &&
+          do_lum_pla_CO2_transport && do_lum_rbc_CO2_transport && do_lum_pla_HCO3_transport &&
+          do_lum_rbc_HCO3_transport && do_lum_HbCO2_transport))
+        throw std::runtime_error(name + ": Albanese sources require all eight existing gas/RBC transports");
+    for (double value : {alpha_b, alpha_t, Z, taoO2, taoO2_p, fi_c, fi_t})
+        if (!std::isfinite(value) || value <= 0.)
+            throw std::runtime_error(name + ": invalid oxygen source parameter");
+}
+
+void solver_lumped::prepare_albanese_sources() {
+    if (!albanese_gas.enabled) return;
+    auto prepare = [&](GasSourceSnapshot& result, D0_edge* oxygen, D0_edge* saturation,
+                       D0_edge* cells, D0_edge* plasma_carbon, D0_edge* rbc_carbon,
+                       D0_edge* plasma_bicarbonate, D0_edge* rbc_bicarbonate,
+                       D0_edge* carbamino) {
+        const std::size_t count = oxygen->fi.size();
+        for (auto* edge : {saturation, cells, plasma_carbon, rbc_carbon,
+                           plasma_bicarbonate, rbc_bicarbonate, carbamino})
+            if (edge->fi.size() != count)
+                throw std::runtime_error(name + ": mismatched gas transport meshes");
+        result.ready = false;
+        result.hb_departure.resize(count);
+        result.oxygen_departure.resize(count);
+        result.bicarbonate_departure.resize(count);
+        result.carbamino_departure.resize(count);
+        for (std::size_t i = 0; i < count; ++i) {
+            for (auto* edge : {oxygen, saturation, cells, plasma_carbon, rbc_carbon,
+                               plasma_bicarbonate, rbc_bicarbonate, carbamino})
+                if (!std::isfinite(edge->fi[i]) || edge->fi[i] < 0.)
+                    throw std::runtime_error(name + ": invalid gas concentration before source evaluation");
+            const double po2 = oxygen->fi[i] / alpha_b;
+            const double pco2 = plasma_carbon->fi[i] / alpha_co2_pla / mmHg_to_Pa;
+            result.hb_departure[i] = saturation->fi[i] - HBsat_equilibrium(po2, pco2, cells->fi[i]);
+            result.oxygen_departure[i] = result.hb_departure[i] * cells->fi[i] * Z;
+            result.bicarbonate_departure[i] = eta_hco3(rbc_bicarbonate->fi[i],
+                plasma_bicarbonate->fi[i], plasma_carbon->fi[i], rbc_carbon->fi[i], po2);
+            result.carbamino_departure[i] = eta_hb(carbamino->fi[i],
+                plasma_carbon->fi[i], rbc_carbon->fi[i], po2);
+        }
+        result.ready = true;
+    };
+    if (do_per_O2_rtansport)
+        prepare(peripheral_gas_sources, per_cap_PO2, per_cap_BH, per_cap_RBC,
+            per_cap_CO2_pla, per_cap_CO2_rbc, per_cap_HCO3_pla, per_cap_HCO3_rbc, per_cap_HbCO2);
+    if (do_pul_O2_rtansport)
+        prepare(pulmonary_gas_sources, pul_cap_PO2, pul_cap_BH, pul_cap_RBC,
+            pul_cap_CO2_pla, pul_cap_CO2_rbc, pul_cap_HCO3_pla, pul_cap_HCO3_rbc, pul_cap_HbCO2);
+}
+
 //--------------------------------------------------------------
 void solver_lumped::initialization(double time_period)
 {
+	// Elastance is evaluated below, before init_time_periods_for_lum is called.
+	if (!std::isfinite(time_period) || time_period <= 0.)
+		throw std::runtime_error(name + ": heart period must be finite and positive");
+	this->time_period = time_period;
+	T_act = time_period;
+	T_last = time_period;
+	T_sum = 0.;
+	heart_rate = 60. / time_period;
+	period = 0;
+
 	// setting sizes
 	number_of_nodes = nodes.size();
 	number_of_edges = edges.size();
@@ -853,10 +931,12 @@ void D0_transport::save_results(string fn, const vector<double>& time, string mo
 //--------------------------------------------------------------
 void D0_transport::save_vector(string folder_name, const vector<double>& st, const vector<double>& en, const vector<double>& time, double dt = 0.){
 
+    if (st.size() != time.size() || en.size() != time.size() || time.empty())
+        throw std::runtime_error("Transport history/time size mismatch: " + folder_name);
     FILE *out_file = fopen(folder_name.c_str(), "w");
 
     if (!out_file)
-        return;
+        throw std::runtime_error("Cannot write transport output: " + folder_name);
 
     // Original behavior: write every simulation point
     if (dt <= 0.0)
@@ -945,13 +1025,22 @@ void D0_transport::save_vector(string folder_name, const vector<double>& vect, c
 //--------------------------------------------------------------
 void D0_transport::set_save_memory(){
     do_save_results = true;
-    for(int i=0;i<D0_edges.size();i++){
-    	D0_edges[i]->do_save_memory=true;
+    for (auto* edge : D0_edges) {
+        if (!edge->do_save_memory) {
+            // The hydraulic time vector starts at t=0; so must transport data.
+            edge->fi_start.clear();
+            edge->fi_end.clear();
+            edge->save();
+        }
+        edge->do_save_memory = true;
     }
 };
 
 //--------------------------------------------------------------
 void solver_lumped::O2transport(double dt){
+    const auto& gas_sources = peripheral_gas_sources;
+    if (albanese_gas.enabled && !gas_sources.ready)
+        throw std::runtime_error("Albanese source snapshot was not prepared");
 
 	
 	//only one capillary is allowed per 0D model.
@@ -992,29 +1081,29 @@ void solver_lumped::O2transport(double dt){
             Cc1der = (plasmaO2old[i+1] - plasmaO2old[i])/dx;
             HB1der = (HBold[i+1] - HBold[i])/dx;
         }
-        double DCO2 = dCO2_plasma(plasmaO2old[i], HBold[i] , RBC[i]);
+        double DCO2 = albanese_gas.enabled ? gas_sources.oxygen_departure.at(i) : dCO2_plasma(plasmaO2old[i], HBold[i], RBC[i]);
         plasmaO2[i] = plasmaO2old[i] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[i]/alpha_b - tissueO2vold[i]/alpha_t) + DCO2/taoO2);
-        HB[i] = (1-dt/taoO2)*HBold[i] + dt/taoO2*HBsat_equilibrium(plasmaO2old[i] / alpha_b) - dt*v*HB1der;
+        HB[i] = (1-dt/taoO2)*HBold[i] + dt/taoO2*(albanese_gas.enabled ? HBold[i] - gas_sources.hb_departure.at(i) : HBsat_equilibrium(plasmaO2old[i]/alpha_b)) - dt*v*HB1der;
     }
 
     // plasma and HBsat BC
     if (v > 0.) {
         double Cc1der = (plasmaO2old[n - 1] - plasmaO2old[n - 2])/dx;
         double HB1der = (HBold[n - 1] - HBold[n - 2])/dx;
-        double DCO2 = dCO2_plasma(plasmaO2old[n - 1], HBold[n - 1] , RBC[n - 1]);
+        double DCO2 = albanese_gas.enabled ? gas_sources.oxygen_departure.at(n - 1) : dCO2_plasma(plasmaO2old[n - 1], HBold[n - 1], RBC[n - 1]);
         plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[n-1]/alpha_b - tissueO2vold[n-1]/alpha_t) + DCO2 / taoO2);
         plasmaO2[0] = fiStartNodePlasma;
-        HB[n-1] = (1-dt/taoO2)*HBold[n-1] + dt/taoO2*HBsat_equilibrium(plasmaO2old[n-1] / alpha_b) - dt*v*HB1der;
+        HB[n-1] = (1-dt/taoO2)*HBold[n-1] + dt/taoO2*(albanese_gas.enabled ? HBold[n-1] - gas_sources.hb_departure.at(n-1) : HBsat_equilibrium(plasmaO2old[n-1]/alpha_b)) - dt*v*HB1der;
         HB[0] = fiStartNodeHB;
     }
     else {
     	double Cc1der = (plasmaO2old[1] - plasmaO2old[0])/dx;
     	double HB1der = (HBold[1] - HBold[0])/dx;
-    	double DCO2 = dCO2_plasma(plasmaO2old[0], HBold[0] , RBC[0]);
+        double DCO2 = albanese_gas.enabled ? gas_sources.oxygen_departure.at(0) : dCO2_plasma(plasmaO2old[0], HBold[0], RBC[0]);
         plasmaO2[n - 1] = fiEndNodePlasma; 
         plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - kc/hc*S_V_c*(plasmaO2old[0]/alpha_b - tissueO2vold[0]/alpha_t) + DCO2/taoO2);
         HB[n-1] = fiEndNodeHB;
-        HB[0] = (1-dt/taoO2)*HBold[0] + dt/taoO2*HBsat_equilibrium(plasmaO2old[0] / alpha_b)- dt*v*HB1der;
+        HB[0] = (1-dt/taoO2)*HBold[0] + dt/taoO2*(albanese_gas.enabled ? HBold[0] - gas_sources.hb_departure.at(0) : HBsat_equilibrium(plasmaO2old[0]/alpha_b))- dt*v*HB1der;
     }
 
     //tissue concentration
@@ -1029,6 +1118,9 @@ void solver_lumped::O2transport(double dt){
 
 //--------------------------------------------------------------
 void solver_lumped::pulmonary_O2transport(double dt){
+    const auto& gas_sources = pulmonary_gas_sources;
+    if (albanese_gas.enabled && !gas_sources.ready)
+        throw std::runtime_error("Albanese source snapshot was not prepared");
 	double v = pul_cap_BH->corr_edge->vfr/pul_cap_BH->A * ml_to_m3;
 	//cout<<v<<endl;
 
@@ -1064,29 +1156,29 @@ void solver_lumped::pulmonary_O2transport(double dt){
             Cc1der = (plasmaO2old[i+1] - plasmaO2old[i])/dx;
             HB1der = (HBold[i+1] - HBold[i])/dx;
         }
-        double DCO2 = dCO2_plasma(plasmaO2old[i], HBold[i] , RBC[i]);
+        double DCO2 = albanese_gas.enabled ? gas_sources.oxygen_departure.at(i) : dCO2_plasma(plasmaO2old[i], HBold[i], RBC[i]);
         plasmaO2[i] = plasmaO2old[i] + dt*(-v*Cc1der - K_pul_v[i] *(plasmaO2old[i]/alpha_b - PO2_alveolar) + DCO2/taoO2_p);
-        HB[i] = (1-dt/taoO2_p)*HBold[i] + dt/taoO2_p*HBsat_equilibrium(plasmaO2old[i] / alpha_b) - dt*v*HB1der;
+        HB[i] = (1-dt/taoO2_p)*HBold[i] + dt/taoO2_p*(albanese_gas.enabled ? HBold[i] - gas_sources.hb_departure.at(i) : HBsat_equilibrium(plasmaO2old[i]/alpha_b)) - dt*v*HB1der;
     }
 
     // plasma and HBsat BC
     if (v > 0.) {
         double Cc1der = (plasmaO2old[n - 1] - plasmaO2old[n - 2])/dx;
         double HB1der = (HBold[n - 1] - HBold[n - 2])/dx;
-        double DCO2 = dCO2_plasma(plasmaO2old[n - 1], HBold[n - 1] , RBC[n - 1]);
+        double DCO2 = albanese_gas.enabled ? gas_sources.oxygen_departure.at(n - 1) : dCO2_plasma(plasmaO2old[n - 1], HBold[n - 1], RBC[n - 1]);
         plasmaO2[n - 1] = plasmaO2old[n - 1] + dt*(-v*Cc1der - K_pul_v[n-1] *(plasmaO2old[n-1]/alpha_b - PO2_alveolar) + DCO2 / taoO2_p);
         plasmaO2[0] = fiStartNodePlasma;
-        HB[n-1] = (1-dt/taoO2_p)*HBold[n-1] + dt/taoO2_p*HBsat_equilibrium(plasmaO2old[n-1] / alpha_b) - dt*v*HB1der;
+        HB[n-1] = (1-dt/taoO2_p)*HBold[n-1] + dt/taoO2_p*(albanese_gas.enabled ? HBold[n-1] - gas_sources.hb_departure.at(n-1) : HBsat_equilibrium(plasmaO2old[n-1]/alpha_b)) - dt*v*HB1der;
         HB[0] = fiStartNodeHB;
     }
     else {
     	double Cc1der = (plasmaO2old[1] - plasmaO2old[0])/dx;
     	double HB1der = (HBold[1] - HBold[0])/dx;
-    	double DCO2 = dCO2_plasma(plasmaO2old[0], HBold[0] , RBC[0]);
+        double DCO2 = albanese_gas.enabled ? gas_sources.oxygen_departure.at(0) : dCO2_plasma(plasmaO2old[0], HBold[0], RBC[0]);
         plasmaO2[n - 1] = fiEndNodePlasma; 
         plasmaO2[0] = plasmaO2old[0] + dt*(-v*Cc1der - K_pul_v[0] *(plasmaO2old[0]/alpha_b - PO2_alveolar) + DCO2/taoO2_p);
         HB[n-1] = fiEndNodeHB;
-        HB[0] = (1-dt/taoO2_p)*HBold[0] + dt/taoO2_p*HBsat_equilibrium(plasmaO2old[0] / alpha_b)- dt*v*HB1der;
+        HB[0] = (1-dt/taoO2_p)*HBold[0] + dt/taoO2_p*(albanese_gas.enabled ? HBold[0] - gas_sources.hb_departure.at(0) : HBsat_equilibrium(plasmaO2old[0]/alpha_b))- dt*v*HB1der;
     }
     //cout<<HB[0]<<endl;
 
@@ -1100,15 +1192,18 @@ void solver_lumped::pulmonary_O2transport(double dt){
 
 
 //--------------------------------------------------------------
-double solver_lumped::dCO2_plasma(double CO2_plasma_old, double HBsat_old, double C_RBC){
-    double HBsat_eq = HBsat_equilibrium(CO2_plasma_old/alpha_b);
+double solver_lumped::dCO2_plasma(double CO2_plasma_old, double HBsat_old, double C_RBC, double CO2_pla){
+    double HBsat_eq = HBsat_equilibrium(CO2_plasma_old/alpha_b,
+        albanese_gas.enabled ? CO2_pla/alpha_co2_pla/mmHg_to_Pa : 0., C_RBC);
     double dHBsat = HBsat_old - HBsat_eq;
     return dHBsat*C_RBC*Z;
 }
 
 
 //--------------------------------------------------------------
-double solver_lumped::HBsat_equilibrium(double PO2){
+double solver_lumped::HBsat_equilibrium(double PO2, double PCO2, double C_RBC){
+    if (albanese_gas.enabled)
+        return albanese_gas.saturation(PO2*alpha_b, PO2, PCO2, C_RBC*Z);
 	return L_HBsat/(1. + exp(-k_HBsat*( PO2 - m_HBsat ))) + b_HBsat;
 }
 
@@ -1567,7 +1662,12 @@ CO2 transport
 */
 
 //--------------------------------------------------------------------------------------------------
-double solver_lumped::eta_hco3(double HCO3_rbc, double HCO3_pla, double CO2_pla, double CO2_rbc){
+double solver_lumped::eta_hco3(double HCO3_rbc, double HCO3_pla, double CO2_pla, double CO2_rbc, double PO2){
+    if (albanese_gas.enabled) {
+        const auto target = albanese_gas.carbon_targets(PO2, CO2_pla/alpha_co2_pla,
+            alpha_co2_pla, alpha_co2_rbc, fi_pla, fi_rbc, mmHg_to_Pa);
+        return target.bicarbonate - (HCO3_rbc*fi_rbc + HCO3_pla*fi_pla);
+    }
 	double g3 = CO2_pla*fi_pla + CO2_rbc*fi_rbc;
 	double r_hco3 = (462*exp(6.2255*g3)-340*exp(-66.7556*g3)+0.62)*0.95*1e-3 - g3;
 	//cout<<r_hco3<<endl;
@@ -1576,7 +1676,12 @@ double solver_lumped::eta_hco3(double HCO3_rbc, double HCO3_pla, double CO2_pla,
 };
 
 //--------------------------------------------------------------------------------------------------
-double solver_lumped::eta_hb(double HbCO2, double CO2_pla, double CO2_rbc){
+double solver_lumped::eta_hb(double HbCO2, double CO2_pla, double CO2_rbc, double PO2){
+    if (albanese_gas.enabled) {
+        const auto target = albanese_gas.carbon_targets(PO2, CO2_pla/alpha_co2_pla,
+            alpha_co2_pla, alpha_co2_rbc, fi_pla, fi_rbc, mmHg_to_Pa);
+        return target.carbamino - HbCO2*fi_rbc;
+    }
 	double g3 = CO2_pla*fi_pla + CO2_rbc*fi_rbc;
 	//cout<<g3<<endl;
 	double r_hb = (462*exp(6.2255*g3*fi_pla)-340*exp(-66.7556*g3*fi_pla)+0.62)*0.05*1e-3;
@@ -1585,6 +1690,9 @@ double solver_lumped::eta_hb(double HbCO2, double CO2_pla, double CO2_rbc){
 
 //--------------------------------------------------------------------------------------------------
 void solver_lumped::CO2transport(double dt){
+    const auto& gas_sources = peripheral_gas_sources;
+    if (albanese_gas.enabled && !gas_sources.ready)
+        throw std::runtime_error("Albanese source snapshot was not prepared");
 	//only one capillary is allowed per 0D model.
 	vector<double> CO2_pla_old = per_cap_CO2_pla->fi;
 	vector<double>& CO2_pla = per_cap_CO2_pla->fi;
@@ -1645,8 +1753,8 @@ void solver_lumped::CO2transport(double dt){
         }
 
 
-        double Eta_hco3 = eta_hco3(HCO3_rbc_old[i], HCO3_pla_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
-        double Eta_hb = eta_hb( HbCO2_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
+        double Eta_hco3 = albanese_gas.enabled ? gas_sources.bicarbonate_departure.at(i) : eta_hco3(HCO3_rbc_old[i], HCO3_pla_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
+        double Eta_hb = albanese_gas.enabled ? gas_sources.carbamino_departure.at(i) : eta_hb( HbCO2_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
 
 
         //CO2_pla[i] = CO2_pla_old[i] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[i] - CO2_rbc_old[i]*alpha_co2_pla/alpha_co2_rbc) + dt/tao_co2_pla_tis*(tissueCO2vold[i]*alpha_co2_pla/alpha_co2_tis - CO2_pla_old[i]);
@@ -1666,8 +1774,8 @@ void solver_lumped::CO2transport(double dt){
         double HCO3_rbc_der = (HCO3_rbc_old[n - 1] - HCO3_rbc_old[n - 2])/dx;
         double HbCO2_der = (HbCO2_old[n - 1] - HbCO2_old[n - 2])/dx;
 
-        double Eta_hco3 = eta_hco3(HCO3_rbc_old[n - 1], HCO3_pla_old[n - 1], CO2_pla_old[n - 1], CO2_rbc_old[n - 1]);
-        double Eta_hb = eta_hb( HbCO2_old[n - 1], CO2_pla_old[n - 1] , CO2_rbc_old[n - 1]);
+        double Eta_hco3 = albanese_gas.enabled ? gas_sources.bicarbonate_departure.at(n - 1) : eta_hco3(HCO3_rbc_old[n - 1], HCO3_pla_old[n - 1], CO2_pla_old[n - 1], CO2_rbc_old[n - 1]);
+        double Eta_hb = albanese_gas.enabled ? gas_sources.carbamino_departure.at(n - 1) : eta_hb( HbCO2_old[n - 1], CO2_pla_old[n - 1] , CO2_rbc_old[n - 1]);
 
 
         //CO2_pla[n-1] = CO2_pla_old[n-1] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[n-1] - CO2_rbc_old[n-1]*alpha_co2_pla/alpha_co2_rbc) + dt/tao_co2_pla_tis*(tissueCO2vold[n-1]*alpha_co2_pla/alpha_co2_tis - CO2_pla_old[n-1]);
@@ -1693,8 +1801,8 @@ void solver_lumped::CO2transport(double dt){
         double HCO3_rbc_der = (HCO3_rbc_old[1] - HCO3_rbc_old[0])/dx;
         double HbCO2_der = (HbCO2_old[1] - HbCO2_old[0])/dx;
 
-        double Eta_hco3 = eta_hco3(HCO3_rbc_old[0], HCO3_pla_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
-        double Eta_hb = eta_hb( HbCO2_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
+        double Eta_hco3 = albanese_gas.enabled ? gas_sources.bicarbonate_departure.at(0) : eta_hco3(HCO3_rbc_old[0], HCO3_pla_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
+        double Eta_hb = albanese_gas.enabled ? gas_sources.carbamino_departure.at(0) : eta_hb( HbCO2_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
         
 
         //CO2_pla[0] = CO2_pla_old[0] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[0] - CO2_rbc_old[0]*alpha_co2_pla/alpha_co2_rbc) + dt/tao_co2_pla_tis*(tissueCO2vold[0]*alpha_co2_pla/alpha_co2_tis - CO2_pla_old[0]);
@@ -1735,6 +1843,8 @@ void solver_lumped::CO2transport(double dt){
 
 //--------------------------------------------------------------
 void solver_lumped::assign_perif_CO2_params(vector<string> sv){
+    if (sv.size() != 20) throw std::runtime_error("perifco2 requires 19 parameters");
+    co2_parameters_loaded = true;
     tao_hco3_rbc_pla = stod(sv[1],0);
  	tao_hco3_pla_rbc = stod(sv[2],0);
  	tao_co2_pla_tis = stod(sv[3],0);
@@ -1830,6 +1940,9 @@ void solver_lumped::capillary_CO2_transport(double dt){
 
 //--------------------------------------------------------------------------------------------------
 void solver_lumped::pulmonary_CO2transport(double dt){
+    const auto& gas_sources = pulmonary_gas_sources;
+    if (albanese_gas.enabled && !gas_sources.ready)
+        throw std::runtime_error("Albanese source snapshot was not prepared");
 	//only one capillary is allowed per 0D model.
 
 	vector<double> CO2_pla_old = pul_cap_CO2_pla->fi;
@@ -1895,8 +2008,8 @@ void solver_lumped::pulmonary_CO2transport(double dt){
         }
 
 
-        double Eta_hco3 = eta_hco3(HCO3_rbc_old[i], HCO3_pla_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
-        double Eta_hb = eta_hb( HbCO2_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
+        double Eta_hco3 = albanese_gas.enabled ? gas_sources.bicarbonate_departure.at(i) : eta_hco3(HCO3_rbc_old[i], HCO3_pla_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
+        double Eta_hb = albanese_gas.enabled ? gas_sources.carbamino_departure.at(i) : eta_hb( HbCO2_old[i], CO2_pla_old[i], CO2_rbc_old[i]);
 
 
 
@@ -1917,8 +2030,8 @@ void solver_lumped::pulmonary_CO2transport(double dt){
         double HCO3_rbc_der = (HCO3_rbc_old[n - 1] - HCO3_rbc_old[n - 2])/dx;
         double HbCO2_der = (HbCO2_old[n - 1] - HbCO2_old[n - 2])/dx;
 
-        double Eta_hco3 = eta_hco3(HCO3_rbc_old[n - 1], HCO3_pla_old[n - 1], CO2_pla_old[n - 1], CO2_rbc_old[n - 1]);
-        double Eta_hb = eta_hb( HbCO2_old[n - 1], CO2_pla_old[n - 1] , CO2_rbc_old[n - 1]);
+        double Eta_hco3 = albanese_gas.enabled ? gas_sources.bicarbonate_departure.at(n - 1) : eta_hco3(HCO3_rbc_old[n - 1], HCO3_pla_old[n - 1], CO2_pla_old[n - 1], CO2_rbc_old[n - 1]);
+        double Eta_hb = albanese_gas.enabled ? gas_sources.carbamino_departure.at(n - 1) : eta_hb( HbCO2_old[n - 1], CO2_pla_old[n - 1] , CO2_rbc_old[n - 1]);
 
 
         //CO2_pla[n-1] = CO2_pla_old[n-1] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[n-1] - CO2_rbc_old[n-1]*alpha_co2_pla/alpha_co2_rbc) + dt*K_pul_scale_CO2*(PCO2_alveolar - CO2_pla_old[n-1]/alpha_co2_pla);
@@ -1944,8 +2057,8 @@ void solver_lumped::pulmonary_CO2transport(double dt){
         double HCO3_rbc_der = (HCO3_rbc_old[1] - HCO3_rbc_old[0])/dx;
         double HbCO2_der = (HbCO2_old[1] - HbCO2_old[0])/dx;
 
-        double Eta_hco3 = eta_hco3(HCO3_rbc_old[0], HCO3_pla_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
-        double Eta_hb = eta_hb( HbCO2_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
+        double Eta_hco3 = albanese_gas.enabled ? gas_sources.bicarbonate_departure.at(0) : eta_hco3(HCO3_rbc_old[0], HCO3_pla_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
+        double Eta_hb = albanese_gas.enabled ? gas_sources.carbamino_departure.at(0) : eta_hb( HbCO2_old[0], CO2_pla_old[0], CO2_rbc_old[0]);
         
 
         //CO2_pla[0] = CO2_pla_old[0] - dt/(fi_pla*fi_c)*v*CO2_pla_der*ksi_c*ksi_pla - dt/tao_co2_pla_rbc*(CO2_pla_old[0] - CO2_rbc_old[0]*alpha_co2_pla/alpha_co2_rbc) + dt*K_pul_scale_CO2*(PCO2_alveolar - CO2_pla_old[0]/alpha_co2_pla);

@@ -1,0 +1,6 @@
+//peripheral capillary CO2 transport parameters
+tao_hco3_rbc_pla, tao_hco3_pla_rbc, tao_co2_pla_tis, tao_co2_tis_pla, tao_co2_rbc_pla, tao_co2_pla_rbc, tao_hco3, tao_hbco2, RQ, alpha_co2_rbc, alpha_co2_pla, alpha_co2_tis, alpha_hco3_rbc, alpha_hco3_pla, ksi_pla, ksi_rbc, ksi_c, fi_rbc, fi_pla
+
+dimension, [s], [s], [s], [s], [s], [s], [s], [1], [m3(CO2)/m3(rbc cytoplasm)/(Pa)], [m3(CO2)/m3(plasma)/(Pa)], [m3(CO2)/m3(tissue)/(Pa)], [m3(HCO3)/m3(rbc cytoplasm)/(Pa)], [m3(HCO3)/m3(tissue)/(Pa)], [1], [1], [1], [1]
+
+perifco2, 2.83e-1, 0.3e+0, 1.44e+0, 1.0e+2, 8.73e-1, 1.0e+0, 1.0e+0, 1.0e+0, 0.7, 5.0e-6, 4.5e-6, 6.0e-6, 1.2e-3, 1e-2, 0.5, 0.5, 0.011, 0.44, 0.56

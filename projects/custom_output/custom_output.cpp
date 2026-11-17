@@ -7,6 +7,7 @@ void save_output(first_blood& fb, const std::string& case_name, double save_dt, 
 
 int main(int argc, char* argv[])
 {
+   try {
    if (argc < 2) {
     cerr << "Usage: " << argv[0] << " <case_name>\n";
     return 1;
@@ -24,6 +25,7 @@ int main(int argc, char* argv[])
 
    cout << " [*] case: " << case_name << endl;
    first_blood fb(case_folder + case_name);
+   if (!fb.load_ok) { cerr << "Model load failed" << endl; return 2; }
    cout << "   + load: OK" << endl;
 
    fb.material_type = 1; // setting to olufsen 1, linear 0
@@ -82,6 +84,7 @@ int main(int argc, char* argv[])
 
    //run the simulation
    bool is_run_ok = fb.run();
+   if (!is_run_ok) { cerr << "Simulation failed" << endl; return 2; }
    cout << "   + run: OK" << endl;
 
    //save outputs
@@ -89,6 +92,10 @@ int main(int argc, char* argv[])
     save_output(fb, case_name, save_dt, sv);}
 
    return 0;
+   } catch (const std::exception& error) {
+      cerr << "custom_output: " << error.what() << endl;
+      return 1;
+   }
 }
 
 

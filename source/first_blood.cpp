@@ -373,6 +373,14 @@ bool first_blood::run()
 				moc[moc_idx]->edges[e_idx]->update();
 
 
+                // Both gases use the same local state for their reaction sources.
+                if (moc[moc_idx]->nodes[si]->is_master_node)
+                    lum[moc[moc_idx]->nodes[si]->master_node_lum]->prepare_albanese_sources();
+                if (moc[moc_idx]->nodes[ei]->is_master_node &&
+                    (!moc[moc_idx]->nodes[si]->is_master_node ||
+                     moc[moc_idx]->nodes[ei]->master_node_lum != moc[moc_idx]->nodes[si]->master_node_lum))
+                    lum[moc[moc_idx]->nodes[ei]->master_node_lum]->prepare_albanese_sources();
+
 				//O2 transport, plasmaO2, HBsat, RBC concantration
 				O2_transport( moc_idx, si, ei, e_idx, t_act);
 				
