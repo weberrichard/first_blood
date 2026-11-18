@@ -100,6 +100,14 @@ failed source steps are retried with binary subdivision, without committing a
 partial failed step. An unresolved nonlinear failure raises an error instead of
 clipping concentrations or suppressing the failure.
 
+The optimized implementation uses analytic source derivatives and an exact
+algebraic reduction to three local Newton unknowns. All eight original equations
+are checked before acceptance; the full solver remains as a fallback. GCC builds
+of `custom_output` enable optional cell-level OpenMP parallelism. See
+[gas_optimization.md](gas_optimization.md) for conservation checks, staged timings
+and the recommended six-thread configuration on whserver. No physical parameters
+or solver tolerances were changed by these optimizations.
+
 ## Short validation
 
 `tests/test_conservative_gas.cpp` checks isolated conservation, beta normalization,

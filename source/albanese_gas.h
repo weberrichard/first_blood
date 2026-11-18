@@ -13,6 +13,15 @@ struct AlbaneseGas {
     struct Curve {
         double saturation_mmol_l, h, alpha, beta, K_mmHg;
 
+        struct Gradient { double pressure, other; };
+        Gradient gradient(double value, double pressure_mmHg, double other_mmHg,
+                          double molar_volume_l_mol) const {
+            const double maximum=saturation_mmol_l*1.e-3*molar_volume_l_mol;
+            const double common=value*(1.-value/maximum)/h;
+            return {common/pressure_mmHg,
+                    common*(beta/(1.+beta*other_mmHg)-alpha/(1.+alpha*other_mmHg))};
+        }
+
         double total(double pressure_mmHg, double other_mmHg,
                      double molar_volume_l_mol) const {
             if (!std::isfinite(pressure_mmHg) || pressure_mmHg < 0. ||
@@ -80,29 +89,44 @@ struct AlbaneseGas {
             throw std::runtime_error("Albanese: invalid partition/volume/capacity parameter");
     }
 
+    struct OxygenGradient { double pressure=0., other=0., plasma=0.; };
     double saturation(double plasma_o2, double po2_mmHg, double pco2_mmHg,
-                      double capacity) const {
+                      double capacity, OxygenGradient* derivative=nullptr) const {
+        if(derivative) *derivative=OxygenGradient{};
         if (!std::isfinite(capacity) || capacity < 0. ||
             !std::isfinite(plasma_o2) || plasma_o2 < 0.)
             throw std::runtime_error("Albanese: invalid oxygen concentration/capacity");
         if (capacity == 0.) return 0.;
         // Match the empirical reference-Hb curve to the existing RBC*Z capacity.
-        const double total = oxygen.total(po2_mmHg, pco2_mmHg, molar_volume_l_mol)
-            * capacity / reference_hb_capacity;
+        const double reference = oxygen.total(po2_mmHg, pco2_mmHg, molar_volume_l_mol);
+        const double total = reference * capacity / reference_hb_capacity;
+        const double raw=(total-plasma_o2)/capacity;
+        if(derivative && raw>0. && raw<1.) {
+            const auto g=oxygen.gradient(reference,po2_mmHg,pco2_mmHg,molar_volume_l_mol);
+            *derivative={g.pressure/reference_hb_capacity,g.other/reference_hb_capacity,-1./capacity};
+        }
         // Bound the saturation when extrapolating the empirical curve.
-        return std::max(0., std::min(1., (total - plasma_o2) / capacity));
+        return std::max(0., std::min(1., raw));
     }
 
     struct CarbonTargets { double bicarbonate, carbamino; };
+    struct CarbonGradient { double bicarbonate_po, bicarbonate_pc, carbamino_po, carbamino_pc; };
     CarbonTargets carbon_targets(double po2_mmHg, double pco2_pa,
                                  double alpha_pla, double alpha_rbc,
                                  double phi_pla, double phi_rbc,
-                                 double pa_per_mmHg) const {
+                                 double pa_per_mmHg, CarbonGradient* derivative=nullptr) const {
         const double total = carbon.total(pco2_pa / pa_per_mmHg, po2_mmHg, molar_volume_l_mol);
         const double dissolved = (phi_pla * alpha_pla + phi_rbc * alpha_rbc) * pco2_pa;
         const double bicarbonate = (1. - hb_co2_fraction) * total - dissolved;
         if (!std::isfinite(bicarbonate) || bicarbonate < -1.e-12)
             throw std::runtime_error("Albanese: negative equilibrium bicarbonate; check parameters/pressure range");
+        if(derivative) {
+            const auto g=carbon.gradient(total,pco2_pa/pa_per_mmHg,po2_mmHg,molar_volume_l_mol);
+            *derivative={bicarbonate>0.?(1.-hb_co2_fraction)*g.other:0.,
+                         bicarbonate>0.?(1.-hb_co2_fraction)*g.pressure/pa_per_mmHg
+                            -(phi_pla*alpha_pla+phi_rbc*alpha_rbc):0.,
+                         hb_co2_fraction*g.other,hb_co2_fraction*g.pressure/pa_per_mmHg};
+        }
         return {std::max(0., bicarbonate), hb_co2_fraction * total};
     }
 };

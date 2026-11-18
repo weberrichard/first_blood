@@ -1,5 +1,11 @@
 CXX=g++
-CXXFLAGS=-std=c++17 -O3 -c
+ifneq ($(findstring clang,$(notdir $(CXX))),)
+# Clang remains usable without a separately installed OpenMP runtime.
+OPENMP_FLAGS ?=
+else
+OPENMP_FLAGS ?= -fopenmp
+endif
+CXXFLAGS=-std=c++17 -O3 -c $(OPENMP_FLAGS)
 
 SOURCE_FOLDER = ../../source/
 BIN_FOLDER = ../../bin/
@@ -29,7 +35,7 @@ $(BIN_FOLDER)solver_moc_io.o \
 $(BIN_FOLDER)statistics.o \
 
 $(MAIN): $(OBJS)
-	$(CXX) $(MAIN).cpp $(BIN_OBJS) -o $(MAIN).out
+	$(CXX) $(OPENMP_FLAGS) $(MAIN).cpp $(BIN_OBJS) -o $(MAIN).out
 
 %.o: $(SOURCE_FOLDER)%.cpp
 	$(CXX) $(CXXFLAGS) -o $(BIN_FOLDER)$@ $<

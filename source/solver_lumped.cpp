@@ -1,6 +1,10 @@
 #include "solver_lumped.h"
 #include <iomanip>
 #include <stdexcept>
+#include <exception>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 //--------------------------------------------------------------
 solver_lumped::solver_lumped(string a_name, string a_folder)
@@ -86,7 +90,12 @@ void solver_lumped::advance_coupled_capillary(double dt,bool pulmonary) {
             for(int f=0;f<7;++f) old[i][f]=fields[f]->fi[i];
             old[i][G::T]=pulmonary?0.:tissueO2v[i];
         }
-        for(std::size_t i=0;i<n;++i) {
+        std::vector<std::exception_ptr> failures(n);
+#ifdef _OPENMP
+        #pragma omp parallel for schedule(static) if(n>=64 && omp_get_max_threads()>1)
+#endif
+        for(std::ptrdiff_t cell=0;cell<static_cast<std::ptrdiff_t>(n);++cell) {
+            const std::size_t i=static_cast<std::size_t>(cell);
             const bool external=velocity>=0.?i==0:i+1==n;
             const std::size_t upstream=velocity>=0.?(i==0?0:i-1):std::min(i+1,n-1);
             const State& up=external?inlet:old[upstream];
@@ -105,6 +114,12 @@ void solver_lumped::advance_coupled_capillary(double dt,bool pulmonary) {
             env.oxygen_conductance=dilation*kc/(conservative_gas.pa_per_mmHg*hc)*S_V_c;
             const double sine=std::sin(pi*i/(n-1));env.profile=sine*sine;
             try { conservative_gas.advance(next[i],h,env,albanese_gas); }
+            catch(...) { failures[i]=std::current_exception(); }
+        }
+        // No worker throws through an OpenMP region. Report the first failing
+        // cell deterministically, before committing any part of this substep.
+        for(std::size_t i=0;i<n;++i)if(failures[i]) {
+            try {std::rethrow_exception(failures[i]);}
             catch(const std::exception& ex) {
                 throw std::runtime_error(name+"/"+cells->D0_name+" point "+std::to_string(i)+": "+ex.what());
             }

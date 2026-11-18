@@ -1,0 +1,360 @@
+{
+  "date": "2026-11-19",
+  "base_commit": "7a2621dc7e709a599d6ec2e8d784fb19de40d2d3",
+  "model": "Bathsheba_CO2_pul_2026_03_11",
+  "project": "custom_output",
+  "machine": "whserver: AMD Ryzen 5 3600, 6 physical cores / 12 hardware threads",
+  "parameters_unchanged_sha256": {
+    "CO2_parameters.txt": "e6c52a915bd49253178140d719438abdf3abbb766a76dbb666834ead72cf4fb1",
+    "O2_parameters.txt": "73670683b1accabdd87a8916d6e9855e7061a2e2f99f17a2287a6133e1f77c22"
+  },
+  "benchmark_definition": "Wall time including startup and output; three sequential repeats; original physical parameter files unchanged. OMP_DYNAMIC=FALSE, OMP_WAIT_POLICY=ACTIVE for staged timings.",
+  "stages": [
+    {
+      "stage": "baseline",
+      "records": [
+        {
+          "threads": 1,
+          "repeat": 0,
+          "sim_s": 0.2,
+          "wall_s": 14.830031379999127,
+          "ratio": 74.15015689999564
+        },
+        {
+          "threads": 1,
+          "repeat": 1,
+          "sim_s": 0.2,
+          "wall_s": 14.923362725006882,
+          "ratio": 74.61681362503441
+        },
+        {
+          "threads": 1,
+          "repeat": 2,
+          "sim_s": 0.2,
+          "wall_s": 14.724584524985403,
+          "ratio": 73.62292262492701
+        }
+      ],
+      "outputs": {
+        "1": {
+          "histories": 136,
+          "max_scaled_error": 0.0
+        }
+      },
+      "median_wall_by_threads": {
+        "1": 14.830031379999127
+      }
+    },
+    {
+      "stage": "analytic",
+      "records": [
+        {
+          "threads": 1,
+          "repeat": 0,
+          "sim_s": 0.2,
+          "wall_s": 9.660365290998016,
+          "ratio": 48.30182645499008
+        },
+        {
+          "threads": 1,
+          "repeat": 1,
+          "sim_s": 0.2,
+          "wall_s": 9.730361501016887,
+          "ratio": 48.651807505084435
+        },
+        {
+          "threads": 1,
+          "repeat": 2,
+          "sim_s": 0.2,
+          "wall_s": 9.763492600992322,
+          "ratio": 48.81746300496161
+        }
+      ],
+      "outputs": {
+        "1": {
+          "histories": 136,
+          "max_scaled_error": 0.0
+        }
+      },
+      "median_wall_by_threads": {
+        "1": 9.730361501016887
+      }
+    },
+    {
+      "stage": "reduced",
+      "records": [
+        {
+          "threads": 1,
+          "repeat": 0,
+          "sim_s": 0.2,
+          "wall_s": 7.5948330130195245,
+          "ratio": 37.97416506509762
+        },
+        {
+          "threads": 1,
+          "repeat": 1,
+          "sim_s": 0.2,
+          "wall_s": 7.649571237998316,
+          "ratio": 38.24785618999158
+        },
+        {
+          "threads": 1,
+          "repeat": 2,
+          "sim_s": 0.2,
+          "wall_s": 7.683647384023061,
+          "ratio": 38.418236920115305
+        }
+      ],
+      "outputs": {
+        "1": {
+          "histories": 136,
+          "max_scaled_error": 4.7283170466782495e-08
+        }
+      },
+      "median_wall_by_threads": {
+        "1": 7.649571237998316
+      }
+    },
+    {
+      "stage": "parallel",
+      "records": [
+        {
+          "threads": 1,
+          "repeat": 0,
+          "sim_s": 0.2,
+          "wall_s": 7.750737600988941,
+          "ratio": 38.753688004944706
+        },
+        {
+          "threads": 1,
+          "repeat": 1,
+          "sim_s": 0.2,
+          "wall_s": 7.675288606988033,
+          "ratio": 38.376443034940166
+        },
+        {
+          "threads": 1,
+          "repeat": 2,
+          "sim_s": 0.2,
+          "wall_s": 7.66676527299569,
+          "ratio": 38.33382636497845
+        },
+        {
+          "threads": 2,
+          "repeat": 0,
+          "sim_s": 0.2,
+          "wall_s": 6.091143996018218,
+          "ratio": 30.45571998009109
+        },
+        {
+          "threads": 2,
+          "repeat": 1,
+          "sim_s": 0.2,
+          "wall_s": 6.132039891992463,
+          "ratio": 30.660199459962314
+        },
+        {
+          "threads": 2,
+          "repeat": 2,
+          "sim_s": 0.2,
+          "wall_s": 6.113230968010612,
+          "ratio": 30.56615484005306
+        },
+        {
+          "threads": 4,
+          "repeat": 0,
+          "sim_s": 0.2,
+          "wall_s": 5.320880649000173,
+          "ratio": 26.604403245000867
+        },
+        {
+          "threads": 4,
+          "repeat": 1,
+          "sim_s": 0.2,
+          "wall_s": 5.305943884013686,
+          "ratio": 26.52971942006843
+        },
+        {
+          "threads": 4,
+          "repeat": 2,
+          "sim_s": 0.2,
+          "wall_s": 5.302186689019436,
+          "ratio": 26.51093344509718
+        },
+        {
+          "threads": 6,
+          "repeat": 0,
+          "sim_s": 0.2,
+          "wall_s": 5.083786725008395,
+          "ratio": 25.418933625041973
+        },
+        {
+          "threads": 6,
+          "repeat": 1,
+          "sim_s": 0.2,
+          "wall_s": 5.070260376989609,
+          "ratio": 25.351301884948043
+        },
+        {
+          "threads": 6,
+          "repeat": 2,
+          "sim_s": 0.2,
+          "wall_s": 5.198146834009094,
+          "ratio": 25.99073417004547
+        }
+      ],
+      "outputs": {
+        "1": {
+          "histories": 136,
+          "max_scaled_error": 4.7283170466782495e-08
+        },
+        "2": {
+          "histories": 136,
+          "max_scaled_error": 4.7283170466782495e-08
+        },
+        "4": {
+          "histories": 136,
+          "max_scaled_error": 4.7283170466782495e-08
+        },
+        "6": {
+          "histories": 136,
+          "max_scaled_error": 4.7283170466782495e-08
+        }
+      },
+      "median_wall_by_threads": {
+        "1": 7.675288606988033,
+        "2": 6.113230968010612,
+        "4": 5.305943884013686,
+        "6": 5.083786725008395
+      }
+    }
+  ],
+  "cycle": [
+    {
+      "stage": "baseline",
+      "threads": 1,
+      "sim_s": 1.0,
+      "wall_s": 75.75109463601257,
+      "ratio": 75.75109463601257,
+      "histories": 136,
+      "max_scaled_error": 0.0
+    },
+    {
+      "stage": "analytic",
+      "threads": 1,
+      "sim_s": 1.0,
+      "wall_s": 50.10936314400169,
+      "ratio": 50.10936314400169,
+      "histories": 136,
+      "max_scaled_error": 0.0
+    },
+    {
+      "stage": "reduced",
+      "threads": 1,
+      "sim_s": 1.0,
+      "wall_s": 39.541726694995305,
+      "ratio": 39.541726694995305,
+      "histories": 136,
+      "max_scaled_error": 7.378502529764928e-08
+    },
+    {
+      "stage": "parallel",
+      "threads": 6,
+      "sim_s": 1.0,
+      "wall_s": 26.495133941003587,
+      "ratio": 26.495133941003587,
+      "histories": 136,
+      "max_scaled_error": 7.378502529764928e-08
+    },
+    {
+      "stage": "clang_serial",
+      "threads": 1,
+      "sim_s": 1.0,
+      "wall_s": 39.319182382983854,
+      "ratio": 39.319182382983854,
+      "histories": 136,
+      "max_scaled_error": 7.378502529764928e-08
+    }
+  ],
+  "thread_policy": [
+    {
+      "threads": 6,
+      "wait_policy": "runtime_default",
+      "repeat": 0,
+      "sim_s": 0.2,
+      "wall_s": 5.181421777000651
+    },
+    {
+      "threads": 6,
+      "wait_policy": "runtime_default",
+      "repeat": 1,
+      "sim_s": 0.2,
+      "wall_s": 5.102795672020875
+    },
+    {
+      "threads": 6,
+      "wait_policy": "runtime_default",
+      "repeat": 2,
+      "sim_s": 0.2,
+      "wall_s": 5.078561295988038
+    },
+    {
+      "threads": "runtime_default",
+      "wait_policy": "runtime_default",
+      "repeat": 0,
+      "sim_s": 0.2,
+      "wall_s": 6.325250564987073
+    },
+    {
+      "threads": "runtime_default",
+      "wait_policy": "runtime_default",
+      "repeat": 1,
+      "sim_s": 0.2,
+      "wall_s": 6.669129747024272
+    },
+    {
+      "threads": "runtime_default",
+      "wait_policy": "runtime_default",
+      "repeat": 2,
+      "sim_s": 0.2,
+      "wall_s": 6.32228714498342
+    },
+    {
+      "threads": 12,
+      "wait_policy": "ACTIVE",
+      "repeat": 0,
+      "sim_s": 0.2,
+      "wall_s": 6.3434010070050135
+    },
+    {
+      "threads": 12,
+      "wait_policy": "ACTIVE",
+      "repeat": 1,
+      "sim_s": 0.2,
+      "wall_s": 6.33415151599911
+    },
+    {
+      "threads": 12,
+      "wait_policy": "ACTIVE",
+      "repeat": 2,
+      "sim_s": 0.2,
+      "wall_s": 6.315834982000524
+    }
+  ],
+  "validation_logs": {
+    "analytic/optimization_unit.log": "Optimization checks: 640 source steps, 640 reference comparisons; max Jacobian error=3.85802e-08, O2/CO2 balance error=1.63748e-16, original equation residual=9.96751e-11, reference difference=9.92783e-11\n",
+    "reduced/optimization_unit.log": "Optimization checks: 640 source steps, 640 reference comparisons; max Jacobian error=3.85802e-08, O2/CO2 balance error=2.21755e-12, original equation residual=9.96903e-11, reference difference=9.91132e-11, direct reduced solves=640, reduced Jacobian error=2.59727e-09\n",
+    "parallel/optimization_unit.log": "Optimization checks: 640 source steps, 640 reference comparisons; max Jacobian error=3.85802e-08, O2/CO2 balance error=2.21755e-12, original equation residual=9.96903e-11, reference difference=9.91132e-11, direct reduced solves=640, reduced Jacobian error=2.59727e-09\n",
+    "final_checks/capillary.log": "Capillary checks: systemic/pulmonary, forward/reverse flow, varying RBC; serial/parallel states identical; worker rollback passed; max gas balance=3.92739e-12, RBC relative balance=8.50277e-18\n",
+    "final_checks/capillary_san.log": "Capillary checks: systemic/pulmonary, forward/reverse flow, varying RBC; serial/parallel states identical; worker rollback passed; max gas balance=3.92739e-12, RBC relative balance=8.50277e-18\n",
+    "final_checks/optimization_latest.log": "Optimization checks: 640 source steps, 640 reference comparisons; max Jacobian error=3.85802e-08, O2/CO2 balance error=2.21755e-12, original equation residual=9.96903e-11, reference difference=9.91132e-11, direct reduced solves=640, reduced Jacobian error=2.59727e-09\n",
+    "final_checks/optimization_latest_san.log": "Optimization checks: 640 source steps, 640 reference comparisons; max Jacobian error=3.85802e-08, O2/CO2 balance error=2.21755e-12, original equation residual=9.96903e-11, reference difference=9.91132e-11, direct reduced solves=640, reduced Jacobian error=2.59727e-09\n",
+    "final_checks/albanese_legacy.log": "Albanese curve, coupling, units, capacity, conservation and input checks passed\n"
+  },
+  "final_checks": {
+    "capillary": true,
+    "asan_ubsan": true,
+    "clang_serial_build": true,
+    "physical_parameter_files_unchanged": true
+  }
+}
