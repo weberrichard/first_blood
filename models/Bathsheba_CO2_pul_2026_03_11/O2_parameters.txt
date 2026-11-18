@@ -19,3 +19,20 @@ gas_model, albanese2016
 albanese_o2, 9, 0.3836, 0.03198, 0.008275, 14.99
 albanese_co2, 86.11, 1.819, 0.05591, 0.03255, 194.4
 albanese_options, 0.05, 22.414, 0.201
+
+// Conservative coupled gas transport. Rows may be placed in either gas file.
+// Shared blood/RBC velocity: xi_cap=phi_cap, xi_plasma=1-Hct, xi_RBC=Hct.
+gas_solver,implicit
+// phi_cap,phi_tissue,Hct
+gas_fractions,0.0142,0.9858,0.45
+// beta_plasma,beta_RBC (whole compartment volume basis)
+gas_partition,1,0.47839375648649946
+// alpha_O2_blood/mmHg,alpha_O2_tissue/mmHg,alpha_CO2_water_mol_L_mmHg,W_plasma,W_RBC,Pa_per_mmHg
+gas_solubility,3.11e-5,3.95e-5,3.27e-5,0.94,0.65,133.3224
+// tau_O2_systemic,tau_O2_pulmonary,tau_CO2_RBC_plasma,tau_HCO3_RBC_plasma,tau_HCO3_reaction,tau_HbCO2
+// Opposite-direction exchange times are derived from mass conservation.
+gas_relaxation,0.7469230769230769,0.7469230769230769,0.0002951690821256038,0.3235844356951056,0.0007720610526553431,0.0703125
+// PO2_alveolar/mmHg,PCO2_alveolar/mmHg,Kmax_O2/Pa/s,Kmax_CO2/Pa/s
+gas_pulmonary,100,40,7.5006150504341366e-6,0.00018183309213173663
+// scaled Newton tolerance,max iterations,max step halvings
+gas_numerics,1e-10,30,12

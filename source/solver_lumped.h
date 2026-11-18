@@ -14,6 +14,7 @@
 #include	"file_io.h"
 #include    "statistics.h"
 #include "albanese_gas.h"
+#include "conservative_gas.h"
 
 #include "/usr/include/eigen3/Eigen/Eigen"
 #include <iostream>
@@ -156,6 +157,10 @@ public:
     double dCO2_plasma(double CO2_plasma_old, double HBsat_old, double C_RBC, double CO2_pla = 0.);
     double HBsat_equilibrium(double PO2, double PCO2 = 0., double C_RBC = 4.9e15);
     AlbaneseGas albanese_gas;
+    ConservativeGas conservative_gas;
+    void configure_conservative_gas();
+    void advance_coupled_gas(double dt);
+    void advance_coupled_capillary(double dt, bool pulmonary);
     struct GasSourceSnapshot {
         vector<double> hb_departure, oxygen_departure, bicarbonate_departure, carbamino_departure;
         bool ready = false;

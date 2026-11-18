@@ -11,6 +11,112 @@ solver_lumped::solver_lumped(string a_name, string a_folder)
 
 solver_lumped::~solver_lumped(){}
 
+void solver_lumped::configure_conservative_gas() {
+    if(!conservative_gas.enabled) return;
+    conservative_gas.validate();
+    if(!albanese_gas.enabled) throw std::runtime_error(name+": implicit gas solver requires gas_model,albanese2016");
+    const auto& p=conservative_gas;
+    fi_c=p.phi_c;fi_t=p.phi_t;fi_rbc=p.phi_r;fi_pla=p.phi_p();
+    ksi_c=fi_c;ksi_rbc=fi_rbc;ksi_pla=fi_pla;
+    alpha_b=p.alpha_o_mmHg;alpha_t=p.alpha_t_mmHg;
+    alpha_co2_pla=p.alpha_c_p(albanese_gas.molar_volume_l_mol);
+    alpha_co2_rbc=p.alpha_c_r(albanese_gas.molar_volume_l_mol);
+    alpha_hco3_pla=p.beta_p;alpha_hco3_rbc=p.beta_r;
+    taoO2=p.tau_o;taoO2_p=p.tau_o_pul;
+    tao_co2_rbc_pla=p.tau_c_r;tao_co2_pla_rbc=p.tau_c_p();
+    tao_hco3_rbc_pla=p.tau_b_r;tao_hco3_pla_rbc=p.tau_b_p();
+    tao_hco3=p.tau_b_reaction;tao_hbco2=p.tau_h;
+    PO2_alveolar=p.po_alv;PCO2_alveolar=p.pc_alv*p.pa_per_mmHg;
+}
+
+void solver_lumped::advance_coupled_gas(double dt) {
+    if(!conservative_gas.enabled) return;
+    if(do_per_O2_rtansport) {
+        if(!do_per_CO2_transport) throw std::runtime_error(name+": missing systemic carbon capillary");
+        advance_coupled_capillary(dt,false);
+    }
+    if(do_pul_O2_rtansport) {
+        if(!do_pul_CO2_transport) throw std::runtime_error(name+": missing pulmonary carbon capillary");
+        advance_coupled_capillary(dt,true);
+    }
+}
+
+void solver_lumped::advance_coupled_capillary(double dt,bool pulmonary) {
+    using G=ConservativeGas;
+    using State=G::State;
+    std::array<D0_edge*,7> fields = pulmonary?
+        std::array<D0_edge*,7>{pul_cap_PO2,pul_cap_BH,pul_cap_CO2_pla,pul_cap_CO2_rbc,pul_cap_HCO3_pla,pul_cap_HCO3_rbc,pul_cap_HbCO2}:
+        std::array<D0_edge*,7>{per_cap_PO2,per_cap_BH,per_cap_CO2_pla,per_cap_CO2_rbc,per_cap_HCO3_pla,per_cap_HCO3_rbc,per_cap_HbCO2};
+    D0_edge* cells=pulmonary?pul_cap_RBC:per_cap_RBC;
+    const std::size_t n=cells->fi.size();
+    if(n<2 || cells->dx<=0. || cells->A<=0. || !std::isfinite(dt)||dt<0.)
+        throw std::runtime_error(name+": invalid coupled gas mesh/timestep");
+    for(auto* edge:fields)
+        if(edge->fi.size()!=n || edge->A!=cells->A || edge->L!=cells->L)
+            throw std::runtime_error(name+": coupled gas transport meshes differ");
+    if(!pulmonary && tissueO2v.size()!=n) throw std::runtime_error(name+": tissue gas mesh differs");
+    if(!pulmonary && (!std::isfinite(Mmax)||Mmax<0. || !std::isfinite(C50)||C50<=0. || !std::isfinite(RQ)||RQ<0.))
+        throw std::runtime_error(name+": invalid metabolism parameters");
+    const double velocity=cells->corr_edge->vfr/cells->A*ml_to_m3;
+    const double cfl=std::abs(velocity)*dt/cells->dx;
+    if(!std::isfinite(cfl)||cfl>80000.) throw std::runtime_error(name+": invalid gas advection CFL");
+    const int steps=std::max(1,static_cast<int>(std::ceil(cfl/.8)));
+    const double h=dt/steps, courant=std::abs(velocity)*h/cells->dx;
+    auto boundary=[&](bool start) {
+        State b{};
+        auto node=[&](int field){return start?fields[field]->node_start:fields[field]->node_end;};
+        b[G::O]=node(G::O)->PlasmaO2_0Dn;b[G::S]=node(G::S)->HBsat_0Dn;
+        b[G::CP]=node(G::CP)->CO2_pla_n;b[G::CR]=node(G::CR)->CO2_rbc_n;
+        b[G::BP]=node(G::BP)->HCO3_pla_n;b[G::BR]=node(G::BR)->HCO3_rbc_n;
+        b[G::H]=node(G::H)->HbCO2_n;
+        return b;
+    };
+    const State inlet=boundary(velocity>=0.);
+    const double inlet_cells=(velocity>=0.?cells->node_start:cells->node_end)->RBC_fi0Dn;
+    if(!G::physical(inlet)||!std::isfinite(inlet_cells)||inlet_cells<0.)
+        throw std::runtime_error(name+": invalid gas inlet state");
+    const double dilation=pulmonary?1.:vessel_dilation(1);
+    if(!std::isfinite(dilation)||dilation<=0. || !std::isfinite(kc)||kc<=0. || hc<=0. || S_V_c<=0.)
+        throw std::runtime_error(name+": invalid oxygen transfer coefficient");
+    for(int step=0;step<steps;++step) {
+        std::vector<State> old(n),next(n);
+        const auto old_cells=cells->fi;
+        std::vector<double> next_cells(n);
+        for(std::size_t i=0;i<n;++i) {
+            for(int f=0;f<7;++f) old[i][f]=fields[f]->fi[i];
+            old[i][G::T]=pulmonary?0.:tissueO2v[i];
+        }
+        for(std::size_t i=0;i<n;++i) {
+            const bool external=velocity>=0.?i==0:i+1==n;
+            const std::size_t upstream=velocity>=0.?(i==0?0:i-1):std::min(i+1,n-1);
+            const State& up=external?inlet:old[upstream];
+            const double up_cells=external?inlet_cells:old_cells[upstream];
+            next[i]=old[i];
+            for(int f=0;f<7;++f) if(f!=G::S)
+                next[i][f]=old[i][f]+courant*(up[f]-old[i][f]);
+            next_cells[i]=old_cells[i]+courant*(up_cells-old_cells[i]);
+            // Advect bound O2 and RBC number with the same flux. Advecting
+            // saturation alone would lose gas when RBC concentration changes.
+            const double bound=old_cells[i]*old[i][G::S]+courant*(up_cells*up[G::S]-old_cells[i]*old[i][G::S]);
+            next[i][G::S]=next_cells[i]>0.?bound/next_cells[i]:0.;
+            G::Environment env;
+            env.pulmonary=pulmonary;env.capacity=next_cells[i]*Z;
+            env.mmax=pulmonary?0.:Mmax;env.c50=C50;env.rq=pulmonary?0.:RQ;
+            env.oxygen_conductance=dilation*kc/(conservative_gas.pa_per_mmHg*hc)*S_V_c;
+            const double sine=std::sin(pi*i/(n-1));env.profile=sine*sine;
+            try { conservative_gas.advance(next[i],h,env,albanese_gas); }
+            catch(const std::exception& ex) {
+                throw std::runtime_error(name+"/"+cells->D0_name+" point "+std::to_string(i)+": "+ex.what());
+            }
+        }
+        for(std::size_t i=0;i<n;++i) {
+            for(int f=0;f<7;++f) fields[f]->fi[i]=next[i][f];
+            cells->fi[i]=next_cells[i];
+            if(!pulmonary) tissueO2v[i]=next[i][G::T];
+        }
+    }
+}
+
 void solver_lumped::validate_gas_parameters() const {
     const bool carbon_active = do_lum_pla_CO2_transport || do_lum_rbc_CO2_transport ||
         do_lum_pla_HCO3_transport || do_lum_rbc_HCO3_transport || do_lum_HbCO2_transport;
@@ -39,7 +145,7 @@ void solver_lumped::validate_gas_parameters() const {
 }
 
 void solver_lumped::prepare_albanese_sources() {
-    if (!albanese_gas.enabled) return;
+    if (!albanese_gas.enabled || conservative_gas.enabled) return;
     auto prepare = [&](GasSourceSnapshot& result, D0_edge* oxygen, D0_edge* saturation,
                        D0_edge* cells, D0_edge* plasma_carbon, D0_edge* rbc_carbon,
                        D0_edge* plasma_bicarbonate, D0_edge* rbc_bicarbonate,
@@ -1451,6 +1557,8 @@ void solver_lumped::set_0D_pointers(){
 
 //--------------------------------------------------------------------------------------------------
 void solver_lumped::capillary_O2_transport(double dt){
+    // The coupled solver runs once, after both gases' node transports.
+    if(conservative_gas.enabled) return;
 
 	if(do_pul_O2_rtansport){
 
@@ -1924,6 +2032,7 @@ void D0_transport::prescribe_node_fi_CO2(TransportType TType, double& finode){
 
 //--------------------------------------------------------------------------------------------------
 void solver_lumped::capillary_CO2_transport(double dt){
+    if(conservative_gas.enabled) return;
 
 	if(do_pul_O2_rtansport){
 

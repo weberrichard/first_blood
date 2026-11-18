@@ -387,6 +387,15 @@ bool first_blood::run()
 
 				//CO2 transport
 				CO2_transport( moc_idx, si, ei, e_idx, t_act);
+
+                // All inlet states have now been updated. Advance coupled gases
+                // exactly once per connected lumped model, using one source solve.
+                if(moc[moc_idx]->nodes[si]->is_master_node)
+                    lum[moc[moc_idx]->nodes[si]->master_node_lum]->advance_coupled_gas(moc[moc_idx]->edges[e_idx]->dt_act);
+                if(moc[moc_idx]->nodes[ei]->is_master_node &&
+                   (!moc[moc_idx]->nodes[si]->is_master_node ||
+                    moc[moc_idx]->nodes[ei]->master_node_lum!=moc[moc_idx]->nodes[si]->master_node_lum))
+                    lum[moc[moc_idx]->nodes[ei]->master_node_lum]->advance_coupled_gas(moc[moc_idx]->edges[e_idx]->dt_act);
 				
 
 				//save transport variables for lumped models
