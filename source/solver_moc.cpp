@@ -294,8 +294,17 @@ void solver_moc::boundaries(int e_idx, double t_act)
 
                     std::vector<moc_edge::JunctionBoundary> incoming,outgoing;
                     incoming.reserve(n1);outgoing.reserve(n2);
-                    for(int j=0;j<n1;++j)incoming.push_back(edges[nodes[node_idx[i]]->edge_in[j]]->prepare_junction(false,t_act));
-                    for(int j=0;j<n2;++j)outgoing.push_back(edges[nodes[node_idx[i]]->edge_out[j]]->prepare_junction(true,t_act));
+                    int selected_boundary=0;
+                    for(int j=0;j<n1;++j) {
+                        const int edge=nodes[node_idx[i]]->edge_in[j];
+                        incoming.push_back(edges[edge]->prepare_junction(false,t_act));
+                        if(i==1 && edge==e_idx)selected_boundary=j;
+                    }
+                    for(int j=0;j<n2;++j) {
+                        const int edge=nodes[node_idx[i]]->edge_out[j];
+                        outgoing.push_back(edges[edge]->prepare_junction(true,t_act));
+                        if(i==0 && edge==e_idx)selected_boundary=j;
+                    }
 
 					int k=0;
 					double dp=1e10,f;
@@ -338,14 +347,12 @@ void solver_moc::boundaries(int e_idx, double t_act)
 
 					if(i==1)
 					{
-						vector<double> v = edges[e_idx]->boundary_junction_end(pp, t_act); // [q,dq]
-						double q = v[0];
+						const double q = incoming[selected_boundary].flow(pp);
 						edges[e_idx]->boundary_substitute_end(t_act,pp,q);
 					}
 					else
 					{
-						vector<double> v = edges[e_idx]->boundary_junction_start(pp, t_act); // [q,dq]
-						double q = v[0];
+						const double q = outgoing[selected_boundary].flow(pp);
 						edges[e_idx]->boundary_substitute_start(t_act,pp,q);
 					}
 				}

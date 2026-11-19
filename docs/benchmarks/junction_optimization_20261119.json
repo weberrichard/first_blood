@@ -1,0 +1,2871 @@
+{
+  "baseline/summary.json": {
+    "stage": "baseline",
+    "simulated_s": 0.2,
+    "wall_times_s": [
+      2.475075313996058,
+      2.468864249996841,
+      2.476304955984233,
+      2.4720055290090386,
+      2.469444846996339
+    ],
+    "median_wall_s": 2.4720055290090386,
+    "balances": {
+      "node_absolute_m3_s": 1.6904236528354072e-17,
+      "node_scaled": 6.530935568811665e-12,
+      "node_checks": 969537,
+      "lumped_absolute_ml_s": 2.2737367544323206e-13,
+      "lumped_scaled": 3.270052333944516e-16,
+      "lumped_checks": 1613678,
+      "equation_norm": 8.467224155269877e-09
+    },
+    "comparison": {}
+  },
+  "flow/summary.json": {
+    "stage": "flow",
+    "simulated_s": 0.2,
+    "wall_times_s": [
+      2.35222270200029,
+      2.3191877270000987,
+      2.3532435430097394,
+      2.322174966975581,
+      2.3333446420147084
+    ],
+    "median_wall_s": 2.3333446420147084,
+    "balances": {
+      "node_absolute_m3_s": 1.7255755201464607e-17,
+      "node_scaled": 6.721996545813052e-12,
+      "node_checks": 969537,
+      "lumped_absolute_ml_s": 2.2737367544323206e-13,
+      "lumped_scaled": 3.2583843315214364e-16,
+      "lumped_checks": 1613678,
+      "equation_norm": 8.46722379699467e-09
+    },
+    "comparison": {
+      "pressure_Pa": {
+        "nrms_percent": 1.443516821843971e-09,
+        "max_relative_percent": 1.042537742843091e-07,
+        "max_absolute": 0.00010973245662171394,
+        "relative_denominator_floor": 0.12360060014030295
+      },
+      "flow_m3_s": {
+        "nrms_percent": 2.0535536955114236e-11,
+        "max_relative_percent": 7.297194814078137e-06,
+        "max_absolute": 1.861575130157611e-16,
+        "relative_denominator_floor": 1.325278745908239e-09
+      },
+      "area_m2": {
+        "nrms_percent": 2.8186060854759702e-12,
+        "max_relative_percent": 1.0014278619274697e-07,
+        "max_absolute": 4.5793989260356494e-17,
+        "relative_denominator_floor": 8.915599222271816e-10
+      },
+      "velocity_m_s": {
+        "nrms_percent": 3.997999930760268e-08,
+        "max_relative_percent": 1.90514197770266e-05,
+        "max_absolute": 5.45447820243794e-09,
+        "relative_denominator_floor": 2.969150488909747e-06
+      },
+      "oxygen": {
+        "nrms_percent": 4.859003378621212e-09,
+        "max_relative_percent": 6.276046870676764e-07,
+        "max_absolute": 2.1984793759782795e-11,
+        "relative_denominator_floor": 6.160762251119115e-09
+      },
+      "carbon": {
+        "nrms_percent": 8.428698798220071e-10,
+        "max_relative_percent": 3.2767952458421027e-07,
+        "max_absolute": 3.945901105861793e-10,
+        "relative_denominator_floor": 7.467100000000002e-07
+      },
+      "RBC": {
+        "nrms_percent": 1.3403234767368649e-14,
+        "max_relative_percent": 2.4081632653059016e-12,
+        "max_absolute": 118,
+        "relative_denominator_floor": 4900000000.00045
+      },
+      "saturation": {
+        "nrms_percent": 1.7271346574123044e-10,
+        "max_relative_percent": 7.877348966719856e-09,
+        "max_absolute": 6.726985635197025e-11,
+        "relative_denominator_floor": 9.700000000000024e-07
+      },
+      "checkpoint_time_max_s": 8.881784197001252e-16
+    },
+    "speedup_vs_baseline": 1.0594258064143514
+  },
+  "sqrt/summary.json": {
+    "stage": "sqrt",
+    "simulated_s": 0.2,
+    "wall_times_s": [
+      2.2943085439910647,
+      2.320656977011822,
+      2.2930244719900656,
+      2.3109681629866827,
+      2.317234000976896
+    ],
+    "median_wall_s": 2.3109681629866827,
+    "balances": {
+      "node_absolute_m3_s": 1.9530038664842403e-17,
+      "node_scaled": 1.0167949023820424e-11,
+      "node_checks": 969537,
+      "lumped_absolute_ml_s": 2.2737367544323206e-13,
+      "lumped_scaled": 3.1858395322943036e-16,
+      "lumped_checks": 1613678,
+      "equation_norm": 8.467224916136164e-09
+    },
+    "comparison": {
+      "pressure_Pa": {
+        "nrms_percent": 1.4763538349723794e-09,
+        "max_relative_percent": 1.1632584849012574e-07,
+        "max_absolute": 0.0001175828801933676,
+        "relative_denominator_floor": 0.12360060014030295
+      },
+      "flow_m3_s": {
+        "nrms_percent": 5.0436463364525516e-11,
+        "max_relative_percent": 6.680956147344779e-06,
+        "max_absolute": 9.744809126299714e-16,
+        "relative_denominator_floor": 1.325278745908239e-09
+      },
+      "area_m2": {
+        "nrms_percent": 5.008291107777814e-12,
+        "max_relative_percent": 1.0530131519627473e-07,
+        "max_absolute": 6.548581121812447e-17,
+        "relative_denominator_floor": 8.915599222271816e-10
+      },
+      "velocity_m_s": {
+        "nrms_percent": 4.122874738901086e-08,
+        "max_relative_percent": 5.632656854877551e-05,
+        "max_absolute": 7.429610260345498e-09,
+        "relative_denominator_floor": 2.969150488909747e-06
+      },
+      "oxygen": {
+        "nrms_percent": 1.5664228405037646e-08,
+        "max_relative_percent": 1.3882317167540295e-06,
+        "max_absolute": 6.49192245100183e-11,
+        "relative_denominator_floor": 6.160762251119115e-09
+      },
+      "carbon": {
+        "nrms_percent": 3.223860264583058e-09,
+        "max_relative_percent": 1.094942830215238e-06,
+        "max_absolute": 1.1241831215924591e-09,
+        "relative_denominator_floor": 7.467100000000002e-07
+      },
+      "RBC": {
+        "nrms_percent": 1.9278898645919262e-14,
+        "max_relative_percent": 3.612244897958852e-12,
+        "max_absolute": 177,
+        "relative_denominator_floor": 4900000000.00045
+      },
+      "saturation": {
+        "nrms_percent": 3.2690091501195743e-10,
+        "max_relative_percent": 2.150558726187792e-08,
+        "max_absolute": 1.9002954765312552e-10,
+        "relative_denominator_floor": 9.700000000000024e-07
+      },
+      "checkpoint_time_max_s": 3.552713678800501e-15
+    },
+    "speedup_vs_baseline": 1.0696839396585334
+  },
+  "final_checks/paired_timings.json": [
+    {
+      "stage": "baseline",
+      "repeat": 0,
+      "sim_s": 1.0,
+      "wall_s": 12.224914296995848,
+      "max_history_nrms_percent": 0.0,
+      "max_history_relative_percent": 0.0
+    },
+    {
+      "stage": "flow",
+      "repeat": 0,
+      "sim_s": 1.0,
+      "wall_s": 11.607104249007534,
+      "max_history_nrms_percent": 2.7692110513003634e-07,
+      "max_history_relative_percent": 3.902226132106603e-06
+    },
+    {
+      "stage": "sqrt",
+      "repeat": 0,
+      "sim_s": 1.0,
+      "wall_s": 11.41296949001844,
+      "max_history_nrms_percent": 0.0,
+      "max_history_relative_percent": 0.0
+    },
+    {
+      "stage": "flow",
+      "repeat": 1,
+      "sim_s": 1.0,
+      "wall_s": 11.520218210993335,
+      "max_history_nrms_percent": 2.7692110513003634e-07,
+      "max_history_relative_percent": 3.902226132106603e-06
+    },
+    {
+      "stage": "sqrt",
+      "repeat": 1,
+      "sim_s": 1.0,
+      "wall_s": 11.535286845988594,
+      "max_history_nrms_percent": 0.0,
+      "max_history_relative_percent": 0.0
+    },
+    {
+      "stage": "baseline",
+      "repeat": 1,
+      "sim_s": 1.0,
+      "wall_s": 12.302073067985475,
+      "max_history_nrms_percent": 0.0,
+      "max_history_relative_percent": 0.0
+    },
+    {
+      "stage": "sqrt",
+      "repeat": 2,
+      "sim_s": 1.0,
+      "wall_s": 11.523180315998616,
+      "max_history_nrms_percent": 0.0,
+      "max_history_relative_percent": 0.0
+    },
+    {
+      "stage": "baseline",
+      "repeat": 2,
+      "sim_s": 1.0,
+      "wall_s": 12.259252849005861,
+      "max_history_nrms_percent": 0.0,
+      "max_history_relative_percent": 0.0
+    },
+    {
+      "stage": "flow",
+      "repeat": 2,
+      "sim_s": 1.0,
+      "wall_s": 11.544863271003123,
+      "max_history_nrms_percent": 2.7692110513003634e-07,
+      "max_history_relative_percent": 3.902226132106603e-06
+    },
+    {
+      "stage": "baseline",
+      "repeat": 3,
+      "sim_s": 1.0,
+      "wall_s": 12.351341416011564,
+      "max_history_nrms_percent": 0.0,
+      "max_history_relative_percent": 0.0
+    },
+    {
+      "stage": "flow",
+      "repeat": 3,
+      "sim_s": 1.0,
+      "wall_s": 11.636657535011182,
+      "max_history_nrms_percent": 2.7692110513003634e-07,
+      "max_history_relative_percent": 3.902226132106603e-06
+    },
+    {
+      "stage": "sqrt",
+      "repeat": 3,
+      "sim_s": 1.0,
+      "wall_s": 11.669081233994802,
+      "max_history_nrms_percent": 0.0,
+      "max_history_relative_percent": 0.0
+    },
+    {
+      "stage": "flow",
+      "repeat": 4,
+      "sim_s": 1.0,
+      "wall_s": 11.658873557986226,
+      "max_history_nrms_percent": 2.7692110513003634e-07,
+      "max_history_relative_percent": 3.902226132106603e-06
+    },
+    {
+      "stage": "sqrt",
+      "repeat": 4,
+      "sim_s": 1.0,
+      "wall_s": 11.499150768999243,
+      "max_history_nrms_percent": 0.0,
+      "max_history_relative_percent": 0.0
+    },
+    {
+      "stage": "baseline",
+      "repeat": 4,
+      "sim_s": 1.0,
+      "wall_s": 12.355900297989137,
+      "max_history_nrms_percent": 0.0,
+      "max_history_relative_percent": 0.0
+    }
+  ],
+  "final_checks/passed.json": {
+    "asan_ubsan": true,
+    "clang_serial": true,
+    "model_files_unchanged": true,
+    "production_sha256": "ce5d9de4da55bf147119c8036b55c4719124964be2fa2bc7ade881371031ba02"
+  },
+  "final_checks/smoke_san.json": [
+    {
+      "case": "implicit_2ms",
+      "duration_s": 0.002,
+      "histories": 136,
+      "last_saved_s": 0.0025,
+      "finite_nonnegative": true
+    },
+    {
+      "case": "implicit_5ms",
+      "duration_s": 0.005,
+      "histories": 136,
+      "last_saved_s": 0.0055,
+      "finite_nonnegative": true
+    },
+    {
+      "case": "parameters_from_CO2_file",
+      "duration_s": 0.005,
+      "histories": 136,
+      "last_saved_s": 0.0055,
+      "finite_nonnegative": true
+    },
+    {
+      "case": "regression_legacy",
+      "duration_s": 0.002,
+      "histories": 136,
+      "last_saved_s": 0.0025,
+      "finite_nonnegative": true
+    },
+    {
+      "case": "regression_albanese2016",
+      "duration_s": 0.002,
+      "histories": 136,
+      "last_saved_s": 0.0025,
+      "finite_nonnegative": true
+    },
+    {
+      "case": "missing_relaxation",
+      "rejected": true,
+      "message": "custom_output: Implicit gas solver requires gas_fractions, gas_partition, gas_solubility, gas_relaxation and gas_pulmonary rows"
+    },
+    {
+      "case": "malformed_partition",
+      "rejected": true,
+      "message": "custom_output: gas_partition: incorrect parameter count"
+    },
+    {
+      "case": "zero_exchange_time",
+      "rejected": true,
+      "message": "custom_output: Implicit gas parameters must be finite and positive"
+    },
+    {
+      "case": "unknown_solver",
+      "rejected": true,
+      "message": "custom_output: gas_solver requires implicit|legacy"
+    }
+  ],
+  "profile/summary.json": {
+    "revision": "0944bbe422e3b209f6cfb1e183b514a1aa96efba",
+    "binary_sha256": "ce5d9de4da55bf147119c8036b55c4719124964be2fa2bc7ade881371031ba02",
+    "records": [
+      {
+        "label": "native_6_ACTIVE_0.2_0",
+        "kind": "native",
+        "threads": 6,
+        "policy": "ACTIVE",
+        "sim_s": 0.2,
+        "wall_s": 2.5910694990016054,
+        "user_s": 15.41,
+        "system_s": 0.05,
+        "rss_kb": 22508
+      },
+      {
+        "label": "native_6_ACTIVE_0.2_1",
+        "kind": "native",
+        "threads": 6,
+        "policy": "ACTIVE",
+        "sim_s": 0.2,
+        "wall_s": 2.340135166014079,
+        "user_s": 13.91,
+        "system_s": 0.04,
+        "rss_kb": 22504
+      },
+      {
+        "label": "native_6_ACTIVE_0.2_2",
+        "kind": "native",
+        "threads": 6,
+        "policy": "ACTIVE",
+        "sim_s": 0.2,
+        "wall_s": 2.318745920987567,
+        "user_s": 13.79,
+        "system_s": 0.04,
+        "rss_kb": 22260
+      },
+      {
+        "label": "instrumented_6_ACTIVE_0.2_0",
+        "kind": "instrumented",
+        "threads": 6,
+        "policy": "ACTIVE",
+        "sim_s": 0.2,
+        "wall_s": 2.4585494970087893,
+        "user_s": 14.63,
+        "system_s": 0.04,
+        "rss_kb": 22476,
+        "profile": {
+          "regions": {
+            "run": {
+              "wall_s": 2.43347304,
+              "calls": 1
+            },
+            "hydraulic_0d": {
+              "wall_s": 0.6698274810000098,
+              "calls": 40600
+            },
+            "hydraulic_coefficients": {
+              "wall_s": 0.018603670000008787,
+              "calls": 83552
+            },
+            "hydraulic_linear_solve": {
+              "wall_s": 0.4866040890000231,
+              "calls": 83552
+            },
+            "hydraulic_init": {
+              "wall_s": 0.0030558719999996676,
+              "calls": 40600
+            },
+            "hydraulic_substitute": {
+              "wall_s": 0.007477508000001193,
+              "calls": 40600
+            },
+            "hydraulic_1d": {
+              "wall_s": 0.1790869599999329,
+              "calls": 118853
+            },
+            "hydraulic_boundaries": {
+              "wall_s": 0.3076349590000225,
+              "calls": 118853
+            },
+            "edge_update": {
+              "wall_s": 0.005553641999997774,
+              "calls": 118853
+            },
+            "new_timestep": {
+              "wall_s": 0.004612351999995966,
+              "calls": 119141
+            },
+            "scheduler": {
+              "wall_s": 0.06541331200000505,
+              "calls": 118854
+            },
+            "oxygen_transport": {
+              "wall_s": 0.11915031800000245,
+              "calls": 118853
+            },
+            "carbon_transport": {
+              "wall_s": 0.1774244280000112,
+              "calls": 118853
+            },
+            "gas_capillaries": {
+              "wall_s": 0.8542161980000157,
+              "calls": 40600
+            },
+            "save_transport_history": {
+              "wall_s": 0.013727975999984918,
+              "calls": 118853
+            },
+            "transport_nodes": {
+              "wall_s": 0.02568491800000609,
+              "calls": 307880
+            },
+            "transport_edges": {
+              "wall_s": 0.040096461000048725,
+              "calls": 307880
+            },
+            "master_transport": {
+              "wall_s": 0.08735124399999689,
+              "calls": 307880
+            },
+            "transport_1d": {
+              "wall_s": 0.036222249000067035,
+              "calls": 950824
+            },
+            "junction_qr": {
+              "wall_s": 0,
+              "calls": 0
+            },
+            "initialization": {
+              "wall_s": 0.002753324,
+              "calls": 2
+            }
+          },
+          "models": [
+            {
+              "index": 0,
+              "calls": 417,
+              "iterations": 861,
+              "dimension": 8
+            },
+            {
+              "index": 1,
+              "calls": 1142,
+              "iterations": 2336,
+              "dimension": 8
+            },
+            {
+              "index": 2,
+              "calls": 556,
+              "iterations": 1118,
+              "dimension": 8
+            },
+            {
+              "index": 3,
+              "calls": 253,
+              "iterations": 400,
+              "dimension": 23
+            },
+            {
+              "index": 4,
+              "calls": 360,
+              "iterations": 613,
+              "dimension": 23
+            },
+            {
+              "index": 5,
+              "calls": 213,
+              "iterations": 338,
+              "dimension": 23
+            },
+            {
+              "index": 6,
+              "calls": 254,
+              "iterations": 417,
+              "dimension": 23
+            },
+            {
+              "index": 7,
+              "calls": 236,
+              "iterations": 357,
+              "dimension": 23
+            },
+            {
+              "index": 8,
+              "calls": 320,
+              "iterations": 366,
+              "dimension": 23
+            },
+            {
+              "index": 9,
+              "calls": 256,
+              "iterations": 294,
+              "dimension": 23
+            },
+            {
+              "index": 10,
+              "calls": 254,
+              "iterations": 417,
+              "dimension": 23
+            },
+            {
+              "index": 11,
+              "calls": 236,
+              "iterations": 357,
+              "dimension": 23
+            },
+            {
+              "index": 12,
+              "calls": 256,
+              "iterations": 294,
+              "dimension": 23
+            },
+            {
+              "index": 13,
+              "calls": 320,
+              "iterations": 366,
+              "dimension": 23
+            },
+            {
+              "index": 14,
+              "calls": 236,
+              "iterations": 365,
+              "dimension": 23
+            },
+            {
+              "index": 15,
+              "calls": 249,
+              "iterations": 403,
+              "dimension": 23
+            },
+            {
+              "index": 16,
+              "calls": 260,
+              "iterations": 405,
+              "dimension": 23
+            },
+            {
+              "index": 17,
+              "calls": 480,
+              "iterations": 943,
+              "dimension": 23
+            },
+            {
+              "index": 18,
+              "calls": 191,
+              "iterations": 348,
+              "dimension": 23
+            },
+            {
+              "index": 19,
+              "calls": 187,
+              "iterations": 340,
+              "dimension": 23
+            },
+            {
+              "index": 20,
+              "calls": 287,
+              "iterations": 518,
+              "dimension": 23
+            },
+            {
+              "index": 21,
+              "calls": 204,
+              "iterations": 375,
+              "dimension": 23
+            },
+            {
+              "index": 22,
+              "calls": 287,
+              "iterations": 518,
+              "dimension": 23
+            },
+            {
+              "index": 23,
+              "calls": 417,
+              "iterations": 834,
+              "dimension": 23
+            },
+            {
+              "index": 24,
+              "calls": 438,
+              "iterations": 876,
+              "dimension": 23
+            },
+            {
+              "index": 25,
+              "calls": 584,
+              "iterations": 1193,
+              "dimension": 23
+            },
+            {
+              "index": 26,
+              "calls": 1191,
+              "iterations": 2382,
+              "dimension": 23
+            },
+            {
+              "index": 27,
+              "calls": 448,
+              "iterations": 896,
+              "dimension": 23
+            },
+            {
+              "index": 28,
+              "calls": 815,
+              "iterations": 1630,
+              "dimension": 23
+            },
+            {
+              "index": 29,
+              "calls": 684,
+              "iterations": 1368,
+              "dimension": 23
+            },
+            {
+              "index": 30,
+              "calls": 680,
+              "iterations": 1351,
+              "dimension": 23
+            },
+            {
+              "index": 31,
+              "calls": 5292,
+              "iterations": 10584,
+              "dimension": 23
+            },
+            {
+              "index": 32,
+              "calls": 455,
+              "iterations": 910,
+              "dimension": 23
+            },
+            {
+              "index": 33,
+              "calls": 2414,
+              "iterations": 7074,
+              "dimension": 23
+            },
+            {
+              "index": 34,
+              "calls": 2414,
+              "iterations": 7064,
+              "dimension": 23
+            },
+            {
+              "index": 35,
+              "calls": 455,
+              "iterations": 910,
+              "dimension": 23
+            },
+            {
+              "index": 36,
+              "calls": 5294,
+              "iterations": 10588,
+              "dimension": 23
+            },
+            {
+              "index": 37,
+              "calls": 662,
+              "iterations": 1314,
+              "dimension": 23
+            },
+            {
+              "index": 38,
+              "calls": 666,
+              "iterations": 1332,
+              "dimension": 23
+            },
+            {
+              "index": 39,
+              "calls": 674,
+              "iterations": 1348,
+              "dimension": 23
+            },
+            {
+              "index": 40,
+              "calls": 369,
+              "iterations": 738,
+              "dimension": 23
+            },
+            {
+              "index": 41,
+              "calls": 1113,
+              "iterations": 2226,
+              "dimension": 23
+            },
+            {
+              "index": 42,
+              "calls": 481,
+              "iterations": 1022,
+              "dimension": 23
+            },
+            {
+              "index": 43,
+              "calls": 438,
+              "iterations": 876,
+              "dimension": 23
+            },
+            {
+              "index": 44,
+              "calls": 532,
+              "iterations": 1064,
+              "dimension": 23
+            },
+            {
+              "index": 45,
+              "calls": 532,
+              "iterations": 1064,
+              "dimension": 23
+            },
+            {
+              "index": 46,
+              "calls": 328,
+              "iterations": 617,
+              "dimension": 23
+            },
+            {
+              "index": 47,
+              "calls": 5770,
+              "iterations": 11542,
+              "dimension": 35
+            }
+          ],
+          "scalar_calls": 197106,
+          "scalar_iterations": 516067,
+          "scalar_max_iterations": 4,
+          "velocity_calls": 0,
+          "velocity_elements": 0
+        }
+      },
+      {
+        "label": "instrumented_6_ACTIVE_0.2_1",
+        "kind": "instrumented",
+        "threads": 6,
+        "policy": "ACTIVE",
+        "sim_s": 0.2,
+        "wall_s": 2.475886997010093,
+        "user_s": 14.73,
+        "system_s": 0.04,
+        "rss_kb": 22600,
+        "profile": {
+          "regions": {
+            "run": {
+              "wall_s": 2.450988524,
+              "calls": 1
+            },
+            "hydraulic_0d": {
+              "wall_s": 0.6697941070000067,
+              "calls": 40600
+            },
+            "hydraulic_coefficients": {
+              "wall_s": 0.01893547000000871,
+              "calls": 83552
+            },
+            "hydraulic_linear_solve": {
+              "wall_s": 0.48655107900002414,
+              "calls": 83552
+            },
+            "hydraulic_init": {
+              "wall_s": 0.0031628259999997243,
+              "calls": 40600
+            },
+            "hydraulic_substitute": {
+              "wall_s": 0.007541325000001294,
+              "calls": 40600
+            },
+            "hydraulic_1d": {
+              "wall_s": 0.17757407499993547,
+              "calls": 118853
+            },
+            "hydraulic_boundaries": {
+              "wall_s": 0.30754979900003404,
+              "calls": 118853
+            },
+            "edge_update": {
+              "wall_s": 0.005432315999998928,
+              "calls": 118853
+            },
+            "new_timestep": {
+              "wall_s": 0.004562260999996113,
+              "calls": 119141
+            },
+            "scheduler": {
+              "wall_s": 0.0655291410000056,
+              "calls": 118854
+            },
+            "oxygen_transport": {
+              "wall_s": 0.11961033300000323,
+              "calls": 118853
+            },
+            "carbon_transport": {
+              "wall_s": 0.1775416640000101,
+              "calls": 118853
+            },
+            "gas_capillaries": {
+              "wall_s": 0.8726165800000223,
+              "calls": 40600
+            },
+            "save_transport_history": {
+              "wall_s": 0.013723144999984527,
+              "calls": 118853
+            },
+            "transport_nodes": {
+              "wall_s": 0.02626971900000719,
+              "calls": 307880
+            },
+            "transport_edges": {
+              "wall_s": 0.04077965000002865,
+              "calls": 307880
+            },
+            "master_transport": {
+              "wall_s": 0.0863985069999834,
+              "calls": 307880
+            },
+            "transport_1d": {
+              "wall_s": 0.036289941000060354,
+              "calls": 950824
+            },
+            "junction_qr": {
+              "wall_s": 0,
+              "calls": 0
+            },
+            "initialization": {
+              "wall_s": 0.002763893,
+              "calls": 2
+            }
+          },
+          "models": [
+            {
+              "index": 0,
+              "calls": 417,
+              "iterations": 861,
+              "dimension": 8
+            },
+            {
+              "index": 1,
+              "calls": 1142,
+              "iterations": 2336,
+              "dimension": 8
+            },
+            {
+              "index": 2,
+              "calls": 556,
+              "iterations": 1118,
+              "dimension": 8
+            },
+            {
+              "index": 3,
+              "calls": 253,
+              "iterations": 400,
+              "dimension": 23
+            },
+            {
+              "index": 4,
+              "calls": 360,
+              "iterations": 613,
+              "dimension": 23
+            },
+            {
+              "index": 5,
+              "calls": 213,
+              "iterations": 338,
+              "dimension": 23
+            },
+            {
+              "index": 6,
+              "calls": 254,
+              "iterations": 417,
+              "dimension": 23
+            },
+            {
+              "index": 7,
+              "calls": 236,
+              "iterations": 357,
+              "dimension": 23
+            },
+            {
+              "index": 8,
+              "calls": 320,
+              "iterations": 366,
+              "dimension": 23
+            },
+            {
+              "index": 9,
+              "calls": 256,
+              "iterations": 294,
+              "dimension": 23
+            },
+            {
+              "index": 10,
+              "calls": 254,
+              "iterations": 417,
+              "dimension": 23
+            },
+            {
+              "index": 11,
+              "calls": 236,
+              "iterations": 357,
+              "dimension": 23
+            },
+            {
+              "index": 12,
+              "calls": 256,
+              "iterations": 294,
+              "dimension": 23
+            },
+            {
+              "index": 13,
+              "calls": 320,
+              "iterations": 366,
+              "dimension": 23
+            },
+            {
+              "index": 14,
+              "calls": 236,
+              "iterations": 365,
+              "dimension": 23
+            },
+            {
+              "index": 15,
+              "calls": 249,
+              "iterations": 403,
+              "dimension": 23
+            },
+            {
+              "index": 16,
+              "calls": 260,
+              "iterations": 405,
+              "dimension": 23
+            },
+            {
+              "index": 17,
+              "calls": 480,
+              "iterations": 943,
+              "dimension": 23
+            },
+            {
+              "index": 18,
+              "calls": 191,
+              "iterations": 348,
+              "dimension": 23
+            },
+            {
+              "index": 19,
+              "calls": 187,
+              "iterations": 340,
+              "dimension": 23
+            },
+            {
+              "index": 20,
+              "calls": 287,
+              "iterations": 518,
+              "dimension": 23
+            },
+            {
+              "index": 21,
+              "calls": 204,
+              "iterations": 375,
+              "dimension": 23
+            },
+            {
+              "index": 22,
+              "calls": 287,
+              "iterations": 518,
+              "dimension": 23
+            },
+            {
+              "index": 23,
+              "calls": 417,
+              "iterations": 834,
+              "dimension": 23
+            },
+            {
+              "index": 24,
+              "calls": 438,
+              "iterations": 876,
+              "dimension": 23
+            },
+            {
+              "index": 25,
+              "calls": 584,
+              "iterations": 1193,
+              "dimension": 23
+            },
+            {
+              "index": 26,
+              "calls": 1191,
+              "iterations": 2382,
+              "dimension": 23
+            },
+            {
+              "index": 27,
+              "calls": 448,
+              "iterations": 896,
+              "dimension": 23
+            },
+            {
+              "index": 28,
+              "calls": 815,
+              "iterations": 1630,
+              "dimension": 23
+            },
+            {
+              "index": 29,
+              "calls": 684,
+              "iterations": 1368,
+              "dimension": 23
+            },
+            {
+              "index": 30,
+              "calls": 680,
+              "iterations": 1351,
+              "dimension": 23
+            },
+            {
+              "index": 31,
+              "calls": 5292,
+              "iterations": 10584,
+              "dimension": 23
+            },
+            {
+              "index": 32,
+              "calls": 455,
+              "iterations": 910,
+              "dimension": 23
+            },
+            {
+              "index": 33,
+              "calls": 2414,
+              "iterations": 7074,
+              "dimension": 23
+            },
+            {
+              "index": 34,
+              "calls": 2414,
+              "iterations": 7064,
+              "dimension": 23
+            },
+            {
+              "index": 35,
+              "calls": 455,
+              "iterations": 910,
+              "dimension": 23
+            },
+            {
+              "index": 36,
+              "calls": 5294,
+              "iterations": 10588,
+              "dimension": 23
+            },
+            {
+              "index": 37,
+              "calls": 662,
+              "iterations": 1314,
+              "dimension": 23
+            },
+            {
+              "index": 38,
+              "calls": 666,
+              "iterations": 1332,
+              "dimension": 23
+            },
+            {
+              "index": 39,
+              "calls": 674,
+              "iterations": 1348,
+              "dimension": 23
+            },
+            {
+              "index": 40,
+              "calls": 369,
+              "iterations": 738,
+              "dimension": 23
+            },
+            {
+              "index": 41,
+              "calls": 1113,
+              "iterations": 2226,
+              "dimension": 23
+            },
+            {
+              "index": 42,
+              "calls": 481,
+              "iterations": 1022,
+              "dimension": 23
+            },
+            {
+              "index": 43,
+              "calls": 438,
+              "iterations": 876,
+              "dimension": 23
+            },
+            {
+              "index": 44,
+              "calls": 532,
+              "iterations": 1064,
+              "dimension": 23
+            },
+            {
+              "index": 45,
+              "calls": 532,
+              "iterations": 1064,
+              "dimension": 23
+            },
+            {
+              "index": 46,
+              "calls": 328,
+              "iterations": 617,
+              "dimension": 23
+            },
+            {
+              "index": 47,
+              "calls": 5770,
+              "iterations": 11542,
+              "dimension": 35
+            }
+          ],
+          "scalar_calls": 197106,
+          "scalar_iterations": 516067,
+          "scalar_max_iterations": 4,
+          "velocity_calls": 0,
+          "velocity_elements": 0
+        }
+      },
+      {
+        "label": "instrumented_6_ACTIVE_0.2_2",
+        "kind": "instrumented",
+        "threads": 6,
+        "policy": "ACTIVE",
+        "sim_s": 0.2,
+        "wall_s": 2.446007861988619,
+        "user_s": 14.56,
+        "system_s": 0.04,
+        "rss_kb": 22540,
+        "profile": {
+          "regions": {
+            "run": {
+              "wall_s": 2.425095359,
+              "calls": 1
+            },
+            "hydraulic_0d": {
+              "wall_s": 0.6679537590000019,
+              "calls": 40600
+            },
+            "hydraulic_coefficients": {
+              "wall_s": 0.018456152000009347,
+              "calls": 83552
+            },
+            "hydraulic_linear_solve": {
+              "wall_s": 0.48572026600002427,
+              "calls": 83552
+            },
+            "hydraulic_init": {
+              "wall_s": 0.0030160979999998517,
+              "calls": 40600
+            },
+            "hydraulic_substitute": {
+              "wall_s": 0.007515967000001305,
+              "calls": 40600
+            },
+            "hydraulic_1d": {
+              "wall_s": 0.17844558199992608,
+              "calls": 118853
+            },
+            "hydraulic_boundaries": {
+              "wall_s": 0.3065746370000169,
+              "calls": 118853
+            },
+            "edge_update": {
+              "wall_s": 0.005452900999998572,
+              "calls": 118853
+            },
+            "new_timestep": {
+              "wall_s": 0.00455025099999631,
+              "calls": 119141
+            },
+            "scheduler": {
+              "wall_s": 0.06541802800000586,
+              "calls": 118854
+            },
+            "oxygen_transport": {
+              "wall_s": 0.11841354400000484,
+              "calls": 118853
+            },
+            "carbon_transport": {
+              "wall_s": 0.1767145500000133,
+              "calls": 118853
+            },
+            "gas_capillaries": {
+              "wall_s": 0.8513885550000062,
+              "calls": 40600
+            },
+            "save_transport_history": {
+              "wall_s": 0.013302962999985254,
+              "calls": 118853
+            },
+            "transport_nodes": {
+              "wall_s": 0.025516604000006004,
+              "calls": 307880
+            },
+            "transport_edges": {
+              "wall_s": 0.040223275000040776,
+              "calls": 307880
+            },
+            "master_transport": {
+              "wall_s": 0.08631513399998532,
+              "calls": 307880
+            },
+            "transport_1d": {
+              "wall_s": 0.03614345900006414,
+              "calls": 950824
+            },
+            "junction_qr": {
+              "wall_s": 0,
+              "calls": 0
+            },
+            "initialization": {
+              "wall_s": 0.002755959,
+              "calls": 2
+            }
+          },
+          "models": [
+            {
+              "index": 0,
+              "calls": 417,
+              "iterations": 861,
+              "dimension": 8
+            },
+            {
+              "index": 1,
+              "calls": 1142,
+              "iterations": 2336,
+              "dimension": 8
+            },
+            {
+              "index": 2,
+              "calls": 556,
+              "iterations": 1118,
+              "dimension": 8
+            },
+            {
+              "index": 3,
+              "calls": 253,
+              "iterations": 400,
+              "dimension": 23
+            },
+            {
+              "index": 4,
+              "calls": 360,
+              "iterations": 613,
+              "dimension": 23
+            },
+            {
+              "index": 5,
+              "calls": 213,
+              "iterations": 338,
+              "dimension": 23
+            },
+            {
+              "index": 6,
+              "calls": 254,
+              "iterations": 417,
+              "dimension": 23
+            },
+            {
+              "index": 7,
+              "calls": 236,
+              "iterations": 357,
+              "dimension": 23
+            },
+            {
+              "index": 8,
+              "calls": 320,
+              "iterations": 366,
+              "dimension": 23
+            },
+            {
+              "index": 9,
+              "calls": 256,
+              "iterations": 294,
+              "dimension": 23
+            },
+            {
+              "index": 10,
+              "calls": 254,
+              "iterations": 417,
+              "dimension": 23
+            },
+            {
+              "index": 11,
+              "calls": 236,
+              "iterations": 357,
+              "dimension": 23
+            },
+            {
+              "index": 12,
+              "calls": 256,
+              "iterations": 294,
+              "dimension": 23
+            },
+            {
+              "index": 13,
+              "calls": 320,
+              "iterations": 366,
+              "dimension": 23
+            },
+            {
+              "index": 14,
+              "calls": 236,
+              "iterations": 365,
+              "dimension": 23
+            },
+            {
+              "index": 15,
+              "calls": 249,
+              "iterations": 403,
+              "dimension": 23
+            },
+            {
+              "index": 16,
+              "calls": 260,
+              "iterations": 405,
+              "dimension": 23
+            },
+            {
+              "index": 17,
+              "calls": 480,
+              "iterations": 943,
+              "dimension": 23
+            },
+            {
+              "index": 18,
+              "calls": 191,
+              "iterations": 348,
+              "dimension": 23
+            },
+            {
+              "index": 19,
+              "calls": 187,
+              "iterations": 340,
+              "dimension": 23
+            },
+            {
+              "index": 20,
+              "calls": 287,
+              "iterations": 518,
+              "dimension": 23
+            },
+            {
+              "index": 21,
+              "calls": 204,
+              "iterations": 375,
+              "dimension": 23
+            },
+            {
+              "index": 22,
+              "calls": 287,
+              "iterations": 518,
+              "dimension": 23
+            },
+            {
+              "index": 23,
+              "calls": 417,
+              "iterations": 834,
+              "dimension": 23
+            },
+            {
+              "index": 24,
+              "calls": 438,
+              "iterations": 876,
+              "dimension": 23
+            },
+            {
+              "index": 25,
+              "calls": 584,
+              "iterations": 1193,
+              "dimension": 23
+            },
+            {
+              "index": 26,
+              "calls": 1191,
+              "iterations": 2382,
+              "dimension": 23
+            },
+            {
+              "index": 27,
+              "calls": 448,
+              "iterations": 896,
+              "dimension": 23
+            },
+            {
+              "index": 28,
+              "calls": 815,
+              "iterations": 1630,
+              "dimension": 23
+            },
+            {
+              "index": 29,
+              "calls": 684,
+              "iterations": 1368,
+              "dimension": 23
+            },
+            {
+              "index": 30,
+              "calls": 680,
+              "iterations": 1351,
+              "dimension": 23
+            },
+            {
+              "index": 31,
+              "calls": 5292,
+              "iterations": 10584,
+              "dimension": 23
+            },
+            {
+              "index": 32,
+              "calls": 455,
+              "iterations": 910,
+              "dimension": 23
+            },
+            {
+              "index": 33,
+              "calls": 2414,
+              "iterations": 7074,
+              "dimension": 23
+            },
+            {
+              "index": 34,
+              "calls": 2414,
+              "iterations": 7064,
+              "dimension": 23
+            },
+            {
+              "index": 35,
+              "calls": 455,
+              "iterations": 910,
+              "dimension": 23
+            },
+            {
+              "index": 36,
+              "calls": 5294,
+              "iterations": 10588,
+              "dimension": 23
+            },
+            {
+              "index": 37,
+              "calls": 662,
+              "iterations": 1314,
+              "dimension": 23
+            },
+            {
+              "index": 38,
+              "calls": 666,
+              "iterations": 1332,
+              "dimension": 23
+            },
+            {
+              "index": 39,
+              "calls": 674,
+              "iterations": 1348,
+              "dimension": 23
+            },
+            {
+              "index": 40,
+              "calls": 369,
+              "iterations": 738,
+              "dimension": 23
+            },
+            {
+              "index": 41,
+              "calls": 1113,
+              "iterations": 2226,
+              "dimension": 23
+            },
+            {
+              "index": 42,
+              "calls": 481,
+              "iterations": 1022,
+              "dimension": 23
+            },
+            {
+              "index": 43,
+              "calls": 438,
+              "iterations": 876,
+              "dimension": 23
+            },
+            {
+              "index": 44,
+              "calls": 532,
+              "iterations": 1064,
+              "dimension": 23
+            },
+            {
+              "index": 45,
+              "calls": 532,
+              "iterations": 1064,
+              "dimension": 23
+            },
+            {
+              "index": 46,
+              "calls": 328,
+              "iterations": 617,
+              "dimension": 23
+            },
+            {
+              "index": 47,
+              "calls": 5770,
+              "iterations": 11542,
+              "dimension": 35
+            }
+          ],
+          "scalar_calls": 197106,
+          "scalar_iterations": 516067,
+          "scalar_max_iterations": 4,
+          "velocity_calls": 0,
+          "velocity_elements": 0
+        }
+      },
+      {
+        "label": "native_6_ACTIVE_1.0_0",
+        "kind": "native",
+        "threads": 6,
+        "policy": "ACTIVE",
+        "sim_s": 1.0,
+        "wall_s": 11.496393918001559,
+        "user_s": 68.68,
+        "system_s": 0.19,
+        "rss_kb": 62924
+      },
+      {
+        "label": "native_6_ACTIVE_1.0_1",
+        "kind": "native",
+        "threads": 6,
+        "policy": "ACTIVE",
+        "sim_s": 1.0,
+        "wall_s": 11.741114170989022,
+        "user_s": 70.14,
+        "system_s": 0.19,
+        "rss_kb": 62776
+      },
+      {
+        "label": "native_6_ACTIVE_1.0_2",
+        "kind": "native",
+        "threads": 6,
+        "policy": "ACTIVE",
+        "sim_s": 1.0,
+        "wall_s": 11.43820437300019,
+        "user_s": 68.33,
+        "system_s": 0.19,
+        "rss_kb": 62972
+      },
+      {
+        "label": "instrumented_6_ACTIVE_1.0_0",
+        "kind": "instrumented",
+        "threads": 6,
+        "policy": "ACTIVE",
+        "sim_s": 1.0,
+        "wall_s": 12.2554731759883,
+        "user_s": 73.24,
+        "system_s": 0.18,
+        "rss_kb": 63128,
+        "profile": {
+          "regions": {
+            "run": {
+              "wall_s": 12.217843843,
+              "calls": 1
+            },
+            "hydraulic_0d": {
+              "wall_s": 3.3487750890000147,
+              "calls": 201203
+            },
+            "hydraulic_coefficients": {
+              "wall_s": 0.09544231999977527,
+              "calls": 423820
+            },
+            "hydraulic_linear_solve": {
+              "wall_s": 2.4212073600001105,
+              "calls": 423820
+            },
+            "hydraulic_init": {
+              "wall_s": 0.015417668999967833,
+              "calls": 201203
+            },
+            "hydraulic_substitute": {
+              "wall_s": 0.039709420000001355,
+              "calls": 201203
+            },
+            "hydraulic_1d": {
+              "wall_s": 0.8787271490002547,
+              "calls": 585370
+            },
+            "hydraulic_boundaries": {
+              "wall_s": 1.5185646030001252,
+              "calls": 585370
+            },
+            "edge_update": {
+              "wall_s": 0.028890121999985096,
+              "calls": 585370
+            },
+            "new_timestep": {
+              "wall_s": 0.023390308000101386,
+              "calls": 585658
+            },
+            "scheduler": {
+              "wall_s": 0.31813451100008927,
+              "calls": 585371
+            },
+            "oxygen_transport": {
+              "wall_s": 0.6018768480005686,
+              "calls": 585370
+            },
+            "carbon_transport": {
+              "wall_s": 0.8863183069996955,
+              "calls": 585370
+            },
+            "gas_capillaries": {
+              "wall_s": 4.368871795999321,
+              "calls": 201203
+            },
+            "save_transport_history": {
+              "wall_s": 0.0696183150004257,
+              "calls": 585370
+            },
+            "transport_nodes": {
+              "wall_s": 0.13156457900013183,
+              "calls": 1525720
+            },
+            "transport_edges": {
+              "wall_s": 0.2139020280016732,
+              "calls": 1525720
+            },
+            "master_transport": {
+              "wall_s": 0.4292308850003776,
+              "calls": 1525720
+            },
+            "transport_1d": {
+              "wall_s": 0.17835061201497487,
+              "calls": 4682960
+            },
+            "junction_qr": {
+              "wall_s": 0,
+              "calls": 0
+            },
+            "initialization": {
+              "wall_s": 0.002807234,
+              "calls": 2
+            }
+          },
+          "models": [
+            {
+              "index": 0,
+              "calls": 2086,
+              "iterations": 4199,
+              "dimension": 8
+            },
+            {
+              "index": 1,
+              "calls": 5632,
+              "iterations": 11571,
+              "dimension": 8
+            },
+            {
+              "index": 2,
+              "calls": 2770,
+              "iterations": 5546,
+              "dimension": 8
+            },
+            {
+              "index": 3,
+              "calls": 1250,
+              "iterations": 2394,
+              "dimension": 23
+            },
+            {
+              "index": 4,
+              "calls": 1773,
+              "iterations": 3439,
+              "dimension": 23
+            },
+            {
+              "index": 5,
+              "calls": 1051,
+              "iterations": 2014,
+              "dimension": 23
+            },
+            {
+              "index": 6,
+              "calls": 1252,
+              "iterations": 2413,
+              "dimension": 23
+            },
+            {
+              "index": 7,
+              "calls": 1158,
+              "iterations": 2201,
+              "dimension": 23
+            },
+            {
+              "index": 8,
+              "calls": 1599,
+              "iterations": 2924,
+              "dimension": 23
+            },
+            {
+              "index": 9,
+              "calls": 1286,
+              "iterations": 2354,
+              "dimension": 23
+            },
+            {
+              "index": 10,
+              "calls": 1252,
+              "iterations": 2413,
+              "dimension": 23
+            },
+            {
+              "index": 11,
+              "calls": 1158,
+              "iterations": 2201,
+              "dimension": 23
+            },
+            {
+              "index": 12,
+              "calls": 1286,
+              "iterations": 2354,
+              "dimension": 23
+            },
+            {
+              "index": 13,
+              "calls": 1599,
+              "iterations": 2924,
+              "dimension": 23
+            },
+            {
+              "index": 14,
+              "calls": 1161,
+              "iterations": 2215,
+              "dimension": 23
+            },
+            {
+              "index": 15,
+              "calls": 1229,
+              "iterations": 2363,
+              "dimension": 23
+            },
+            {
+              "index": 16,
+              "calls": 1292,
+              "iterations": 2469,
+              "dimension": 23
+            },
+            {
+              "index": 17,
+              "calls": 2343,
+              "iterations": 4669,
+              "dimension": 23
+            },
+            {
+              "index": 18,
+              "calls": 941,
+              "iterations": 1848,
+              "dimension": 23
+            },
+            {
+              "index": 19,
+              "calls": 908,
+              "iterations": 1782,
+              "dimension": 23
+            },
+            {
+              "index": 20,
+              "calls": 1429,
+              "iterations": 2802,
+              "dimension": 23
+            },
+            {
+              "index": 21,
+              "calls": 984,
+              "iterations": 1935,
+              "dimension": 23
+            },
+            {
+              "index": 22,
+              "calls": 1428,
+              "iterations": 2800,
+              "dimension": 23
+            },
+            {
+              "index": 23,
+              "calls": 2038,
+              "iterations": 4076,
+              "dimension": 23
+            },
+            {
+              "index": 24,
+              "calls": 2197,
+              "iterations": 4394,
+              "dimension": 23
+            },
+            {
+              "index": 25,
+              "calls": 2928,
+              "iterations": 5902,
+              "dimension": 23
+            },
+            {
+              "index": 26,
+              "calls": 6039,
+              "iterations": 12078,
+              "dimension": 23
+            },
+            {
+              "index": 27,
+              "calls": 2235,
+              "iterations": 4470,
+              "dimension": 23
+            },
+            {
+              "index": 28,
+              "calls": 4031,
+              "iterations": 8062,
+              "dimension": 23
+            },
+            {
+              "index": 29,
+              "calls": 3381,
+              "iterations": 6762,
+              "dimension": 23
+            },
+            {
+              "index": 30,
+              "calls": 3329,
+              "iterations": 6649,
+              "dimension": 23
+            },
+            {
+              "index": 31,
+              "calls": 26229,
+              "iterations": 52458,
+              "dimension": 23
+            },
+            {
+              "index": 32,
+              "calls": 2289,
+              "iterations": 4578,
+              "dimension": 23
+            },
+            {
+              "index": 33,
+              "calls": 12000,
+              "iterations": 35575,
+              "dimension": 23
+            },
+            {
+              "index": 34,
+              "calls": 12001,
+              "iterations": 35553,
+              "dimension": 23
+            },
+            {
+              "index": 35,
+              "calls": 2290,
+              "iterations": 4580,
+              "dimension": 23
+            },
+            {
+              "index": 36,
+              "calls": 26234,
+              "iterations": 52468,
+              "dimension": 23
+            },
+            {
+              "index": 37,
+              "calls": 3246,
+              "iterations": 6482,
+              "dimension": 23
+            },
+            {
+              "index": 38,
+              "calls": 3295,
+              "iterations": 6590,
+              "dimension": 23
+            },
+            {
+              "index": 39,
+              "calls": 3336,
+              "iterations": 6672,
+              "dimension": 23
+            },
+            {
+              "index": 40,
+              "calls": 1844,
+              "iterations": 3688,
+              "dimension": 23
+            },
+            {
+              "index": 41,
+              "calls": 5658,
+              "iterations": 11316,
+              "dimension": 23
+            },
+            {
+              "index": 42,
+              "calls": 2415,
+              "iterations": 5028,
+              "dimension": 23
+            },
+            {
+              "index": 43,
+              "calls": 2197,
+              "iterations": 4394,
+              "dimension": 23
+            },
+            {
+              "index": 44,
+              "calls": 2629,
+              "iterations": 5258,
+              "dimension": 23
+            },
+            {
+              "index": 45,
+              "calls": 2629,
+              "iterations": 5258,
+              "dimension": 23
+            },
+            {
+              "index": 46,
+              "calls": 1619,
+              "iterations": 3199,
+              "dimension": 23
+            },
+            {
+              "index": 47,
+              "calls": 28247,
+              "iterations": 56500,
+              "dimension": 35
+            }
+          ],
+          "scalar_calls": 969537,
+          "scalar_iterations": 2512078,
+          "scalar_max_iterations": 4,
+          "velocity_calls": 0,
+          "velocity_elements": 0
+        }
+      },
+      {
+        "label": "instrumented_6_ACTIVE_1.0_1",
+        "kind": "instrumented",
+        "threads": 6,
+        "policy": "ACTIVE",
+        "sim_s": 1.0,
+        "wall_s": 12.276705405995017,
+        "user_s": 73.35,
+        "system_s": 0.2,
+        "rss_kb": 62996,
+        "profile": {
+          "regions": {
+            "run": {
+              "wall_s": 12.238462335,
+              "calls": 1
+            },
+            "hydraulic_0d": {
+              "wall_s": 3.3605522289999654,
+              "calls": 201203
+            },
+            "hydraulic_coefficients": {
+              "wall_s": 0.09467708799977875,
+              "calls": 423820
+            },
+            "hydraulic_linear_solve": {
+              "wall_s": 2.428387368000231,
+              "calls": 423820
+            },
+            "hydraulic_init": {
+              "wall_s": 0.01590592099997172,
+              "calls": 201203
+            },
+            "hydraulic_substitute": {
+              "wall_s": 0.03803314899999812,
+              "calls": 201203
+            },
+            "hydraulic_1d": {
+              "wall_s": 0.8871640239998569,
+              "calls": 585370
+            },
+            "hydraulic_boundaries": {
+              "wall_s": 1.5180643179999829,
+              "calls": 585370
+            },
+            "edge_update": {
+              "wall_s": 0.0285080029999771,
+              "calls": 585370
+            },
+            "new_timestep": {
+              "wall_s": 0.022141178000081828,
+              "calls": 585658
+            },
+            "scheduler": {
+              "wall_s": 0.32120865899998496,
+              "calls": 585371
+            },
+            "oxygen_transport": {
+              "wall_s": 0.5938084720004583,
+              "calls": 585370
+            },
+            "carbon_transport": {
+              "wall_s": 0.8838532879997915,
+              "calls": 585370
+            },
+            "gas_capillaries": {
+              "wall_s": 4.373451342999376,
+              "calls": 201203
+            },
+            "save_transport_history": {
+              "wall_s": 0.07041773800042403,
+              "calls": 585370
+            },
+            "transport_nodes": {
+              "wall_s": 0.1320852040000649,
+              "calls": 1525720
+            },
+            "transport_edges": {
+              "wall_s": 0.2013926870023954,
+              "calls": 1525720
+            },
+            "master_transport": {
+              "wall_s": 0.42720296200039537,
+              "calls": 1525720
+            },
+            "transport_1d": {
+              "wall_s": 0.17895799801513626,
+              "calls": 4682960
+            },
+            "junction_qr": {
+              "wall_s": 0,
+              "calls": 0
+            },
+            "initialization": {
+              "wall_s": 0.002841207,
+              "calls": 2
+            }
+          },
+          "models": [
+            {
+              "index": 0,
+              "calls": 2086,
+              "iterations": 4199,
+              "dimension": 8
+            },
+            {
+              "index": 1,
+              "calls": 5632,
+              "iterations": 11571,
+              "dimension": 8
+            },
+            {
+              "index": 2,
+              "calls": 2770,
+              "iterations": 5546,
+              "dimension": 8
+            },
+            {
+              "index": 3,
+              "calls": 1250,
+              "iterations": 2394,
+              "dimension": 23
+            },
+            {
+              "index": 4,
+              "calls": 1773,
+              "iterations": 3439,
+              "dimension": 23
+            },
+            {
+              "index": 5,
+              "calls": 1051,
+              "iterations": 2014,
+              "dimension": 23
+            },
+            {
+              "index": 6,
+              "calls": 1252,
+              "iterations": 2413,
+              "dimension": 23
+            },
+            {
+              "index": 7,
+              "calls": 1158,
+              "iterations": 2201,
+              "dimension": 23
+            },
+            {
+              "index": 8,
+              "calls": 1599,
+              "iterations": 2924,
+              "dimension": 23
+            },
+            {
+              "index": 9,
+              "calls": 1286,
+              "iterations": 2354,
+              "dimension": 23
+            },
+            {
+              "index": 10,
+              "calls": 1252,
+              "iterations": 2413,
+              "dimension": 23
+            },
+            {
+              "index": 11,
+              "calls": 1158,
+              "iterations": 2201,
+              "dimension": 23
+            },
+            {
+              "index": 12,
+              "calls": 1286,
+              "iterations": 2354,
+              "dimension": 23
+            },
+            {
+              "index": 13,
+              "calls": 1599,
+              "iterations": 2924,
+              "dimension": 23
+            },
+            {
+              "index": 14,
+              "calls": 1161,
+              "iterations": 2215,
+              "dimension": 23
+            },
+            {
+              "index": 15,
+              "calls": 1229,
+              "iterations": 2363,
+              "dimension": 23
+            },
+            {
+              "index": 16,
+              "calls": 1292,
+              "iterations": 2469,
+              "dimension": 23
+            },
+            {
+              "index": 17,
+              "calls": 2343,
+              "iterations": 4669,
+              "dimension": 23
+            },
+            {
+              "index": 18,
+              "calls": 941,
+              "iterations": 1848,
+              "dimension": 23
+            },
+            {
+              "index": 19,
+              "calls": 908,
+              "iterations": 1782,
+              "dimension": 23
+            },
+            {
+              "index": 20,
+              "calls": 1429,
+              "iterations": 2802,
+              "dimension": 23
+            },
+            {
+              "index": 21,
+              "calls": 984,
+              "iterations": 1935,
+              "dimension": 23
+            },
+            {
+              "index": 22,
+              "calls": 1428,
+              "iterations": 2800,
+              "dimension": 23
+            },
+            {
+              "index": 23,
+              "calls": 2038,
+              "iterations": 4076,
+              "dimension": 23
+            },
+            {
+              "index": 24,
+              "calls": 2197,
+              "iterations": 4394,
+              "dimension": 23
+            },
+            {
+              "index": 25,
+              "calls": 2928,
+              "iterations": 5902,
+              "dimension": 23
+            },
+            {
+              "index": 26,
+              "calls": 6039,
+              "iterations": 12078,
+              "dimension": 23
+            },
+            {
+              "index": 27,
+              "calls": 2235,
+              "iterations": 4470,
+              "dimension": 23
+            },
+            {
+              "index": 28,
+              "calls": 4031,
+              "iterations": 8062,
+              "dimension": 23
+            },
+            {
+              "index": 29,
+              "calls": 3381,
+              "iterations": 6762,
+              "dimension": 23
+            },
+            {
+              "index": 30,
+              "calls": 3329,
+              "iterations": 6649,
+              "dimension": 23
+            },
+            {
+              "index": 31,
+              "calls": 26229,
+              "iterations": 52458,
+              "dimension": 23
+            },
+            {
+              "index": 32,
+              "calls": 2289,
+              "iterations": 4578,
+              "dimension": 23
+            },
+            {
+              "index": 33,
+              "calls": 12000,
+              "iterations": 35575,
+              "dimension": 23
+            },
+            {
+              "index": 34,
+              "calls": 12001,
+              "iterations": 35553,
+              "dimension": 23
+            },
+            {
+              "index": 35,
+              "calls": 2290,
+              "iterations": 4580,
+              "dimension": 23
+            },
+            {
+              "index": 36,
+              "calls": 26234,
+              "iterations": 52468,
+              "dimension": 23
+            },
+            {
+              "index": 37,
+              "calls": 3246,
+              "iterations": 6482,
+              "dimension": 23
+            },
+            {
+              "index": 38,
+              "calls": 3295,
+              "iterations": 6590,
+              "dimension": 23
+            },
+            {
+              "index": 39,
+              "calls": 3336,
+              "iterations": 6672,
+              "dimension": 23
+            },
+            {
+              "index": 40,
+              "calls": 1844,
+              "iterations": 3688,
+              "dimension": 23
+            },
+            {
+              "index": 41,
+              "calls": 5658,
+              "iterations": 11316,
+              "dimension": 23
+            },
+            {
+              "index": 42,
+              "calls": 2415,
+              "iterations": 5028,
+              "dimension": 23
+            },
+            {
+              "index": 43,
+              "calls": 2197,
+              "iterations": 4394,
+              "dimension": 23
+            },
+            {
+              "index": 44,
+              "calls": 2629,
+              "iterations": 5258,
+              "dimension": 23
+            },
+            {
+              "index": 45,
+              "calls": 2629,
+              "iterations": 5258,
+              "dimension": 23
+            },
+            {
+              "index": 46,
+              "calls": 1619,
+              "iterations": 3199,
+              "dimension": 23
+            },
+            {
+              "index": 47,
+              "calls": 28247,
+              "iterations": 56500,
+              "dimension": 35
+            }
+          ],
+          "scalar_calls": 969537,
+          "scalar_iterations": 2512078,
+          "scalar_max_iterations": 4,
+          "velocity_calls": 0,
+          "velocity_elements": 0
+        }
+      },
+      {
+        "label": "instrumented_6_ACTIVE_1.0_2",
+        "kind": "instrumented",
+        "threads": 6,
+        "policy": "ACTIVE",
+        "sim_s": 1.0,
+        "wall_s": 12.256426188978367,
+        "user_s": 73.22,
+        "system_s": 0.21,
+        "rss_kb": 63052,
+        "profile": {
+          "regions": {
+            "run": {
+              "wall_s": 12.219932352,
+              "calls": 1
+            },
+            "hydraulic_0d": {
+              "wall_s": 3.3476286230000816,
+              "calls": 201203
+            },
+            "hydraulic_coefficients": {
+              "wall_s": 0.0945923449997784,
+              "calls": 423820
+            },
+            "hydraulic_linear_solve": {
+              "wall_s": 2.4211481230000684,
+              "calls": 423820
+            },
+            "hydraulic_init": {
+              "wall_s": 0.015967561999972193,
+              "calls": 201203
+            },
+            "hydraulic_substitute": {
+              "wall_s": 0.03809830999999534,
+              "calls": 201203
+            },
+            "hydraulic_1d": {
+              "wall_s": 0.8770203340001506,
+              "calls": 585370
+            },
+            "hydraulic_boundaries": {
+              "wall_s": 1.5226900210001315,
+              "calls": 585370
+            },
+            "edge_update": {
+              "wall_s": 0.028570916999975115,
+              "calls": 585370
+            },
+            "new_timestep": {
+              "wall_s": 0.02207486700007644,
+              "calls": 585658
+            },
+            "scheduler": {
+              "wall_s": 0.319931146000031,
+              "calls": 585371
+            },
+            "oxygen_transport": {
+              "wall_s": 0.5960562200005338,
+              "calls": 585370
+            },
+            "carbon_transport": {
+              "wall_s": 0.8872750099998019,
+              "calls": 585370
+            },
+            "gas_capillaries": {
+              "wall_s": 4.372447158999661,
+              "calls": 201203
+            },
+            "save_transport_history": {
+              "wall_s": 0.06998001600041522,
+              "calls": 585370
+            },
+            "transport_nodes": {
+              "wall_s": 0.13534817600005575,
+              "calls": 1525720
+            },
+            "transport_edges": {
+              "wall_s": 0.20159102500232753,
+              "calls": 1525720
+            },
+            "master_transport": {
+              "wall_s": 0.4361225070002807,
+              "calls": 1525720
+            },
+            "transport_1d": {
+              "wall_s": 0.17860238501499465,
+              "calls": 4682960
+            },
+            "junction_qr": {
+              "wall_s": 0,
+              "calls": 0
+            },
+            "initialization": {
+              "wall_s": 0.002872366,
+              "calls": 2
+            }
+          },
+          "models": [
+            {
+              "index": 0,
+              "calls": 2086,
+              "iterations": 4199,
+              "dimension": 8
+            },
+            {
+              "index": 1,
+              "calls": 5632,
+              "iterations": 11571,
+              "dimension": 8
+            },
+            {
+              "index": 2,
+              "calls": 2770,
+              "iterations": 5546,
+              "dimension": 8
+            },
+            {
+              "index": 3,
+              "calls": 1250,
+              "iterations": 2394,
+              "dimension": 23
+            },
+            {
+              "index": 4,
+              "calls": 1773,
+              "iterations": 3439,
+              "dimension": 23
+            },
+            {
+              "index": 5,
+              "calls": 1051,
+              "iterations": 2014,
+              "dimension": 23
+            },
+            {
+              "index": 6,
+              "calls": 1252,
+              "iterations": 2413,
+              "dimension": 23
+            },
+            {
+              "index": 7,
+              "calls": 1158,
+              "iterations": 2201,
+              "dimension": 23
+            },
+            {
+              "index": 8,
+              "calls": 1599,
+              "iterations": 2924,
+              "dimension": 23
+            },
+            {
+              "index": 9,
+              "calls": 1286,
+              "iterations": 2354,
+              "dimension": 23
+            },
+            {
+              "index": 10,
+              "calls": 1252,
+              "iterations": 2413,
+              "dimension": 23
+            },
+            {
+              "index": 11,
+              "calls": 1158,
+              "iterations": 2201,
+              "dimension": 23
+            },
+            {
+              "index": 12,
+              "calls": 1286,
+              "iterations": 2354,
+              "dimension": 23
+            },
+            {
+              "index": 13,
+              "calls": 1599,
+              "iterations": 2924,
+              "dimension": 23
+            },
+            {
+              "index": 14,
+              "calls": 1161,
+              "iterations": 2215,
+              "dimension": 23
+            },
+            {
+              "index": 15,
+              "calls": 1229,
+              "iterations": 2363,
+              "dimension": 23
+            },
+            {
+              "index": 16,
+              "calls": 1292,
+              "iterations": 2469,
+              "dimension": 23
+            },
+            {
+              "index": 17,
+              "calls": 2343,
+              "iterations": 4669,
+              "dimension": 23
+            },
+            {
+              "index": 18,
+              "calls": 941,
+              "iterations": 1848,
+              "dimension": 23
+            },
+            {
+              "index": 19,
+              "calls": 908,
+              "iterations": 1782,
+              "dimension": 23
+            },
+            {
+              "index": 20,
+              "calls": 1429,
+              "iterations": 2802,
+              "dimension": 23
+            },
+            {
+              "index": 21,
+              "calls": 984,
+              "iterations": 1935,
+              "dimension": 23
+            },
+            {
+              "index": 22,
+              "calls": 1428,
+              "iterations": 2800,
+              "dimension": 23
+            },
+            {
+              "index": 23,
+              "calls": 2038,
+              "iterations": 4076,
+              "dimension": 23
+            },
+            {
+              "index": 24,
+              "calls": 2197,
+              "iterations": 4394,
+              "dimension": 23
+            },
+            {
+              "index": 25,
+              "calls": 2928,
+              "iterations": 5902,
+              "dimension": 23
+            },
+            {
+              "index": 26,
+              "calls": 6039,
+              "iterations": 12078,
+              "dimension": 23
+            },
+            {
+              "index": 27,
+              "calls": 2235,
+              "iterations": 4470,
+              "dimension": 23
+            },
+            {
+              "index": 28,
+              "calls": 4031,
+              "iterations": 8062,
+              "dimension": 23
+            },
+            {
+              "index": 29,
+              "calls": 3381,
+              "iterations": 6762,
+              "dimension": 23
+            },
+            {
+              "index": 30,
+              "calls": 3329,
+              "iterations": 6649,
+              "dimension": 23
+            },
+            {
+              "index": 31,
+              "calls": 26229,
+              "iterations": 52458,
+              "dimension": 23
+            },
+            {
+              "index": 32,
+              "calls": 2289,
+              "iterations": 4578,
+              "dimension": 23
+            },
+            {
+              "index": 33,
+              "calls": 12000,
+              "iterations": 35575,
+              "dimension": 23
+            },
+            {
+              "index": 34,
+              "calls": 12001,
+              "iterations": 35553,
+              "dimension": 23
+            },
+            {
+              "index": 35,
+              "calls": 2290,
+              "iterations": 4580,
+              "dimension": 23
+            },
+            {
+              "index": 36,
+              "calls": 26234,
+              "iterations": 52468,
+              "dimension": 23
+            },
+            {
+              "index": 37,
+              "calls": 3246,
+              "iterations": 6482,
+              "dimension": 23
+            },
+            {
+              "index": 38,
+              "calls": 3295,
+              "iterations": 6590,
+              "dimension": 23
+            },
+            {
+              "index": 39,
+              "calls": 3336,
+              "iterations": 6672,
+              "dimension": 23
+            },
+            {
+              "index": 40,
+              "calls": 1844,
+              "iterations": 3688,
+              "dimension": 23
+            },
+            {
+              "index": 41,
+              "calls": 5658,
+              "iterations": 11316,
+              "dimension": 23
+            },
+            {
+              "index": 42,
+              "calls": 2415,
+              "iterations": 5028,
+              "dimension": 23
+            },
+            {
+              "index": 43,
+              "calls": 2197,
+              "iterations": 4394,
+              "dimension": 23
+            },
+            {
+              "index": 44,
+              "calls": 2629,
+              "iterations": 5258,
+              "dimension": 23
+            },
+            {
+              "index": 45,
+              "calls": 2629,
+              "iterations": 5258,
+              "dimension": 23
+            },
+            {
+              "index": 46,
+              "calls": 1619,
+              "iterations": 3199,
+              "dimension": 23
+            },
+            {
+              "index": 47,
+              "calls": 28247,
+              "iterations": 56500,
+              "dimension": 35
+            }
+          ],
+          "scalar_calls": 969537,
+          "scalar_iterations": 2512078,
+          "scalar_max_iterations": 4,
+          "velocity_calls": 0,
+          "velocity_elements": 0
+        }
+      }
+    ]
+  },
+  "sqrt_vs_flow.json": {
+    "pressure_Pa": {
+      "nrms_percent": 1.9547258130381063e-09,
+      "max_absolute": 0.00011927387095056474
+    },
+    "flow_m3_s": {
+      "nrms_percent": 4.079259028027291e-11,
+      "max_absolute": 8.454608541041964e-16
+    },
+    "area_m2": {
+      "nrms_percent": 3.9935309150222445e-12,
+      "max_absolute": 5.608035737181272e-17
+    },
+    "velocity_m_s": {
+      "nrms_percent": 5.407971177020876e-08,
+      "max_absolute": 6.014304165802287e-09
+    },
+    "oxygen": {
+      "nrms_percent": 1.7050903905346355e-08,
+      "max_absolute": 6.486975626801561e-11
+    },
+    "carbon": {
+      "nrms_percent": 3.4650246903501283e-09,
+      "max_absolute": 1.1233265151400218e-09
+    },
+    "RBC": {
+      "nrms_percent": 7.89102874971754e-15,
+      "max_absolute": 59
+    },
+    "saturation": {
+      "nrms_percent": 2.686512155720384e-10,
+      "max_absolute": 1.4371148715497384e-10
+    }
+  },
+  "native_1s_medians": {
+    "baseline": 12.302073067985475,
+    "flow": 11.607104249007534,
+    "sqrt": 11.523180315998616
+  },
+  "profile_breakdown": {
+    "hydraulic_boundaries": {
+      "wall_s": 1.5185646030001252,
+      "percent": 12.4269477052513
+    },
+    "hydraulic_0d": {
+      "wall_s": 3.3487750890000147,
+      "percent": 27.40420317017492
+    },
+    "gas_capillaries": {
+      "wall_s": 4.372447158999661,
+      "percent": 35.78127139373267
+    },
+    "network_transport": {
+      "wall_s": 1.4833312300003358,
+      "percent": 12.13862063448791
+    },
+    "hydraulic_1d": {
+      "wall_s": 0.8787271490002547,
+      "percent": 7.190933007550046
+    },
+    "scheduler": {
+      "wall_s": 0.319931146000031,
+      "percent": 2.6181089778919175
+    },
+    "save_transport_history": {
+      "wall_s": 0.06998001600041522,
+      "percent": 0.5726710589274399
+    },
+    "update_and_timestep": {
+      "wall_s": 0.05064918100005893,
+      "percent": 0.4144800440877181
+    },
+    "other": {
+      "wall_s": 0.17752677899910374,
+      "percent": 1.4527640078960704
+    }
+  },
+  "profile_run_median_s": 12.219932352,
+  "profile_overhead_0.2": 5.060149204817255,
+  "profile_overhead_1.0": 6.61104931161689
+}

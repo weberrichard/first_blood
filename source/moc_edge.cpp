@@ -728,18 +728,39 @@ void moc_edge::boundary_substitute_end(double t_act, double p, double q)
 //--------------------------------------------------------------
 std::array<double,2> moc_edge::JunctionBoundary::evaluate(double pressure) const
 {
-    double area,derivative;
+    double area,derivative,power;
     if(olufsen) {
         const double denominator=1.-(pressure-reference_pressure)/wall;
         area=nominal_area/(denominator*denominator);
         derivative=2.*area/(wall*denominator);
+        // A^(-1/4) = An^(-1/4)*sqrt(|denominator|).
+        power=nominal_power*std::sqrt(std::abs(denominator));
     } else {
         const double root=std::sqrt(nominal_area)+(pressure-reference_pressure)*linear_area_factor;
         area=root*root;derivative=2.*root*linear_area_factor;
+        power=std::sqrt(std::abs(root));
     }
-    const double power=std::pow(area,exponent);
+    // Preserve the original exceptional-value behavior if area under/overflows.
+    if(!(area>0.) || !std::isfinite(area))power=std::pow(area,exponent);
     return {area*(constant+coefficient*power),
             derivative*(constant+coefficient*(1.+exponent)*power)};
+}
+
+// Evaluate only the accepted flow, using the characteristics prepared for this event.
+double moc_edge::JunctionBoundary::flow(double pressure) const
+{
+    double area,power;
+    if(olufsen) {
+        const double denominator=1.-(pressure-reference_pressure)/wall;
+        area=nominal_area/(denominator*denominator);
+        power=nominal_power*std::sqrt(std::abs(denominator));
+    } else {
+        const double root=std::sqrt(nominal_area)+(pressure-reference_pressure)*linear_area_factor;
+        area=root*root;
+        power=std::sqrt(std::abs(root));
+    }
+    if(!(area>0.) || !std::isfinite(area))power=std::pow(area,exponent);
+    return area*(constant+coefficient*power);
 }
 
 moc_edge::JunctionBoundary moc_edge::prepare_junction(bool start,double t_act)
@@ -760,8 +781,9 @@ moc_edge::JunctionBoundary moc_edge::prepare_junction(bool start,double t_act)
         result.exponent=.25;
         result.coefficient=sign*4.*std::sqrt(beta*thickness/(2.*rho*nominal));
     }
+    result.nominal_power=std::pow(nominal,result.exponent);
     result.constant=-2.*dt*source+2.*characteristic
-        -result.coefficient*std::pow(nominal,result.exponent);
+        -result.coefficient*result.nominal_power;
     return result;
 }
 

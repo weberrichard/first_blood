@@ -158,8 +158,9 @@ public:
     struct JunctionBoundary {
         bool olufsen;
         double nominal_area, reference_pressure, wall, linear_area_factor;
-        double constant, coefficient, exponent;
+        double constant, coefficient, exponent, nominal_power;
         std::array<double,2> evaluate(double pressure) const;
+        double flow(double pressure) const;
     };
     JunctionBoundary prepare_junction(bool start,double t_act);
 
