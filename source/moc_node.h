@@ -42,6 +42,10 @@ public:
 	// saving field variables
 	bool do_save_memory = true;
 
+    // Current state is independent of optional output history.
+    double current_pressure = 0.;
+    double current_flow_rate = 0.;
+
 	// time vector
 	vector<double> time;
 	

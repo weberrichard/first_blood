@@ -42,7 +42,7 @@ public:
 
     Transport_1D(TransportType TType);
 
-    void update_fi(vector<double> v, vector<double>& fi, vector<double>& fi_new, double l, double dt, double fiStart, double fiEnd);
+    void update_fi(const vector<double>& v, vector<double>& fi, vector<double>& fi_new, double l, double dt, double fiStart, double fiEnd);
     void prescribe_node_fi_CO2(TransportType TType, double& finode);
 };
 
@@ -253,4 +253,4 @@ public:
 	boundary upstream_boundary;
 };
 
-#endif //FIRST_BLOOD_H 
+#endif //FIRST_BLOOD_H

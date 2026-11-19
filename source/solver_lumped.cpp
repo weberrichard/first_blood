@@ -2208,21 +2208,26 @@ void solver_lumped::pulmonary_CO2transport(double dt){
 
 //-------------------------------------------------------------------------------------
 struct TransportConfig {
+    using Node=solver_lumped::node;
+    using EdgeList=std::vector<D0_edge*>;
     std::string edge_in_list_name;
     std::string edge_out_list_name;
     std::string node_fi_property_name;
+    EdgeList Node::* incoming;
+    EdgeList Node::* outgoing;
+    double Node::* value;
 };
 
 //-------------------------------------------------------------------------------------
 std::unordered_map<TransportType, TransportConfig> transport_configs = {
-    {RBC, {"D0_edges_in_RBC", "D0_edges_out_RBC", "RBC_fi0Dn"}},
-    {HB_O2_saturation, {"D0_edges_in_HBsat", "D0_edges_out_HBsat", "HBsat_0Dn"}},
-    {C_Plasma_O2, {"D0_edges_in_PlasmaO2", "D0_edges_out_PlasmaO2", "PlasmaO2_0Dn"}},
-    {CO2_pla, {"D0_edges_in_CO2_pla", "D0_edges_out_CO2_pla", "CO2_pla_n"}},
-    {CO2_rbc, {"D0_edges_in_CO2_rbc", "D0_edges_out_CO2_rbc", "CO2_rbc_n"}},
-    {HCO3_pla, {"D0_edges_in_HCO3_pla", "D0_edges_out_HCO3_pla", "HCO3_pla_n"}},
-    {HCO3_rbc, {"D0_edges_in_HCO3_rbc", "D0_edges_out_HCO3_rbc", "HCO3_rbc_n"}},
-    {HbCO2, {"D0_edges_in_HbCO2", "D0_edges_out_HbCO2",  "HbCO2_n"}}
+    {RBC, {"D0_edges_in_RBC", "D0_edges_out_RBC", "RBC_fi0Dn", &solver_lumped::node::D0_edges_in_RBC, &solver_lumped::node::D0_edges_out_RBC, &solver_lumped::node::RBC_fi0Dn}},
+    {HB_O2_saturation, {"D0_edges_in_HBsat", "D0_edges_out_HBsat", "HBsat_0Dn", &solver_lumped::node::D0_edges_in_HBsat, &solver_lumped::node::D0_edges_out_HBsat, &solver_lumped::node::HBsat_0Dn}},
+    {C_Plasma_O2, {"D0_edges_in_PlasmaO2", "D0_edges_out_PlasmaO2", "PlasmaO2_0Dn", &solver_lumped::node::D0_edges_in_PlasmaO2, &solver_lumped::node::D0_edges_out_PlasmaO2, &solver_lumped::node::PlasmaO2_0Dn}},
+    {CO2_pla, {"D0_edges_in_CO2_pla", "D0_edges_out_CO2_pla", "CO2_pla_n", &solver_lumped::node::D0_edges_in_CO2_pla, &solver_lumped::node::D0_edges_out_CO2_pla, &solver_lumped::node::CO2_pla_n}},
+    {CO2_rbc, {"D0_edges_in_CO2_rbc", "D0_edges_out_CO2_rbc", "CO2_rbc_n", &solver_lumped::node::D0_edges_in_CO2_rbc, &solver_lumped::node::D0_edges_out_CO2_rbc, &solver_lumped::node::CO2_rbc_n}},
+    {HCO3_pla, {"D0_edges_in_HCO3_pla", "D0_edges_out_HCO3_pla", "HCO3_pla_n", &solver_lumped::node::D0_edges_in_HCO3_pla, &solver_lumped::node::D0_edges_out_HCO3_pla, &solver_lumped::node::HCO3_pla_n}},
+    {HCO3_rbc, {"D0_edges_in_HCO3_rbc", "D0_edges_out_HCO3_rbc", "HCO3_rbc_n", &solver_lumped::node::D0_edges_in_HCO3_rbc, &solver_lumped::node::D0_edges_out_HCO3_rbc, &solver_lumped::node::HCO3_rbc_n}},
+    {HbCO2, {"D0_edges_in_HbCO2", "D0_edges_out_HbCO2", "HbCO2_n", &solver_lumped::node::D0_edges_in_HbCO2, &solver_lumped::node::D0_edges_out_HbCO2, &solver_lumped::node::HbCO2_n}}
 };
 
 //-------------------------------------------------------------------------------------
@@ -2280,7 +2285,7 @@ void D0_transport::update_nodes(solver_lumped& lum_mod) {
         double c = 0.0; // concentration
 
         // Incoming edges
-        auto& edges_in = get_edge_list(lum_mod.nodes[i], config.edge_in_list_name);
+        auto& edges_in = lum_mod.nodes[i]->*config.incoming;
         for (auto* edge : edges_in) {
             double Q = edge->corr_edge->vfr * edge->corr_edge->is_open;
             if (Q > 0.0) {
@@ -2290,7 +2295,7 @@ void D0_transport::update_nodes(solver_lumped& lum_mod) {
         }
 
         // Outgoing edges
-        auto& edges_out = get_edge_list(lum_mod.nodes[i], config.edge_out_list_name);
+        auto& edges_out = lum_mod.nodes[i]->*config.outgoing;
         for (auto* edge : edges_out) {
             double Q = edge->corr_edge->vfr * edge->corr_edge->is_open;
             if (Q < 0.0) {
@@ -2301,7 +2306,7 @@ void D0_transport::update_nodes(solver_lumped& lum_mod) {
 
         // Update node concentration
         if (q != 0.0) {
-            get_node_fi(lum_mod.nodes[i], config.node_fi_property_name) = c / q;
+            lum_mod.nodes[i]->*config.value = c / q;
         }
     }
 }
@@ -2326,7 +2331,7 @@ void D0_transport::connect_0D_edges(solver_lumped& lum_mod) {
                 }
                 const auto& config = config_it->second;
                 // Add the edge to the outgoing edge list of the start node
-                get_edge_list(lum_mod.nodes[j], config.edge_out_list_name).push_back(D0_edges[i]);
+                (lum_mod.nodes[j]->*config.outgoing).push_back(D0_edges[i]);
             }
 
             if (ne == lum_mod.nodes[j]->name) {
@@ -2339,7 +2344,7 @@ void D0_transport::connect_0D_edges(solver_lumped& lum_mod) {
                 }
                 const auto& config = config_it->second;
                 // Add the edge to the incoming edge list of the end node
-                get_edge_list(lum_mod.nodes[j], config.edge_in_list_name).push_back(D0_edges[i]);
+                (lum_mod.nodes[j]->*config.incoming).push_back(D0_edges[i]);
             }
         }
 
@@ -2365,8 +2370,7 @@ const std::string& D0_transport::get_node_fi_property_name(TransportType type) {
 void D0_edge::update_diode() {
     if (corr_edge->is_open) {
         try {
-            const std::string& property_name = D0_transport::get_node_fi_property_name(TType);
-            fi[0] = get_node_fi(node_start, property_name);
+            fi[0] = node_start->*transport_configs.at(TType).value;
         } catch (const std::runtime_error& e) {
             std::cerr << "Error in update_diode: " << e.what() << std::endl;
         }
@@ -2394,8 +2398,7 @@ void D0_edge::virt1D(double dt) {
         fi[nx - 1] = fi_old[nx - 1] - v * dt / dx * (fi_old[nx - 1] - fi_old[nx - 2]);
 
         try {
-            const std::string& property_name = D0_transport::get_node_fi_property_name(TType);
-            fi[0] = get_node_fi(node_start, property_name);
+            fi[0] = node_start->*transport_configs.at(TType).value;
         } catch (const std::runtime_error& e) {
             std::cerr << "Error in virt1D: " << e.what() << std::endl;
         }
@@ -2403,8 +2406,7 @@ void D0_edge::virt1D(double dt) {
     }
     else {
         try {
-            const std::string& property_name = D0_transport::get_node_fi_property_name(TType);
-            fi[nx - 1] = get_node_fi(node_end, property_name);
+            fi[nx - 1] = node_end->*transport_configs.at(TType).value;
         } catch (const std::runtime_error& e) {
             std::cerr << "Error in virt1D: " << e.what() << std::endl;
         }

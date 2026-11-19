@@ -1,0 +1,3181 @@
+{
+  "date": "2026-11-19",
+  "baseline_commit": "584396b0e62eaa5f96fa6cbd86c2eafb27d5fc12",
+  "machine": "whserver, Ryzen 5 3600",
+  "threads": 6,
+  "omp_wait_policy": "ACTIVE",
+  "timing_repeats": 3,
+  "timing_sim_s": 0.2,
+  "percent_definition": "NRMS_percent=100*sqrt(sum((new-reference)^2)/sum(reference^2)); maximum relative percent uses a denominator floor of 1e-6 times the maximum absolute reference value in that field. Gauge pressure subtracts 100000 Pa. All spatial values at the recorded checkpoints are included.",
+  "model_files_sha256": {
+    "p3.csv": "2d13b03a53bb1d169281c3c18ebe6b0e06d775f01fac66defdf291a5416aea3b",
+    "CO2_parameters.txt": "e6c52a915bd49253178140d719438abdf3abbb766a76dbb666834ead72cf4fb1",
+    "p24.csv": "0462ba8b94d25646a2f22b4a824873689b37af5180e2a82e90fe3c02a7e95a75",
+    "p17.csv": "426f632e7b423511faa3916ab0cbd12b978f70384578c404f21dd56f9f11424d",
+    "p27.csv": "ec34f0ec49ccd5b8bd757d12a7508177cac0fa8d10c6346d9318f81dcc823444",
+    "p46.csv": "3491e1e0e791e00f0977f23469ad6b5a675fd27b6e7a834908bc68cca9a8d1f7",
+    "heart_kim_lit - Copy.csv": "20e025cade2cd39f6c697809b9103b2ae01b755ce4f55a330941e00bbb658f63",
+    "p11.csv": "f95166857a6cedf0467ea51c3896647e246f7c60bbfe38a52558d7f28493ef14",
+    "p36.csv": "9b47b12f4d15f014becd670bd1bb5c4a58ca221a28b8aaa8dee27511c7684046",
+    "p18.csv": "26e368722343e755aa56868cafa4a5f1208253767d4d6eb53f85ac5abd69a575",
+    "p19.csv": "a09be69b56521320f85237d5713af932bf98fa66f7e3d0ee0033a84f9fbdd7d8",
+    "p15.csv": "b6eafb9291c38f78216e00aab55bc03bfcaa3a1f2e2822b1830b8b7c26a4e768",
+    "p43.csv": "2f8bea47976aefc7b1d24af37805230f82d498538359662e68ac7f6c1c48d856",
+    "arterial.csv": "66513056a65baf6801a3551e36ddf247982ab0e254123613bcbcf89f3da9df0a",
+    "p42.csv": "844c41a26c34e1e81bd39f70e8e276a52dd9b7a2e93cf24d31883c2b3a5fb923",
+    "p22.csv": "4c1f32db071855adb7af92cc00034901cd1b7e0409d9e330956a3517b236548f",
+    "p20.csv": "e40f0bd55dc33ffdd7f855d8946d26db10e8b339a9d68029f9fdd9ee9ff72642",
+    "p16.csv": "de7e49cdae8f09f014ae594aa1794f36b603eed6eb2b7e40713e962b911fd6a3",
+    "p7.csv": "9585042b0c66efb5442ab62937303e93b3672b0ad0779a28c0594df92419ce18",
+    "heart_kim_lit.csv": "ef27536d444c460392913801464bcda5e7a8d1ee6c706f018a57683134a374b7",
+    "venous.csv": "7c0a37df51a7169cecacb12faf523cede5990b8df9d6c69c560fbc302c333755",
+    "p31.csv": "b5c824042d315fe5a124f51c39887f4caf3838d692bfb406186f90201cc94a5b",
+    "p41.csv": "feceba8cee21b0f1db9500f3fc1f796f91451c0c3339f0d5fb1da5b876bb8b6b",
+    "p45.csv": "304a446203000bd469734593014867e78e2e1b83c4f5ca760f6170bd30076ddb",
+    "p1.csv": "f1bf40c1a4330ebd70dbbefa7f9bc4a007e398430693573dc5e118ee9e31dfce",
+    "p23.csv": "2be8d8d5d2414fa923767033be7b1cbf3fe9c4563b99db5d01d446e0b667a145",
+    "p21.csv": "4347fc28ed37459c02167d06759ab7dab777f798ecdabbd061ee19806f547b2e",
+    "p35.csv": "fe1b0818d7528a60f2d5b3812e326e09ff04d6183a080d0375c5c021fe15240e",
+    "p32.csv": "95808917282cc31ea1893bccdaab3c8d19f7b0790302d1f08ead98fb86a22a54",
+    "p2.csv": "2d13b03a53bb1d169281c3c18ebe6b0e06d775f01fac66defdf291a5416aea3b",
+    "p25.csv": "39cecc00d975a1beb10dbf0bb7aa91b783771fa04439a742e5cd3f0c1ad26ce9",
+    "p40.csv": "484f817127ca6ae8199a3b5ae632c1e3e66db6b93e8ce2aa4e1745ce73fa98a1",
+    "p30.csv": "30999ae14b747792cd3e04d355dc0ace670617e8a6d864c88de13bab697945e3",
+    "p9.csv": "2159ac3d6f31e412f7c1b2c44d0959c7aec86814891070023b9897d76be74561",
+    "p44.csv": "ac46d81e42ac410ff758f3f8856e7296f35d7b49662eecba3028c1b9e95fc7ef",
+    "p12.csv": "8ffa5e212a1d297416121eca0095f4fd58fc3847a90c79b8ebc49f1d51ae3daa",
+    "p10.csv": "26fe344a2a89db8263bd66054d9a72c7cc8d379ca2032c1abd926a50f5d80f92",
+    "p47.csv": "9742ec4348501f300ce758d01c27ea40e0f3557cb94458116c2197d55de74726",
+    "p14.csv": "f5272afb5bfbba00190b65801dda48bbe6cbcb76bd9f0371ea3d6b1a4431ba76",
+    "p33.csv": "758fdb087c9be2be3716c53b0de373634cce0a8d86aa1fa63f518a1b45e4bd12",
+    "O2_parameters.txt": "73670683b1accabdd87a8916d6e9855e7061a2e2f99f17a2287a6133e1f77c22",
+    "p38.csv": "f3ba3be6d7383de1e761da97d45ec638c395fe76411954fada9a7a22408671d0",
+    "p26.csv": "1949e24883222d2528629733cac042f749feac8f838167c58beefedc9c2dfbe8",
+    "main.csv": "b90233d21d65c3d6f448c7d38c9b365a0bf41d2f0153cdfffd26014f2112c1c8",
+    "p4.csv": "1ba56b3fde96baef25fe91bf271cc6b9ce307913ffd59d4f36fee7b9873db578",
+    "p8.csv": "d06f356a0d22f25e212c49a7a02dbbd20cba5383b74ca820ee0e9b1564f4d5c8",
+    "custom_output.txt": "31695ea3bbed96c0fc4b87f9eb345c7693849cb74279e7015cef2489f0cffccd",
+    "p34.csv": "342b16159d799c93dbf697781c9230fbf59606642caf7d8c28320996ed661f2f",
+    "p29.csv": "5196be608ed4e73a0cbd6fc7f314937ac13bf0f0abcbcef2fd8e6ddaa730afbd",
+    "p37.csv": "7f98d656ea3afb3ec1fd61f4a856962bd8bec7bbbcae277b28b17a66b7261c65",
+    "p5.csv": "d98b487b0544ea880e00221460c2ebe89bb96e723a4d022e7bee066c5081d4d8",
+    "p13.csv": "d2aa094d0c9174e25db830641938f8cfa49bbe3405187a2fdc40b1dc7611a651",
+    "p39.csv": "f3246e240f13fc08a0415fabc513f3be6edf1a4c696f3ac2dc4e18ec67e7ac84",
+    "p28.csv": "4972e6ac3add8cafca966ad8fbc4865d8c6ca0923153de88e6bc3cbdfbf901ce",
+    "p6.csv": "cb00f9e901241540160e47d43c1d0bdca8de313fac4411bfea9f4b071b11e392"
+  },
+  "stages": [
+    {
+      "stage": "baseline",
+      "simulated_s": 0.2,
+      "wall_times_s": [
+        5.094306664017495,
+        5.075972001010086,
+        5.217646180011798
+      ],
+      "median_wall_s": 5.094306664017495,
+      "balances": {
+        "node_absolute_m3_s": 3.910711306924584e-15,
+        "node_scaled": 3.3768995866004943e-09,
+        "node_checks": 969537,
+        "lumped_absolute_ml_s": 2.2737367544323206e-13,
+        "lumped_scaled": 3.2672590927899803e-16,
+        "lumped_checks": 1613678,
+        "equation_norm": 8.467223042230585e-09
+      },
+      "comparison": {
+        "pressure_Pa": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 0.12360060008527514
+        },
+        "flow_m3_s": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 1.3252787458987072e-09
+        },
+        "area_m2": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 8.915599222272905e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 2.9691503739286147e-06
+        },
+        "oxygen": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 7.467100000000003e-07
+        },
+        "RBC": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0,
+          "relative_denominator_floor": 4900000000.000332
+        },
+        "saturation": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 0.023600600085275144
+        }
+      },
+      "retained": true,
+      "speedup_vs_baseline": 1.0
+    },
+    {
+      "stage": "warm_start",
+      "simulated_s": 0.2,
+      "wall_times_s": [
+        4.376466051005991,
+        4.421211040986236,
+        4.394774986983975
+      ],
+      "median_wall_s": 4.394774986983975,
+      "balances": {
+        "node_absolute_m3_s": 4.169077531660827e-15,
+        "node_scaled": 3.350998408894416e-09,
+        "node_checks": 969537,
+        "lumped_absolute_ml_s": 2.2737367544323206e-13,
+        "lumped_scaled": 3.245614618642507e-16,
+        "lumped_checks": 1613678,
+        "equation_norm": 8.46722518947678e-09
+      },
+      "comparison": {
+        "pressure_Pa": {
+          "nrms_percent": 1.4127320445091992e-07,
+          "max_relative_percent": 8.794178917400532e-06,
+          "max_peak_percent": 7.488900166612934e-06,
+          "max_absolute": 0.009256325545720756,
+          "relative_denominator_floor": 0.12360060008527514
+        },
+        "flow_m3_s": {
+          "nrms_percent": 1.4889075872659193e-09,
+          "max_relative_percent": 0.000610078194996467,
+          "max_peak_percent": 1.1483836686422932e-09,
+          "max_absolute": 1.5219284681888148e-14,
+          "relative_denominator_floor": 1.3252787458987072e-09
+        },
+        "area_m2": {
+          "nrms_percent": 9.742171406211138e-10,
+          "max_relative_percent": 8.447402636814905e-06,
+          "max_peak_percent": 1.2012493174069274e-09,
+          "max_absolute": 1.0709857480029061e-14,
+          "relative_denominator_floor": 8.915599222272905e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 3.919647442692324e-06,
+          "max_relative_percent": 0.0038531535718394822,
+          "max_peak_percent": 1.5363304296802896e-05,
+          "max_absolute": 4.561596069763141e-07,
+          "relative_denominator_floor": 2.9691503739286147e-06
+        },
+        "oxygen": {
+          "nrms_percent": 1.0242115865074945e-06,
+          "max_relative_percent": 0.0002164519641521958,
+          "max_peak_percent": 0.00016943054141699962,
+          "max_absolute": 1.043821283748525e-08,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 1.8157661367430665e-06,
+          "max_relative_percent": 0.0009480626610303754,
+          "max_peak_percent": 0.00017097282338570023,
+          "max_absolute": 1.2766711695033628e-06,
+          "relative_denominator_floor": 7.467100000000003e-07
+        },
+        "RBC": {
+          "nrms_percent": 4.3456902019966154e-15,
+          "max_relative_percent": 2.0408163265306168e-13,
+          "max_peak_percent": 2.040816326530474e-13,
+          "max_absolute": 10,
+          "relative_denominator_floor": 4900000000.000332
+        },
+        "saturation": {
+          "nrms_percent": 2.386838184118842e-08,
+          "max_relative_percent": 1.2205964635870978e-06,
+          "max_peak_percent": 1.1119114334880466e-06,
+          "max_absolute": 1.0785540904834079e-08,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 2.3717623514844027e-06,
+          "max_relative_percent": 0.0009811971919138317,
+          "max_peak_percent": 3.922072113537465e-05,
+          "max_absolute": 0.009256325545720756,
+          "relative_denominator_floor": 0.023600600085275144
+        }
+      },
+      "speedup_vs_baseline": 1.159173491044553,
+      "retained": true,
+      "comparison_previous": {
+        "pressure_Pa": {
+          "nrms_percent": 1.4127320445091992e-07,
+          "max_relative_percent": 8.794178917400532e-06,
+          "max_peak_percent": 7.488900166612934e-06,
+          "max_absolute": 0.009256325545720756,
+          "relative_denominator_floor": 0.12360060008527514
+        },
+        "flow_m3_s": {
+          "nrms_percent": 1.4889075872659193e-09,
+          "max_relative_percent": 0.000610078194996467,
+          "max_peak_percent": 1.1483836686422932e-09,
+          "max_absolute": 1.5219284681888148e-14,
+          "relative_denominator_floor": 1.3252787458987072e-09
+        },
+        "area_m2": {
+          "nrms_percent": 9.742171406211138e-10,
+          "max_relative_percent": 8.447402636814905e-06,
+          "max_peak_percent": 1.2012493174069274e-09,
+          "max_absolute": 1.0709857480029061e-14,
+          "relative_denominator_floor": 8.915599222272905e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 3.919647442692324e-06,
+          "max_relative_percent": 0.0038531535718394822,
+          "max_peak_percent": 1.5363304296802896e-05,
+          "max_absolute": 4.561596069763141e-07,
+          "relative_denominator_floor": 2.9691503739286147e-06
+        },
+        "oxygen": {
+          "nrms_percent": 1.0242115865074945e-06,
+          "max_relative_percent": 0.0002164519641521958,
+          "max_peak_percent": 0.00016943054141699962,
+          "max_absolute": 1.043821283748525e-08,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 1.8157661367430665e-06,
+          "max_relative_percent": 0.0009480626610303754,
+          "max_peak_percent": 0.00017097282338570023,
+          "max_absolute": 1.2766711695033628e-06,
+          "relative_denominator_floor": 7.467100000000003e-07
+        },
+        "RBC": {
+          "nrms_percent": 4.3456902019966154e-15,
+          "max_relative_percent": 2.0408163265306168e-13,
+          "max_peak_percent": 2.040816326530474e-13,
+          "max_absolute": 10,
+          "relative_denominator_floor": 4900000000.000332
+        },
+        "saturation": {
+          "nrms_percent": 2.386838184118842e-08,
+          "max_relative_percent": 1.2205964635870978e-06,
+          "max_peak_percent": 1.1119114334880466e-06,
+          "max_absolute": 1.0785540904834079e-08,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 2.3717623514844027e-06,
+          "max_relative_percent": 0.0009811971919138317,
+          "max_peak_percent": 3.922072113537465e-05,
+          "max_absolute": 0.009256325545720756,
+          "relative_denominator_floor": 0.023600600085275144
+        }
+      },
+      "previous_retained_stage": "baseline"
+    },
+    {
+      "stage": "boundary",
+      "simulated_s": 0.2,
+      "wall_times_s": [
+        3.3253250569978263,
+        3.3186697409837507,
+        3.3395448100054637
+      ],
+      "median_wall_s": 3.3253250569978263,
+      "balances": {
+        "node_absolute_m3_s": 1.607668533888662e-17,
+        "node_scaled": 6.530935568811665e-12,
+        "node_checks": 969537,
+        "lumped_absolute_ml_s": 2.2737367544323206e-13,
+        "lumped_scaled": 3.28460040358457e-16,
+        "lumped_checks": 1613678,
+        "equation_norm": 8.467224155269877e-09
+      },
+      "comparison": {
+        "pressure_Pa": {
+          "nrms_percent": 8.55532279573506e-08,
+          "max_relative_percent": 6.498051419329492e-06,
+          "max_peak_percent": 5.314108992952937e-06,
+          "max_absolute": 0.006568270604475401,
+          "relative_denominator_floor": 0.12360060008527514
+        },
+        "flow_m3_s": {
+          "nrms_percent": 1.5212845092953213e-09,
+          "max_relative_percent": 0.000371554334454645,
+          "max_peak_percent": 1.0044870892549969e-09,
+          "max_absolute": 1.3312253899193049e-14,
+          "relative_denominator_floor": 1.3252787458987072e-09
+        },
+        "area_m2": {
+          "nrms_percent": 4.55163598525125e-10,
+          "max_relative_percent": 5.882213082355662e-06,
+          "max_peak_percent": 6.249613246256615e-10,
+          "max_absolute": 5.571904699783192e-15,
+          "relative_denominator_floor": 8.915599222272905e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 2.388420976166461e-06,
+          "max_relative_percent": 0.0031756875441437964,
+          "max_peak_percent": 1.388192440592227e-05,
+          "max_absolute": 4.1217521040692873e-07,
+          "relative_denominator_floor": 2.9691503739286147e-06
+        },
+        "oxygen": {
+          "nrms_percent": 1.252849627556683e-06,
+          "max_relative_percent": 0.0002605921936785283,
+          "max_peak_percent": 0.00020398187023588983,
+          "max_absolute": 1.2566838060619479e-08,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 1.952186081489013e-06,
+          "max_relative_percent": 0.0010125847038726112,
+          "max_peak_percent": 0.00018260867435715487,
+          "max_absolute": 1.3635572322923117e-06,
+          "relative_denominator_floor": 7.467100000000003e-07
+        },
+        "RBC": {
+          "nrms_percent": 4.626901081496998e-15,
+          "max_relative_percent": 2.0408163265306168e-13,
+          "max_peak_percent": 2.040816326530474e-13,
+          "max_absolute": 10,
+          "relative_denominator_floor": 4900000000.000332
+        },
+        "saturation": {
+          "nrms_percent": 2.1998560974805752e-08,
+          "max_relative_percent": 1.1843091817419968e-06,
+          "max_peak_percent": 1.0788552640025187e-06,
+          "max_absolute": 1.0464896060824458e-08,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 1.436308646822697e-06,
+          "max_relative_percent": 0.0008804231223897158,
+          "max_peak_percent": 2.7830947436686017e-05,
+          "max_absolute": 0.006568270604475401,
+          "relative_denominator_floor": 0.023600600085275144
+        }
+      },
+      "speedup_vs_baseline": 1.531972537029731,
+      "retained": true,
+      "comparison_previous": {
+        "pressure_Pa": {
+          "nrms_percent": 9.586727582525229e-08,
+          "max_relative_percent": 6.973631856247944e-06,
+          "max_peak_percent": 5.938567838576324e-06,
+          "max_absolute": 0.00734010549786035,
+          "relative_denominator_floor": 0.12360060030264841
+        },
+        "flow_m3_s": {
+          "nrms_percent": 1.252571356851219e-09,
+          "max_relative_percent": 0.00045792917645366617,
+          "max_peak_percent": 9.242321257461042e-10,
+          "max_absolute": 1.2248651925326794e-14,
+          "relative_denominator_floor": 1.3252787459036693e-09
+        },
+        "area_m2": {
+          "nrms_percent": 7.646715143749408e-10,
+          "max_relative_percent": 6.6986441398698756e-06,
+          "max_peak_percent": 9.736460076926337e-10,
+          "max_absolute": 8.680637588950879e-15,
+          "relative_denominator_floor": 8.915599222270147e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 2.619558710335708e-06,
+          "max_relative_percent": 0.0010552637491969778,
+          "max_peak_percent": 1.1962428228609635e-05,
+          "max_absolute": 3.551825370484707e-07,
+          "relative_denominator_floor": 2.9691508300882215e-06
+        },
+        "oxygen": {
+          "nrms_percent": 2.513541759277894e-07,
+          "max_relative_percent": 4.414032506893314e-05,
+          "max_peak_percent": 3.455132881889022e-05,
+          "max_absolute": 2.1286252231342284e-09,
+          "relative_denominator_floor": 6.160762251119114e-09
+        },
+        "carbon": {
+          "nrms_percent": 1.5173224088339337e-07,
+          "max_relative_percent": 6.452143113876416e-05,
+          "max_peak_percent": 1.1635850971454638e-05,
+          "max_absolute": 8.688606278894895e-08,
+          "relative_denominator_floor": 7.467100000000002e-07
+        },
+        "RBC": {
+          "nrms_percent": 4.436815342435158e-15,
+          "max_relative_percent": 1.2244897959183678e-13,
+          "max_peak_percent": 1.2244897959182843e-13,
+          "max_absolute": 6,
+          "relative_denominator_floor": 4900000000.000332
+        },
+        "saturation": {
+          "nrms_percent": 6.417818272842664e-09,
+          "max_relative_percent": 4.105030851076868e-07,
+          "max_peak_percent": 3.3142072133638363e-07,
+          "max_absolute": 3.2147809969629293e-09,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 1.6094658323715696e-06,
+          "max_relative_percent": 0.0005971679129468986,
+          "max_peak_percent": 3.1101350828930644e-05,
+          "max_absolute": 0.00734010549786035,
+          "relative_denominator_floor": 0.02360060030264841
+        }
+      },
+      "previous_retained_stage": "warm_start"
+    },
+    {
+      "stage": "qr_guarded",
+      "simulated_s": 0.2,
+      "wall_times_s": [
+        3.2997777549899183,
+        3.3170937419927213,
+        3.4502743690100033
+      ],
+      "median_wall_s": 3.3170937419927213,
+      "balances": {
+        "node_absolute_m3_s": 1.7824961342019496e-17,
+        "node_scaled": 6.530935568811665e-12,
+        "node_checks": 969537,
+        "lumped_absolute_ml_s": 2.2737367544323206e-13,
+        "lumped_scaled": 3.9526208424931716e-16,
+        "lumped_checks": 1613678,
+        "equation_norm": 8.467224155269877e-09
+      },
+      "comparison": {
+        "pressure_Pa": {
+          "nrms_percent": 7.759007050184972e-08,
+          "max_relative_percent": 6.00923844898774e-06,
+          "max_peak_percent": 4.9143575545697075e-06,
+          "max_absolute": 0.006074175427784212,
+          "relative_denominator_floor": 0.12360060008527514
+        },
+        "flow_m3_s": {
+          "nrms_percent": 3.048075056411243e-09,
+          "max_relative_percent": 0.0010797504226732952,
+          "max_peak_percent": 2.1749279352818863e-09,
+          "max_absolute": 2.882385766490443e-14,
+          "relative_denominator_floor": 1.3252787458987072e-09
+        },
+        "area_m2": {
+          "nrms_percent": 7.172625826865862e-10,
+          "max_relative_percent": 5.43972627629498e-06,
+          "max_peak_percent": 1.2819570588480996e-09,
+          "max_absolute": 1.1429415356853379e-14,
+          "relative_denominator_floor": 8.915599222272905e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 2.1203649513855568e-06,
+          "max_relative_percent": 0.0033424926624307854,
+          "max_peak_percent": 1.2355031325822783e-05,
+          "max_absolute": 3.668394588096646e-07,
+          "relative_denominator_floor": 2.9691503739286147e-06
+        },
+        "oxygen": {
+          "nrms_percent": 1.289937074374636e-06,
+          "max_relative_percent": 0.000260033944078488,
+          "max_peak_percent": 0.00020354489322645897,
+          "max_absolute": 1.2539916945976393e-08,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 1.9547420784408418e-06,
+          "max_relative_percent": 0.0010125847038726112,
+          "max_peak_percent": 0.00018260867435715487,
+          "max_absolute": 1.3635572322923117e-06,
+          "relative_denominator_floor": 7.467100000000003e-07
+        },
+        "RBC": {
+          "nrms_percent": 7.978581120265124e-15,
+          "max_relative_percent": 1.2040816326529797e-12,
+          "max_peak_percent": 1.2040816326529797e-12,
+          "max_absolute": 59,
+          "relative_denominator_floor": 4900000000.000332
+        },
+        "saturation": {
+          "nrms_percent": 2.7090270047163056e-08,
+          "max_relative_percent": 1.1381747183314818e-06,
+          "max_peak_percent": 9.592128351632698e-07,
+          "max_absolute": 9.30436450108374e-09,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 1.3026193380446777e-06,
+          "max_relative_percent": 0.0019432134794585482,
+          "max_peak_percent": 2.5737377040569418e-05,
+          "max_absolute": 0.006074175427784212,
+          "relative_denominator_floor": 0.023600600085275144
+        }
+      },
+      "speedup_vs_baseline": 1.535774102349343,
+      "retained": false,
+      "comparison_previous": {
+        "pressure_Pa": {
+          "nrms_percent": 1.240395481138396e-08,
+          "max_relative_percent": 5.759222872331108e-07,
+          "max_peak_percent": 4.5263523136668127e-07,
+          "max_absolute": 0.0005594598624156788,
+          "relative_denominator_floor": 0.12360060014030559
+        },
+        "flow_m3_s": {
+          "nrms_percent": 1.941499043840817e-09,
+          "max_relative_percent": 0.0009709102763041601,
+          "max_peak_percent": 1.1704408460185882e-09,
+          "max_absolute": 1.551160376571138e-14,
+          "relative_denominator_floor": 1.3252787459081067e-09
+        },
+        "area_m2": {
+          "nrms_percent": 4.034516240546822e-10,
+          "max_relative_percent": 4.940776553342299e-07,
+          "max_peak_percent": 6.911324304508122e-10,
+          "max_absolute": 6.1618597594140234e-15,
+          "relative_denominator_floor": 8.915599222271716e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 3.7779971400380903e-07,
+          "max_relative_percent": 0.002712483556706773,
+          "max_peak_percent": 1.7347598662164887e-06,
+          "max_absolute": 5.150763104921907e-08,
+          "relative_denominator_floor": 2.969150488912175e-06
+        },
+        "oxygen": {
+          "nrms_percent": 2.677768117433593e-07,
+          "max_relative_percent": 3.443264304398104e-05,
+          "max_peak_percent": 2.293607986684216e-05,
+          "max_absolute": 1.4130373503229432e-09,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 8.424368118794116e-08,
+          "max_relative_percent": 3.4605138260258214e-05,
+          "max_peak_percent": 5.387186051317543e-06,
+          "max_absolute": 4.022665696379324e-08,
+          "relative_denominator_floor": 7.467100000000003e-07
+        },
+        "RBC": {
+          "nrms_percent": 7.597509201269385e-15,
+          "max_relative_percent": 1.2040816326529797e-12,
+          "max_peak_percent": 1.2040816326529797e-12,
+          "max_absolute": 59,
+          "relative_denominator_floor": 4900000000.000332
+        },
+        "saturation": {
+          "nrms_percent": 1.738391800548989e-08,
+          "max_relative_percent": 6.031900122326812e-07,
+          "max_peak_percent": 5.087757248719455e-07,
+          "max_absolute": 4.935124531257884e-09,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 2.0824354587662932e-07,
+          "max_relative_percent": 0.0010627810000991673,
+          "max_peak_percent": 2.370532355489645e-06,
+          "max_absolute": 0.0005594598624156788,
+          "relative_denominator_floor": 0.0236006001403056
+        }
+      },
+      "previous_retained_stage": "boundary",
+      "not_retained_reason": "Gain indistinguishable from run-to-run timing variation; stricter accuracy guard was required."
+    },
+    {
+      "stage": "lu",
+      "simulated_s": 0.2,
+      "wall_times_s": [
+        2.966129884996917,
+        3.0052452690142673,
+        2.9604498249827884
+      ],
+      "median_wall_s": 2.966129884996917,
+      "balances": {
+        "node_absolute_m3_s": 1.6904236528354072e-17,
+        "node_scaled": 6.530935568811665e-12,
+        "node_checks": 969537,
+        "lumped_absolute_ml_s": 2.2737367544323206e-13,
+        "lumped_scaled": 3.270052333944516e-16,
+        "lumped_checks": 1613678,
+        "equation_norm": 8.467224155269877e-09
+      },
+      "comparison": {
+        "pressure_Pa": {
+          "nrms_percent": 8.555329636226674e-08,
+          "max_relative_percent": 6.498051563292948e-06,
+          "max_peak_percent": 5.314109110686307e-06,
+          "max_absolute": 0.006568270749994554,
+          "relative_denominator_floor": 0.12360060008527514
+        },
+        "flow_m3_s": {
+          "nrms_percent": 1.5225082970227466e-09,
+          "max_relative_percent": 0.0003715542923046136,
+          "max_peak_percent": 1.0044870857597235e-09,
+          "max_absolute": 1.3312253852870935e-14,
+          "relative_denominator_floor": 1.3252787458987072e-09
+        },
+        "area_m2": {
+          "nrms_percent": 4.551044625531249e-10,
+          "max_relative_percent": 5.882213207525293e-06,
+          "max_peak_percent": 6.249309227944033e-10,
+          "max_absolute": 5.571633649240071e-15,
+          "relative_denominator_floor": 8.915599222272905e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 2.3884199025751488e-06,
+          "max_relative_percent": 0.0031756875441437964,
+          "max_peak_percent": 1.3881919350531534e-05,
+          "max_absolute": 4.121750603047758e-07,
+          "relative_denominator_floor": 2.9691503739286147e-06
+        },
+        "oxygen": {
+          "nrms_percent": 1.2528495839862423e-06,
+          "max_relative_percent": 0.0002605921936605423,
+          "max_peak_percent": 0.00020398187022181103,
+          "max_absolute": 1.2566838059752117e-08,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 1.9521860805566303e-06,
+          "max_relative_percent": 0.0010125847038726112,
+          "max_peak_percent": 0.00018260867435715487,
+          "max_absolute": 1.3635572322923117e-06,
+          "relative_denominator_floor": 7.467100000000003e-07
+        },
+        "RBC": {
+          "nrms_percent": 1.325102222830206e-14,
+          "max_relative_percent": 2.4081632653059594e-12,
+          "max_peak_percent": 2.4081632653059594e-12,
+          "max_absolute": 118,
+          "relative_denominator_floor": 4900000000.000332
+        },
+        "saturation": {
+          "nrms_percent": 2.1998556493599792e-08,
+          "max_relative_percent": 1.184309156613275e-06,
+          "max_peak_percent": 1.0788552411113223e-06,
+          "max_absolute": 1.0464895838779853e-08,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 1.4363097952372558e-06,
+          "max_relative_percent": 0.0008804231223897158,
+          "max_peak_percent": 2.7830948053276918e-05,
+          "max_absolute": 0.006568270749994554,
+          "relative_denominator_floor": 0.023600600085275144
+        }
+      },
+      "speedup_vs_baseline": 1.7174927806719393,
+      "retained": true,
+      "comparison_previous": {
+        "pressure_Pa": {
+          "nrms_percent": 9.875591349257984e-13,
+          "max_relative_percent": 1.0833316434028408e-10,
+          "max_peak_percent": 8.231917252929405e-11,
+          "max_absolute": 1.0174699127674103e-07,
+          "relative_denominator_floor": 0.12360060014030559
+        },
+        "flow_m3_s": {
+          "nrms_percent": 9.068083972291698e-12,
+          "max_relative_percent": 6.76754841445743e-08,
+          "max_peak_percent": 1.1502397206785949e-11,
+          "max_absolute": 1.5243882545146192e-16,
+          "relative_denominator_floor": 1.3252787459081067e-09
+        },
+        "area_m2": {
+          "nrms_percent": 5.730654218564833e-13,
+          "max_relative_percent": 8.827195478060555e-11,
+          "max_peak_percent": 1.1795910528187355e-12,
+          "max_absolute": 1.0516761073109393e-17,
+          "relative_denominator_floor": 8.915599222271716e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 2.5761506530924464e-11,
+          "max_relative_percent": 4.001229903836838e-07,
+          "max_peak_percent": 1.5744624960056795e-10,
+          "max_absolute": 4.674816089789147e-12,
+          "relative_denominator_floor": 2.969150488912175e-06
+        },
+        "oxygen": {
+          "nrms_percent": 7.875412501835558e-12,
+          "max_relative_percent": 1.3919271377993934e-09,
+          "max_peak_percent": 7.132393287759084e-10,
+          "max_absolute": 4.394097932736152e-14,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 2.1820756258606506e-12,
+          "max_relative_percent": 6.57097023441268e-10,
+          "max_peak_percent": 2.045715015979098e-10,
+          "max_absolute": 1.5275558595817529e-12,
+          "relative_denominator_floor": 7.467100000000003e-07
+        },
+        "RBC": {
+          "nrms_percent": 1.2979820863185663e-14,
+          "max_relative_percent": 2.4081632653059594e-12,
+          "max_peak_percent": 2.4081632653059594e-12,
+          "max_absolute": 118,
+          "relative_denominator_floor": 4900000000.000332
+        },
+        "saturation": {
+          "nrms_percent": 2.426932632667557e-13,
+          "max_relative_percent": 3.999061388970088e-11,
+          "max_peak_percent": 3.9544541753401095e-11,
+          "max_absolute": 3.835820550079916e-13,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 1.657961667443864e-11,
+          "max_relative_percent": 1.2331817955353419e-07,
+          "max_peak_percent": 4.3112035571915557e-10,
+          "max_absolute": 1.0174699127674103e-07,
+          "relative_denominator_floor": 0.0236006001403056
+        }
+      },
+      "previous_retained_stage": "boundary"
+    },
+    {
+      "stage": "characteristics",
+      "simulated_s": 0.2,
+      "wall_times_s": [
+        2.9327178949897643,
+        2.964113230991643,
+        2.970590552984504
+      ],
+      "median_wall_s": 2.964113230991643,
+      "balances": {
+        "node_absolute_m3_s": 1.6904236528354072e-17,
+        "node_scaled": 6.530935568811665e-12,
+        "node_checks": 969537,
+        "lumped_absolute_ml_s": 2.2737367544323206e-13,
+        "lumped_scaled": 3.270052333944516e-16,
+        "lumped_checks": 1613678,
+        "equation_norm": 8.467224155269877e-09
+      },
+      "comparison": {
+        "pressure_Pa": {
+          "nrms_percent": 8.555329636226674e-08,
+          "max_relative_percent": 6.498051563292948e-06,
+          "max_peak_percent": 5.314109110686307e-06,
+          "max_absolute": 0.006568270749994554,
+          "relative_denominator_floor": 0.12360060008527514
+        },
+        "flow_m3_s": {
+          "nrms_percent": 1.5225082970227466e-09,
+          "max_relative_percent": 0.0003715542923046136,
+          "max_peak_percent": 1.0044870857597235e-09,
+          "max_absolute": 1.3312253852870935e-14,
+          "relative_denominator_floor": 1.3252787458987072e-09
+        },
+        "area_m2": {
+          "nrms_percent": 4.551044625531249e-10,
+          "max_relative_percent": 5.882213207525293e-06,
+          "max_peak_percent": 6.249309227944033e-10,
+          "max_absolute": 5.571633649240071e-15,
+          "relative_denominator_floor": 8.915599222272905e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 2.3884199025751488e-06,
+          "max_relative_percent": 0.0031756875441437964,
+          "max_peak_percent": 1.3881919350531534e-05,
+          "max_absolute": 4.121750603047758e-07,
+          "relative_denominator_floor": 2.9691503739286147e-06
+        },
+        "oxygen": {
+          "nrms_percent": 1.2528495839862423e-06,
+          "max_relative_percent": 0.0002605921936605423,
+          "max_peak_percent": 0.00020398187022181103,
+          "max_absolute": 1.2566838059752117e-08,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 1.9521860805566303e-06,
+          "max_relative_percent": 0.0010125847038726112,
+          "max_peak_percent": 0.00018260867435715487,
+          "max_absolute": 1.3635572322923117e-06,
+          "relative_denominator_floor": 7.467100000000003e-07
+        },
+        "RBC": {
+          "nrms_percent": 1.325102222830206e-14,
+          "max_relative_percent": 2.4081632653059594e-12,
+          "max_peak_percent": 2.4081632653059594e-12,
+          "max_absolute": 118,
+          "relative_denominator_floor": 4900000000.000332
+        },
+        "saturation": {
+          "nrms_percent": 2.1998556493599792e-08,
+          "max_relative_percent": 1.184309156613275e-06,
+          "max_peak_percent": 1.0788552411113223e-06,
+          "max_absolute": 1.0464895838779853e-08,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 1.4363097952372558e-06,
+          "max_relative_percent": 0.0008804231223897158,
+          "max_peak_percent": 2.7830948053276918e-05,
+          "max_absolute": 0.006568270749994554,
+          "relative_denominator_floor": 0.023600600085275144
+        }
+      },
+      "speedup_vs_baseline": 1.7186612882238632,
+      "retained": false,
+      "comparison_previous": {
+        "pressure_Pa": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 0.12360060014030295
+        },
+        "flow_m3_s": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 1.325278745908239e-09
+        },
+        "area_m2": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 8.915599222271816e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 2.969150488909747e-06
+        },
+        "oxygen": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 7.467100000000002e-07
+        },
+        "RBC": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0,
+          "relative_denominator_floor": 4900000000.00045
+        },
+        "saturation": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 0.023600600140302967
+        }
+      },
+      "previous_retained_stage": "lu",
+      "not_retained_reason": "Exact result agreement, but only 0.07% median gain; not retained."
+    },
+    {
+      "stage": "transport_refs",
+      "simulated_s": 0.2,
+      "wall_times_s": [
+        2.8969808029942214,
+        2.8300471669936087,
+        2.9499832570145372
+      ],
+      "median_wall_s": 2.8969808029942214,
+      "balances": {
+        "node_absolute_m3_s": 1.6904236528354072e-17,
+        "node_scaled": 6.530935568811665e-12,
+        "node_checks": 969537,
+        "lumped_absolute_ml_s": 2.2737367544323206e-13,
+        "lumped_scaled": 3.270052333944516e-16,
+        "lumped_checks": 1613678,
+        "equation_norm": 8.467224155269877e-09
+      },
+      "comparison": {
+        "pressure_Pa": {
+          "nrms_percent": 8.555329636226674e-08,
+          "max_relative_percent": 6.498051563292948e-06,
+          "max_peak_percent": 5.314109110686307e-06,
+          "max_absolute": 0.006568270749994554,
+          "relative_denominator_floor": 0.12360060008527514
+        },
+        "flow_m3_s": {
+          "nrms_percent": 1.5225082970227466e-09,
+          "max_relative_percent": 0.0003715542923046136,
+          "max_peak_percent": 1.0044870857597235e-09,
+          "max_absolute": 1.3312253852870935e-14,
+          "relative_denominator_floor": 1.3252787458987072e-09
+        },
+        "area_m2": {
+          "nrms_percent": 4.551044625531249e-10,
+          "max_relative_percent": 5.882213207525293e-06,
+          "max_peak_percent": 6.249309227944033e-10,
+          "max_absolute": 5.571633649240071e-15,
+          "relative_denominator_floor": 8.915599222272905e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 2.3884199025751488e-06,
+          "max_relative_percent": 0.0031756875441437964,
+          "max_peak_percent": 1.3881919350531534e-05,
+          "max_absolute": 4.121750603047758e-07,
+          "relative_denominator_floor": 2.9691503739286147e-06
+        },
+        "oxygen": {
+          "nrms_percent": 1.2528495839862423e-06,
+          "max_relative_percent": 0.0002605921936605423,
+          "max_peak_percent": 0.00020398187022181103,
+          "max_absolute": 1.2566838059752117e-08,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 1.9521860805566303e-06,
+          "max_relative_percent": 0.0010125847038726112,
+          "max_peak_percent": 0.00018260867435715487,
+          "max_absolute": 1.3635572322923117e-06,
+          "relative_denominator_floor": 7.467100000000003e-07
+        },
+        "RBC": {
+          "nrms_percent": 1.325102222830206e-14,
+          "max_relative_percent": 2.4081632653059594e-12,
+          "max_peak_percent": 2.4081632653059594e-12,
+          "max_absolute": 118,
+          "relative_denominator_floor": 4900000000.000332
+        },
+        "saturation": {
+          "nrms_percent": 2.1998556493599792e-08,
+          "max_relative_percent": 1.184309156613275e-06,
+          "max_peak_percent": 1.0788552411113223e-06,
+          "max_absolute": 1.0464895838779853e-08,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 1.4363097952372558e-06,
+          "max_relative_percent": 0.0008804231223897158,
+          "max_peak_percent": 2.7830948053276918e-05,
+          "max_absolute": 0.006568270749994554,
+          "relative_denominator_floor": 0.023600600085275144
+        }
+      },
+      "speedup_vs_baseline": 1.7584882367022217,
+      "retained": true,
+      "comparison_previous": {
+        "pressure_Pa": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 0.12360060014030295
+        },
+        "flow_m3_s": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 1.325278745908239e-09
+        },
+        "area_m2": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 8.915599222271816e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 2.969150488909747e-06
+        },
+        "oxygen": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 7.467100000000002e-07
+        },
+        "RBC": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0,
+          "relative_denominator_floor": 4900000000.00045
+        },
+        "saturation": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 0.023600600140302967
+        }
+      },
+      "previous_retained_stage": "lu"
+    },
+    {
+      "stage": "typed_mixing",
+      "simulated_s": 0.2,
+      "wall_times_s": [
+        2.457979714992689,
+        2.4320334370131604,
+        2.4550129720009863
+      ],
+      "median_wall_s": 2.4550129720009863,
+      "balances": {
+        "node_absolute_m3_s": 1.6904236528354072e-17,
+        "node_scaled": 6.530935568811665e-12,
+        "node_checks": 969537,
+        "lumped_absolute_ml_s": 2.2737367544323206e-13,
+        "lumped_scaled": 3.270052333944516e-16,
+        "lumped_checks": 1613678,
+        "equation_norm": 8.467224155269877e-09
+      },
+      "comparison": {
+        "pressure_Pa": {
+          "nrms_percent": 8.555329636226674e-08,
+          "max_relative_percent": 6.498051563292948e-06,
+          "max_peak_percent": 5.314109110686307e-06,
+          "max_absolute": 0.006568270749994554,
+          "relative_denominator_floor": 0.12360060008527514
+        },
+        "flow_m3_s": {
+          "nrms_percent": 1.5225082970227466e-09,
+          "max_relative_percent": 0.0003715542923046136,
+          "max_peak_percent": 1.0044870857597235e-09,
+          "max_absolute": 1.3312253852870935e-14,
+          "relative_denominator_floor": 1.3252787458987072e-09
+        },
+        "area_m2": {
+          "nrms_percent": 4.551044625531249e-10,
+          "max_relative_percent": 5.882213207525293e-06,
+          "max_peak_percent": 6.249309227944033e-10,
+          "max_absolute": 5.571633649240071e-15,
+          "relative_denominator_floor": 8.915599222272905e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 2.3884199025751488e-06,
+          "max_relative_percent": 0.0031756875441437964,
+          "max_peak_percent": 1.3881919350531534e-05,
+          "max_absolute": 4.121750603047758e-07,
+          "relative_denominator_floor": 2.9691503739286147e-06
+        },
+        "oxygen": {
+          "nrms_percent": 1.2528495839862423e-06,
+          "max_relative_percent": 0.0002605921936605423,
+          "max_peak_percent": 0.00020398187022181103,
+          "max_absolute": 1.2566838059752117e-08,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 1.9521860805566303e-06,
+          "max_relative_percent": 0.0010125847038726112,
+          "max_peak_percent": 0.00018260867435715487,
+          "max_absolute": 1.3635572322923117e-06,
+          "relative_denominator_floor": 7.467100000000003e-07
+        },
+        "RBC": {
+          "nrms_percent": 1.325102222830206e-14,
+          "max_relative_percent": 2.4081632653059594e-12,
+          "max_peak_percent": 2.4081632653059594e-12,
+          "max_absolute": 118,
+          "relative_denominator_floor": 4900000000.000332
+        },
+        "saturation": {
+          "nrms_percent": 2.1998556493599792e-08,
+          "max_relative_percent": 1.184309156613275e-06,
+          "max_peak_percent": 1.0788552411113223e-06,
+          "max_absolute": 1.0464895838779853e-08,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 1.4363097952372558e-06,
+          "max_relative_percent": 0.0008804231223897158,
+          "max_peak_percent": 2.7830948053276918e-05,
+          "max_absolute": 0.006568270749994554,
+          "relative_denominator_floor": 0.023600600085275144
+        }
+      },
+      "speedup_vs_baseline": 2.0750630331151863,
+      "retained": true,
+      "comparison_previous": {
+        "pressure_Pa": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 0.12360060014030295
+        },
+        "flow_m3_s": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 1.325278745908239e-09
+        },
+        "area_m2": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 8.915599222271816e-10
+        },
+        "velocity_m_s": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 2.969150488909747e-06
+        },
+        "oxygen": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 6.160762251119115e-09
+        },
+        "carbon": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 7.467100000000002e-07
+        },
+        "RBC": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0,
+          "relative_denominator_floor": 4900000000.00045
+        },
+        "saturation": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 9.700000000000024e-07
+        },
+        "gauge_pressure_Pa": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0,
+          "relative_denominator_floor": 0.023600600140302967
+        }
+      },
+      "previous_retained_stage": "transport_refs"
+    }
+  ],
+  "rejected_qr": {
+    "reason": "Unacceptable gas-state differences with the original mixed-unit stop threshold",
+    "nrms_percent": {
+      "pressure_Pa": 1.0534614696587382e-05,
+      "flow_m3_s": 8.257380233946183e-05,
+      "area_m2": 1.8646392140294324e-05,
+      "velocity_m_s": 0.0007985838265594168,
+      "oxygen": 2.3440726156579945,
+      "carbon": 0.7641145209803213,
+      "RBC": 5.249287226446187e-15,
+      "saturation": 1.1086750478481395
+    },
+    "wall_times_s": [
+      2.8958267330017406,
+      2.9415854699909687,
+      2.91970705499989
+    ]
+  },
+  "long_validation": [
+    {
+      "stage": "baseline",
+      "sim_s": 3.0,
+      "comparison": {
+        "pressure_Pa": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0
+        },
+        "flow_m3_s": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0
+        },
+        "area_m2": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0
+        },
+        "velocity_m_s": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0
+        },
+        "oxygen": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0
+        },
+        "carbon": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0
+        },
+        "RBC": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0
+        },
+        "saturation": {
+          "nrms_percent": 0.0,
+          "max_relative_percent": 0.0,
+          "max_peak_percent": 0.0,
+          "max_absolute": 0.0
+        }
+      },
+      "balances": {
+        "node_absolute_m3_s": 4.710497179897513e-15,
+        "node_scaled": 3.3768995866004943e-09,
+        "node_checks": 2893089,
+        "lumped_absolute_ml_s": 2.2737367544323206e-13,
+        "lumped_scaled": 3.2672590927899803e-16,
+        "lumped_checks": 4820488,
+        "equation_norm": 8.467223042230585e-09
+      }
+    },
+    {
+      "stage": "typed_mixing",
+      "sim_s": 3.0,
+      "comparison": {
+        "pressure_Pa": {
+          "nrms_percent": 3.952446288212804e-08,
+          "max_relative_percent": 4.225443292722942e-06,
+          "max_peak_percent": 3.1940957066876115e-06,
+          "max_absolute": 0.004071857110830024
+        },
+        "flow_m3_s": {
+          "nrms_percent": 6.384227545779895e-09,
+          "max_relative_percent": 0.0003715542923046136,
+          "max_peak_percent": 6.671513094035872e-09,
+          "max_absolute": 8.841614506510664e-14
+        },
+        "area_m2": {
+          "nrms_percent": 2.0555086485057806e-09,
+          "max_relative_percent": 3.57114805905434e-06,
+          "max_peak_percent": 2.8946331172213243e-09,
+          "max_absolute": 2.604703562211763e-14
+        },
+        "velocity_m_s": {
+          "nrms_percent": 2.0694631386550548e-06,
+          "max_relative_percent": 0.0012275911021113301,
+          "max_peak_percent": 1.3881919350531534e-05,
+          "max_absolute": 4.121750603047758e-07
+        },
+        "oxygen": {
+          "nrms_percent": 4.755957955920401e-08,
+          "max_relative_percent": 4.9797702602327e-06,
+          "max_peak_percent": 3.432239463404381e-06,
+          "max_absolute": 2.1022210708321332e-10
+        },
+        "carbon": {
+          "nrms_percent": 1.6509386202584314e-08,
+          "max_relative_percent": 7.129295206981641e-06,
+          "max_peak_percent": 8.311813242859588e-07,
+          "max_absolute": 6.206514066575686e-09
+        },
+        "RBC": {
+          "nrms_percent": 1.5694548023460744e-13,
+          "max_relative_percent": 2.408163265306085e-12,
+          "max_peak_percent": 2.4081632653057623e-12,
+          "max_absolute": 118
+        },
+        "saturation": {
+          "nrms_percent": 1.329126446937552e-08,
+          "max_relative_percent": 5.664987688625518e-07,
+          "max_peak_percent": 4.978560633624548e-07,
+          "max_absolute": 4.829203814615823e-09
+        }
+      },
+      "balances": {
+        "node_absolute_m3_s": 1.7278625091040473e-17,
+        "node_scaled": 6.530935568811665e-12,
+        "node_checks": 2893089,
+        "lumped_absolute_ml_s": 2.2737367544323206e-13,
+        "lumped_scaled": 3.270052333944516e-16,
+        "lumped_checks": 4820488,
+        "equation_norm": 8.467224155269877e-09
+      }
+    },
+    {
+      "stage": "baseline",
+      "native_sim_s": 1.0,
+      "native_wall_s": 26.996169557998655
+    },
+    {
+      "stage": "typed_mixing",
+      "native_sim_s": 1.0,
+      "native_wall_s": 12.053618207981344
+    }
+  ],
+  "long_comparison": {
+    "pressure_Pa": {
+      "nrms_percent": 3.9524462882128724e-08,
+      "max_relative_percent": 4.225443292722942e-06,
+      "max_peak_percent": 3.1940957066876115e-06,
+      "max_absolute": 0.004071857110830024,
+      "relative_denominator_floor": 0.12748074837909856
+    },
+    "flow_m3_s": {
+      "nrms_percent": 6.384227545779879e-09,
+      "max_relative_percent": 0.0003715542923046136,
+      "max_peak_percent": 6.671513094035872e-09,
+      "max_absolute": 8.841614506510664e-14,
+      "relative_denominator_floor": 1.3252787458987072e-09
+    },
+    "area_m2": {
+      "nrms_percent": 2.055508648505767e-09,
+      "max_relative_percent": 3.57114805905434e-06,
+      "max_peak_percent": 2.8946331172213243e-09,
+      "max_absolute": 2.604703562211763e-14,
+      "relative_denominator_floor": 8.998389283655138e-10
+    },
+    "velocity_m_s": {
+      "nrms_percent": 2.069463138655066e-06,
+      "max_relative_percent": 0.0012275911021113301,
+      "max_peak_percent": 1.3881919350531534e-05,
+      "max_absolute": 4.121750603047758e-07,
+      "relative_denominator_floor": 2.9691503739286147e-06
+    },
+    "oxygen": {
+      "nrms_percent": 4.755957955920926e-08,
+      "max_relative_percent": 4.9797702602327e-06,
+      "max_peak_percent": 3.432239463404381e-06,
+      "max_absolute": 2.1022210708321332e-10,
+      "relative_denominator_floor": 6.124925411663949e-09
+    },
+    "carbon": {
+      "nrms_percent": 1.650938620257996e-08,
+      "max_relative_percent": 7.129295206981641e-06,
+      "max_peak_percent": 8.311813242859588e-07,
+      "max_absolute": 6.206514066575686e-09,
+      "relative_denominator_floor": 7.467100000000003e-07
+    },
+    "RBC": {
+      "nrms_percent": 1.5694548023460744e-13,
+      "max_relative_percent": 2.408163265306085e-12,
+      "max_peak_percent": 2.4081632653057623e-12,
+      "max_absolute": 118,
+      "relative_denominator_floor": 4900000000.000732
+    },
+    "saturation": {
+      "nrms_percent": 1.3291264469372721e-08,
+      "max_relative_percent": 5.664987688625518e-07,
+      "max_peak_percent": 4.978560633624548e-07,
+      "max_absolute": 4.829203814615823e-09,
+      "relative_denominator_floor": 9.700000000000024e-07
+    },
+    "gauge_pressure_Pa": {
+      "nrms_percent": 5.349430675293775e-07,
+      "max_relative_percent": 0.00015388178324065433,
+      "max_peak_percent": 1.4817125991834404e-05,
+      "max_absolute": 0.004071857110830024,
+      "relative_denominator_floor": 0.027480748379098557
+    }
+  },
+  "final_checks": {
+    "final_checks/smoke_san.json": [
+      {
+        "case": "implicit_2ms",
+        "duration_s": 0.002,
+        "histories": 136,
+        "last_saved_s": 0.0025,
+        "finite_nonnegative": true
+      },
+      {
+        "case": "implicit_5ms",
+        "duration_s": 0.005,
+        "histories": 136,
+        "last_saved_s": 0.0055,
+        "finite_nonnegative": true
+      },
+      {
+        "case": "parameters_from_CO2_file",
+        "duration_s": 0.005,
+        "histories": 136,
+        "last_saved_s": 0.0055,
+        "finite_nonnegative": true
+      },
+      {
+        "case": "regression_legacy",
+        "duration_s": 0.002,
+        "histories": 136,
+        "last_saved_s": 0.0025,
+        "finite_nonnegative": true
+      },
+      {
+        "case": "regression_albanese2016",
+        "duration_s": 0.002,
+        "histories": 136,
+        "last_saved_s": 0.0025,
+        "finite_nonnegative": true
+      },
+      {
+        "case": "missing_relaxation",
+        "rejected": true,
+        "message": "custom_output: Implicit gas solver requires gas_fractions, gas_partition, gas_solubility, gas_relaxation and gas_pulmonary rows"
+      },
+      {
+        "case": "malformed_partition",
+        "rejected": true,
+        "message": "custom_output: gas_partition: incorrect parameter count"
+      },
+      {
+        "case": "zero_exchange_time",
+        "rejected": true,
+        "message": "custom_output: Implicit gas parameters must be finite and positive"
+      },
+      {
+        "case": "unknown_solver",
+        "rejected": true,
+        "message": "custom_output: gas_solver requires implicit|legacy"
+      }
+    ],
+    "final_checks/test_hydraulic_optimization_san.log": "Hydraulic optimization: state/history and linear/Olufsen boundary checks passed; max flow error=6.43745e-19, derivative relative error=4.37477e-10\n",
+    "final_checks/test_albanese_gas_san.log": "Albanese curve, coupling, units, capacity, conservation and input checks passed\n",
+    "final_checks/histories.json": [
+      {
+        "label": "baseline",
+        "sim_s": 1.0,
+        "wall_s": 26.647366725985194,
+        "histories": 136,
+        "max_file_nrms_percent": 0.0,
+        "max_point_relative_percent": 0.0,
+        "files": {
+          "heart_kim_lit/HCO3_pla/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_pla/arteriole.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_pla/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_pla/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_pla/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_pla/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_pla/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HbCO2/arteriole.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HbCO2/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HbCO2/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HbCO2/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HbCO2/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HbCO2/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/arteriole.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_rbc/arteriole.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_rbc/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_rbc/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_rbc/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_rbc/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_rbc/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/arteriole.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/arteriole.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/arteriole.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/arteriole.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          }
+        }
+      },
+      {
+        "label": "final",
+        "sim_s": 1.0,
+        "wall_s": 12.041277623007772,
+        "histories": 136,
+        "max_file_nrms_percent": 1.98061812459003e-05,
+        "max_point_relative_percent": 0.00011306298865470027,
+        "files": {
+          "heart_kim_lit/HCO3_pla/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_pla/arteriole.txt": {
+            "nrms_percent": 2.454024703987472e-06,
+            "max_relative_percent": 1.8062081350957784e-05
+          },
+          "p8/HCO3_pla/c3.txt": {
+            "nrms_percent": 3.437952662484142e-07,
+            "max_relative_percent": 1.5380460437195572e-06
+          },
+          "p8/HCO3_pla/venulare.txt": {
+            "nrms_percent": 2.195772998325046e-07,
+            "max_relative_percent": 1.5380460437195572e-06
+          },
+          "p8/HCO3_pla/c2.txt": {
+            "nrms_percent": 1.4696720309078927e-07,
+            "max_relative_percent": 1.5911989289743833e-06
+          },
+          "p8/HCO3_pla/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_pla/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HbCO2/arteriole.txt": {
+            "nrms_percent": 3.5105706473245494e-06,
+            "max_relative_percent": 2.3796196911601886e-05
+          },
+          "p8/HbCO2/c3.txt": {
+            "nrms_percent": 3.821893213567563e-07,
+            "max_relative_percent": 2.1013117616736833e-06
+          },
+          "p8/HbCO2/venulare.txt": {
+            "nrms_percent": 2.9392311486694716e-07,
+            "max_relative_percent": 2.1013117616736833e-06
+          },
+          "p8/HbCO2/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HbCO2/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HbCO2/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/arteriole.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_rbc/arteriole.txt": {
+            "nrms_percent": 1.98061812459003e-05,
+            "max_relative_percent": 0.00011306298865470027
+          },
+          "p8/HCO3_rbc/c3.txt": {
+            "nrms_percent": 7.954356069087975e-07,
+            "max_relative_percent": 6.657231590731803e-06
+          },
+          "p8/HCO3_rbc/venulare.txt": {
+            "nrms_percent": 7.441612004862729e-07,
+            "max_relative_percent": 6.657231590731803e-06
+          },
+          "p8/HCO3_rbc/c2.txt": {
+            "nrms_percent": 8.228105355411251e-07,
+            "max_relative_percent": 5.675635605768785e-06
+          },
+          "p8/HCO3_rbc/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_rbc/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/arteriole.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/arteriole.txt": {
+            "nrms_percent": 2.8778485241586324e-06,
+            "max_relative_percent": 1.8826714616180977e-05
+          },
+          "p8/CO2_pla/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/arteriole.txt": {
+            "nrms_percent": 7.087586508200634e-06,
+            "max_relative_percent": 5.557164303454433e-05
+          },
+          "p8/CO2_rbc/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/arteriole.txt": {
+            "nrms_percent": 1.4927019892057168e-05,
+            "max_relative_percent": 8.284553353838651e-05
+          },
+          "p8/C_Plasma_O2/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          }
+        }
+      },
+      {
+        "label": "clang",
+        "sim_s": 1.0,
+        "wall_s": 25.95095926299109,
+        "histories": 136,
+        "max_file_nrms_percent": 1.98061812459003e-05,
+        "max_point_relative_percent": 0.00011306298865470027,
+        "files": {
+          "heart_kim_lit/HCO3_pla/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_pla/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HbCO2/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HB_O2/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/HCO3_rbc/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/RBC/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_pla/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/CO2_rbc/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/t3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/e_rv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/e_lv.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/pul_vein.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/pul_cap.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/c_pa.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/e_la.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/pul_art.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/t1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/t2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "heart_kim_lit/C_Plasma_O2/t4.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_pla/arteriole.txt": {
+            "nrms_percent": 2.454024703987472e-06,
+            "max_relative_percent": 1.8062081350957784e-05
+          },
+          "p8/HCO3_pla/c3.txt": {
+            "nrms_percent": 3.437952662484142e-07,
+            "max_relative_percent": 1.5380460437195572e-06
+          },
+          "p8/HCO3_pla/venulare.txt": {
+            "nrms_percent": 2.195772998325046e-07,
+            "max_relative_percent": 1.5380460437195572e-06
+          },
+          "p8/HCO3_pla/c2.txt": {
+            "nrms_percent": 1.4696720309078927e-07,
+            "max_relative_percent": 1.5911989289743833e-06
+          },
+          "p8/HCO3_pla/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_pla/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HbCO2/arteriole.txt": {
+            "nrms_percent": 3.5105706473245494e-06,
+            "max_relative_percent": 2.3796196911601886e-05
+          },
+          "p8/HbCO2/c3.txt": {
+            "nrms_percent": 3.821893213567563e-07,
+            "max_relative_percent": 2.1013117616736833e-06
+          },
+          "p8/HbCO2/venulare.txt": {
+            "nrms_percent": 2.9392311486694716e-07,
+            "max_relative_percent": 2.1013117616736833e-06
+          },
+          "p8/HbCO2/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HbCO2/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HbCO2/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/arteriole.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HB_O2/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_rbc/arteriole.txt": {
+            "nrms_percent": 1.98061812459003e-05,
+            "max_relative_percent": 0.00011306298865470027
+          },
+          "p8/HCO3_rbc/c3.txt": {
+            "nrms_percent": 7.954356069087975e-07,
+            "max_relative_percent": 6.657231590731803e-06
+          },
+          "p8/HCO3_rbc/venulare.txt": {
+            "nrms_percent": 7.441612004862729e-07,
+            "max_relative_percent": 6.657231590731803e-06
+          },
+          "p8/HCO3_rbc/c2.txt": {
+            "nrms_percent": 8.228105355411251e-07,
+            "max_relative_percent": 5.675635605768785e-06
+          },
+          "p8/HCO3_rbc/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/HCO3_rbc/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/arteriole.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/RBC/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/arteriole.txt": {
+            "nrms_percent": 2.8778485241586324e-06,
+            "max_relative_percent": 1.8826714616180977e-05
+          },
+          "p8/CO2_pla/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_pla/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/arteriole.txt": {
+            "nrms_percent": 7.087586508200634e-06,
+            "max_relative_percent": 5.557164303454433e-05
+          },
+          "p8/CO2_rbc/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/CO2_rbc/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/arteriole.txt": {
+            "nrms_percent": 1.4927019892057168e-05,
+            "max_relative_percent": 8.284553353838651e-05
+          },
+          "p8/C_Plasma_O2/c3.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/venulare.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/c2.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/c1.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          },
+          "p8/C_Plasma_O2/capillary.txt": {
+            "nrms_percent": 0.0,
+            "max_relative_percent": 0.0
+          }
+        }
+      }
+    ],
+    "final_checks/history_clang.log": "[O] SOLVER: MacCormack\n [*] case: _hydro_final_7t0rziz5\n   + load: OK\n   + run: OK\n",
+    "final_checks/history_baseline.log": "[O] SOLVER: MacCormack\n [*] case: _hydro_final_7t0rziz5\n   + load: OK\n   + run: OK\n",
+    "final_checks/test_transport_mixing_san.log": "Typed mixing: all eight species, inflow conservation, closed edges, reversed/stagnant flow and master-node checks passed\n",
+    "final_checks/test_gas_capillary_san.log": "Capillary checks: systemic/pulmonary, forward/reverse flow, varying RBC; serial/parallel states identical; worker rollback passed; max gas balance=3.92739e-12, RBC relative balance=8.50277e-18\n",
+    "final_checks/history_final.log": "[O] SOLVER: MacCormack\n [*] case: _hydro_final_7t0rziz5\n   + load: OK\n   + run: OK\n",
+    "final_checks/smoke_san.log": "implicit_2ms: 2.0 ms; 136 histories finite, nonnegative and bounded\nimplicit_5ms: 5.0 ms; 136 histories finite, nonnegative and bounded\nparameters_from_CO2_file: 5.0 ms; 136 histories finite, nonnegative and bounded\nregression_legacy: 2.0 ms; 136 histories finite, nonnegative and bounded\nregression_albanese2016: 2.0 ms; 136 histories finite, nonnegative and bounded\nAll millisecond integration, regression and input failure checks passed\n",
+    "final_checks/passed.json": {
+      "asan_ubsan": true,
+      "clang_serial": true,
+      "parameter_files_unchanged": true,
+      "production_sha256": "68649fcb8ee114dbdbf347dd46d2d38422599525a8274a75aac45b98150c8f42"
+    },
+    "final_checks/test_gas_optimization_san.log": "Optimization checks: 640 source steps, 0 reference comparisons; max Jacobian error=3.85802e-08, O2/CO2 balance error=2.21755e-12, original equation residual=9.96903e-11, reference difference=0, direct reduced solves=640, reduced Jacobian error=2.59727e-09\n",
+    "final_checks/test_conservative_gas_san.log": "Implicit gas: parsing, stiff relaxation, positivity, beta scaling, conservation and metabolism passed\n"
+  }
+}

@@ -726,6 +726,45 @@ void moc_edge::boundary_substitute_end(double t_act, double p, double q)
 }
 
 //--------------------------------------------------------------
+std::array<double,2> moc_edge::JunctionBoundary::evaluate(double pressure) const
+{
+    double area,derivative;
+    if(olufsen) {
+        const double denominator=1.-(pressure-reference_pressure)/wall;
+        area=nominal_area/(denominator*denominator);
+        derivative=2.*area/(wall*denominator);
+    } else {
+        const double root=std::sqrt(nominal_area)+(pressure-reference_pressure)*linear_area_factor;
+        area=root*root;derivative=2.*root*linear_area_factor;
+    }
+    const double power=std::pow(area,exponent);
+    return {area*(constant+coefficient*power),
+            derivative*(constant+coefficient*(1.+exponent)*power)};
+}
+
+moc_edge::JunctionBoundary moc_edge::prepare_junction(bool start,double t_act)
+{
+    const double dt=t_act-time.back();
+    double source;
+    const double characteristic=start?W2R(0,dt,source):W1L(nx-1,dt,source);
+    const double nominal=start?Ans:Ane,thickness=start?sns:sne,diameter=start?dns:dne;
+    const double sign=start?1.:-1.;
+    JunctionBoundary result{};
+    result.olufsen=material_type==1;result.nominal_area=nominal;result.reference_pressure=p0;
+    if(result.olufsen) {
+        result.wall=(k1*std::exp(k2*diameter*.5)+k3)/(1.-nu_p*nu_p);
+        result.exponent=-.25;
+        result.coefficient=-sign*2.*std::sqrt(2.*std::sqrt(nominal)*result.wall/rho);
+    } else {
+        result.linear_area_factor=nominal/(thickness*beta);
+        result.exponent=.25;
+        result.coefficient=sign*4.*std::sqrt(beta*thickness/(2.*rho*nominal));
+    }
+    result.constant=-2.*dt*source+2.*characteristic
+        -result.coefficient*std::pow(nominal,result.exponent);
+    return result;
+}
+
 vector<double> moc_edge::boundary_junction_start(double pp, double t_act)
 {
 	// actual time step
@@ -1148,6 +1187,6 @@ double moc_edge::boundary_velocity_end(double dt, double v_in, double &q_in)
 
 //--------------------------------------------------------------
 //get functions for the transport
-vector<double> moc_edge::get_velocity(){return this-> v;}
-vector<double> moc_edge::get_area(){return this-> A;}
-vector<double> moc_edge::get_new_velocity(){return this-> vnew;}
+const vector<double>& moc_edge::get_velocity() const{return this->v;}
+const vector<double>& moc_edge::get_area() const{return this->A;}
+const vector<double>& moc_edge::get_new_velocity() const{return this->vnew;}

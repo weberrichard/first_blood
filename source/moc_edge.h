@@ -22,6 +22,7 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <array>
 
 #include "/usr/include/eigen3/Eigen/Eigen"
 
@@ -153,6 +154,15 @@ public:
 	vector<double> boundary_junction_start(double pp, double t_act);
 	vector<double> boundary_junction_end(double pp, double t_act);
 
+    // Characteristic data are fixed during one scalar junction Newton solve.
+    struct JunctionBoundary {
+        bool olufsen;
+        double nominal_area, reference_pressure, wall, linear_area_factor;
+        double constant, coefficient, exponent;
+        std::array<double,2> evaluate(double pressure) const;
+    };
+    JunctionBoundary prepare_junction(bool start,double t_act);
+
 	// if the node is upstream pressure BC, this calculates the velocity
 	double boundary_pressure_start(double dt, double p_in);
 	double boundary_pressure_end(double dt, double p_in);
@@ -168,9 +178,10 @@ public:
 	double f_flowrate_end(double pp, double q_in, double dt, double &v_e);
 
 	//get function(s) for transport
-	vector<double> get_velocity();
-	vector<double> get_area();
-	vector<double> get_new_velocity();
+    // References remain valid only until the edge vectors are modified.
+	const vector<double>& get_velocity() const;
+	const vector<double>& get_area() const;
+	const vector<double>& get_new_velocity() const;
 
 	vector<double> RBC_edge_fi, RBC_edge_finew; //RBC concentration SI
 	vector<double> HBsat_edge, HBsat_edge_new; //Haemoglobin saturation [1]

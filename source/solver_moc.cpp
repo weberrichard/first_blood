@@ -231,6 +231,8 @@ void solver_moc::boundaries(int e_idx, double t_act)
 					}
 				}
 
+                nodes[node_idx[i]]->current_pressure=p_in;
+                nodes[node_idx[i]]->current_flow_rate=q_in;
 				if(nodes[node_idx[i]]->do_save_memory)
 				{
 					nodes[node_idx[i]]->save_field_variables(t_act,p_in,q_in);
@@ -256,6 +258,8 @@ void solver_moc::boundaries(int e_idx, double t_act)
 					q_out = edges[edge_index]->boundary_pressure_end(dt,p_out);
 				}
 
+                nodes[node_idx[i]]->current_pressure=p_out;
+                nodes[node_idx[i]]->current_flow_rate=q_out;
 				if(nodes[node_idx[i]]->do_save_memory)
 				{
 					nodes[node_idx[i]]->save_field_variables(t_act,p_out,q_out);
@@ -286,7 +290,12 @@ void solver_moc::boundaries(int e_idx, double t_act)
 				if(!is_res) // NEWEST VERSION with one equation NEWTON (Re=0, Rs=0)
 				{
 					// initial condition for pressure
-					double pp = nodes[node_idx[i]]->pressure.back();
+					double pp = nodes[node_idx[i]]->current_pressure;
+
+                    std::vector<moc_edge::JunctionBoundary> incoming,outgoing;
+                    incoming.reserve(n1);outgoing.reserve(n2);
+                    for(int j=0;j<n1;++j)incoming.push_back(edges[nodes[node_idx[i]]->edge_in[j]]->prepare_junction(false,t_act));
+                    for(int j=0;j<n2;++j)outgoing.push_back(edges[nodes[node_idx[i]]->edge_out[j]]->prepare_junction(true,t_act));
 
 					int k=0;
 					double dp=1e10,f;
@@ -299,15 +308,13 @@ void solver_moc::boundaries(int e_idx, double t_act)
 						// edges
 						for(int j=0; j<n1; j++)
 						{
-							int ei = nodes[node_idx[i]]->edge_in[j];
-							vector<double> v = edges[ei]->boundary_junction_end(pp, t_act); // [q,dq]
+							const auto v = incoming[j].evaluate(pp); // [q,dq/dp]
 							f  += v[0];
 							df += v[1];
 						}
 						for(int j=0; j<n2; j++)
 						{
-							int ei = nodes[node_idx[i]]->edge_out[j];
-							vector<double> v = edges[ei]->boundary_junction_start(pp, t_act); // [q,dq]
+							const auto v = outgoing[j].evaluate(pp); // [q,dq/dp]
 							f  -= v[0];
 							df -= v[1];
 						}
@@ -346,8 +353,8 @@ void solver_moc::boundaries(int e_idx, double t_act)
 				{
 					// initalization
 					//edges[e_idx]->y[i](0) = nodes[node_idx[i]]->volume_flow_rate.back()*1.e6; // q [ml/s]
-					edges[e_idx]->y[i](0) = nodes[node_idx[i]]->volume_flow_rate.back(); // q [m3/s]
-					edges[e_idx]->y[i](1) = nodes[node_idx[i]]->pressure.back(); // p
+					edges[e_idx]->y[i](0) = nodes[node_idx[i]]->current_flow_rate; // q [m3/s]
+					edges[e_idx]->y[i](1) = nodes[node_idx[i]]->current_pressure; // p
 					for(int j=0; j<n1; j++)
 					{
 						int ei = nodes[node_idx[i]]->edge_in[j];

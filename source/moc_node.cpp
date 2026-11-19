@@ -40,6 +40,8 @@ void moc_node::initialization(double p_init, double RBC_init, double HBsat_init,
    	pressure.push_back(pressure_out);
    }
    volume_flow_rate.push_back(0.);
+   current_pressure=pressure.back();
+   current_flow_rate=0.;
 
    //upstream_boundary = -1;
    is_master_node = false;
@@ -93,6 +95,8 @@ vector<double> moc_node::boundary_coefficients()
 void moc_node::boundary_variables(double p, double tact)
 {
 	double q = (p-p0)/R * Ri;
+    current_pressure=p;
+    current_flow_rate=q;
 
 	if(do_save_memory)
 	{
@@ -105,6 +109,8 @@ void moc_node::boundary_variables(double p, double tact)
 //--------------------------------------------------------------
 void moc_node::save_field_variables(double t, double p, double q)
 {
+    current_pressure=p;
+    current_flow_rate=q;
 	time.push_back(t);
 	pressure.push_back(p);
 	volume_flow_rate.push_back(q);

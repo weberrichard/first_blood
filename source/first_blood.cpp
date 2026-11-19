@@ -517,6 +517,8 @@ void first_blood::solve_lum_newton(int index, double t_act)
 	int n = lum[index]->number_of_nodes;
 	int l = lum[index]->number_of_elastance;
 	int k = lum[index]->boundary_indices.size();
+    const bool switching_model=std::any_of(lum[index]->edges.begin(),lum[index]->edges.end(),
+        [](const solver_lumped::edge* edge){return edge->type_code==5 || edge->type_code==6 || edge->type_code==11;});
 
 	// setting initial conditions for lumped part
 	lum[index]->initialization_newton(t_act);
@@ -579,7 +581,16 @@ void first_blood::solve_lum_newton(int index, double t_act)
 		// cout << "f" << endl << lum[index]->f << endl;
 
 		// actually solving the Newton's technique
-		VectorXd dx = lum[index]->Jac.colPivHouseholderQr().solve(-lum[index]->f);
+        VectorXd dx;
+        if(switching_model) {
+            dx=lum[index]->Jac.colPivHouseholderQr().solve(-lum[index]->f);
+        } else {
+            dx=lum[index]->Jac.partialPivLu().solve(-lum[index]->f);
+            const double linear_residual=(lum[index]->Jac*dx+lum[index]->f).norm();
+            if(!dx.allFinite() || !std::isfinite(linear_residual) ||
+               linear_residual>1.e-10*std::max(1.,lum[index]->f.norm()))
+                dx=lum[index]->Jac.colPivHouseholderQr().solve(-lum[index]->f);
+        }
 		lum[index]->x += dx;
 
 		//cout << " ITERATION END " << endl;
@@ -1304,7 +1315,7 @@ void first_blood::load_initials()
 
 //transport stuff
 //-------------------------------------------
-void Transport_1D::update_fi(vector<double> v, vector<double>& fi, vector<double>& fi_new, double l, double dt, double fiStart, double fiEnd){
+void Transport_1D::update_fi(const vector<double>& v, vector<double>& fi, vector<double>& fi_new, double l, double dt, double fiStart, double fiEnd){
     int n = v.size();
     double dx = l / (n - 1);
     //vector<double> fi_tmp = fi_new; //this will be the new fi
